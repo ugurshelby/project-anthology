@@ -152,11 +152,11 @@ const ArchiveCard: React.FC<{
           <motion.img
             layoutId={`hero-image-${story.id}`}
             src={candidates[Math.min(candidateIndex, Math.max(0, candidates.length - 1))]}
-            srcSet={undefined}
+            srcSet={buildSrcSet(heroRaw)}
             sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
             alt={`${story.title} — ${story.year}`}
-            loading="lazy"
-            fetchPriority={index < 3 ? "high" : "low"}
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : index < 3 ? "high" : "low"}
             referrerPolicy="no-referrer"
             decoding="async"
             onLoad={() => setLoaded(true)}

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
-import HeroSection from './components/HeroSection';
-import ArchiveSection from './components/ArchiveSection';
-import StoryModal from './components/StoryModal';
+const HeroSection = React.lazy(() => import('./components/HeroSection'));
+const ArchiveSection = React.lazy(() => import('./components/ArchiveSection'));
+const StoryModal = React.lazy(() => import('./components/StoryModal'));
 import { Story } from './types';
 import { mockStories } from './data/mockData';
 
@@ -75,13 +75,17 @@ const Shell: React.FC = () => {
       </nav>
 
       <main className="relative z-10">
-        <HeroSection />
-        <ArchiveSection onStorySelect={handleSelect} />
+        <Suspense fallback={<div />}> 
+          <HeroSection />
+          <ArchiveSection onStorySelect={handleSelect} />
+        </Suspense>
       </main>
 
       <AnimatePresence>
         {activeStory && (
-          <StoryModal story={activeStory} onClose={handleClose} />
+          <Suspense fallback={<div />}> 
+            <StoryModal story={activeStory} onClose={handleClose} />
+          </Suspense>
         )}
       </AnimatePresence>
 
