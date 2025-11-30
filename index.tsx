@@ -11,6 +11,7 @@ import '@fontsource/playfair-display/400-italic.css';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -21,5 +22,6 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <BrowserRouter>
     <App />
+    <SpeedInsights />
   </BrowserRouter>
 );
