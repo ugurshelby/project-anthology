@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { Story, StoryContent } from '../types';
-import { buildHeroCandidates, buildContentCandidates, buildLocalResponsiveSrcSet, defaultSizes, aspectForLayout } from '../utils/images';
+import { buildHeroCandidates, buildContentCandidates, buildLocalResponsiveSrcSet, defaultSizes, aspectForLayout, getLocalWebpPath, getUnsplashVariant } from '../utils/images';
 
 interface StoryModalProps {
   story: Story;
