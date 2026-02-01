@@ -12,6 +12,34 @@ dist
 dist-ssr
 *.local
 
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Test coverage
+coverage
+.nyc_output
+
+# Playwright
+/playwright-report/
+/playwright/.cache/
+/test-results/screenshots/
+/test-results/videos/
+/test-results/traces/
+
+# Test results (keep reports, ignore artifacts)
+# Keep LATEST_REPORT files for easy access
+# /test-results/LATEST_REPORT.*
+# Ignore individual timestamped reports (can be regenerated)
+/test-results/*-report-*.json
+/test-results/*-report-*.md
+/test-results/coverage/
+/test-results/logs/
+/test-results/screenshots/
+/test-results/videos/
+/test-results/traces/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

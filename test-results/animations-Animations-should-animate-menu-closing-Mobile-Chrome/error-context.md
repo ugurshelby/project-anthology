@@ -1,0 +1,103 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation "Main navigation" [ref=e4]:
+    - button "Go to home page" [ref=e5] [cursor=pointer]: Project Anthology /// EST. 2026
+    - button "Toggle menu" [ref=e7] [cursor=pointer]: Menu
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e16]:
+        - generic [ref=e19]: The Formula 1 Narrative
+        - heading "Anthology" [level=1] [ref=e21]
+        - paragraph [ref=e22]: Beyond the checkered flag.
+      - generic [ref=e27]: Scroll to Initialize
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - heading "The Archive" [level=2] [ref=e32]
+          - paragraph [ref=e33]: Sector 2 /// Classified Historical Records
+        - generic [ref=e35]:
+          - button "Filter stories by All category" [pressed] [ref=e36] [cursor=pointer]: All
+          - button "Filter stories by Rivalry category" [ref=e37] [cursor=pointer]: Rivalry
+          - button "Filter stories by Tragedy category" [ref=e38] [cursor=pointer]: Tragedy
+          - button "Filter stories by Myth category" [ref=e39] [cursor=pointer]: Myth
+      - generic [ref=e40]:
+        - 'button "View story: The Divine Lap from 1988" [ref=e41] [cursor=pointer]':
+          - img "The Divine Lap — 1988" [ref=e44]
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e50]: Rec_01
+              - generic [ref=e51]: SENNA-MO...
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - generic [ref=e54]: "1988"
+                - generic [ref=e56]: Legend
+              - heading "The Divine Lap" [level=3] [ref=e57]
+              - paragraph [ref=e58]: Ayrton Senna's transcendental qualification lap at Monaco, 1988. A moment where man and machine became one, before the crash that brought him back to earth.
+        - 'button "View story: Fire & Ice from 1976" [ref=e60] [cursor=pointer]':
+          - img "Fire & Ice — 1976" [ref=e63]
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e69]: Rec_02
+              - generic [ref=e70]: HUNT-LAU...
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: "1976"
+                - generic [ref=e75]: Rivalry
+              - heading "Fire & Ice" [level=3] [ref=e76]
+              - paragraph [ref=e77]: The 1976 season was not just a championship battle; it was a philosophical war between James Hunt and Niki Lauda.
+        - 'button "View story: The 39-Second Champion from 2008" [ref=e79] [cursor=pointer]':
+          - img "The 39-Second Champion — 2008" [ref=e82]
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e88]: Rec_03
+              - generic [ref=e89]: MASSA-20...
+            - generic [ref=e90]:
+              - generic [ref=e91]:
+                - generic [ref=e92]: "2008"
+                - generic [ref=e94]: Tragedy
+              - heading "The 39-Second Champion" [level=3] [ref=e95]
+              - paragraph [ref=e96]: Interlagos, 2008. Felipe Massa crossed the line as the World Champion. Thirty-nine seconds later, history was rewritten in the final corner.
+        - 'button "View story: The Red Baron from 2000" [ref=e98] [cursor=pointer]':
+          - img "The Red Baron — 2000" [ref=e101]
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e107]: Rec_04
+              - generic [ref=e108]: SCHUMACH...
+            - generic [ref=e109]:
+              - generic [ref=e110]:
+                - generic [ref=e111]: "2000"
+                - generic [ref=e113]: Dynasty
+              - heading "The Red Baron" [level=3] [ref=e114]
+              - paragraph [ref=e115]: How Michael Schumacher rebuilt the church of Ferrari and turned it into an empire of efficiency.
+        - 'button "View story: The Zonta Overtake from 2000" [ref=e117] [cursor=pointer]':
+          - img "The Zonta Overtake — 2000" [ref=e120]
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - generic [ref=e126]: Rec_05
+              - generic [ref=e127]: HAKKINEN...
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - generic [ref=e130]: "2000"
+                - generic [ref=e132]: Combat
+              - heading "The Zonta Overtake" [level=3] [ref=e133]
+              - paragraph [ref=e134]: Spa-Francorchamps. 200mph. A backmarker in the middle. Two of the greatest drivers in history made a choice.
+        - 'button "View story: Copse Corner from 2021" [ref=e136] [cursor=pointer]':
+          - img "Copse Corner — 2021" [ref=e145]
+          - generic [ref=e147]:
+            - generic [ref=e148]:
+              - generic [ref=e151]: Rec_06
+              - generic [ref=e152]: HAMILTON...
+            - generic [ref=e153]:
+              - generic [ref=e154]:
+                - generic [ref=e155]: "2021"
+                - generic [ref=e157]: Modern Era
+              - heading "Copse Corner" [level=3] [ref=e158]
+              - paragraph [ref=e159]: Lewis Hamilton vs Max Verstappen. A rivalry reaching its boiling point at 180mph on British soil.
+      - generic [ref=e162]: Loading Archive...
+  - contentinfo [ref=e164]:
+    - generic [ref=e166]:
+      - heading "The Pursuit of Speed" [level=2] [ref=e167]
+      - paragraph [ref=e168]: An archival project dedicated to the narrative history of Formula 1. Not just the numbers, but the blood, sweat, and oil.
+```

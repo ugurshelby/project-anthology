@@ -1,50 +1,22 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { Story, StoryContent } from '../types';
-import { buildHeroCandidates, buildContentCandidates, buildLocalResponsiveSrcSet, defaultSizes, aspectForLayout, getLocalWebpPath, getUnsplashVariant } from '../utils/images';
+import { mobileWebpOf, aspectForLayout } from '../utils/images';
+import { getOptimizedImagePath, getMobileOptimizedImage, getDesktopOptimizedImage, getResponsiveImageAttributes } from '../utils/optimizedImages';
+import { findRelatedStories } from '../utils/relatedStories';
+import { imagePreloader } from '../utils/imagePreloader';
+import ImageShimmer from './ui/ImageShimmer';
 
 interface StoryModalProps {
   story: Story;
   onClose: () => void;
+  onStorySelect?: (story: Story) => void;
 }
 
-const toSafeImageUrl = (url: string) => {
-  if (url.startsWith('https://images.unsplash.com/')) {
-    const u = new URL(url);
-    u.searchParams.set('fm', 'webp');
-    u.searchParams.set('q', '80');
-    if (!u.searchParams.get('w')) u.searchParams.set('w', '1600');
-    return '/unsplash' + u.pathname + (u.search ? u.search : '');
-  }
-  if (url.startsWith('https://commons.wikimedia.org')) {
-    return url.replace('https://commons.wikimedia.org', '/commons');
-  }
-  if (url.startsWith('https://upload.wikimedia.org')) {
-    return url.replace('https://upload.wikimedia.org', '/upload');
-  }
-  return url;
-};
-
-const buildSrcSet = (url: string) => {
-  if (!url.startsWith('https://images.unsplash.com/')) return undefined;
-  const widths = [640, 1024, 1440, 1920];
-  return widths
-    .map((w) => {
-      const u = new URL(url);
-      u.searchParams.set('w', String(w));
-      u.searchParams.set('fm', 'webp');
-      u.searchParams.set('q', '80');
-      const proxied = '/unsplash' + u.pathname + (u.search ? u.search : '');
-      return `${proxied} ${w}w`;
-    })
-    .join(', ');
-};
-
 const resolveHeroImage = (story: Story) => {
-  if (story.id === 'massa-2008') {
-    return toSafeImageUrl('https://images.unsplash.com/photo-1541601945533-660bfbe6d3e0?q=80&w=1600&auto=format&fit=crop');
-  }
-  return toSafeImageUrl(story.heroImage);
+  // Use desktop version as default, mobile will be handled by <source> tag
+  const originalPath = story.heroImage.startsWith('/') ? story.heroImage : `/${story.heroImage}`;
+  return getDesktopOptimizedImage(originalPath, 'hero');
 };
 
 // HELPER: Group content by headings for sticky section navigation
@@ -64,56 +36,56 @@ const groupContentByHeadings = (content: StoryContent[]) => {
   return sections;
 };
 
-const StoryModal: React.FC<StoryModalProps> = ({ story, onClose }) => {
+const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onStorySelect }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [heroLoaded, setHeroLoaded] = useState(false);
   
-  // 1. PROGRESS BAR LOGIC
+  // PROGRESS BAR LOGIC
   const { scrollYProgress } = useScroll({ container: containerRef });
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-  
-  // 2. PARALLAX HERO LOGIC
-  // We track the scroll relative to the container.
-  // Since the Hero is 'sticky', we use transforms to create the illusion of depth.
-  
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: heroScroll } = useScroll({
-    container: containerRef,
-    target: heroRef,
-    offset: ["start start", "end start"] // Track while hero is in viewport
-  });
 
   const heroResolved = resolveHeroImage(story);
-  const heroCandidates = useMemo(() => buildHeroCandidates(heroResolved, story.id), [heroResolved, story.id]);
-  const [heroIndex, setHeroIndex] = useState(0);
-  const heroSrc = heroCandidates[Math.min(heroIndex, Math.max(0, heroCandidates.length - 1))];
-
-  // IMAGE LAYER: Moves slowly down (0% -> 25%) creating "distance"
-  const heroY = useTransform(heroScroll, [0, 1], ["0%", "25%"]);
-  // SCALE: Subtle zoom to enhance drama
-  const heroScale = useTransform(heroScroll, [0, 1], [1.1, 1.25]);
-  // BLUR: Simulates camera focus shifting to text
-  const heroBlur = useTransform(heroScroll, [0, 0.5], ["blur(0px)", "blur(12px)"]);
-  // DIM: Darkens image so text becomes readable
-  const heroDim = useTransform(heroScroll, [0, 0.6], [0, 0.7]);
-
-  // TEXT LAYER: Moves slightly upward/fades faster than background to separate planes
-  const textY = useTransform(heroScroll, [0, 1], ["0%", "-50%"]);
-  const textOpacity = useTransform(heroScroll, [0, 0.4], [1, 0]);
+  const mobileHeroSrc = mobileWebpOf(story.heroImage, 'hero');
 
   const sections = useMemo(() => groupContentByHeadings(story.content), [story.content]);
+  const relatedStories = useMemo(() => findRelatedStories(story, 3), [story]);
 
-  // Lock body scroll on mount
+  // Preload hero image immediately when modal opens
   useEffect(() => {
+    imagePreloader.preloadImage(heroResolved, { fetchPriority: 'high' });
+    imagePreloader.preloadImage(mobileHeroSrc, { fetchPriority: 'high' });
+  }, [heroResolved, mobileHeroSrc]);
+
+  // Lock body scroll on mount (position fixed + restore on unmount for WebKit/compat)
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
+    return () => {
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      document.body.style.overflow = 'unset';
+      window.scrollTo(0, scrollY);
+    };
   }, []);
 
   return (
     <motion.div 
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="story-modal-title"
+      data-testid="story-modal"
       className="fixed inset-0 z-50 bg-f1-black flex flex-col text-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
     >
       {/* PROGRESS BAR */}
       <div className="absolute top-0 left-0 w-full h-1 bg-white/5 z-[70]">
@@ -123,12 +95,14 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose }) => {
       {/* NAVIGATION OVERLAY */}
       <nav className="absolute top-0 w-full p-6 md:p-8 flex justify-between items-start z-[60] mix-blend-difference pointer-events-none">
         <div className="flex flex-col">
-          <span className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-white/60">Archival Record</span>
+          <span className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gray-300">Archival Record</span>
           <span className="font-mono text-xs uppercase tracking-widest text-white font-bold mt-1">{story.id.toUpperCase()}</span>
         </div>
         <button 
           onClick={onClose}
-          className="pointer-events-auto group flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-white hover:text-f1-red transition-colors duration-300"
+          aria-label="Close story modal"
+          data-testid="story-modal-close-button"
+          className="pointer-events-auto group flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-white hover:text-f1-red transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black"
         >
           <span className="hidden md:inline-block opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300 text-f1-red">[ ESC ]</span>
           <span className="border-b border-transparent group-hover:border-[#ff1801]">CLOSE</span>
@@ -138,101 +112,184 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose }) => {
       {/* MAIN SCROLL CONTAINER */}
       <div 
         ref={containerRef} 
-        className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth relative perspective-1 bg-f1-black hide-scrollbar"
+        className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth relative bg-f1-black hide-scrollbar"
+        style={{ position: 'relative' }}
       >
         
-        {/* PARALLAX HERO SECTION */}
-        <div ref={heroRef} className="relative h-[95vh] w-full overflow-hidden sticky top-0 z-0">
-          
-          {/* 1. Background Image Layer */}
-          <motion.div 
-            style={{ y: heroY, scale: heroScale, filter: heroBlur }} 
-            className="absolute inset-0 w-full h-full origin-center will-change-transform"
-          >
-            <picture className="block w-full h-full aspect-[16/9]">
-              {heroResolved.startsWith('https://images.unsplash.com/') ? (
-                <>
-                  <source media="(max-width: 640px)" srcSet={toSafeImageUrl(heroResolved).replace(/w=1600/, 'w=480')} type="image/webp" />
-                  <source media="(max-width: 1024px)" srcSet={toSafeImageUrl(heroResolved).replace(/w=1600/, 'w=1024')} type="image/webp" />
-                </>
-              ) : (
-                <>
-                  <source media="(max-width: 640px)" srcSet={getLocalWebpPath(heroResolved, 480)} type="image/webp" />
-                  <source media="(max-width: 1024px)" srcSet={getLocalWebpPath(heroResolved, 1024)} type="image/webp" />
-                </>
-              )}
+        {/* HERO SECTION - Fixed at top with fade transition */}
+        <div className="relative w-full bg-f1-black -mx-0 md:mx-0">
+          {/* Hero Image Container - Full width, starts right below nav, no padding on mobile */}
+          <div className="relative w-full" style={{ minHeight: '65vh', maxHeight: '95vh' }}>
+            {!heroLoaded && (
+              <ImageShimmer aspectRatio="16/9" className="absolute inset-0" />
+            )}
+            <picture className="block w-full h-full">
+              <source media="(max-width: 640px)" srcSet={mobileWebpOf(story.heroImage, 'hero')} type="image/png" />
               <img 
-                src={heroSrc} 
-                className="w-full h-full object-cover"
-                alt="Hero"
-                onError={() => setHeroIndex((i) => i + 1)}
+                src={heroResolved} 
+                className={`w-full h-full object-contain ${heroLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
+                alt={`${story.title} — ${story.year}`}
+                width={1920}
+                height={1080}
+                style={{ 
+                  aspectRatio: '16/9',
+                  minHeight: '65vh',
+                  maxHeight: '95vh',
+                  objectFit: 'contain',
+                  width: '100%'
+                }}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                onLoad={() => setHeroLoaded(true)}
               />
             </picture>
-            {/* Gradient Overlays for text readability */}
-            <motion.div 
-              style={{ opacity: heroDim }}
-              className="absolute inset-0 bg-f1-black" 
+            
+            {/* Enhanced smooth fade gradient at bottom - longer and smoother transition */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 pointer-events-none"
+              style={{
+                height: '400px',
+                background: 'linear-gradient(to top, rgba(10, 10, 10, 1) 0%, rgba(10, 10, 10, 0.95) 20%, rgba(10, 10, 10, 0.85) 40%, rgba(10, 10, 10, 0.60) 60%, rgba(10, 10, 10, 0.30) 80%, transparent 100%)'
+              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-f1-black via-transparent to-black/30" />
-          </motion.div>
-
-          {/* 2. Text Layer (Moves at different speed than image) */}
-          <motion.div 
-             style={{ y: textY, opacity: textOpacity }}
-             className="absolute bottom-0 left-0 w-full p-6 md:p-24 z-10 pointer-events-none flex flex-col justify-end h-full pb-32"
-          >
-            <div className="max-w-6xl w-full">
-              <div className="flex items-center gap-4 mb-6 md:mb-8">
-                <span className="px-3 py-1 border border-f1-red text-f1-red font-mono text-[10px] uppercase tracking-widest bg-f1-red/10 backdrop-blur-md shadow-[0_0_15px_rgba(255,24,1,0.3)]">
-                  {story.year}
-                </span>
-                <span className="font-mono text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                   <span className="w-1 h-1 bg-gray-300 rounded-full" /> {story.category}
-                </span>
+            
+            {/* Title overlay positioned lower in fade transition area */}
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-4 md:px-12 pb-8 md:pb-16 pointer-events-none">
+              <div className="max-w-6xl mx-auto">
+                <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                  <span className="px-2 md:px-3 py-1 border border-f1-red text-f1-red font-mono text-[9px] md:text-[10px] uppercase tracking-widest bg-f1-red/10 backdrop-blur-md shadow-[0_0_15px_rgba(255,24,1,0.3)]">
+                    {story.year}
+                  </span>
+                  <span className="font-mono text-[10px] md:text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1 h-1 bg-gray-300 rounded-full" /> {story.category}
+                  </span>
+                </div>
+                
+                <h1 id="story-modal-title" className="font-serif text-3xl md:text-6xl lg:text-7xl leading-[0.9] text-white tracking-tight mb-4 md:mb-6 drop-shadow-2xl">
+                  {story.title}
+                </h1>
+                
+                <p className="font-sans text-sm md:text-lg text-gray-200 max-w-2xl leading-relaxed border-l-2 border-f1-red pl-3 md:pl-6 backdrop-blur-sm">
+                  {story.subtitle}
+                </p>
               </div>
-              
-              <h1 className="font-serif text-[15vw] md:text-8xl lg:text-9xl leading-[0.8] text-white tracking-tight mb-8 drop-shadow-2xl mix-blend-overlay opacity-90">
-                {story.title}
-              </h1>
-              
-              <p className="font-sans text-lg md:text-2xl text-gray-200 max-w-2xl leading-relaxed border-l-2 border-f1-red pl-6 md:pl-8 backdrop-blur-sm">
-                {story.subtitle}
-              </p>
             </div>
-          </motion.div>
+          </div>
         </div>
 
-        {/* 3. CONTENT LAYER (The Paper) */}
-        {/* Negative margin pulls this UP over the sticky hero */}
-        <div className="relative z-20 bg-f1-black min-h-screen pt-24 md:pt-32 pb-48 -mt-24 md:-mt-32 shadow-[0_-50px_100px_rgba(0,0,0,1)]">
-          <div className="max-w-screen-xl mx-auto px-6">
+        {/* CONTENT LAYER */}
+        <div className="relative z-20 bg-f1-black min-h-screen pt-8 md:pt-12 pb-48">
+          <div className="max-w-screen-xl mx-auto px-6 md:px-8">
             
-            {sections.map((section, idx) => (
-              <section key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 mb-24 border-t border-white/5 pt-16 first:border-none first:pt-0">
-                
-                {/* Sticky Chapter Marker */}
-                <div className="md:col-span-4 relative">
-                  <div className="sticky top-32 transition-all duration-500 bg-f1-black/80 backdrop-blur-md p-6 -ml-6 rounded-lg border border-white/5">
-                    <span className="block font-mono text-[9px] text-f1-red mb-2 uppercase tracking-[0.2em]">
-                      {section.title ? `Sequence 0${idx + 1}` : 'Prologue'}
-                    </span>
-                    {section.title && (
-                      <h2 className="font-serif text-3xl md:text-4xl text-white leading-none mb-4">
-                        {section.title}
-                      </h2>
-                    )}
-                    <div className="w-12 h-[1px] bg-white/20" />
+            {sections.map((section, idx) => {
+              // Find background images in this section
+              const backgroundImages = section.blocks.filter(
+                block => block.type === 'image' && block.isBackground
+              ) as Array<{ type: 'image'; src: string; layout: 'full' | 'portrait' | 'landscape'; isBackground: true }>;
+              
+              return (
+                <section key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 mb-24 border-t border-white/5 pt-16 first:border-none first:pt-0 relative">
+                  
+                  {/* Sticky Chapter Marker */}
+                  <div className="md:col-span-4 relative z-10">
+                    <div className="sticky top-32 transition-all duration-500 bg-f1-black/80 backdrop-blur-md p-6 -ml-6 rounded-lg border border-white/5">
+                      <span className="block font-mono text-[9px] text-f1-red mb-2 uppercase tracking-[0.2em]">
+                        {section.title ? `Sequence 0${idx + 1}` : 'Prologue'}
+                      </span>
+                      {section.title && (
+                        <h2 className="font-serif text-3xl md:text-4xl text-white leading-none mb-4">
+                          {section.title}
+                        </h2>
+                      )}
+                      <div className="w-12 h-[1px] bg-white/20" />
+                    </div>
+                  </div>
+
+                  {/* Content Body */}
+                  <div className="md:col-span-7 md:col-start-6 space-y-12 relative z-10">
+                    {/* Render background images behind content */}
+                    {backgroundImages.map((block, bgIdx) => (
+                      <BackgroundImageBlock 
+                        key={`bg-${bgIdx}`}
+                        src={block.src} 
+                        layout={block.layout} 
+                        year={story.year}
+                      />
+                    ))}
+                    
+                    {/* Render regular content blocks */}
+                    {section.blocks.map((block, bIdx) => (
+                      <ContentBlock 
+                        key={bIdx}
+                        block={block} 
+                        isFirst={idx === 0 && bIdx === 0} 
+                        year={story.year}
+                        skipRender={block.type === 'image' && block.isBackground}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+
+            {/* Related Stories Section */}
+            {relatedStories.length > 0 && (
+              <div className="pt-32 pb-16 border-t border-white/10 mt-16">
+                <div className="max-w-6xl mx-auto px-4 md:px-12">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-12"
+                  >
+                    <h3 className="font-serif text-3xl md:text-4xl text-white mb-4">Related Stories</h3>
+                    <p className="font-mono text-sm text-gray-400 uppercase tracking-widest">
+                      Continue the narrative
+                    </p>
+                  </motion.div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                    {relatedStories.map((relatedStory, index) => (
+                      <motion.div
+                        key={relatedStory.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="group cursor-pointer"
+                        onClick={() => {
+                          if (onStorySelect) {
+                            onStorySelect(relatedStory);
+                          }
+                        }}
+                      >
+                        <div className="relative aspect-[16/9] overflow-hidden bg-f1-black/50 border border-white/10 rounded-sm mb-4">
+                          <img
+                            src={getDesktopOptimizedImage(relatedStory.heroImage.startsWith('/') ? relatedStory.heroImage : `/${relatedStory.heroImage}`, 'hero')}
+                            alt={relatedStory.title}
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-f1-black via-transparent to-transparent" />
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <span className="font-mono text-[10px] text-f1-red uppercase tracking-widest">
+                              {relatedStory.year}
+                            </span>
+                          </div>
+                        </div>
+                        <h4 className="font-serif text-lg text-white mb-2 group-hover:text-f1-red transition-colors">
+                          {relatedStory.title}
+                        </h4>
+                        <p className="font-mono text-xs text-gray-400 line-clamp-2">
+                          {relatedStory.subtitle}
+                        </p>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-
-                {/* Content Body */}
-                <div className="md:col-span-7 md:col-start-6 space-y-12">
-                  {section.blocks.map((block, bIdx) => (
-                    <ContentBlock key={bIdx} block={block} isFirst={idx === 0 && bIdx === 0} year={story.year} />
-                  ))}
-                </div>
-              </section>
-            ))}
+              </div>
+            )}
 
             {/* Footer/End Marker */}
             <div className="flex flex-col items-center justify-center pt-32 opacity-30 hover:opacity-60 transition-opacity duration-500 gap-4">
@@ -249,7 +306,9 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose }) => {
 
 // --- SUB-COMPONENTS (Modular & Animated) ---
 
-const ContentBlock: React.FC<{ block: StoryContent; isFirst: boolean; year: string }> = ({ block, isFirst, year }) => {
+const ContentBlock: React.FC<{ block: StoryContent; isFirst: boolean; year: string; skipRender?: boolean }> = ({ block, isFirst, year, skipRender }) => {
+  if (skipRender) return null;
+  
   switch (block.type) {
     case 'paragraph':
       return <ParagraphBlock text={block.text} isFirst={isFirst} />;
@@ -284,7 +343,7 @@ const QuoteBlock: React.FC<{ text: string; author: string }> = React.memo(({ tex
       initial={{ opacity: 0, x: -20 }}
       animate={isInView ? { opacity: 1, x: 0 } : {}}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative py-8 my-12 pl-6 md:pl-10 border-l-2 border-f1-red bg-white/[0.02]"
+      className="relative py-8 my-12 pl-6 md:pl-10 border-l-2 border-f1-red bg-white/[0.02] will-change-transform"
     >
       <blockquote className="font-serif text-2xl md:text-3xl text-white leading-tight italic">
         "{text}"
@@ -298,13 +357,88 @@ const QuoteBlock: React.FC<{ text: string; author: string }> = React.memo(({ tex
 
  
 
+// Background image component for decorative elements
+const BackgroundImageBlock: React.FC<{ src: string; layout: 'full' | 'portrait' | 'landscape'; year: string }> = React.memo(({ src, layout, year }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-20% 0px -20% 0px" });
+  const [loaded, setLoaded] = useState(false);
+  
+  const originalPath = src.startsWith('/') ? src : `/${src}`;
+  const desktopSrc = getDesktopOptimizedImage(originalPath, layout);
+  const mobileSrc = getMobileOptimizedImage(originalPath, layout);
+  
+  useEffect(() => {
+    if (isInView && !loaded) {
+      imagePreloader.preloadImage(desktopSrc, { fetchPriority: 'low' });
+      if (mobileSrc !== desktopSrc) {
+        imagePreloader.preloadImage(mobileSrc, { fetchPriority: 'low' });
+      }
+    }
+  }, [isInView, desktopSrc, mobileSrc, loaded]);
+
+  return (
+    <div ref={ref} className="absolute top-0 left-0 right-0 bottom-0 -z-10 overflow-hidden pointer-events-none opacity-0" style={{ minHeight: '400px' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 1.05 }}
+        animate={isInView ? { opacity: 0.12, scale: 1 } : {}}
+        transition={{ duration: 2, ease: "easeOut" }}
+        className="relative w-full h-full flex items-center justify-center"
+      >
+        <picture>
+          <source media="(max-width: 640px)" srcSet={mobileSrc} type="image/png" />
+          <img 
+            src={desktopSrc}
+            alt="" 
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            width={aspectForLayout(layout).width}
+            height={aspectForLayout(layout).height}
+            style={{ 
+              aspectRatio: layout === 'portrait' ? '3/4' : layout === 'landscape' ? '16/9' : '16/9',
+              objectFit: 'contain',
+              maxWidth: '60%',
+              maxHeight: '80%',
+              filter: 'blur(0.5px)',
+            }}
+            onLoad={() => setLoaded(true)}
+            className="grayscale-[70%] contrast-[0.7] brightness-[0.6]"
+          />
+        </picture>
+      </motion.div>
+    </div>
+  );
+});
+
+BackgroundImageBlock.displayName = 'BackgroundImageBlock';
+
 const ImageBlock: React.FC<{ src: string; caption: string; layout: 'full' | 'portrait' | 'landscape'; year: string }> = React.memo(({ src, caption, layout, year }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-15% 0px -15% 0px" });
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
-  const [candidateIndex, setCandidateIndex] = useState(0);
-  const candidates = useMemo(() => buildContentCandidates(src, caption), [src, caption]);
+  
+  // Get optimized image paths
+  const originalPath = src.startsWith('/') ? src : `/${src}`;
+  const optimizedSrc = getOptimizedImagePath(originalPath, layout);
+  const mobileSrc = getMobileOptimizedImage(originalPath, layout);
+  const desktopSrc = getDesktopOptimizedImage(originalPath, layout);
+  
+  // Preload image when in view - prioritize story images (23-40)
+  useEffect(() => {
+    if (isInView && !loaded) {
+      // Extract image number from path to determine priority
+      const imageNumberMatch = desktopSrc.match(/\/(\d+)\.png$/);
+      const imageNumber = imageNumberMatch ? parseInt(imageNumberMatch[1]) : 0;
+      const isNewStoryImage = imageNumber >= 23 && imageNumber <= 40;
+      
+      const priority = isNewStoryImage ? 'high' : 'auto';
+      imagePreloader.preloadImage(desktopSrc, { fetchPriority: priority });
+      if (mobileSrc !== desktopSrc) {
+        imagePreloader.preloadImage(mobileSrc, { fetchPriority: priority });
+      }
+    }
+  }, [isInView, desktopSrc, mobileSrc, loaded]);
 
   // Layout logic: Break the grid for full width images
   const containerClass = layout === 'full' 
@@ -317,40 +451,72 @@ const ImageBlock: React.FC<{ src: string; caption: string; layout: 'full' | 'por
         initial={{ opacity: 0, y: 40, scale: 0.98 }}
         animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
         transition={{ duration: 1, ease: "circOut" }}
-        className="relative group"
+        className="relative group will-change-transform"
       >
         {!errored && (
+          <picture>
+            {/* AVIF support for modern browsers */}
+            {(() => {
+              const responsiveAttrs = getResponsiveImageAttributes(originalPath, layout);
+              return (
+                <>
+                  <source 
+                    media="(max-width: 640px)" 
+                    srcSet={mobileSrc} 
+                    type="image/png" 
+                  />
+                  {responsiveAttrs.srcSet && (
+                    <source 
+                      srcSet={responsiveAttrs.srcSet} 
+                      sizes={responsiveAttrs.sizes}
+                      type="image/avif" 
+                    />
+                  )}
+                </>
+              );
+            })()}
             <img 
-            src={candidates[Math.min(candidateIndex, Math.max(0, candidates.length - 1))]} 
-            srcSet={buildLocalResponsiveSrcSet(src)}
-            sizes={defaultSizes.modal}
-            alt={caption} 
-            loading="lazy"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            fetchPriority="low"
-            width={aspectForLayout(layout).width}
-            height={aspectForLayout(layout).height}
-            onLoad={() => setLoaded(true)}
-            onError={() => {
-              const next = candidateIndex + 1;
-              if (next < candidates.length) { setCandidateIndex(next); return; }
-              setErrored(true);
-            }}
-            className={`w-full h-auto object-cover max-h-[80vh] ${parseInt(year) <= 1980 ? 'sepia-[15%] contrast-[1.0]' : parseInt(year) <= 2005 ? 'grayscale-[20%] contrast-[1.05]' : 'grayscale-[10%] contrast-[1.1]'} group-hover:grayscale-0 transition-all duration-[1500ms] ease-out ${loaded ? '' : 'opacity-0'}`}
-          />
+              src={desktopSrc}
+              srcSet={getResponsiveImageAttributes(originalPath, layout).srcSet}
+              sizes={getResponsiveImageAttributes(originalPath, layout).sizes}
+              alt={caption} 
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              fetchPriority={(() => {
+                const imageNumberMatch = desktopSrc.match(/\/(\d+)\.png$/);
+                const imageNumber = imageNumberMatch ? parseInt(imageNumberMatch[1]) : 0;
+                return (imageNumber >= 23 && imageNumber <= 40) ? 'high' : 'low';
+              })()}
+              width={aspectForLayout(layout).width}
+              height={aspectForLayout(layout).height}
+              style={{ 
+                aspectRatio: layout === 'portrait' ? '3/4' : layout === 'landscape' ? '16/9' : '16/9'
+              }}
+              onLoad={() => {
+                setLoaded(true);
+                setErrored(false);
+              }}
+              onError={(e) => {
+                console.warn(`Failed to load image: ${desktopSrc}`);
+                setErrored(true);
+                setLoaded(false);
+              }}
+              className={`w-full h-auto object-cover max-h-[80vh] ${parseInt(year) <= 1980 ? 'sepia-[15%] contrast-[1.0]' : parseInt(year) <= 2005 ? 'grayscale-[20%] contrast-[1.05]' : 'grayscale-[10%] contrast-[1.1]'} group-hover:grayscale-0 transition-all duration-[1500ms] ease-out ${loaded ? 'opacity-100' : 'opacity-0'}`}
+            />
+          </picture>
         )}
         {!loaded && !errored && (
-          <div className="absolute inset-0 bg-[#0e0e0e] animate-pulse">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent blur-xl" />
-          </div>
+          <ImageShimmer 
+            aspectRatio={layout === 'portrait' ? '3/4' : layout === 'landscape' ? '16/9' : '16/9'}
+            className="absolute inset-0"
+          />
         )}
         {errored && (
-          <div className="w-full min-h-[260px] md:min-h-[420px] bg-[#111] flex items-end">
-            <div className="w-full p-4 flex justify-between items-end">
-              <p className="font-mono text-[10px] text-white uppercase tracking-widest">FIG_Ref: {caption}</p>
-              <span className="font-mono text-[10px] text-gray-400">Image unavailable</span>
-            </div>
+          <div className="w-full h-64 flex items-center justify-center bg-f1-black/50 border border-white/10">
+            <p className="font-mono text-xs text-gray-500 uppercase tracking-widest">
+              Image unavailable
+            </p>
           </div>
         )}
         

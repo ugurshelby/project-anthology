@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Story } from "../types";
-import { mockStories } from "../data/mockData";
-import { buildHeroCandidates, buildLocalResponsiveSrcSet, defaultSizes, getLocalWebpPath, getUnsplashVariant } from "../utils/images";
+import { storyMetadata } from "../data/storyMetadata";
+import { mobileWebpOf } from "../utils/images";
+import { getOptimizedImagePath, getDesktopOptimizedImage } from "../utils/optimizedImages";
+import { preloadOnVisible } from "../utils/imagePreloader";
 import {
   archiveCardContainer,
   archiveCardImage,
@@ -10,46 +12,53 @@ import {
   anthologyYearBadge,
 } from "./ui/classes";
 import Button from "./ui/Button";
+import ImageShimmer from "./ui/ImageShimmer";
 
-const toSafeImageUrl = (url: string) => {
-  if (url.startsWith("https://images.unsplash.com/")) {
-    const u = new URL(url);
-    u.searchParams.set("fm", "webp");
-    u.searchParams.set("q", "80");
-    if (!u.searchParams.get("w")) u.searchParams.set("w", "1600");
-    return "/unsplash" + u.pathname + (u.search ? u.search : "");
-  }
-  if (url.startsWith("https://commons.wikimedia.org")) {
-    return url.replace("https://commons.wikimedia.org", "/commons");
-  }
-  if (url.startsWith("https://upload.wikimedia.org")) {
-    return url.replace("https://upload.wikimedia.org", "/upload");
-  }
-  return url;
-};
-
-const buildSrcSet = (url: string) => {
-  if (!url.startsWith("https://images.unsplash.com/")) return undefined;
-  const widths = [480, 768, 1024, 1600];
-  return widths
-    .map((w) => {
-      const u = new URL(url);
-      u.searchParams.set("w", String(w));
-      u.searchParams.set("fm", "webp");
-      u.searchParams.set("q", "80");
-      const proxied = "/unsplash" + u.pathname + (u.search ? u.search : "");
-      return `${proxied} ${w}w`;
-    })
-    .join(", ");
+// Story layout mapping - determines which image folder to use
+const storyLayoutMap: Record<string, 'hero' | 'full' | 'portrait'> = {
+  // Keep existing good ratios (hero/landscape)
+  'senna-monaco': 'hero',
+  'hunt-lauda': 'hero',
+  'massa-2008': 'hero',
+  'hakkinen-schumacher': 'hero',
+  'fangio-nurburgring': 'hero',
+  'collins-fangio-1956': 'hero',
+  'senna-donington-1993': 'hero',
+  'dijon-1979': 'hero',
+  
+  // Change to full (16:9 horizontal)
+  'schumacher-ferrari': 'full',
+  'hamilton-silverstone': 'full',
+  'button-canada': 'full',
+  'brawn-2009': 'full',
+  'schumacher-1994-spain': 'full',
+  'monaco-1982': 'full',
+  'jerez-1997': 'full',
+  
+  // Change to portrait (9:16 vertical)
+  'imola-1994': 'portrait',
 };
 
 const resolveHeroImage = (story: Story) => {
-  if (story.id === "massa-2008") {
-    return toSafeImageUrl(
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Massa%20Brazil%202008%20Podium.jpg"
-    );
+  // Use optimized PNG images from layout-specific folders
+  // Default to desktop version, mobile will be handled by <source> tag
+  const originalPath = story.heroImage.startsWith('/') ? story.heroImage : `/${story.heroImage}`;
+  const layout = storyLayoutMap[story.id] || 'hero';
+  return getDesktopOptimizedImage(originalPath, layout);
+};
+
+// Get aspect ratio for story based on layout
+const getStoryAspectRatio = (storyId: string): string => {
+  const layout = storyLayoutMap[storyId] || 'hero';
+  switch (layout) {
+    case 'full':
+      return '16/9';
+    case 'portrait':
+      return '9/16';
+    case 'hero':
+    default:
+      return '16/9';
   }
-  return toSafeImageUrl(story.heroImage);
 };
 
  
@@ -58,9 +67,69 @@ interface ArchiveSectionProps {
   onStorySelect: (story: Story) => void;
 }
 
-const ArchiveSection: React.FC<ArchiveSectionProps> = ({ onStorySelect }) => {
+const ArchiveSectionComponent: React.FC<ArchiveSectionProps> = ({ onStorySelect }) => {
+  const [visibleCount, setVisibleCount] = useState(6); // Initial load: 6 stories
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  
+  // Filter categories: All, Rivalry, Tragedy, Myth
+  const allCategories = ['All', 'Rivalry', 'Tragedy', 'Myth'];
+  
+  // Filter stories based on selected category
+  const filteredStories = selectedCategory === 'All' 
+    ? storyMetadata 
+    : storyMetadata.filter(story => story.category === selectedCategory);
+  
+  // Virtual loading: Load more stories on scroll with smooth debouncing
+  useEffect(() => {
+    let ticking = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let rafId: number | null = null;
+    
+    const handleScroll = () => {
+      if (!ticking && !isLoadingMore) {
+        rafId = window.requestAnimationFrame(() => {
+          const scrollPosition = window.innerHeight + window.scrollY;
+          const documentHeight = document.documentElement.scrollHeight;
+          const threshold = 800; // Load 800px before bottom for smoother experience
+          
+          if (scrollPosition >= documentHeight - threshold && visibleCount < filteredStories.length) {
+            setIsLoadingMore(true);
+            // Smooth loading without delay
+            timeoutId = setTimeout(() => {
+              setVisibleCount(prev => Math.min(prev + 6, filteredStories.length));
+              setIsLoadingMore(false);
+              timeoutId = null;
+            }, 50);
+          }
+          ticking = false;
+          rafId = null;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [visibleCount, isLoadingMore, filteredStories.length]);
+  
+  // Reset visible count when category changes
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [selectedCategory]);
+  
+  const visibleStories = filteredStories.slice(0, visibleCount);
+  
   return (
-    <section className="relative z-20 px-4 md:px-8 lg:px-12 py-24 max-w-[1920px] mx-auto bg-f1-black">
+    <section data-archive-section className="relative z-20 px-4 md:px-8 lg:px-12 py-24 max-w-[1920px] mx-auto bg-f1-black" style={{ scrollBehavior: 'smooth' }}>
       {/* SECTION HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-end mb-20 border-b border-white/10 pb-8 gap-8">
         <div className="space-y-4">
@@ -74,45 +143,131 @@ const ArchiveSection: React.FC<ArchiveSectionProps> = ({ onStorySelect }) => {
         </div>
 
         {/* FILTERS */}
-        <div className="flex flex-wrap gap-3">
-          {["Legend", "Rivalry", "Tragedy", "Myth"].map((filter) => (
-            <Button key={filter} variant="anthology">
-              {filter}
+        <div className="flex flex-wrap gap-2 md:gap-3">
+          {allCategories.map((category) => (
+            <Button 
+              key={category} 
+              variant="anthology"
+              aria-label={`Filter stories by ${category} category`}
+              aria-pressed={selectedCategory === category}
+              onClick={() => setSelectedCategory(category)}
+              className={selectedCategory === category 
+                ? 'bg-white text-black border-white' 
+                : ''
+              }
+            >
+              {category}
             </Button>
           ))}
         </div>
       </div>
 
-      {/* CHAOTIC MASONRY GRID */}
+      {/* INTELLIGENT MASONRY GRID */}
       {/* 
-         Using Tailwind Grid to create an asymmetrical, editorial layout.
-         First item is big (Hero).
-         Fourth item is wide (Banner).
-         Others are standard cards.
+         Smart layout based on image ratios:
+         - Full/landscape (16:9): Wider cards
+         - Portrait (9:16): Taller, narrower cards
+         - Hero: Standard cards
+         Virtual loading: Only render visible stories for performance
       */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8 auto-rows-[500px] lg:auto-rows-[600px]">
-        {mockStories.map((story, index) => {
-          // Dynamic Spanning Logic
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8"
+        style={{ 
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        {visibleStories.length > 0 ? visibleStories.map((storyMeta, index) => {
+          // Create a minimal Story object for display (content will be loaded when opened)
+          const story: Story = {
+            ...storyMeta,
+            content: [], // Content loaded lazily when story is opened
+          };
+          
+          const layout = storyLayoutMap[story.id] || 'hero';
+          const aspectRatio = getStoryAspectRatio(story.id);
+          
+          // Smart Spanning Logic based on layout and position
           let spanClass = "lg:col-span-4"; // Default: 1/3 width
-
-          if (index === 0)
-            spanClass = "lg:col-span-8 md:col-span-2"; // First item: 2/3 width
-          else if (index === 3)
-            spanClass =
-              "lg:col-span-12 md:col-span-2 !h-[400px]"; // 4th item: Full width banner
-          else if (index === 4 || index === 5) spanClass = "lg:col-span-6"; // 5th/6th: Half width
+          let rowSpan = "min-h-[500px]"; // Default row height
+          
+          if (layout === 'portrait') {
+            // Portrait images: taller, narrower
+            if (index === 0) {
+              spanClass = "lg:col-span-3 md:col-span-1";
+              rowSpan = "min-h-[700px]";
+            } else if (index % 7 === 0) {
+              spanClass = "lg:col-span-3 md:col-span-1";
+              rowSpan = "min-h-[650px]";
+            } else {
+              spanClass = "lg:col-span-3 md:col-span-1";
+              rowSpan = "min-h-[600px]";
+            }
+          } else if (layout === 'full') {
+            // Full/landscape images: wider, shorter
+            if (index === 0) {
+              spanClass = "lg:col-span-8 md:col-span-2";
+              rowSpan = "min-h-[500px]";
+            } else if (index === 3) {
+              spanClass = "lg:col-span-12 md:col-span-2";
+              rowSpan = "min-h-[400px]";
+            } else if (index === 4 || index === 5) {
+              spanClass = "lg:col-span-6 md:col-span-1";
+              rowSpan = "min-h-[450px]";
+            } else {
+              spanClass = "lg:col-span-4 md:col-span-1";
+              rowSpan = "min-h-[500px]";
+            }
+          } else {
+            // Hero/landscape: balanced layout
+            if (index === 0) {
+              spanClass = "lg:col-span-8 md:col-span-2";
+              rowSpan = "min-h-[550px]";
+            } else if (index === 3) {
+              spanClass = "lg:col-span-12 md:col-span-2";
+              rowSpan = "min-h-[450px]";
+            } else if (index === 4 || index === 5) {
+              spanClass = "lg:col-span-6 md:col-span-1";
+              rowSpan = "min-h-[500px]";
+            } else {
+              spanClass = "lg:col-span-4 md:col-span-1";
+              rowSpan = "min-h-[550px]";
+            }
+          }
 
           return (
             <ArchiveCard
               key={story.id}
               story={story}
               index={index}
-              spanClass={spanClass}
+              spanClass={`${spanClass} ${rowSpan}`}
+              aspectRatio={aspectRatio}
+              layout={layout}
               onClick={() => onStorySelect(story)}
             />
           );
-        })}
+        }) : null}
       </div>
+      
+      {/* Loading Indicator */}
+      {visibleCount < filteredStories.length && (
+        <div className="flex justify-center items-center py-12">
+          <div className="flex items-center gap-3 font-mono text-xs text-gray-400 uppercase tracking-widest">
+            <span className="w-2 h-2 bg-f1-red rounded-full animate-pulse" />
+            Loading Archive...
+          </div>
+        </div>
+      )}
+      
+      {/* No Results Message */}
+      {filteredStories.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24">
+          <p className="font-serif text-2xl md:text-3xl text-white mb-4">No stories found</p>
+          <p className="font-mono text-sm text-gray-400 uppercase tracking-widest">
+            Try selecting a different category
+          </p>
+        </div>
+      )}
     </section>
   );
 };
@@ -124,75 +279,152 @@ const ArchiveCard: React.FC<{
   story: Story;
   index: number;
   spanClass: string;
+  aspectRatio?: string;
+  layout?: 'hero' | 'full' | 'portrait';
   onClick: () => void;
-}> = React.memo(({ story, index, spanClass, onClick }) => {
+}> = React.memo(({ story, index, spanClass, aspectRatio = '16/9', layout = 'hero', onClick }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
-  const [candidateIndex, setCandidateIndex] = useState(0);
-  const heroRaw = resolveHeroImage(story);
-  const candidates = React.useMemo(() => buildHeroCandidates(heroRaw, story.id), [heroRaw, story.id]);
+  const [imageSrc, setImageSrc] = useState(resolveHeroImage(story));
+  const heroRaw = imageSrc;
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Preload image when card becomes visible
+  useEffect(() => {
+    if (cardRef.current && index > 0) {
+      return preloadOnVisible(cardRef.current, heroRaw, {
+        fetchPriority: index < 3 ? 'high' : 'low'
+      });
+    }
+  }, [heroRaw, index]);
+  
+  // Prefetch story content and hero image on hover
+  useEffect(() => {
+    let prefetchLinks: HTMLLinkElement[] = [];
+    
+    const handleMouseEnter = () => {
+      // Prefetch storyContent chunk for this specific story
+      import('../data/storyContent').then((module) => {
+        // Access the story content map to ensure it's loaded
+        // This prefetches the chunk and makes the content available
+        const content = module.storyContentMap[story.id];
+        if (content) {
+          // Content is now in memory, ready for when modal opens
+          // Also prefetch any images referenced in the content
+          // Use optimized image paths for better performance
+          content.forEach((item) => {
+            if (item.type === 'image' && item.src) {
+              const originalPath = item.src.startsWith('/') ? item.src : `/${item.src}`;
+              const optimizedPath = getDesktopOptimizedImage(originalPath, item.layout || 'landscape');
+              const contentImg = new Image();
+              contentImg.src = optimizedPath;
+            }
+          });
+        }
+      }).catch(() => {});
+      
+      // Prefetch hero image using link rel="prefetch" for better browser optimization
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'image';
+      link.href = heroRaw;
+      document.head.appendChild(link);
+      prefetchLinks.push(link);
+      
+      // Also prefetch mobile version
+      const storyLayout = storyLayoutMap[story.id] || 'hero';
+      const mobileLink = document.createElement('link');
+      mobileLink.rel = 'prefetch';
+      mobileLink.as = 'image';
+      mobileLink.href = mobileWebpOf(story.heroImage, storyLayout);
+      document.head.appendChild(mobileLink);
+      prefetchLinks.push(mobileLink);
+    };
+    
+    if (cardRef.current) {
+      cardRef.current.addEventListener('mouseenter', handleMouseEnter);
+    }
+    
+    return () => {
+      // Cleanup prefetch links
+      prefetchLinks.forEach(link => {
+        if (link.parentNode === document.head) {
+          document.head.removeChild(link);
+        }
+      });
+      prefetchLinks = [];
+      
+      if (cardRef.current) {
+        cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
+      }
+    };
+  }, [heroRaw, story.id, story.heroImage]);
+  
   return (
     <motion.div
       layoutId={`card-container-${story.id}`}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`View story: ${story.title} from ${story.year}`}
+      data-testid="archive-card"
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.7, ease: "easeOut", delay: index * 0.05 }}
-      className={`${archiveCardContainer} ${spanClass}`}
+      className={`${archiveCardContainer} ${spanClass} will-change-transform focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black`}
+      ref={cardRef}
     >
       {/* 1. IMAGE LAYER */}
       <div className="absolute inset-0 overflow-hidden">
         {!loaded && !error && (
-          <div className="absolute inset-0 bg-[#0f0f0f] animate-pulse">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent blur-xl" />
-          </div>
+          <ImageShimmer aspectRatio="16/9" className="absolute inset-0" />
         )}
         {!error && (
           <picture className="block w-full h-full aspect-[16/9]">
-            {heroRaw.startsWith("https://images.unsplash.com/") ? (
-              <>
-                <source media="(max-width: 640px)" srcSet={getUnsplashVariant(heroRaw, 480)} type="image/webp" />
-                <source media="(max-width: 1024px)" srcSet={getUnsplashVariant(heroRaw, 1024)} type="image/webp" />
-              </>
-            ) : (
-              <>
-                <source media="(max-width: 640px)" srcSet={getLocalWebpPath(heroRaw, 480)} type="image/webp" />
-                <source media="(max-width: 1024px)" srcSet={getLocalWebpPath(heroRaw, 1024)} type="image/webp" />
-              </>
-            )}
+            {/* Mobile optimized PNG */}
+            <source 
+              media="(max-width: 640px)" 
+              srcSet={mobileWebpOf(story.heroImage, 'hero')} 
+              type="image/png"
+            />
+            {/* Desktop optimized PNG */}
             <motion.img
               layoutId={`hero-image-${story.id}`}
-              src={candidates[Math.min(candidateIndex, Math.max(0, candidates.length - 1))]}
-              srcSet={heroRaw.startsWith("https://images.unsplash.com/") ? buildSrcSet(heroRaw) : buildLocalResponsiveSrcSet(heroRaw)}
-              sizes={defaultSizes.archive}
+              src={heroRaw}
               alt={`${story.title} — ${story.year}`}
               loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : index < 3 ? "high" : "low"}
+              fetchPriority={index === 0 ? "high" : "auto"}
               referrerPolicy="no-referrer"
-              decoding="async"
+              decoding={index === 0 ? "sync" : "async"}
               width={1600}
               height={900}
-              onLoad={() => setLoaded(true)}
-              onError={() => {
-                const next = candidateIndex + 1;
-                if (next < candidates.length) { setCandidateIndex(next); return; }
-                setError(true);
+              style={{ aspectRatio: '16/9' }}
+              onLoad={() => {
+                setLoaded(true);
+                setError(false);
               }}
-              className={`${loaded ? archiveCardImage : "opacity-0"}`}
+              onError={(e) => {
+                // If image fails to load, mark as error
+                console.warn(`Failed to load image: ${heroRaw}`);
+                setError(true);
+                setLoaded(false);
+              }}
+              className={`${loaded ? archiveCardImage : "opacity-0"} transition-opacity duration-300`}
             />
           </picture>
         )}
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#111] text-white">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-                <div className="w-4 h-4 bg-[#ff1801]" />
-              </div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-400">
-                Görsel mevcut değil
-              </span>
-            </div>
+          <div className="absolute inset-0 flex items-center justify-center bg-f1-black/50">
+            <p className="font-mono text-xs text-gray-500 uppercase tracking-widest">
+              Image unavailable
+            </p>
           </div>
         )}
 
@@ -213,7 +445,7 @@ const ArchiveCard: React.FC<{
               Rec_0{index + 1}
             </span>
           </div>
-          <span className="font-mono text-[9px] text-gray-400 border border-white/10 px-2 py-1 bg-black/60 backdrop-blur-sm">
+          <span className="font-mono text-[9px] text-gray-300 border border-white/10 px-2 py-1 bg-black/60 backdrop-blur-sm">
             {story.id.toUpperCase().slice(0, 8)}...
           </span>
         </div>
@@ -222,18 +454,18 @@ const ArchiveCard: React.FC<{
         <div className="transform group-hover:-translate-y-2 transition-transform duration-500 ease-out">
           <motion.div
             layoutId={`subtitle-${story.id}`}
-            className="flex items-center gap-3 mb-3"
+            className="flex items-center gap-3 mb-3 will-change-transform"
           >
             <span className={anthologyYearBadge}>{story.year}</span>
             <span className="h-[1px] flex-grow bg-white/10 group-hover:bg-white/30 transition-colors duration-500" />
-            <span className="font-mono text-gray-400 text-[10px] md:text-xs uppercase tracking-[0.2em]">
+            <span className="font-mono text-gray-300 text-[10px] md:text-xs uppercase tracking-[0.2em]">
               {story.category}
             </span>
           </motion.div>
 
           <motion.h3
             layoutId={`title-${story.id}`}
-            className="font-serif text-3xl md:text-4xl lg:text-5xl text-white leading-[0.9] mb-3 group-hover:text-white mix-blend-screen transition-all duration-500"
+            className="font-serif text-3xl md:text-4xl lg:text-5xl text-white leading-[0.9] mb-3 group-hover:text-white mix-blend-screen transition-all duration-500 will-change-transform"
           >
             {story.title}
           </motion.h3>
@@ -254,4 +486,5 @@ const ArchiveCard: React.FC<{
   );
 });
 
+const ArchiveSection = React.memo(ArchiveSectionComponent);
 export default ArchiveSection;

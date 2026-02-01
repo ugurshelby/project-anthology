@@ -1,0 +1,32 @@
+[
+  {
+    "id": "fallback-1",
+    "title": "F1 News – Latest headlines",
+    "summary": "When the main news API is unavailable, headlines are loaded from this fallback. Run \"npm run dev\" (with the API server) or deploy to Vercel for live RSS news.",
+    "url": "https://www.the-race.com",
+    "sourceName": "The Race",
+    "image": "/favicon.svg",
+    "publishedAt": "",
+    "sourceUrl": "https://www.the-race.com"
+  },
+  {
+    "id": "fallback-2",
+    "title": "Formula 1 – Autosport",
+    "summary": "Visit Autosport for the latest F1 news and analysis.",
+    "url": "https://www.autosport.com/f1/",
+    "sourceName": "Autosport",
+    "image": "/favicon.svg",
+    "publishedAt": "",
+    "sourceUrl": "https://www.autosport.com/f1/"
+  },
+  {
+    "id": "fallback-3",
+    "title": "Motorsport.com F1",
+    "summary": "Stay up to date with F1 on Motorsport.com.",
+    "url": "https://www.motorsport.com/f1/",
+    "sourceName": "Motorsport.com",
+    "image": "/favicon.svg",
+    "publishedAt": "",
+    "sourceUrl": "https://www.motorsport.com/f1/"
+  }
+]

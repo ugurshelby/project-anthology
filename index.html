@@ -5,78 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Project Anthology</title>
     
-    <!-- PERFORMANCE: Preconnect to external image host -->
-    <link rel="preconnect" href="https://images.unsplash.com">
-    <link rel="dns-prefetch" href="https://images.unsplash.com">
-    <link rel="preload" as="image" href="/1988_McLaren-Honda_MP4_4_Goodwood,_2009.jpeg" type="image/jpeg">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/png" sizes="256x256" href="/favicon-256.png">
-    <meta name="theme-color" content="#0a0a0a">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              serif: ['Playfair Display', 'serif'],
-              mono: ['IBM Plex Mono', 'monospace'],
-            },
-            colors: {
-              'f1-red': '#ff1801',
-              'f1-dark': '#15151e',
-              'f1-black': '#0a0a0a',
-              'f1-carbon': '#1f1f25',
-              'paper': '#f4f1ea',
-            },
-            animation: {
-              'grain': 'grain 8s steps(10) infinite',
-            },
-            keyframes: {
-              grain: {
-                '0%, 100%': { transform: 'translate(0, 0)' },
-                '10%': { transform: 'translate(-5%, -10%)' },
-                '20%': { transform: 'translate(-15%, 5%)' },
-                '30%': { transform: 'translate(7%, -25%)' },
-                '40%': { transform: 'translate(-5%, 25%)' },
-                '50%': { transform: 'translate(-15%, 10%)' },
-                '60%': { transform: 'translate(15%, 0%)' },
-                '70%': { transform: 'translate(0%, 15%)' },
-                '80%': { transform: 'translate(3%, 35%)' },
-                '90%': { transform: 'translate(-10%, 10%)' },
-              }
-            }
-          },
-        },
-      }
-    </script>
+    
+    <!-- Critical Font Preloading -->
+    <!-- Fonts are loaded via @fontsource in index.tsx, but we preload critical ones here -->
+    <!-- Note: In production, Vite will optimize these paths to /assets/ -->
+    <!-- Fallback fonts are optimized in CSS with font-display: swap -->
+    <!-- Resource Hints for Performance -->
+    <!-- Cloudinary CDN (if enabled) -->
+    <link rel="dns-prefetch" href="https://res.cloudinary.com">
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <!-- Sentry Error Tracking (if enabled) -->
+    <link rel="dns-prefetch" href="https://o4507000000000000.ingest.us.sentry.io">
+    <link rel="preconnect" href="https://o4507000000000000.ingest.us.sentry.io" crossorigin>
+    <!-- Vercel Analytics -->
+    <link rel="dns-prefetch" href="https://vitals.vercel-insights.com">
+    <link rel="preconnect" href="https://vitals.vercel-insights.com" crossorigin>
+    <link rel="dns-prefetch" href="https://vercel.live">
+    <link rel="preconnect" href="https://vercel.live" crossorigin>
+    <!-- API: /api dns-prefetch kaldırıldı - api/ klasörü Vite build'de EISDIR tetikliyor -->
+    <!-- News API sources (RSS feeds) -->
+    <link rel="dns-prefetch" href="https://www.the-race.com">
+    <link rel="dns-prefetch" href="https://www.autosport.com">
+    <link rel="dns-prefetch" href="https://www.motorsport.com">
+    <!-- Font providers (self-hosted via @fontsource, but add hints for fallback) -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <!-- Preconnect to same origin: / causes EISDIR on some Windows builds when resolved as asset -->
+    
+    <!-- Preload Critical Images - LCP için ilk 3 hero görseli -->
+    <link rel="preload" as="image" href="/images/Landscape 1280x720/1.png" fetchpriority="high">
+    <link rel="preload" as="image" href="/images/Landscape 1280x720/2.png" fetchpriority="high">
+    <link rel="preload" as="image" href="/images/Landscape 1280x720/3.png" fetchpriority="high">
+    
+    <!-- Favicon: tek kaynak /images/favicon.ico – cache kırma için ?v=3 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=3">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico?v=3">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg?v=3" sizes="any">
+    <meta name="theme-color" content="#ff1801">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Anthology">
+    <link rel="apple-touch-icon" href="/images/favicon.ico?v=3">
     <!-- Self-hosted fonts via @fontsource are imported in index.tsx -->
-    <style>
-      /* Custom Scrollbar for that technical feel */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #0a0a0a;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #333;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #ff1801;
-      }
-      .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-    </style>
-  
-<!-- Removed unused index.css to avoid 404/aborted requests -->
+    <!-- Tailwind CSS is now build-time via PostCSS -->
 </head>
   <body>
     <div id="root"></div>

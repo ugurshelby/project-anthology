@@ -1,0 +1,161 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation "Main navigation" [ref=e4]:
+    - button "Go to home page" [ref=e5] [cursor=pointer]: Project Anthology /// EST. 2026
+    - button "Toggle menu" [ref=e7] [cursor=pointer]: Menu
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e16]:
+        - generic [ref=e19]: The Formula 1 Narrative
+        - heading "Anthology" [level=1] [ref=e21]
+        - paragraph [ref=e22]: Beyond the checkered flag.
+      - generic [ref=e27]: Scroll to Initialize
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - heading "The Archive" [level=2] [ref=e32]
+          - paragraph [ref=e33]: Sector 2 /// Classified Historical Records
+        - generic [ref=e35]:
+          - button "Filter stories by All category" [pressed] [ref=e36] [cursor=pointer]: All
+          - button "Filter stories by Rivalry category" [ref=e37] [cursor=pointer]: Rivalry
+          - button "Filter stories by Tragedy category" [ref=e38] [cursor=pointer]: Tragedy
+          - button "Filter stories by Myth category" [ref=e39] [cursor=pointer]: Myth
+      - generic [ref=e40]:
+        - 'button "View story: The Divine Lap from 1988" [active] [ref=e41] [cursor=pointer]':
+          - img "The Divine Lap — 1988" [ref=e44]
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e50]: Rec_01
+              - generic [ref=e51]: SENNA-MO...
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - generic [ref=e54]: "1988"
+                - generic [ref=e56]: Legend
+              - heading "The Divine Lap" [level=3] [ref=e57]
+              - paragraph [ref=e58]: Ayrton Senna's transcendental qualification lap at Monaco, 1988. A moment where man and machine became one, before the crash that brought him back to earth.
+        - 'button "View story: Fire & Ice from 1976" [ref=e60] [cursor=pointer]':
+          - img "Fire & Ice — 1976" [ref=e63]
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e69]: Rec_02
+              - generic [ref=e70]: HUNT-LAU...
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: "1976"
+                - generic [ref=e75]: Rivalry
+              - heading "Fire & Ice" [level=3] [ref=e76]
+              - paragraph [ref=e77]: The 1976 season was not just a championship battle; it was a philosophical war between James Hunt and Niki Lauda.
+        - 'button "View story: The 39-Second Champion from 2008" [ref=e79] [cursor=pointer]':
+          - img "The 39-Second Champion — 2008" [ref=e82]
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e88]: Rec_03
+              - generic [ref=e89]: MASSA-20...
+            - generic [ref=e90]:
+              - generic [ref=e91]:
+                - generic [ref=e92]: "2008"
+                - generic [ref=e94]: Tragedy
+              - heading "The 39-Second Champion" [level=3] [ref=e95]
+              - paragraph [ref=e96]: Interlagos, 2008. Felipe Massa crossed the line as the World Champion. Thirty-nine seconds later, history was rewritten in the final corner.
+        - 'button "View story: The Red Baron from 2000" [ref=e98] [cursor=pointer]':
+          - img "The Red Baron — 2000" [ref=e101]
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e107]: Rec_04
+              - generic [ref=e108]: SCHUMACH...
+            - generic [ref=e109]:
+              - generic [ref=e110]:
+                - generic [ref=e111]: "2000"
+                - generic [ref=e113]: Dynasty
+              - heading "The Red Baron" [level=3] [ref=e114]
+              - paragraph [ref=e115]: How Michael Schumacher rebuilt the church of Ferrari and turned it into an empire of efficiency.
+        - 'button "View story: The Zonta Overtake from 2000" [ref=e117] [cursor=pointer]':
+          - img "The Zonta Overtake — 2000" [ref=e120]
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - generic [ref=e126]: Rec_05
+              - generic [ref=e127]: HAKKINEN...
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - generic [ref=e130]: "2000"
+                - generic [ref=e132]: Combat
+              - heading "The Zonta Overtake" [level=3] [ref=e133]
+              - paragraph [ref=e134]: Spa-Francorchamps. 200mph. A backmarker in the middle. Two of the greatest drivers in history made a choice.
+        - 'button "View story: Copse Corner from 2021" [ref=e136] [cursor=pointer]':
+          - img "Copse Corner — 2021" [ref=e139]
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e145]: Rec_06
+              - generic [ref=e146]: HAMILTON...
+            - generic [ref=e147]:
+              - generic [ref=e148]:
+                - generic [ref=e149]: "2021"
+                - generic [ref=e151]: Modern Era
+              - heading "Copse Corner" [level=3] [ref=e152]
+              - paragraph [ref=e153]: Lewis Hamilton vs Max Verstappen. A rivalry reaching its boiling point at 180mph on British soil.
+      - generic [ref=e156]: Loading Archive...
+  - dialog "The Divine Lap" [ref=e158]:
+    - navigation:
+      - generic:
+        - generic: Archival Record
+        - generic: SENNA-MONACO
+      - button "Close story modal" [ref=e160] [cursor=pointer]:
+        - generic [ref=e161]: CLOSE
+    - generic [ref=e162]:
+      - generic [ref=e164]:
+        - img "The Divine Lap — 1988" [ref=e166]
+        - generic:
+          - generic:
+            - generic:
+              - generic: "1988"
+              - generic: Legend
+            - heading "The Divine Lap" [level=1]
+            - paragraph: Ayrton Senna's transcendental qualification lap at Monaco, 1988. A moment where man and machine became one, before the crash that brought him back to earth.
+      - generic [ref=e168]:
+        - generic [ref=e169]:
+          - generic [ref=e172]: Prologue
+          - generic [ref=e174]:
+            - paragraph [ref=e175]: Monaco is not a race track; it is a cage. To drive fast here is to dance with a knife. In 1988, Ayrton Senna did not just drive; he entered a state of consciousness that few athletes ever reach. The car was an extension of his nervous system.
+            - figure "Ayrton Senna" [ref=e176]:
+              - blockquote [ref=e177]: "\"I was no longer driving the car consciously. I was driving it by a kind of instinct, only I was in a different dimension.\""
+              - generic [ref=e179]: Ayrton Senna
+            - paragraph [ref=e180]: He was two seconds faster than his teammate, Alain Prost. In Formula 1, two seconds is not a gap; it is a lifetime. It is the difference between talent and divinity.
+            - generic [ref=e182]:
+              - img "MP4/4, Senna 1988." [ref=e184]
+              - paragraph [ref=e186]: "FIG_Ref: MP4/4, Senna 1988."
+        - generic [ref=e188]:
+          - generic [ref=e190]:
+            - generic [ref=e191]: Sequence 02
+            - heading "The Crash" [level=2] [ref=e192]
+          - paragraph [ref=e195]: And then, silence. At Portier, just before the tunnel, the concentration broke. The McLaren hit the barrier. Senna did not return to the pits. He walked straight to his apartment in Monaco and disappeared for hours. Perfection is fragile.
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - heading "Related Stories" [level=3] [ref=e199]
+            - paragraph [ref=e200]: Continue the narrative
+          - generic [ref=e201]:
+            - generic [ref=e202] [cursor=pointer]:
+              - generic [ref=e203]:
+                - img "The Ghost of Donington" [ref=e204]
+                - generic [ref=e206]: "1993"
+              - heading "The Ghost of Donington" [level=4] [ref=e207]
+              - paragraph [ref=e208]: While the world struggled to survive the deluge, Ayrton Senna treated the water as his canvas. The greatest opening lap in the history of the sport.
+            - generic [ref=e209] [cursor=pointer]:
+              - generic [ref=e210]:
+                - img "The Black Weekend" [ref=e211]
+                - generic [ref=e213]: "1994"
+              - heading "The Black Weekend" [level=4] [ref=e214]
+              - paragraph [ref=e215]: Ratzenberger and Senna. Safety re-written in grief at Tamburello.
+            - generic [ref=e216] [cursor=pointer]:
+              - generic [ref=e217]:
+                - img "The Chaos Theory" [ref=e218]
+                - generic [ref=e220]: "1982"
+              - heading "The Chaos Theory" [level=4] [ref=e221]
+              - paragraph [ref=e222]: Rain, oil, and failing engines. A final lap where the lead changed like a deck of cards, proving that in the streets of Monte Carlo, the track always wins.
+        - generic [ref=e225]: End of Record
+  - contentinfo [ref=e226]:
+    - generic [ref=e228]:
+      - heading "The Pursuit of Speed" [level=2] [ref=e229]
+      - paragraph [ref=e230]: An archival project dedicated to the narrative history of Formula 1. Not just the numbers, but the blood, sweat, and oil.
+```
