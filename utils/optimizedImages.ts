@@ -99,12 +99,12 @@ const imageNumberMap: Record<string, number> = {
   '/Jaguar_Monaco_2004_diamond_lost.jpg': 40, // jaguar-monaco-diamond: Lost diamond mystery (Mystery)
 };
 
-// Folder paths for different layouts – story görselleri images/stories altında
+// Folder paths for different layouts – public/images altında (Vite publicDir kopyası dist’e)
 const folderPaths = {
-  full: 'stories/Full 1280x720',
-  landscape: 'stories/Landscape 1280x720',
-  portrait: 'stories/Portrait 1280x1707',
-  hero: 'stories/Landscape 1280x720',
+  full: 'Full 1280x720',
+  landscape: 'Landscape 1280x720',
+  portrait: 'Portrait 1280x1707',
+  hero: 'Landscape 1280x720',
 };
 
 /**
