@@ -3,11 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "concurrently \"npm run dev:api\" \"vite\"",
     "dev:api": "npx --yes kill-port 3001 2>nul & tsx server/dev-api-server.ts",
     "dev:vite": "vite",
     "build": "npm run images:gen && npm run images:optimize-story-38-40 && vite build",
+    "build:vercel": "npm run images:gen || true && npm run images:optimize-story-38-40 || true && vite build",
     "build:check": "npm run build && node scripts/check-bundle-size.js",
     "preview": "vite preview",
     "images:gen": "node scripts/generate-responsive-images.js",
