@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 import { Story } from "../types";
 import { storyMetadata } from "../data/storyMetadata";
 import { mobileWebpOf } from "../utils/images";
@@ -68,16 +69,28 @@ interface ArchiveSectionProps {
 }
 
 const ArchiveSectionComponent: React.FC<ArchiveSectionProps> = ({ onStorySelect }) => {
-  const [visibleCount, setVisibleCount] = useState(6); // Initial load: 6 stories
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category') || 'All';
+  const [visibleCount, setVisibleCount] = useState(6);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    ['All', 'Rivalry', 'Tragedy', 'Myth'].includes(categoryFromUrl) ? categoryFromUrl : 'All'
+  );
+
+  // Sync selectedCategory from URL when category param changes (e.g. from navbar)
+  useEffect(() => {
+    if (['All', 'Rivalry', 'Tragedy', 'Myth'].includes(categoryFromUrl)) {
+      setSelectedCategory(categoryFromUrl);
+      setVisibleCount(6);
+    }
+  }, [categoryFromUrl]);
+
   // Filter categories: All, Rivalry, Tragedy, Myth
   const allCategories = ['All', 'Rivalry', 'Tragedy', 'Myth'];
-  
+
   // Filter stories based on selected category
-  const filteredStories = selectedCategory === 'All' 
-    ? storyMetadata 
+  const filteredStories = selectedCategory === 'All'
+    ? storyMetadata
     : storyMetadata.filter(story => story.category === selectedCategory);
   
   // Virtual loading: Load more stories on scroll with smooth debouncing
@@ -150,7 +163,10 @@ const ArchiveSectionComponent: React.FC<ArchiveSectionProps> = ({ onStorySelect 
               variant="anthology"
               aria-label={`Filter stories by ${category} category`}
               aria-pressed={selectedCategory === category}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => {
+                setSelectedCategory(category);
+                setSearchParams(category === 'All' ? {} : { category });
+              }}
               className={selectedCategory === category 
                 ? 'bg-white text-black border-white' 
                 : ''

@@ -10,6 +10,7 @@ import ImageShimmer from './ui/ImageShimmer';
 interface StoryModalProps {
   story: Story;
   onClose: () => void;
+  onOpenMenu?: () => void;
   onStorySelect?: (story: Story) => void;
 }
 
@@ -36,10 +37,15 @@ const groupContentByHeadings = (content: StoryContent[]) => {
   return sections;
 };
 
-const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onStorySelect }) => {
+const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onOpenMenu, onStorySelect }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [heroLoaded, setHeroLoaded] = useState(false);
-  
+
+  // Scroll to top when opening a different story (e.g. from related stories)
+  useEffect(() => {
+    containerRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [story.id]);
+
   // PROGRESS BAR LOGIC
   const { scrollYProgress } = useScroll({ container: containerRef });
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
@@ -98,14 +104,14 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onStorySelect }
           <span className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-gray-300">Archival Record</span>
           <span className="font-mono text-xs uppercase tracking-widest text-white font-bold mt-1">{story.id.toUpperCase()}</span>
         </div>
-        <button 
-          onClick={onClose}
-          aria-label="Close story modal"
-          data-testid="story-modal-close-button"
+        <button
+          onClick={onOpenMenu ?? onClose}
+          aria-label={onOpenMenu ? 'Open menu and go to home' : 'Close story modal'}
+          data-testid="story-modal-menu-button"
           className="pointer-events-auto group flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-white hover:text-f1-red transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black"
         >
           <span className="hidden md:inline-block opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300 text-f1-red">[ ESC ]</span>
-          <span className="border-b border-transparent group-hover:border-[#ff1801]">CLOSE</span>
+          <span className="border-b border-transparent group-hover:border-[#ff1801]">MENU</span>
         </button>
       </nav>
 

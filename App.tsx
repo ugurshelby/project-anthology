@@ -216,7 +216,7 @@ const Shell: React.FC = () => {
         {activeStory && (
           <ErrorBoundary>
             <Suspense fallback={<div />}> 
-              <StoryModal story={activeStory} onClose={handleClose} onStorySelect={handleSelect} />
+              <StoryModal story={activeStory} onClose={handleClose} onOpenMenu={() => { navigate('/'); setIsMenuOpen(true); }} onStorySelect={handleSelect} />
             </Suspense>
           </ErrorBoundary>
         )}
@@ -321,14 +321,14 @@ const Shell: React.FC = () => {
                         <li key={category}>
                           <button
                             onClick={() => {
-                              navigate('/');
-                              // Scroll to archive section and trigger filter
+                              setIsMenuOpen(false);
+                              navigate(`/?category=${encodeURIComponent(category)}`);
                               setTimeout(() => {
                                 const archiveSection = document.querySelector('[data-archive-section]');
                                 if (archiveSection) {
                                   archiveSection.scrollIntoView({ behavior: 'smooth' });
                                 }
-                              }, 100);
+                              }, 150);
                             }}
                             className="font-serif text-lg text-white hover:text-f1-red transition-colors w-full text-left"
                           >
