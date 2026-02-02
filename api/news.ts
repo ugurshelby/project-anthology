@@ -529,9 +529,6 @@ function synthesizeNews(groups: RawNewsItem[][]): NewsItem[] {
     const uniqueSources = Array.from(new Set(group.map(item => item.sourceName)));
     const sources = uniqueSources.join(', ');
     
-    // Primary source is the one with the image (or first one)
-    const primarySource = imageData.sourceName || group[0]?.sourceName || '';
-    
     return {
       id: `synthesized-${idx}-${Date.now()}`,
       title: synthesized.title,
