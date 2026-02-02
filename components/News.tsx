@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { fetchNews, NewsItem, readNewsCache } from '../utils/newsService';
+import { fetchNews, NewsItem, readNewsCache, IN_CODE_FALLBACK } from '../utils/newsService';
 import { imagePreloader } from '../utils/imagePreloader';
 import ImageShimmer from './ui/ImageShimmer';
 
@@ -10,7 +10,7 @@ interface NewsProps {
 }
 
 const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
-  const [items, setItems] = useState<NewsItem[]>([]);
+  const [items, setItems] = useState<NewsItem[]>(IN_CODE_FALLBACK);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
@@ -55,17 +55,10 @@ const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
         // fetchNews will return cached data immediately if available
         // and trigger background fetch if needed
         const news = await fetchNews();
-        
-        if (news.length === 0) {
-          // Only show error if we don't have cached data
-          if (!cacheLoaded) {
-            setError('No news available at the moment. Please try again later.');
-          }
-          return;
+
+        if (news.length > 0) {
+          setItems(news);
         }
-        
-        // Update items if we got fresh data (or if cache wasn't loaded initially)
-        setItems(news);
         
         // Preload images for visible items
         news.slice(0, 6).forEach((item: NewsItem) => {
@@ -74,10 +67,6 @@ const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
           }
         });
       } catch (err) {
-        // Only show error if we don't have cached data
-        if (!cacheLoaded) {
-          setError('Failed to load news. Please try again later.');
-        }
         console.error('News load error:', err);
       } finally {
         setLoading(false);
@@ -118,6 +107,19 @@ const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
         clearTimeout(timeoutId);
       }
     };
+  }, []);
+
+  const handleRetry = useCallback(async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const news = await fetchNews();
+      setItems(news.length > 0 ? news : IN_CODE_FALLBACK);
+    } catch {
+      setItems(IN_CODE_FALLBACK);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const handleImageLoad = useCallback((itemId: string) => {
@@ -187,7 +189,7 @@ const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
           <div className="text-center py-12">
             <p className="font-mono text-sm text-gray-400 mb-4">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={handleRetry}
               className="font-mono text-xs uppercase tracking-widest text-f1-red hover:text-white border border-f1-red hover:bg-f1-red px-4 py-2 transition-all"
             >
               Retry

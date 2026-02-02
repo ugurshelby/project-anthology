@@ -4,12 +4,13 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/news", "destination": "/index.html" },
-    { "source": "/timeline", "destination": "/index.html" },
-    { "source": "/gallery", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/news", "destination": "/" },
+    { "source": "/timeline", "destination": "/" },
+    { "source": "/gallery", "destination": "/" },
+    { "source": "/(.*)", "destination": "/" }
   ],
   "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",

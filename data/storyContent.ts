@@ -165,14 +165,14 @@ export const storyContentMap: Record<string, StoryContent[]> = {
     { type: 'heading', text: 'The Publicity Stunt' },
     { type: 'paragraph', text: 'Ocean\'s Twelve was in the cinemas. Jaguar Racing had a script of their own. On the nose of the R5—Christian Klien\'s car—sat a Steinmetz diamond. Three hundred thousand dollars. Not for speed. For spectacle.' },
     { type: 'paragraph', text: 'The stunt was pure Hollywood: a jewel on the tip of a Formula 1 car, glinting under the Monaco sun. The world would watch. The diamond would shine. Until the track had other ideas.' },
-    { type: 'image', src: '/Monaco_GP_1982_Patrese.jpg', caption: 'Jaguar R5 nose with Steinmetz diamond, Monaco 2004.', layout: 'full' },
+    { type: 'image', src: '/Jaguar_Monaco_2004_diamond.jpg', caption: 'Jaguar R5 nose with Steinmetz diamond, Monaco 2004.', layout: 'full' },
     { type: 'heading', text: 'The Impact' },
     { type: 'paragraph', text: 'Lap one. Loews—the hairpin that has broken champions. Klien turned in. The car bit back. The nose shattered. Carbon fibre and ambition scattered across the runoff. And somewhere in that debris—or in the air, or in the sea—was a stone worth a house.' },
-    { type: 'image', src: '/Monaco_GP_1982_Patrese.jpg', caption: 'Christian Klien, Jaguar R5, Loews hairpin crash, Monaco 2004.', layout: 'landscape' },
+    { type: 'image', src: '/Jaguar_Monaco_2004_Klien_crash.jpg', caption: 'Christian Klien, Jaguar R5, Loews hairpin crash, Monaco 2004.', layout: 'landscape' },
     { type: 'paragraph', text: 'The broadcast did not need words. The diamond had left the script. The Mediterranean lay metres away. The streets of Monte Carlo had swallowed greater treasures. This one simply vanished.' },
     { type: 'heading', text: 'The Mystery' },
     { type: 'paragraph', text: 'When the red flags fell, the mechanics came. They sifted through the wreck. They searched the runoff, the barriers, the gaps in the Armco. The diamond was gone.' },
-    { type: 'image', src: '/Monaco_GP_1982_Patrese.jpg', caption: 'Enigma: the lost Steinmetz diamond of Monaco.', layout: 'portrait' },
+    { type: 'image', src: '/Jaguar_Monaco_2004_diamond_lost.jpg', caption: 'Enigma: the lost Steinmetz diamond of Monaco.', layout: 'portrait' },
     { type: 'paragraph', text: 'To this day, no one knows. The sea? A drain? A fan\'s pocket? A gutter in the principality? The story became a legend—a $300,000 mistake that slipped through the fingers of history. Jaguar left the sport. The diamond never came back.' }
   ],
 };

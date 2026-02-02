@@ -137,6 +137,6 @@ export const storyMetadata: Array<Omit<Story, 'content'>> = [
     subtitle: '2004 Monaco GP. A Jaguar F1 nose. A Steinmetz diamond worth a fortune. One crash at Loews. The Mediterranean—or the streets of Monte Carlo—swallowed it forever.',
     year: '2004',
     category: 'Myth',
-    heroImage: '/Monaco_GP_1982_Patrese.jpg',
+    heroImage: '/Jaguar_Monaco_2004_diamond.jpg',
   },
 ];

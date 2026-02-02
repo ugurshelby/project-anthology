@@ -200,26 +200,26 @@ export async function fetchNews(): Promise<NewsItem[]> {
   
   // No cache at all - check rate limit before fetching
   if (!checkRateLimit() || isFetching) {
-    // Rate limited or already fetching - return empty array, cache will be used
-    logger.log('Rate limited or fetch in progress, returning empty array');
-    return cached || [];
+    logger.log('Rate limited or fetch in progress, returning in-code fallback');
+    return IN_CODE_FALLBACK;
   }
-  
+
   // Fetch synchronously (first load or after rate limit window)
   try {
     isFetching = true;
     const items = await fetchNewsFromAPI();
-    
+
     if (items.length > 0) {
       writeCache(items);
     }
-    
+
     return items;
   } catch (err) {
     logger.error('Fetch error:', err);
-    // Return cached data if available, even if stale
-    return cached || [];
+    return IN_CODE_FALLBACK;
   } finally {
     isFetching = false;
   }
 }
+
+export { IN_CODE_FALLBACK };
