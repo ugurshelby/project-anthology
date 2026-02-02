@@ -28,15 +28,7 @@ Sinematik, editoryal bir Formula 1 tarihi keşfi. Arşiv hikayeleri, galeri, zam
 ```bash
 # Birim testleri (Vitest)
 npm run test:run
-
-# E2E testleri (Playwright)
-npm run test:e2e
-
-# Tüm testler + birleşik rapor
-npm run test:all:report
 ```
-
-Detaylı raporlama için [TEST_REPORTING_GUIDE.md](TEST_REPORTING_GUIDE.md) kılavuzuna bakın.
 
 ## Build
 

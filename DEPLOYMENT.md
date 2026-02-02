@@ -30,28 +30,12 @@ Deploy öncesi yerelde testlerin ve build'in geçtiğinden emin olun:
    ```bash
    npm run test:run
    ```
-   Tüm testler geçmeli (42/42).
 
-2. **E2E testleri (Playwright):** Önce build alın, ardından E2E çalıştırın:
-   ```bash
-   npm run build
-   npm run test:e2e
-   ```
-   Kritik akışlar (ana sayfa, menü, navigasyon, story modal) geçmeli.
-
-3. **Birleşik rapor:**
-   ```bash
-   npm run test:all:report
-   ```
-   Sonuçlar `test-results/LATEST_REPORT.md` ve `test-results/LATEST_REPORT.json` dosyalarına yazılır.
-
-4. **Build kontrolü:**
+2. **Build kontrolü:**
    ```bash
    npm run build:check
    ```
    Build ve bundle size kontrolü yapılır.
-
-**CI pipeline:** Deploy'dan önce `npm run test:run` (Vitest) ve `npm run test:e2e` (Playwright) çalıştırılmalı; yalnızca her iki komut da başarılı olduğunda deploy tetiklenmeli. Alternatif olarak `npm run test:all:report` ile tam set çalıştırılıp ardından deploy yapılabilir. Raporlar `test-results/LATEST_REPORT.md` ve `test-results/LATEST_REPORT.json` içinde saklanır.
 
 ## Deployment Adımları
 

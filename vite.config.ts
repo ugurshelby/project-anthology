@@ -70,7 +70,7 @@ export default defineConfig(({ mode }) => {
         VitePWA({
           registerType: 'autoUpdate',
           outDir: 'dist',
-          includeAssets: ['images/favicon.ico', 'images/favicon.svg'],
+          includeAssets: ['images/favicon.ico', 'images/favicon.svg', 'images/logo.png'],
           manifest: {
             name: 'Project Anthology: The F1 Narrative',
             short_name: 'Anthology',
