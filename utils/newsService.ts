@@ -116,7 +116,14 @@ function checkRateLimit(): boolean {
 
 const FALLBACK_NEWS_URL = '/news-fallback.json';
 
-// Fetch news from serverless API; on failure (e.g. dev without API server) try static fallback
+// In-code fallback when both API and static JSON fail (e.g. SPA rewrite served HTML)
+const IN_CODE_FALLBACK: NewsItem[] = [
+  { id: 'fallback-1', title: 'F1 News – Latest headlines', summary: 'When the main news API is unavailable, headlines are loaded from this fallback.', url: 'https://www.the-race.com', sourceName: 'The Race', image: '/images/favicon.svg', publishedAt: '', sourceUrl: 'https://www.the-race.com' },
+  { id: 'fallback-2', title: 'Formula 1 – Autosport', summary: 'Visit Autosport for the latest F1 news and analysis.', url: 'https://www.autosport.com/f1/', sourceName: 'Autosport', image: '/images/favicon.svg', publishedAt: '', sourceUrl: 'https://www.autosport.com/f1/' },
+  { id: 'fallback-3', title: 'Motorsport.com F1', summary: 'Stay up to date with F1 on Motorsport.com.', url: 'https://www.motorsport.com/f1/', sourceName: 'Motorsport.com', image: '/images/favicon.svg', publishedAt: '', sourceUrl: 'https://www.motorsport.com/f1/' },
+];
+
+// Fetch news from serverless API; on failure try static fallback, then in-code fallback
 async function fetchNewsFromAPI(): Promise<NewsItem[]> {
   try {
     const apiUrl = '/api/news';
@@ -129,6 +136,11 @@ async function fetchNewsFromAPI(): Promise<NewsItem[]> {
       throw new Error(`News API error: ${response.status} ${response.statusText}`);
     }
 
+    const contentType = response.headers.get('Content-Type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('API did not return JSON');
+    }
+
     const items: NewsItem[] = await response.json();
     if (!Array.isArray(items)) {
       throw new Error('Invalid response format from API');
@@ -139,12 +151,14 @@ async function fetchNewsFromAPI(): Promise<NewsItem[]> {
     try {
       const fallback = await fetch(FALLBACK_NEWS_URL);
       if (!fallback.ok) throw new Error('Fallback not found');
+      const ct = fallback.headers.get('Content-Type') || '';
+      if (!ct.includes('application/json')) throw new Error('Fallback not JSON (likely SPA HTML)');
       const items: NewsItem[] = await fallback.json();
       if (Array.isArray(items) && items.length > 0) return items;
     } catch (fallbackErr) {
-      logger.warn('Fallback news load failed:', fallbackErr);
+      logger.warn('Fallback news load failed, using in-code fallback:', fallbackErr);
     }
-    throw err;
+    return IN_CODE_FALLBACK;
   }
 }
 

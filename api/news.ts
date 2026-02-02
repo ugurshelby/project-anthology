@@ -543,25 +543,21 @@ function synthesizeNews(groups: RawNewsItem[][]): NewsItem[] {
 }
 
 // Allowed origins (production domains)
-const ALLOWED_ORIGINS = [
-  'https://project-anthology.vercel.app',
-  'https://anthology-f1.vercel.app',
-  // Add your production domain here
-];
-
-// Get origin from request
+// Allow same-origin, localhost, and any Vercel deployment (*.vercel.app)
 function getAllowedOrigin(req: VercelRequest): string | null {
   const origin = req.headers.origin || req.headers.referer;
   if (!origin) return null;
   
-  // Allow same-origin requests
-  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+  try {
+    const url = new URL(origin);
+    const host = url.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1') return origin;
+    if (host.endsWith('.vercel.app')) return origin;
+    if (host === 'project-anthology.vercel.app' || host === 'anthology-f1.vercel.app') return origin;
     return origin;
+  } catch {
+    return null;
   }
-  
-  // Check against whitelist
-  const isAllowed = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed));
-  return isAllowed ? origin : null;
 }
 
 // Rate limiting storage (in-memory, resets on serverless function restart)
