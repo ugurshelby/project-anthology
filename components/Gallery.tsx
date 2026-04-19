@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { imagePreloader } from '../utils/imagePreloader';
 import ImageShimmer from './ui/ImageShimmer';
+import { getDesktopOptimizedImage, getOriginalImagePathByNumber } from '../utils/optimizedImages';
+import { createKeyboardShortcuts } from '../utils/keyboardShortcuts';
 
 interface GalleryProps {
   onClose?: () => void;
@@ -18,6 +20,8 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
   const [isMobile, setIsMobile] = useState(false);
+  const [lightboxLoaded, setLightboxLoaded] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
 
   // Generate image paths for 1-40 (includes Jaguar Monaco 38–40)
   const generateImages = (layout: 'full' | 'portrait'): GalleryImage[] => {
@@ -40,16 +44,23 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
 
   const images = useMemo(() => generateImages(selectedLayout), [selectedLayout]);
 
-  // Preload first 3 images + new story images (23–27, 38–40) when layout changes
+  // Preload first 3 images; mobilde ek olarak yeni hikâye görsellerini (23–27, 38–40) öne al
   useEffect(() => {
     const firstThree = images.slice(0, 3);
-    const newStoryImages = images.filter(img => (img.id >= 23 && img.id <= 27) || (img.id >= 38 && img.id <= 40));
-    const imagesToPreload = [...firstThree, ...newStoryImages];
+    // Masaüstünde ağırlığı sınırlamak için yalnızca ilk 3 kareyi yüksek öncelikli tut
+    const newStoryImages = images.filter(
+      (img) => (img.id >= 23 && img.id <= 27) || (img.id >= 38 && img.id <= 40)
+    );
+    const imagesToPreload = isMobile ? [...firstThree, ...newStoryImages] : firstThree;
     
     imagesToPreload.forEach((img) => {
       const imagePath = isMobile ? img.mobilePath : img.desktopPath;
       imagePreloader.preloadImage(imagePath, {
-        fetchPriority: img.id <= 3 || (img.id >= 23 && img.id <= 27) || (img.id >= 38 && img.id <= 40) ? 'high' : 'low'
+        fetchPriority:
+          img.id <= 3 ||
+          (isMobile && ((img.id >= 23 && img.id <= 27) || (img.id >= 38 && img.id <= 40)))
+            ? 'high'
+            : 'low',
       });
     });
   }, [images, isMobile]);
@@ -80,6 +91,7 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
     if (!selectedImage) return;
     const currentIndex = images.findIndex(img => img.id === selectedImage.id);
     const nextIndex = (currentIndex + 1) % images.length;
+    setSlideDirection(1);
     setSelectedImage(images[nextIndex]);
   }, [selectedImage, images]);
 
@@ -87,29 +99,68 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
     if (!selectedImage) return;
     const currentIndex = images.findIndex(img => img.id === selectedImage.id);
     const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    setSlideDirection(-1);
     setSelectedImage(images[prevIndex]);
   }, [selectedImage, images]);
 
 
-  // Keyboard navigation for lightbox
+  // Smart preloading for lightbox – bir önceki ve bir sonraki görsel
   useEffect(() => {
     if (!selectedImage) return;
 
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleCloseLightbox();
-      } else if (e.key === 'ArrowRight') {
-        handleNextImage();
-      } else if (e.key === 'ArrowLeft') {
-        handlePrevImage();
-      }
-    };
+    const currentIndex = images.findIndex(img => img.id === selectedImage.id);
+    if (currentIndex === -1) return;
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    const nextIndex = (currentIndex + 1) % images.length;
+    const preloadCandidates = [images[prevIndex], images[nextIndex]];
+
+    const sources = preloadCandidates.map(img =>
+      isMobile ? img.mobilePath : img.desktopPath
+    );
+
+    imagePreloader.preloadImages(sources, { fetchPriority: 'low' }).catch(() => {
+      // Sessizce başarısız olabilir; kullanıcı deneyimini etkilemesin
+    });
+  }, [selectedImage, images, isMobile]);
+
+  // Lightbox görseli her değiştiğinde shimmer'ı tekrar göster
+  useEffect(() => {
+    if (selectedImage) {
+      setLightboxLoaded(false);
+    }
+  }, [selectedImage, selectedLayout, isMobile]);
+
+  // Keyboard navigation via global shortcut sistemi
+  useEffect(() => {
+    if (!selectedImage) return;
+
+    const cleanup = createKeyboardShortcuts({
+      onEscape: handleCloseLightbox,
+      onArrowLeft: handlePrevImage,
+      onArrowRight: handleNextImage,
+    });
+
+    return cleanup;
   }, [selectedImage, handleNextImage, handlePrevImage]);
 
   const aspectRatio = selectedLayout === 'portrait' ? '3/4' : '16/9';
+
+  // Lightbox image slide/fade animasyonu
+  const lightboxImageVariants = {
+    enter: (direction: 1 | -1) => ({
+      x: direction > 0 ? 40 : -40,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: 1 | -1) => ({
+      x: direction > 0 ? -40 : 40,
+      opacity: 0,
+    }),
+  } as const;
 
   return (
     <div className="relative min-h-screen bg-f1-black text-white py-24 px-4 md:px-8 lg:px-12">
@@ -183,6 +234,7 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
                     style={{
                       aspectRatio: selectedLayout === 'portrait' ? '3/4' : '16/9',
                     }}
+                    aria-label={`Open gallery frame ${image.id} from the anthology`}
                   >
                     <div className="absolute inset-[6px] md:inset-2 border border-white/10 group-hover:border-white/20 transition-colors duration-300 pointer-events-none" />
                     {!loaded && (
@@ -193,7 +245,7 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
                     )}
                     <img
                       src={imagePath}
-                      alt={`Gallery image ${image.id}`}
+                      alt={`Gallery frame ${image.id} from Project Anthology`}
                       className={`absolute inset-[6px] md:inset-2 w-[calc(100%-12px)] md:w-[calc(100%-16px)] h-[calc(100%-12px)] md:h-[calc(100%-16px)] object-contain transition-all duration-500 ${
                         loaded ? 'opacity-100' : 'opacity-0'
                       } group-hover:opacity-95`}
@@ -228,7 +280,7 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/98 z-[100] backdrop-blur-sm"
+              className="fixed inset-0 z-[100] bg-f1-black/90 backdrop-blur-xl"
               onClick={handleCloseLightbox}
             />
             <motion.div
@@ -243,16 +295,58 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
                 className="max-w-7xl w-full h-full flex flex-col pointer-events-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close button */}
-                <button
-                  onClick={handleCloseLightbox}
-                  className="self-end font-mono text-sm uppercase tracking-widest text-white hover:text-f1-red transition-colors bg-black/50 px-4 py-2 mb-4 border border-white/20 hover:border-f1-red"
-                >
-                  ESC
-                </button>
+                {/* Üst bar: başlık + aksiyonlar */}
+                <div className="flex items-center justify-between mb-4 gap-4">
+                  <div className="flex flex-col">
+                    <span className="font-serif text-lg md:text-2xl text-white">
+                      Cinematic Frame {selectedImage.id}
+                    </span>
+                    <span className="font-mono text-[10px] md:text-xs text-gray-400 uppercase tracking-widest">
+                      Gallery • Frame {selectedImage.id.toString().padStart(2, '0')} / 40
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {/* Download button */}
+                    {(() => {
+                      const originalPath = getOriginalImagePathByNumber(selectedImage.id);
+                      const layoutKey = selectedLayout === 'portrait' ? 'portrait' : 'full';
+                      const downloadHref = originalPath
+                        ? getDesktopOptimizedImage(originalPath, layoutKey)
+                        : selectedImage.desktopPath;
+                      const ratioLabel = selectedLayout === 'portrait' ? '3:4' : '16:9';
+                      const resolutionLabel =
+                        selectedLayout === 'portrait' ? '1280×1707' : '1280×720';
+
+                      return (
+                        <a
+                          href={downloadHref}
+                          download
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group flex items-center gap-3 bg-f1-red/10 hover:bg-f1-red/20 border border-f1-red/60 hover:border-f1-red px-4 py-2 rounded-sm transition-colors"
+                        >
+                          <span className="font-serif text-sm text-f1-red">
+                            Download Image
+                          </span>
+                          <span className="font-mono text-[10px] text-gray-300 uppercase tracking-widest">
+                            {resolutionLabel} • {ratioLabel}
+                          </span>
+                        </a>
+                      );
+                    })()}
+
+                    {/* Close button */}
+                    <button
+                      onClick={handleCloseLightbox}
+                      className="font-mono text-xs uppercase tracking-widest text-white hover:text-f1-red transition-colors bg-black/60 px-4 py-2 border border-white/20 hover:border-f1-red"
+                    >
+                      ESC
+                    </button>
+                  </div>
+                </div>
 
                 {/* Image container */}
-                <div className="relative flex-1 flex items-center justify-center bg-f1-black/50 border border-white/10">
+                <div className="relative flex-1 flex items-center justify-center bg-f1-black/80 border border-white/15 overflow-hidden">
                   {/* Previous button */}
                   <button
                     onClick={handlePrevImage}
@@ -263,19 +357,36 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ onClose }) => {
 
                   {/* Image */}
                   <div
-                    className="relative w-full h-full flex items-center justify-center p-4"
+                    className="relative w-full h-full max-w-6xl mx-auto flex items-center justify-center p-4 md:p-8"
                     style={{ aspectRatio }}
                   >
-                    <img
-                      src={isMobile ? selectedImage.mobilePath : selectedImage.desktopPath}
-                      alt={`Gallery image ${selectedImage.id}`}
-                      loading="eager"
-                      fetchPriority="high"
-                      decoding="async"
-                      width={selectedLayout === 'portrait' ? 1280 : 1280}
-                      height={selectedLayout === 'portrait' ? 1707 : 720}
-                      className="max-w-full max-h-full object-contain"
-                    />
+                    {/* CLS için rezerv alan + shimmer */}
+                    {!lightboxLoaded && (
+                      <ImageShimmer
+                        aspectRatio={aspectRatio}
+                        className="absolute inset-0 rounded-sm"
+                      />
+                    )}
+                    <AnimatePresence mode="wait" custom={slideDirection} initial={false}>
+                      <motion.img
+                        key={`${selectedImage.id}-${selectedLayout}-${isMobile ? 'm' : 'd'}`}
+                        src={isMobile ? selectedImage.mobilePath : selectedImage.desktopPath}
+                        alt={`Gallery image ${selectedImage.id}`}
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                        width={selectedLayout === 'portrait' ? 1280 : 1280}
+                        height={selectedLayout === 'portrait' ? 1707 : 720}
+                        className="max-w-full max-h-full object-contain drop-shadow-[0_0_40px_rgba(0,0,0,0.9)]"
+                        variants={lightboxImageVariants}
+                        custom={slideDirection}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{ duration: 0.4, ease: 'easeInOut' }}
+                        onLoad={() => setLightboxLoaded(true)}
+                      />
+                    </AnimatePresence>
                   </div>
 
                   {/* Next button */}

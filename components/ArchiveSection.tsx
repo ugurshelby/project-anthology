@@ -160,7 +160,7 @@ const ArchiveSectionComponent: React.FC<ArchiveSectionProps> = ({ onStorySelect 
           {allCategories.map((category) => (
             <Button 
               key={category} 
-              variant="anthology"
+              variant="glow"
               aria-label={`Filter stories by ${category} category`}
               aria-pressed={selectedCategory === category}
               onClick={() => {
@@ -400,10 +400,10 @@ const ArchiveCard: React.FC<{
       {/* 1. IMAGE LAYER */}
       <div className="absolute inset-0 overflow-hidden">
         {!loaded && !error && (
-          <ImageShimmer aspectRatio="16/9" className="absolute inset-0" />
+          <ImageShimmer aspectRatio={aspectRatio} className="absolute inset-0" />
         )}
         {!error && (
-          <picture className="block w-full h-full aspect-[16/9]">
+          <picture className="block w-full h-full" style={{ aspectRatio }}>
             {/* Mobile optimized PNG */}
             <source 
               media="(max-width: 640px)" 

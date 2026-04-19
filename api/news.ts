@@ -1,10 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// DOMParser polyfill for Node (dev-api-server + Vercel serverless); browser/Vercel edge may have it
+/**
+ * F1 News aggregator
+ * - Pulls RSS from a small list of high-signal F1 sources (parallel, per-source timeout).
+ * - Filters to F1-only items.
+ * - Deduplicates by canonical URL.
+ * - Conservatively clusters near-duplicate stories (same headline across outlets) and
+ *   keeps the original primary item intact (title, summary, url) — never invents text.
+ * - Sorts strictly by publication time (newest first) using a numeric epoch.
+ */
+
 async function ensureDOMParser(): Promise<void> {
-  if (typeof (globalThis as any).DOMParser !== 'undefined') return;
+  const g = globalThis as { DOMParser?: unknown };
+  if (typeof g.DOMParser !== 'undefined') return;
   const { JSDOM } = await import('jsdom');
-  (globalThis as any).DOMParser = class NodeDOMParser {
+  (g as { DOMParser: unknown }).DOMParser = class NodeDOMParser {
     parseFromString(str: string, type: string): Document {
       const contentType = type === 'text/xml' ? 'text/xml' : 'text/html';
       const dom = new JSDOM(str, { contentType });
@@ -13,736 +23,436 @@ async function ensureDOMParser(): Promise<void> {
   };
 }
 
-// Types
-interface RawNewsItem {
-  id: string;
+interface RawItem {
   title: string;
   summary: string;
   url: string;
+  canonicalUrl: string;
   sourceName: string;
   image: string;
-  publishedAt: string;
+  publishedTs: number;
+  publishedISO: string;
 }
 
-interface NewsItem {
+export interface NewsItem {
   id: string;
   title: string;
   summary: string;
   url: string;
   sourceName: string;
+  sources: string[];
   image: string;
   publishedAt: string;
-  sourceUrl: string;
+  publishedTs: number;
+  /** Pre-formatted display label, e.g. "14 Apr 2026". */
+  dateLabel: string;
 }
 
 const NEWS_SOURCES = [
-  {
-    name: 'The Race',
-    rssUrl: 'https://www.the-race.com/feed/',
-    baseUrl: 'https://www.the-race.com',
-  },
-  {
-    name: 'Autosport',
-    rssUrl: 'https://www.autosport.com/rss/f1/news/',
-    baseUrl: 'https://www.autosport.com',
-  },
-  {
-    name: 'Motorsport.com',
-    rssUrl: 'https://www.motorsport.com/rss/f1/news/',
-    baseUrl: 'https://www.motorsport.com',
-  },
-];
+  { name: 'The Race', rssUrl: 'https://www.the-race.com/feed/', baseUrl: 'https://www.the-race.com' },
+  { name: 'Autosport', rssUrl: 'https://www.autosport.com/rss/f1/news/', baseUrl: 'https://www.autosport.com' },
+  { name: 'Motorsport.com', rssUrl: 'https://www.motorsport.com/rss/f1/news/', baseUrl: 'https://www.motorsport.com' },
+] as const;
 
-// F1-related keywords (positive matches)
 const F1_KEYWORDS = [
   'f1', 'formula 1', 'formula one', 'formula1', 'formula-1',
-  'grand prix', 'gp', 'fia',
-  // F1 teams
+  'grand prix', ' gp ', 'fia',
   'ferrari', 'mercedes', 'red bull', 'mclaren', 'alpine', 'aston martin',
-  'williams', 'haas', 'alphatauri', 'rb', 'sauber', 'kick sauber',
-  'stake f1', 'racing bulls', 'visa cash app',
-  // F1 drivers (current and recent)
+  'williams', 'haas', 'alphatauri', 'sauber', 'kick sauber', 'racing bulls',
   'hamilton', 'verstappen', 'leclerc', 'sainz', 'norris', 'piastri',
   'russell', 'alonso', 'stroll', 'ocon', 'gasly', 'albon',
-  'bottas', 'zhou', 'tsunoda', 'ricciardo', 'hulkenberg', 'magnussen',
-  'sargeant', 'bearman', 'lawson', 'doohan',
-  // F1 circuits
-  'monaco', 'monza', 'silverstone', 'spa', 'suzuka', 'interlagos',
+  'bottas', 'zhou', 'tsunoda', 'hulkenberg', 'magnussen',
+  'bearman', 'lawson', 'doohan', 'antonelli', 'colapinto',
+  'monaco', 'monza', 'silverstone', 'spa-francorchamps', 'suzuka', 'interlagos',
   'bahrain', 'jeddah', 'melbourne', 'imola', 'barcelona', 'montreal',
   'red bull ring', 'hungaroring', 'zandvoort', 'marina bay', 'yas marina',
-  // F1 terms
-  'qualifying', 'pole position', 'podium', 'championship', 'constructors',
-  'drivers championship', 'drs', 'safety car', 'virtual safety car',
-  'race director', 'stewards', 'penalty', 'grid penalty',
+  'qualifying', 'pole position', 'podium', 'constructors championship',
+  'drivers championship', 'drs', 'safety car',
 ];
 
-// Non-F1 motorsports (negative matches - filter these out)
 const NON_F1_KEYWORDS = [
-  'motogp', 'moto gp', 'moto2', 'moto3', 'moto e',
+  'motogp', 'moto gp', 'moto2', 'moto3', 'motoe',
   'wrc', 'world rally', 'rally championship',
-  'wec', 'world endurance', 'le mans', '24 hours',
-  'indycar', 'indy car', 'indianapolis', 'indy 500',
-  'nascar', 'nascar cup', 'nascar xfinity',
-  'formula e', 'formula-e', 'fe championship', 'formula electric',
-  'super gt', 'dtm', 'gt3', 'gt4',
+  'wec', 'world endurance', 'le mans', '24 hours of',
+  'indycar', 'indy car', 'indy 500',
+  'nascar',
+  'formula e', 'formula-e',
+  'super gt', 'dtm', 'gt3 ', 'gt4 ',
   'superbike', 'worldsbk', 'wsbk',
   'motocross', 'mxgp', 'supercross',
   'dakar', 'rally raid',
   'v8 supercars', 'supercars championship',
-  'btcc', 'british touring car',
-  'wtcr', 'world touring car',
+  'btcc', 'british touring car', 'wtcr',
 ];
 
-// Enhanced HTML sanitization
-function sanitizeText(text: string | undefined): string {
-  if (!text) return '';
-  
-  let sanitized = String(text);
-  
-  // Remove all HTML tags
-  sanitized = sanitized.replace(/<[^>]+>/g, '');
-  
-  // Decode HTML entities
-  sanitized = sanitized
+function decodeEntities(s: string): string {
+  return s
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
     .replace(/&nbsp;/g, ' ')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&#x27;/g, "'")
     .replace(/&#x2F;/g, '/')
-    .replace(/&#x60;/g, '`')
-    .replace(/&#x3D;/g, '=');
-  
-  // Remove script tags and event handlers (extra safety)
-  sanitized = sanitized
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+\s*=/gi, '')
-    .replace(/<script/gi, '')
-    .replace(/<\/script>/gi, '');
-  
-  // Normalize whitespace
-  sanitized = sanitized.trim().replace(/\s+/g, ' ');
-  
-  // Limit length to prevent DoS
-  const MAX_LENGTH = 10000;
-  if (sanitized.length > MAX_LENGTH) {
-    sanitized = sanitized.substring(0, MAX_LENGTH) + '...';
-  }
-  
-  return sanitized;
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n, 10)));
 }
 
-function safeDate(d: string | undefined): string {
+function sanitizeText(text: string | undefined | null, maxLen = 800): string {
+  if (!text) return '';
+  let out = String(text);
+  out = out.replace(/<!\[CDATA\[/g, '').replace(/\]\]>/g, '');
+  out = out.replace(/<[^>]+>/g, ' ');
+  out = decodeEntities(out);
+  out = out.replace(/javascript:/gi, '').replace(/on\w+\s*=/gi, '');
+  out = out.replace(/\s+/g, ' ').trim();
+  if (out.length > maxLen) out = out.slice(0, maxLen - 1) + '…';
+  return out;
+}
+
+function parseDateToTs(d: string | undefined | null): number {
+  if (!d) return 0;
+  const s = String(d).trim().replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+  const t = Date.parse(s);
+  return Number.isFinite(t) ? t : 0;
+}
+
+function formatDateLabel(ts: number): string {
+  if (!ts) return '';
   try {
-    const dt = new Date(d || '');
-    if (isNaN(dt.getTime())) return '';
-    return dt.toLocaleDateString('en-GB');
+    return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch {
     return '';
   }
 }
 
-function isF1Related(item: RawNewsItem): boolean {
-  const title = (item.title || '').toLowerCase();
-  const summary = (item.summary || '').toLowerCase();
-  const combined = `${title} ${summary}`;
-  
-  // First check: if it contains non-F1 motorsport keywords, filter it out
-  for (const keyword of NON_F1_KEYWORDS) {
-    if (combined.includes(keyword)) {
-      return false;
-    }
+function canonicalize(url: string): string {
+  try {
+    const u = new URL(url);
+    u.hash = '';
+    // Strip common tracking params
+    const drop = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid'];
+    drop.forEach((p) => u.searchParams.delete(p));
+    let path = u.pathname.replace(/\/+$/, '');
+    if (!path) path = '/';
+    return `${u.protocol}//${u.host.toLowerCase()}${path}${u.search}`;
+  } catch {
+    return url;
   }
-  
-  // Second check: must contain F1-related keywords
-  for (const keyword of F1_KEYWORDS) {
-    if (combined.includes(keyword)) {
-      return true;
-    }
+}
+
+function isF1Related(item: { title: string; summary: string; url: string }): boolean {
+  const url = item.url.toLowerCase();
+  const haystack = ` ${item.title} ${item.summary} `.toLowerCase();
+
+  for (const kw of NON_F1_KEYWORDS) {
+    if (haystack.includes(kw)) return false;
   }
-  
-  // If URL contains /f1/ or /formula-1/ or similar, it's likely F1-related
-  const url = (item.url || '').toLowerCase();
-  if (url.includes('/f1/') || url.includes('/formula-1/') || url.includes('/formula1/')) {
-    return true;
+  if (url.includes('/f1/') || url.includes('/formula-1/') || url.includes('/formula1/')) return true;
+  for (const kw of F1_KEYWORDS) {
+    if (haystack.includes(kw)) return true;
   }
-  
-  // Default: if we can't determine, filter it out to be safe
   return false;
 }
 
-function extractImageFromDescription(description: string, baseUrl: string): string {
-  if (!description) return '';
-  
+function absoluteUrl(src: string, baseUrl: string): string {
+  if (!src) return '';
+  const cleaned = src.trim().replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+  if (!cleaned) return '';
+  if (cleaned.startsWith('http://') || cleaned.startsWith('https://')) return cleaned;
+  if (cleaned.startsWith('//')) return `https:${cleaned}`;
   try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(description, 'text/html');
-    
-    // Try multiple image sources
-    const img = doc.querySelector('img');
-    if (img) {
-      let src = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
-      if (src) {
-        // Clean up src (remove query params that might cause issues)
-        src = src.split('?')[0];
-        
-        if (src.startsWith('http://') || src.startsWith('https://')) {
-          return src;
-        } else if (src.startsWith('//')) {
-          return `https:${src}`;
-        } else if (src.startsWith('/')) {
-          try {
-            const url = new URL(baseUrl);
-            return `${url.protocol}//${url.host}${src}`;
-          } catch {
-            return '';
-          }
-        } else {
-          try {
-            const url = new URL(baseUrl);
-            return `${url.protocol}//${url.host}/${src}`;
-          } catch {
-            return '';
-          }
-        }
-      }
-    }
-    
-    // Try to find image in content:encoded or other tags
-    const allImages = doc.querySelectorAll('img');
-    for (const imgEl of Array.from(allImages)) {
-      const src = imgEl.getAttribute('src') || imgEl.getAttribute('data-src');
-      if (src && (src.includes('image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(src))) {
-        if (src.startsWith('http')) return src;
-        if (src.startsWith('/')) {
-          try {
-            const url = new URL(baseUrl);
-            return `${url.protocol}//${url.host}${src}`;
-          } catch {
-            continue;
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('Image extraction error:', err);
+    const b = new URL(baseUrl);
+    if (cleaned.startsWith('/')) return `${b.protocol}//${b.host}${cleaned}`;
+    return `${b.protocol}//${b.host}/${cleaned}`;
+  } catch {
+    return '';
   }
-  
+}
+
+function extractImageFromHtml(html: string, baseUrl: string): string {
+  if (!html) return '';
+  try {
+    const parser = new (globalThis as { DOMParser: { new (): { parseFromString(s: string, t: string): Document } } }).DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const candidates = Array.from(doc.querySelectorAll('img'));
+    for (const img of candidates) {
+      const raw = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+      if (raw) {
+        const abs = absoluteUrl(raw.split('?')[0], baseUrl);
+        if (abs && /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(abs)) return abs;
+        if (abs) return abs;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
   return '';
 }
 
-// Calculate similarity between two texts (0-1)
-function calculateSimilarity(text1: string, text2: string): number {
-  const words1 = text1.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-  const words2 = text2.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-  
-  if (words1.length === 0 || words2.length === 0) return 0;
-  
-  const set1 = new Set(words1);
-  const set2 = new Set(words2);
-  
-  const intersection = new Set([...set1].filter(x => set2.has(x)));
-  const union = new Set([...set1, ...set2]);
-  
-  // Jaccard similarity
-  const jaccard = intersection.size / union.size;
-  
-  // Also check for common important words (F1 terms, driver names, etc.)
-  const importantWords = ['f1', 'formula', 'grand', 'prix', 'verstappen', 'hamilton', 'ferrari', 'mercedes', 'red bull', 'mclaren'];
-  const importantMatches = importantWords.filter(w => 
-    text1.toLowerCase().includes(w) && text2.toLowerCase().includes(w)
-  ).length;
-  
-  const importantBonus = importantMatches * 0.1;
-  
-  return Math.min(1, jaccard + importantBonus);
-}
-
-// Synthesize title from multiple sources
-function synthesizeTitle(items: RawNewsItem[]): string {
-  if (items.length === 0) return '';
-  if (items.length === 1) return items[0].title;
-  
-  // Find the most common words
-  const allWords = items.map(item => 
-    item.title.toLowerCase().split(/\s+/).filter(w => w.length > 2)
-  );
-  
-  const wordCounts = new Map<string, number>();
-  allWords.forEach(words => {
-    words.forEach(word => {
-      wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
-    });
-  });
-  
-  // Get words that appear in at least 2 sources
-  const commonWords = Array.from(wordCounts.entries())
-    .filter(([_, count]) => count >= 2)
-    .sort((a, b) => b[1] - a[1])
-    .map(([word]) => word);
-  
-  // Use the shortest, most informative title as base
-  const baseTitle = items.reduce((shortest, current) => 
-    current.title.length < shortest.title.length ? current : shortest
-  ).title;
-  
-  // If we have enough common words, reconstruct
-  if (commonWords.length >= 3) {
-    // Try to create a natural sentence
-    const words = baseTitle.split(/\s+/);
-    const importantWords = words.filter(w => 
-      commonWords.includes(w.toLowerCase()) || 
-      w.length > 4
-    );
-    
-    if (importantWords.length >= 3) {
-      return importantWords.join(' ');
-    }
-  }
-  
-  // Fallback: use the most descriptive title
-  return baseTitle;
-}
-
-// Synthesize summary from multiple sources
-function synthesizeSummary(items: RawNewsItem[]): string {
-  if (items.length === 0) return '';
-  if (items.length === 1) return items[0].summary;
-  
-  // Extract sentences from all summaries
-  const allSentences: string[] = [];
-  items.forEach(item => {
-    const sentences = item.summary.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 20);
-    allSentences.push(...sentences);
-  });
-  
-  // Remove duplicates and very similar sentences
-  const uniqueSentences: string[] = [];
-  allSentences.forEach(sentence => {
-    const isDuplicate = uniqueSentences.some(existing => 
-      calculateSimilarity(sentence, existing) > 0.7
-    );
-    if (!isDuplicate) {
-      uniqueSentences.push(sentence);
-    }
-  });
-  
-  // Take the first 2-3 most informative sentences
-  const selected = uniqueSentences
-    .filter(s => s.length > 30 && s.length < 200)
-    .slice(0, 3);
-  
-  if (selected.length === 0) {
-    // Fallback to longest summary
-    return items.reduce((longest, current) => 
-      current.summary.length > longest.summary.length ? current : longest
-    ).summary;
-  }
-  
-  return selected.join('. ') + '.';
-}
-
-// Find best image from sources
-function selectBestImage(items: RawNewsItem[]): { image: string; sourceUrl: string; sourceName: string } {
-  // Prefer images that are actual image URLs (not placeholders)
-  const validImages = items.filter(item => 
-    item.image && 
-    item.image !== '/favicon.svg' &&
-    item.image.trim() !== '' &&
-    (item.image.startsWith('http') || item.image.startsWith('https'))
-  );
-  
-  if (validImages.length === 0) {
-    return { 
-      image: '/favicon.svg', 
-      sourceUrl: items[0]?.url || '',
-      sourceName: items[0]?.sourceName || '',
-    };
-  }
-  
-  // Prefer images from CDNs or image domains
-  const cdnImages = validImages.filter(item => 
-    /\.(jpg|jpeg|png|gif|webp)$/i.test(item.image) ||
-    /(cdn|img|image|photo|media|cloudinary|imgur)/i.test(item.image)
-  );
-  
-  const selected = cdnImages.length > 0 ? cdnImages[0] : validImages[0];
-  
-  return {
-    image: selected.image,
-    sourceUrl: selected.url,
-    sourceName: selected.sourceName,
-  };
-}
-
-async function fetchRSSFeed(source: typeof NEWS_SOURCES[0]): Promise<RawNewsItem[]> {
+async function fetchRSSFeed(source: typeof NEWS_SOURCES[number], signal: AbortSignal): Promise<RawItem[]> {
   try {
-    // Server-side: No CORS issues, direct fetch
     const response = await fetch(source.rssUrl, {
+      signal,
       headers: {
-        'User-Agent': 'Project Anthology News Aggregator',
-        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+        'User-Agent': 'Mozilla/5.0 (compatible; ProjectAnthology/1.0; +https://github.com/anthology)',
+        Accept: 'application/rss+xml, application/xml, text/xml, */*',
       },
     });
-    
-    if (!response.ok) {
-      console.warn(`${source.name} RSS fetch failed: ${response.status}`);
-      return [];
-    }
-    
-    const xmlText = await response.text();
-    
-    if (xmlText.trim().startsWith('<!DOCTYPE') || xmlText.trim().startsWith('<html')) {
-      console.warn(`${source.name} returned HTML instead of XML`);
-      return [];
-    }
-    
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlText, 'text/xml');
-    
-    const parserError = doc.querySelector('parsererror');
-    if (parserError) {
-      console.warn(`${source.name} RSS parsing error`);
-      return [];
-    }
-    
+    if (!response.ok) return [];
+
+    const xml = await response.text();
+    if (xml.trim().startsWith('<!DOCTYPE') || xml.trim().toLowerCase().startsWith('<html')) return [];
+
+    const parser = new (globalThis as { DOMParser: { new (): { parseFromString(s: string, t: string): Document } } }).DOMParser();
+    const doc = parser.parseFromString(xml, 'text/xml');
+    if (doc.querySelector('parsererror')) return [];
+
     const items = Array.from(doc.querySelectorAll('item'));
-    
-    const newsItems: RawNewsItem[] = items.map((it, idx) => {
-      const title = sanitizeText(it.querySelector('title')?.textContent || '');
-      let link = it.querySelector('link')?.textContent || '';
+    const out: RawItem[] = [];
+
+    for (const it of items) {
+      const title = sanitizeText(it.querySelector('title')?.textContent || '', 300);
+      let link = (it.querySelector('link')?.textContent || '').trim().replace(/<!\[CDATA\[|\]\]>/g, '').trim();
       const description = it.querySelector('description')?.textContent || '';
-      const pubDate = it.querySelector('pubDate')?.textContent || '';
-      
-      link = link.trim().replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '').trim();
-      
-      if (!link) {
-        const guid = it.querySelector('guid')?.textContent || '';
-        link = guid.trim().replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '').trim();
-      }
-      
-      // Extract image - try multiple methods
+      const contentEncoded = it.getElementsByTagName('content:encoded')[0]?.textContent || '';
+      const pubDate = it.querySelector('pubDate')?.textContent || it.querySelector('date')?.textContent || '';
+      const guid = (it.querySelector('guid')?.textContent || '').trim().replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+
+      if (!link && guid.startsWith('http')) link = guid;
+      if (!link || !link.startsWith('http')) continue;
+      if (!title) continue;
+
       let image = '';
-      
-      // First try: enclosure tag (most reliable)
       const enclosure = it.querySelector('enclosure');
-      if (enclosure) {
-        const enclosureUrl = enclosure.getAttribute('url');
-        if (enclosureUrl) {
-          if (enclosureUrl.startsWith('http://') || enclosureUrl.startsWith('https://')) {
-            image = enclosureUrl;
-          } else if (enclosureUrl.startsWith('/')) {
-            image = `${source.baseUrl}${enclosureUrl}`;
-          } else {
-            image = `${source.baseUrl}/${enclosureUrl}`;
-          }
-        }
+      const enclosureType = enclosure?.getAttribute('type') || '';
+      if (enclosure && (!enclosureType || enclosureType.startsWith('image'))) {
+        image = absoluteUrl(enclosure.getAttribute('url') || '', source.baseUrl);
       }
-      
-      // Second try: media:content
       if (!image) {
-        const mediaContent = it.querySelector('media\\:content, content');
-        if (mediaContent) {
-          const mediaUrl = mediaContent.getAttribute('url');
-          if (mediaUrl) {
-            if (mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://')) {
-              image = mediaUrl;
-            } else if (mediaUrl.startsWith('/')) {
-              image = `${source.baseUrl}${mediaUrl}`;
-            } else {
-              image = `${source.baseUrl}/${mediaUrl}`;
-            }
-          }
-        }
+        const mediaContent = it.getElementsByTagName('media:content')[0];
+        if (mediaContent) image = absoluteUrl(mediaContent.getAttribute('url') || '', source.baseUrl);
       }
-      
-      // Third try: extract from description HTML
       if (!image) {
-        image = extractImageFromDescription(description, source.baseUrl);
+        const mediaThumb = it.getElementsByTagName('media:thumbnail')[0];
+        if (mediaThumb) image = absoluteUrl(mediaThumb.getAttribute('url') || '', source.baseUrl);
       }
-      
-      if (!link || !link.startsWith('http')) {
-        return null;
-      }
-      
-      return {
-        id: `${source.name}-${idx}-${Date.now()}`,
-        title: title || 'Untitled',
-        summary: sanitizeText(description),
+      if (!image) image = extractImageFromHtml(contentEncoded || description, source.baseUrl);
+
+      const ts = parseDateToTs(pubDate);
+
+      out.push({
+        title,
+        summary: sanitizeText(description, 600),
         url: link,
+        canonicalUrl: canonicalize(link),
         sourceName: source.name,
-        image: image || '/favicon.svg',
-        publishedAt: safeDate(pubDate),
-      };
-    }).filter((item): item is RawNewsItem => item !== null);
-    
-    return newsItems;
-  } catch (err: any) {
-    console.warn(`${source.name} fetch error:`, err?.message || err);
+        image: image || '',
+        publishedTs: ts,
+        publishedISO: ts ? new Date(ts).toISOString() : '',
+      });
+    }
+    return out;
+  } catch {
     return [];
   }
 }
 
-// Group similar news items together
-function groupSimilarNews(allItems: RawNewsItem[]): RawNewsItem[][] {
-  const groups: RawNewsItem[][] = [];
-  const processed = new Set<string>();
-  
-  for (let i = 0; i < allItems.length; i++) {
-    if (processed.has(allItems[i].id)) continue;
-    
-    const group = [allItems[i]];
-    processed.add(allItems[i].id);
-    
-    for (let j = i + 1; j < allItems.length; j++) {
-      if (processed.has(allItems[j].id)) continue;
-      
-      const similarity = calculateSimilarity(
-        allItems[i].title + ' ' + allItems[i].summary,
-        allItems[j].title + ' ' + allItems[j].summary
-      );
-      
-      if (similarity > 0.3) { // Threshold for similarity
-        group.push(allItems[j]);
-        processed.add(allItems[j].id);
+/** Cheap, stable id from a string (djb2-xor). */
+function stableId(input: string): string {
+  let h = 5381;
+  for (let i = 0; i < input.length; i++) {
+    h = ((h << 5) + h) ^ input.charCodeAt(i);
+  }
+  // 32-bit unsigned hex
+  return (h >>> 0).toString(36);
+}
+
+/** Normalise a title for dedupe / similarity (lowercased alphanumeric tokens). */
+function tokenize(s: string): Set<string> {
+  return new Set(
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
+}
+
+function jaccard(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let inter = 0;
+  for (const w of a) if (b.has(w)) inter++;
+  const union = a.size + b.size - inter;
+  return union === 0 ? 0 : inter / union;
+}
+
+/**
+ * Cluster items whose titles are near-duplicates, keep ONE primary per cluster,
+ * collect attribution sources and best image. Never rewrites primary text.
+ */
+function clusterAndPickPrimary(items: RawItem[]): NewsItem[] {
+  const SIM_THRESHOLD = 0.55;
+  const tokens = items.map((it) => tokenize(it.title));
+  const claimed = new Array<boolean>(items.length).fill(false);
+  const result: NewsItem[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    if (claimed[i]) continue;
+    claimed[i] = true;
+    const cluster: number[] = [i];
+    for (let j = i + 1; j < items.length; j++) {
+      if (claimed[j]) continue;
+      if (jaccard(tokens[i], tokens[j]) >= SIM_THRESHOLD) {
+        cluster.push(j);
+        claimed[j] = true;
       }
     }
-    
-    groups.push(group);
+
+    // Primary: most recent item that has both image AND non-empty title.
+    // If no item has an image, fall back to the most recent.
+    const inCluster = cluster.map((idx) => items[idx]);
+    const withImage = inCluster.filter((x) => x.image);
+    const primary = (withImage.length > 0 ? withImage : inCluster).reduce((best, cur) =>
+      cur.publishedTs > best.publishedTs ? cur : best,
+    );
+    const image = primary.image || inCluster.find((x) => x.image)?.image || '';
+    const sources = Array.from(new Set(inCluster.map((x) => x.sourceName)));
+
+    // Cluster's representative timestamp = most recent, so newest cluster surfaces first.
+    const ts = inCluster.reduce((m, x) => Math.max(m, x.publishedTs), 0);
+
+    result.push({
+      id: stableId(primary.canonicalUrl),
+      title: primary.title,
+      summary: primary.summary,
+      url: primary.url,
+      sourceName: primary.sourceName,
+      sources,
+      image,
+      publishedAt: ts ? new Date(ts).toISOString() : '',
+      publishedTs: ts,
+      dateLabel: formatDateLabel(ts),
+    });
   }
-  
-  return groups;
+
+  return result;
 }
 
-// Process groups into synthesized news items
-function synthesizeNews(groups: RawNewsItem[][]): NewsItem[] {
-  return groups.map((group, idx) => {
-    const imageData = selectBestImage(group);
-    const synthesized = {
-      title: synthesizeTitle(group),
-      summary: synthesizeSummary(group),
-    };
-    
-    // Get all unique sources for attribution
-    const uniqueSources = Array.from(new Set(group.map(item => item.sourceName)));
-    const sources = uniqueSources.join(', ');
-    
-    return {
-      id: `synthesized-${idx}-${Date.now()}`,
-      title: synthesized.title,
-      summary: synthesized.summary,
-      url: imageData.sourceUrl, // Link to the source with the image
-      sourceName: sources, // All sources
-      image: imageData.image,
-      publishedAt: group[0]?.publishedAt || '',
-      sourceUrl: imageData.sourceUrl, // Keep track of which source URL was used
-    };
-  });
+export function processFeeds(rawItems: RawItem[]): NewsItem[] {
+  // Filter F1 only, dedupe by canonical URL, then cluster by title similarity.
+  const f1Only = rawItems.filter((it) => isF1Related(it));
+  const seen = new Map<string, RawItem>();
+  for (const it of f1Only) {
+    const existing = seen.get(it.canonicalUrl);
+    if (!existing || it.publishedTs > existing.publishedTs) {
+      seen.set(it.canonicalUrl, it);
+    }
+  }
+  const deduped = Array.from(seen.values());
+  const clustered = clusterAndPickPrimary(deduped);
+  return clustered.sort((a, b) => b.publishedTs - a.publishedTs);
 }
 
-// Allowed origins (production domains)
-// Allow same-origin, localhost, and any Vercel deployment (*.vercel.app)
 function getAllowedOrigin(req: VercelRequest): string | null {
-  const origin = req.headers.origin || req.headers.referer;
+  const origin = (req.headers.origin || req.headers.referer || '') as string;
   if (!origin) return null;
-  
   try {
     const url = new URL(origin);
     const host = url.hostname.toLowerCase();
     if (host === 'localhost' || host === '127.0.0.1') return origin;
     if (host.endsWith('.vercel.app')) return origin;
-    if (host === 'project-anthology.vercel.app' || host === 'anthology-f1.vercel.app') return origin;
     return origin;
   } catch {
     return null;
   }
 }
 
-// Rate limiting storage (in-memory, resets on serverless function restart)
-// In production, consider using Vercel Edge Config or Redis for persistent rate limiting
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
 
-// Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
-const RATE_LIMIT_MAX_REQUESTS = 30; // 30 requests per minute per IP
-
-/**
- * Get client IP address from request
- */
 function getClientIP(req: VercelRequest): string {
-  // Check various headers for IP (Vercel, Cloudflare, etc.)
   const forwardedFor = req.headers['x-forwarded-for'];
   if (forwardedFor) {
     const ips = Array.isArray(forwardedFor) ? forwardedFor : forwardedFor.split(',');
     return ips[0]?.trim() || 'unknown';
   }
-  
   const realIP = req.headers['x-real-ip'];
-  if (realIP) {
-    return Array.isArray(realIP) ? realIP[0] : realIP;
-  }
-  
-  const cfConnectingIP = req.headers['cf-connecting-ip'];
-  if (cfConnectingIP) {
-    return Array.isArray(cfConnectingIP) ? cfConnectingIP[0] : cfConnectingIP;
-  }
-  
-  // Fallback to connection remote address (if available)
-  const socket = (req as VercelRequest & { socket?: { remoteAddress?: string } }).socket;
-  return socket?.remoteAddress || 'unknown';
+  if (realIP) return Array.isArray(realIP) ? realIP[0] : realIP;
+  return 'unknown';
 }
 
-/**
- * Check if request is within rate limit
- * Returns true if allowed, false if rate limited
- */
 function checkRateLimit(clientIP: string): boolean {
-  if (clientIP === 'unknown') {
-    // Allow requests with unknown IP (development/local)
-    return true;
-  }
-  
+  if (clientIP === 'unknown') return true;
   const now = Date.now();
   const record = rateLimitStore.get(clientIP);
-  
-  // Clean up old entries periodically
   if (rateLimitStore.size > 1000) {
     for (const [ip, data] of rateLimitStore.entries()) {
-      if (now > data.resetTime) {
-        rateLimitStore.delete(ip);
-      }
+      if (now > data.resetTime) rateLimitStore.delete(ip);
     }
   }
-  
   if (!record || now > record.resetTime) {
-    // New window or expired window - allow request
-    rateLimitStore.set(clientIP, {
-      count: 1,
-      resetTime: now + RATE_LIMIT_WINDOW_MS,
-    });
+    rateLimitStore.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return true;
   }
-  
-  // Check if limit exceeded
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-  
-  // Increment count
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) return false;
   record.count++;
   return true;
 }
 
-// Request timeout (10 seconds)
-const REQUEST_TIMEOUT_MS = 10000;
+const PER_FEED_TIMEOUT_MS = 6000;
+const TOTAL_TIMEOUT_MS = 8500;
+const MAX_ITEMS = 60;
 
-// Create timeout promise
-function createTimeoutPromise(): Promise<never> {
-  return new Promise((_, reject) => {
-    setTimeout(() => {
-      reject(new Error('Request timeout'));
-    }, REQUEST_TIMEOUT_MS);
-  });
-}
-
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
-  // CORS headers with origin whitelist
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   const allowedOrigin = getAllowedOrigin(req);
-  if (allowedOrigin) {
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-  }
+  if (allowedOrigin) res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('Vary', 'Origin');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  // Request validation (req.query may be undefined in non-Vercel environments)
   const queryParams = req.query ?? {};
   if (Object.keys(queryParams).length > 0) {
-    // Reject requests with unexpected query parameters
     return res.status(400).json({ error: 'Invalid request parameters' });
   }
 
-  // Rate limiting
-  const clientIP = getClientIP(req);
-  if (!checkRateLimit(clientIP)) {
+  if (!checkRateLimit(getClientIP(req))) {
     res.setHeader('Retry-After', '60');
     return res.status(429).json({ error: 'Too many requests' });
   }
 
   try {
     await ensureDOMParser();
-    // Race between actual fetch and timeout
-    const fetchPromise = (async (): Promise<NewsItem[]> => {
-      // Fetch from all sources
-      const results = await Promise.allSettled(
-        NEWS_SOURCES.map(source => fetchRSSFeed(source))
-      );
-      
-      const allItems: RawNewsItem[] = [];
-      results.forEach((result, idx) => {
-        if (result.status === 'fulfilled') {
-          allItems.push(...result.value);
-        } else {
-          console.warn(`❌ ${NEWS_SOURCES[idx].name} failed:`, result.reason);
-        }
-      });
-      
-      // Filter to only F1-related news
-      const f1Items = allItems.filter(item => isF1Related(item));
-      
-      if (f1Items.length === 0) {
-        return [];
-      }
-      
-      // Group similar news
-      const groups = groupSimilarNews(f1Items);
-      
-      // Synthesize
-      const synthesized = synthesizeNews(groups);
-      
-      // Sort by date
-      return synthesized.sort((a, b) => {
-        const dateA = new Date(a.publishedAt || 0).getTime();
-        const dateB = new Date(b.publishedAt || 0).getTime();
-        return dateB - dateA;
-      });
-    })();
 
-    // Race with timeout
-    const sorted = await Promise.race([
-      fetchPromise,
-      createTimeoutPromise(),
-    ]);
-    
-    // Cache headers (1 hour server-side cache, allow stale-while-revalidate)
-    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
-    
-    return res.status(200).json(sorted);
+    const totalDeadline = Date.now() + TOTAL_TIMEOUT_MS;
+    const perFeed = NEWS_SOURCES.map((source) => {
+      const controller = new AbortController();
+      const budget = Math.min(PER_FEED_TIMEOUT_MS, Math.max(1000, totalDeadline - Date.now()));
+      const timer = setTimeout(() => controller.abort(), budget);
+      return fetchRSSFeed(source, controller.signal).finally(() => clearTimeout(timer));
+    });
+
+    const settled = await Promise.allSettled(perFeed);
+    const all: RawItem[] = [];
+    settled.forEach((r) => {
+      if (r.status === 'fulfilled') all.push(...r.value);
+    });
+
+    const items = processFeeds(all).slice(0, MAX_ITEMS);
+
+    // CDN cache: 30 min fresh, 6h stale-while-revalidate
+    res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=21600');
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.status(200).json(items);
   } catch (error) {
-    // Sanitize error messages - don't leak sensitive information
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
-    // Log full error for debugging (server-side only)
-    console.error('News API error:', error);
-    
-    // Return generic error message to client
-    if (errorMessage.includes('timeout')) {
-      return res.status(504).json({ error: 'Request timeout' });
-    }
-    
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    if (msg.includes('timeout')) return res.status(504).json({ error: 'Request timeout' });
     return res.status(500).json({ error: 'Failed to fetch news' });
   }
 }

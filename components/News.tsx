@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { fetchNews, NewsItem, readNewsCache, IN_CODE_FALLBACK } from '../utils/newsService';
+import { fetchNews, refreshFromNetwork, readNewsCache, sortByDate, NewsItem } from '../utils/newsService';
 import { imagePreloader } from '../utils/imagePreloader';
 import ImageShimmer from './ui/ImageShimmer';
 
@@ -9,185 +9,166 @@ interface NewsProps {
   onClose?: () => void;
 }
 
-const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
-  const [items, setItems] = useState<NewsItem[]>(IN_CODE_FALLBACK);
-  const [loading, setLoading] = useState(true);
+const PLACEHOLDER_IMG = '/favicon.svg';
+/** Re-check the API every 5 min while the page is open. */
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
+const News: React.FC<NewsProps> = React.memo(() => {
+  const [items, setItems] = useState<NewsItem[]>(() => readNewsCache() ?? []);
+  const [loading, setLoading] = useState<boolean>(items.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
 
-  // Load news data - cache'den hemen göster, arka planda güncelle
+  const preloadHero = useCallback((list: NewsItem[]) => {
+    list.slice(0, 9).forEach((it) => {
+      if (it.image && it.image.startsWith('http')) {
+        imagePreloader.preloadImage(it.image, { fetchPriority: 'high' });
+      }
+    });
+  }, []);
+
+  const applyItems = useCallback(
+    (next: NewsItem[]) => {
+      const sorted = sortByDate(next);
+      setItems(sorted);
+      preloadHero(sorted);
+    },
+    [preloadHero],
+  );
+
+  // First load: serve cache immediately, then revalidate.
   useEffect(() => {
-    // STEP 1: Immediately load from cache synchronously (no async delay)
-    const loadFromCache = () => {
+    let cancelled = false;
+
+    const initial = async () => {
       try {
-        const cachedItems = readNewsCache();
-        if (cachedItems && cachedItems.length > 0) {
-          // Show cached data immediately - no loading state
-          setItems(cachedItems);
-          setLoading(false);
-          
-          // Preload images for first 6 items (above the fold)
-          cachedItems.slice(0, 6).forEach((item: NewsItem) => {
-            if (item.image && item.image.startsWith('http')) {
-              imagePreloader.preloadImage(item.image, { fetchPriority: 'high' });
-            }
-          });
-          
-          return true; // Cache found and loaded
+        const data = await fetchNews();
+        if (!cancelled && data.length > 0) {
+          applyItems(data);
+          setError(null);
+        } else if (!cancelled && items.length === 0) {
+          setError('Could not load latest headlines.');
         }
       } catch (err) {
-        console.warn('Cache read error:', err);
-      }
-      return false; // No cache found
-    };
-
-    // Try to load from cache first
-    const cacheLoaded = loadFromCache();
-    
-    // STEP 2: Fetch fresh data (will use cache if available, or fetch if needed)
-    const load = async () => {
-      try {
-        if (!cacheLoaded) {
-          setLoading(true);
+        if (!cancelled && items.length === 0) {
+          setError('Could not load latest headlines.');
         }
-        setError(null);
-        
-        // fetchNews will return cached data immediately if available
-        // and trigger background fetch if needed
-        const news = await fetchNews();
-
-        if (news.length > 0) {
-          setItems(news);
-        }
-        
-        // Preload images for visible items
-        news.slice(0, 6).forEach((item: NewsItem) => {
-          if (item.image && item.image.startsWith('http')) {
-            imagePreloader.preloadImage(item.image, { fetchPriority: 'high' });
-          }
-        });
-      } catch (err) {
-        console.error('News load error:', err);
+        console.warn('News initial load failed:', err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-    
-    // Small delay to ensure UI renders cached data first
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    if (cacheLoaded) {
-      // Load fresh data in background after a short delay
-      timeoutId = setTimeout(() => {
-        load();
-        timeoutId = null;
-      }, 100);
-    } else {
-      // No cache - load immediately
-      load();
-    }
-    
-    // Set up periodic background refresh (every 5 minutes)
-    // This checks if cache was updated by background fetch and refreshes UI
-    const refreshInterval = setInterval(() => {
-      // Silently refresh from cache - don't show loading state
-      // This will pick up any background fetch updates
-      fetchNews().then((news) => {
-        if (news.length > 0) {
-          setItems(news);
-        }
-      }).catch((err) => {
-        console.warn('Background refresh error:', err);
-        // Don't show error to user for background refresh
-      });
-    }, 5 * 60 * 1000); // 5 minutes - check for updates more frequently
-    
+
+    initial();
+
+    const tick = () => {
+      refreshFromNetwork()
+        .then((data) => {
+          if (!cancelled && data.length > 0) {
+            applyItems(data);
+            setError(null);
+          }
+        })
+        .catch(() => {/* keep showing whatever we have */});
+    };
+
+    const interval = window.setInterval(tick, REFRESH_INTERVAL_MS);
+    const onFocus = () => tick();
+    window.addEventListener('focus', onFocus);
+
     return () => {
-      clearInterval(refreshInterval);
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId);
-      }
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRetry = useCallback(async () => {
     setError(null);
     setLoading(true);
     try {
-      const news = await fetchNews();
-      setItems(news.length > 0 ? news : IN_CODE_FALLBACK);
+      const data = await refreshFromNetwork();
+      if (data.length > 0) applyItems(data);
+      else setError('No headlines available right now.');
     } catch {
-      setItems(IN_CODE_FALLBACK);
+      setError('Could not load latest headlines.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyItems]);
 
   const handleImageLoad = useCallback((itemId: string) => {
-    setImageLoaded(prev => ({ ...prev, [itemId]: true }));
+    setImageLoaded((prev) => (prev[itemId] ? prev : { ...prev, [itemId]: true }));
   }, []);
 
   const handleCardClick = useCallback((item: NewsItem) => {
-    if (!item.url || !item.url.startsWith('http')) {
-      return;
-    }
-    
+    if (!item.url || !item.url.startsWith('http')) return;
     window.open(item.url, '_blank', 'noopener,noreferrer');
   }, []);
 
-  const truncate = (text: string, n: number = 250): string => {
+  const truncate = (text: string, n = 250): string => {
     if (!text) return '';
     return text.length > n ? `${text.slice(0, n - 1)}…` : text;
   };
 
-  // Sanitize news items for XSS protection
-  const sanitizedItems = useMemo(() => {
-    return items.map(item => ({
-      ...item,
-      sanitizedTitle: DOMPurify.sanitize(item.title, { ALLOWED_TAGS: [] }),
-      sanitizedSummary: DOMPurify.sanitize(truncate(item.summary, 250), { ALLOWED_TAGS: [] }),
-    }));
-  }, [items]);
+  const sanitizedItems = useMemo(
+    () =>
+      items.map((item) => ({
+        ...item,
+        sanitizedTitle: DOMPurify.sanitize(item.title, { ALLOWED_TAGS: [] }),
+        sanitizedSummary: DOMPurify.sanitize(truncate(item.summary, 160), { ALLOWED_TAGS: [] }),
+        attributionSources: (item.sources && item.sources.length > 0 ? item.sources : [item.sourceName]).filter(Boolean),
+      })),
+    [items],
+  );
+
+  const showSkeleton = loading && items.length === 0;
+  const showEmpty = !loading && items.length === 0;
 
   return (
-    <div className="relative min-h-screen bg-f1-black text-white py-24 px-4 md:px-8 lg:px-12">
+    <div className="relative min-h-screen bg-f1-black text-white pt-24 pb-20 px-4 sm:px-6 md:px-8 lg:px-10">
       <div className="max-w-[1600px] mx-auto">
-        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
+          transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+          className="mb-8 md:mb-10 text-center max-w-3xl mx-auto"
         >
-          <h1 className="font-serif text-5xl md:text-7xl mb-6">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl mb-3 md:mb-4 tracking-tight">
             <span className="text-f1-red">F1</span> News
           </h1>
-          <p className="font-mono text-sm md:text-base text-gray-400 uppercase tracking-widest">
-            Curated from The Race, Autosport & Motorsport.com
+          <p className="font-mono text-[11px] sm:text-xs md:text-sm text-gray-400 uppercase tracking-[0.2em] leading-relaxed">
+            Curated from The Race, Autosport &amp; Motorsport.com
           </p>
         </motion.div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {showSkeleton && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={`skeleton-${i}`} className="bg-f1-carbon border border-white/10 rounded-sm overflow-hidden">
-                <div className="aspect-[16/9] bg-f1-black/50">
+              <div
+                key={`skeleton-${i}`}
+                className="bg-f1-carbon/80 border border-white/10 rounded-xl overflow-hidden flex flex-col min-h-[280px] md:min-h-[300px]"
+              >
+                <div className="relative h-36 md:h-40 bg-f1-black/50 shrink-0">
                   <ImageShimmer />
                 </div>
-                <div className="p-6 space-y-3">
-                  <div className="h-6 bg-white/10 rounded w-3/4" />
-                  <div className="h-4 bg-white/5 rounded w-full" />
-                  <div className="h-4 bg-white/5 rounded w-5/6" />
+                <div className="p-4 md:p-5 space-y-3 flex-1">
+                  <div className="h-5 bg-white/10 rounded w-4/5" />
+                  <div className="h-3 bg-white/5 rounded w-full" />
+                  <div className="h-3 bg-white/5 rounded w-full" />
+                  <div className="h-3 bg-white/5 rounded w-2/3" />
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Error State */}
-        {error && !loading && (
+        {(error || showEmpty) && !showSkeleton && (
           <div className="text-center py-12">
-            <p className="font-mono text-sm text-gray-400 mb-4">{error}</p>
+            <p className="font-mono text-sm text-gray-400 mb-4">
+              {error || 'No headlines available right now.'}
+            </p>
             <button
               onClick={handleRetry}
               className="font-mono text-xs uppercase tracking-widest text-f1-red hover:text-white border border-f1-red hover:bg-f1-red px-4 py-2 transition-all"
@@ -197,98 +178,115 @@ const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
           </div>
         )}
 
-        {/* News Grid - Scrollable */}
-        {!loading && !error && sanitizedItems.length > 0 && (
-          <div className="space-y-8">
+        {sanitizedItems.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
             {sanitizedItems.map((item, index) => {
               const isImageLoaded = imageLoaded[item.id] || false;
-              
+
               return (
                 <motion.article
                   key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                  className="group cursor-pointer bg-f1-carbon border border-white/10 hover:border-f1-red/50 rounded-sm overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-f1-red/20"
+                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: Math.min(index * 0.04, 0.35),
+                    ease: [0.25, 0.1, 0.25, 1],
+                  }}
+                  whileHover={{
+                    y: -6,
+                    transition: { duration: 0.22, ease: 'easeOut' },
+                  }}
+                  whileTap={{ scale: 0.99 }}
+                  className="group cursor-pointer flex flex-col h-full min-h-[260px] sm:min-h-[280px] md:min-h-[300px] bg-f1-carbon/90 border border-white/10 hover:border-f1-red/45 rounded-xl overflow-hidden shadow-sm hover:shadow-[0_12px_40px_-8px_rgba(255,24,1,0.18)] transition-[box-shadow,border-color] duration-300"
                   onClick={() => handleCardClick(item)}
+                  role="link"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleCardClick(item);
+                    }
+                  }}
+                  aria-label={`${item.sanitizedTitle} — open at ${item.sourceName}`}
                 >
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-                    {/* Image Section - Takes 1 column on mobile, 1 on desktop */}
-                    <div className="relative aspect-[16/9] lg:aspect-auto lg:h-auto bg-f1-black overflow-hidden">
-                      {!isImageLoaded && <ImageShimmer />}
-                        <img
-                          src={item.image || '/favicon.svg'}
-                          alt={item.sanitizedTitle}
-                          className={`w-full h-full object-cover transition-all duration-700 ${
-                            isImageLoaded ? 'opacity-100' : 'opacity-0'
-                          } group-hover:scale-110`}
-                          onLoad={() => handleImageLoad(item.id)}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            // If image fails and it's not already placeholder, try to load placeholder
-                            if (!target.src.includes('favicon.svg')) {
-                              target.src = '/favicon.svg';
-                            }
-                            handleImageLoad(item.id);
-                          }}
-                          loading={index < 6 ? 'eager' : 'lazy'}
-                          decoding="async"
-                          fetchPriority={index < 6 ? 'high' : index < 12 ? 'auto' : 'low'}
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          width={800}
-                          height={450}
-                        />
-                      {/* Overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-f1-black/95 via-f1-black/60 to-transparent opacity-70 group-hover:opacity-90 transition-opacity pointer-events-none" />
-                      {/* Date badge */}
-                      {item.publishedAt && (
-                        <div className="absolute top-4 right-4 z-10 pointer-events-none">
-                          <span className="font-mono text-xs text-white/80 uppercase tracking-widest bg-f1-black/90 px-3 py-1.5 border border-white/20">
-                            {item.publishedAt}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                  <div className="relative h-36 sm:h-40 md:h-40 shrink-0 bg-f1-black overflow-hidden">
+                    {!isImageLoaded && (
+                      <div className="absolute inset-0 z-[1]">
+                        <ImageShimmer />
+                      </div>
+                    )}
+                    <img
+                      src={item.image || PLACEHOLDER_IMG}
+                      alt={item.title || 'News headline'}
+                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out ${
+                        isImageLoaded ? 'opacity-100' : 'opacity-0'
+                      } group-hover:scale-[1.06]`}
+                      onLoad={() => handleImageLoad(item.id)}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.src.includes('favicon.svg')) {
+                          target.src = PLACEHOLDER_IMG;
+                        }
+                        handleImageLoad(item.id);
+                      }}
+                      loading={index < 9 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      fetchPriority={index < 6 ? 'high' : index < 12 ? 'auto' : 'low'}
+                      referrerPolicy="no-referrer"
+                      width={640}
+                      height={360}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-f1-black/90 via-f1-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300 pointer-events-none" />
+                    {item.dateLabel && (
+                      <div className="absolute top-2.5 right-2.5 z-[2] pointer-events-none">
+                        <span className="font-mono text-[10px] sm:text-xs text-white/90 uppercase tracking-widest bg-black/55 backdrop-blur-sm px-2 py-1 rounded border border-white/15">
+                          {item.dateLabel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Content Section - Takes 2 columns on desktop */}
-                    <div className="lg:col-span-2 p-8 flex flex-col justify-center">
-                      <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-white mb-4 group-hover:text-f1-red transition-colors duration-300 leading-tight">
-                        {item.sanitizedTitle}
-                      </h3>
-                      {item.sanitizedSummary && (
-                        <p className="font-mono text-sm md:text-base text-gray-300 leading-relaxed mb-6">
-                          {item.sanitizedSummary}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between mt-auto">
-                        {/* Sources */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-xs text-gray-500 uppercase tracking-widest">
-                            Sources:
-                          </span>
-                          {item.sourceName.split(', ').map((source, idx) => {
-                            // Highlight the source that provided the image (first one in the list)
-                            const isImageSource = idx === 0;
+                  <div className="flex flex-col flex-1 min-h-0 p-4 md:p-5 pt-3 md:pt-4">
+                    <h3 className="font-serif text-lg sm:text-xl md:text-[1.35rem] text-white mb-2 group-hover:text-f1-red transition-colors duration-300 leading-snug line-clamp-2">
+                      {item.sanitizedTitle}
+                    </h3>
+                    {item.sanitizedSummary && (
+                      <p className="font-mono text-[11px] sm:text-xs text-gray-400 leading-relaxed line-clamp-3 mb-3 flex-1 min-h-0">
+                        {item.sanitizedSummary}
+                      </p>
+                    )}
+                    <div className="mt-auto pt-3 border-t border-white/10 flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                        <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest shrink-0">
+                          {item.attributionSources.length > 1 ? 'Sources' : 'Source'}
+                        </span>
+                        <span className="text-gray-600 hidden sm:inline">·</span>
+                        <div className="flex flex-wrap gap-x-1 gap-y-0.5">
+                          {item.attributionSources.map((source, idx) => {
+                            const isPrimary = source === item.sourceName;
                             return (
-                              <span 
-                                key={idx}
-                                className={`font-mono text-xs uppercase tracking-widest ${
-                                  isImageSource ? 'text-f1-red' : 'text-f1-red/60'
+                              <span
+                                key={`${item.id}-src-${idx}`}
+                                className={`font-mono text-[10px] sm:text-[11px] uppercase tracking-wide ${
+                                  isPrimary ? 'text-f1-red' : 'text-f1-red/70'
                                 }`}
-                                title={isImageSource ? 'Image source' : ''}
+                                title={isPrimary ? 'Primary source' : 'Also covered'}
                               >
                                 {source}
-                                {idx < item.sourceName.split(', ').length - 1 && <span className="text-gray-500 mx-1">•</span>}
+                                {idx < item.attributionSources.length - 1 && (
+                                  <span className="text-gray-600 mx-0.5">·</span>
+                                )}
                               </span>
                             );
                           })}
                         </div>
-                        {/* Read More */}
-                        <div className="flex items-center gap-2 text-f1-red opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <span className="font-mono text-xs uppercase tracking-widest">Read More</span>
-                          <span>→</span>
-                        </div>
+                      </div>
+                      <div className="flex items-center justify-end gap-1.5 text-f1-red opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="font-mono text-[10px] uppercase tracking-widest">Read</span>
+                        <span aria-hidden className="translate-x-0 group-hover:translate-x-0.5 transition-transform inline-block">
+                          →
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -298,17 +296,16 @@ const News: React.FC<NewsProps> = React.memo(({ onClose }) => {
           </div>
         )}
 
-        {/* Footer Disclaimer */}
-        {!loading && !error && (
+        {sanitizedItems.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-16 pt-8 border-t border-white/10 text-center"
+            transition={{ delay: 0.25 }}
+            className="mt-12 md:mt-14 pt-6 md:pt-8 border-t border-white/10 text-center"
           >
             <p className="font-mono text-xs text-gray-500 leading-relaxed max-w-3xl mx-auto mb-4">
-              Headlines and summaries are synthesized from multiple sources for navigation only. 
-              Full content and images are available on the original source sites.
+              Headlines, summaries and images are pulled directly from the original outlets for navigation only.
+              Click a card to read the full story at the source.
             </p>
             <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
               <span className="font-mono uppercase tracking-widest">Sources:</span>

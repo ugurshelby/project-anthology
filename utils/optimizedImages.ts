@@ -99,6 +99,18 @@ const imageNumberMap: Record<string, number> = {
   '/Jaguar_Monaco_2004_diamond_lost.jpg': 40, // jaguar-monaco-diamond: Lost diamond mystery (Mystery)
 };
 
+/**
+ * Yardımcı: Galeri ID'sinden (1–40) orijinal kaynak yolunu bul.
+ * 
+ * Bazı bileşenler (ör. Gallery lightbox) yalnızca numarayı bildiği için,
+ * indirme butonu en yüksek kaliteli kaynağı kullanırken bu fonksiyonla
+ * `imageNumberMap` tersine çevrilir.
+ */
+export const getOriginalImagePathByNumber = (imageNumber: number): string | null => {
+  const entry = Object.entries(imageNumberMap).find(([, num]) => num === imageNumber);
+  return entry ? entry[0] : null;
+};
+
 // Folder paths for different layouts – public/images altında (Vite publicDir kopyası dist’e)
 const folderPaths = {
   full: 'Full 1280x720',

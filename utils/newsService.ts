@@ -1,6 +1,3 @@
-// Multi-source news aggregator - Frontend client
-// Backend logic moved to /api/news.ts (Vercel Serverless Function)
-
 import { logger } from './logger';
 
 export interface NewsItem {
@@ -9,217 +6,150 @@ export interface NewsItem {
   summary: string;
   url: string;
   sourceName: string;
+  sources?: string[];
   image: string;
   publishedAt: string;
-  sourceUrl: string; // Original URL from the source
+  publishedTs?: number;
+  dateLabel?: string;
 }
 
-const CACHE_KEY = 'news_cache_api_v1'; // Updated cache key for API version
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours - refresh 4 times per day
-const BACKGROUND_FETCH_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2 hours - background fetch interval
-const LAST_FETCH_KEY = 'news_last_fetch_ts';
-const RATE_LIMIT_KEY = 'news_rate_limit_ts';
-const RATE_LIMIT_WINDOW_MS = 30 * 1000; // 30 seconds - minimum time between fetches
-const MAX_CONCURRENT_FETCHES = 1; // Only one fetch at a time globally
-let isFetching = false; // Global flag to prevent concurrent fetches
+const CACHE_KEY = 'news_cache_v2';
+/** Items are considered fresh for 30 min; older items still rendered while we revalidate. */
+const FRESH_TTL_MS = 30 * 60 * 1000;
+const FALLBACK_NEWS_URL = '/news-fallback.json';
+const API_TIMEOUT_MS = 8000;
+
+interface CachePayload {
+  ts: number;
+  items: NewsItem[];
+}
 
 function now(): number {
   return Date.now();
 }
 
-function readCache(): NewsItem[] | null {
+function readCache(): CachePayload | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
-    const obj = JSON.parse(raw);
-    const cacheAge = now() - (obj.ts || 0);
-    
-    const items = obj.items || [];
-    if (items.length === 0) return null;
-    
-    // If cache is too old, log but still return it (will be refreshed in background)
-    if (cacheAge > CACHE_TTL_MS) {
-      logger.log('Cache expired but returning stale data, age:', Math.round(cacheAge / 1000 / 60), 'minutes');
-      return items; // Return stale cache instead of null
-    }
-    
-    logger.log('Using cached news, age:', Math.round(cacheAge / 1000 / 60), 'minutes');
-    return items;
-  } catch (err) {
-    logger.warn('Cache read error:', err);
-    return null;
-  }
-}
-
-// Export synchronous cache reader for immediate UI updates
-export function readNewsCache(): NewsItem[] | null {
-  return readCache();
-}
-
-function isCacheStale(): boolean {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return true;
-    const obj = JSON.parse(raw);
-    const cacheAge = now() - (obj.ts || 0);
-    return cacheAge > CACHE_TTL_MS;
+    const obj = JSON.parse(raw) as CachePayload;
+    if (!obj || !Array.isArray(obj.items) || obj.items.length === 0) return null;
+    return obj;
   } catch {
-    return true;
+    return null;
   }
 }
 
 function writeCache(items: NewsItem[]): void {
   try {
-    if (items.length === 0) {
-      console.warn('Not caching empty items array');
-      return;
-    }
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now(), items }));
-    localStorage.setItem(LAST_FETCH_KEY, String(now()));
-    console.log('Cache written:', items.length, 'items');
-  } catch (err) {
-    console.warn('Cache write error:', err);
-  }
-}
-
-function shouldFetchInBackground(): boolean {
-  try {
-    const lastFetch = parseInt(localStorage.getItem(LAST_FETCH_KEY) || '0', 10);
-    const timeSinceLastFetch = now() - lastFetch;
-    
-    // Fetch in background if it's been more than BACKGROUND_FETCH_INTERVAL_MS since last fetch
-    return timeSinceLastFetch > BACKGROUND_FETCH_INTERVAL_MS;
+    if (!items.length) return;
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now(), items } satisfies CachePayload));
   } catch {
-    return true;
+    /* quota / private mode — ignore */
   }
 }
 
-// Rate limiting: prevent too many requests in short time
-function checkRateLimit(): boolean {
-  try {
-    const lastFetch = parseInt(localStorage.getItem(RATE_LIMIT_KEY) || '0', 10);
-    const timeSinceLastFetch = now() - lastFetch;
-    
-    // If we fetched recently, don't fetch again
-    if (timeSinceLastFetch < RATE_LIMIT_WINDOW_MS) {
-      logger.log('Rate limit: Too soon to fetch again, wait', Math.round((RATE_LIMIT_WINDOW_MS - timeSinceLastFetch) / 1000), 'seconds');
-      return false;
-    }
-    
-    // Update rate limit timestamp
-    localStorage.setItem(RATE_LIMIT_KEY, String(now()));
-    return true;
-  } catch {
-    return true; // If we can't check, allow fetch (fail open)
+function tsOf(item: NewsItem): number {
+  if (typeof item.publishedTs === 'number' && Number.isFinite(item.publishedTs) && item.publishedTs > 0) {
+    return item.publishedTs;
   }
+  const parsed = Date.parse(item.publishedAt || '');
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
-const FALLBACK_NEWS_URL = '/news-fallback.json';
+/** Most-recent first; items with no parseable date sink to the bottom. */
+export function sortByDate(items: NewsItem[]): NewsItem[] {
+  return [...items].sort((a, b) => {
+    const ta = tsOf(a);
+    const tb = tsOf(b);
+    if (ta === 0 && tb === 0) return 0;
+    if (ta === 0) return 1;
+    if (tb === 0) return -1;
+    return tb - ta;
+  });
+}
 
-// In-code fallback when both API and static JSON fail (e.g. SPA rewrite served HTML)
-const IN_CODE_FALLBACK: NewsItem[] = [
-  { id: 'fallback-1', title: 'F1 News – Latest headlines', summary: 'When the main news API is unavailable, headlines are loaded from this fallback.', url: 'https://www.the-race.com', sourceName: 'The Race', image: '/images/favicon.svg', publishedAt: '', sourceUrl: 'https://www.the-race.com' },
-  { id: 'fallback-2', title: 'Formula 1 – Autosport', summary: 'Visit Autosport for the latest F1 news and analysis.', url: 'https://www.autosport.com/f1/', sourceName: 'Autosport', image: '/images/favicon.svg', publishedAt: '', sourceUrl: 'https://www.autosport.com/f1/' },
-  { id: 'fallback-3', title: 'Motorsport.com F1', summary: 'Stay up to date with F1 on Motorsport.com.', url: 'https://www.motorsport.com/f1/', sourceName: 'Motorsport.com', image: '/images/favicon.svg', publishedAt: '', sourceUrl: 'https://www.motorsport.com/f1/' },
-];
+/** Synchronous cache read for first paint. */
+export function readNewsCache(): NewsItem[] | null {
+  const cache = readCache();
+  return cache ? sortByDate(cache.items) : null;
+}
 
-// Fetch news from serverless API; on failure try static fallback, then in-code fallback
-async function fetchNewsFromAPI(): Promise<NewsItem[]> {
+export function isCacheFresh(): boolean {
+  const cache = readCache();
+  return !!cache && now() - cache.ts < FRESH_TTL_MS;
+}
+
+async function fetchJSON<T>(url: string, timeoutMs: number): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const apiUrl = '/api/news';
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    const r = await fetch(url, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
     });
-
-    if (!response.ok) {
-      throw new Error(`News API error: ${response.status} ${response.statusText}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const ct = r.headers.get('Content-Type') || '';
+    if (!ct.toLowerCase().includes('application/json')) {
+      throw new Error('Non-JSON response');
     }
+    return (await r.json()) as T;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
-    const contentType = response.headers.get('Content-Type') || '';
-    if (!contentType.includes('application/json')) {
-      throw new Error('API did not return JSON');
-    }
+let inflight: Promise<NewsItem[]> | null = null;
 
-    const items: NewsItem[] = await response.json();
-    if (!Array.isArray(items)) {
-      throw new Error('Invalid response format from API');
-    }
-    return items;
-  } catch (err) {
-    logger.warn('News API fetch error, trying fallback:', err);
+/**
+ * Fetch fresh news from the API. Concurrent callers share the same promise.
+ * On API failure, falls back to the static JSON file. Caller is responsible for
+ * deciding whether to display cached items meanwhile (see `fetchNews`).
+ */
+export function refreshFromNetwork(): Promise<NewsItem[]> {
+  if (inflight) return inflight;
+
+  inflight = (async () => {
     try {
-      const fallback = await fetch(FALLBACK_NEWS_URL);
-      if (!fallback.ok) throw new Error('Fallback not found');
-      const ct = fallback.headers.get('Content-Type') || '';
-      if (!ct.includes('application/json')) throw new Error('Fallback not JSON (likely SPA HTML)');
-      const items: NewsItem[] = await fallback.json();
-      if (Array.isArray(items) && items.length > 0) return items;
-    } catch (fallbackErr) {
-      logger.warn('Fallback news load failed, using in-code fallback:', fallbackErr);
+      const items = await fetchJSON<NewsItem[]>('/api/news', API_TIMEOUT_MS);
+      if (!Array.isArray(items)) throw new Error('Bad payload');
+      const sorted = sortByDate(items);
+      if (sorted.length > 0) writeCache(sorted);
+      return sorted;
+    } catch (err) {
+      logger.warn('News API failed, trying static fallback:', err);
+      try {
+        const fallback = await fetchJSON<NewsItem[]>(FALLBACK_NEWS_URL, 4000);
+        if (Array.isArray(fallback) && fallback.length > 0) return sortByDate(fallback);
+      } catch (fallbackErr) {
+        logger.warn('Static fallback failed:', fallbackErr);
+      }
+      throw err instanceof Error ? err : new Error('Network error');
+    } finally {
+      inflight = null;
     }
-    return IN_CODE_FALLBACK;
-  }
+  })();
+
+  return inflight;
 }
 
-// Background fetch function - doesn't block UI
-async function fetchNewsInBackground(): Promise<void> {
-  try {
-    logger.log('Background fetch started...');
-    const items = await fetchNewsFromAPI();
-    
-    if (items.length > 0) {
-      writeCache(items);
-      logger.log('Background fetch completed:', items.length, 'items');
-    }
-  } catch (err) {
-    logger.warn('Background fetch error:', err);
-  } finally {
-    isFetching = false;
-  }
-}
-
+/**
+ * Stale-while-revalidate getter:
+ * - Returns cached items immediately when present (caller should already have shown them).
+ * - Otherwise awaits a network fetch.
+ * Either way it triggers a background refresh if the cache is not fresh.
+ */
 export async function fetchNews(): Promise<NewsItem[]> {
-  // Check cache first - return immediately if cache exists (even if stale)
-  const cached = readCache();
-  const stale = isCacheStale();
-  
-  // If we have cache (even if stale), return it immediately and refresh in background
-  if (cached && cached.length > 0) {
-    // Trigger background fetch if cache is stale or it's time to refresh
-    // But respect rate limiting to avoid overwhelming the system
-    if ((stale || shouldFetchInBackground()) && checkRateLimit() && !isFetching) {
-      // Don't await - let it run in background, user sees cached data immediately
-      isFetching = true;
-      fetchNewsInBackground().catch(() => {
-        isFetching = false;
-      });
+  const cache = readCache();
+
+  if (cache) {
+    if (!isCacheFresh()) {
+      // Stale-while-revalidate: return cache; refresh in background.
+      refreshFromNetwork().catch(() => {/* swallow */});
     }
-    return cached;
-  }
-  
-  // No cache at all - check rate limit before fetching
-  if (!checkRateLimit() || isFetching) {
-    logger.log('Rate limited or fetch in progress, returning in-code fallback');
-    return IN_CODE_FALLBACK;
+    return sortByDate(cache.items);
   }
 
-  // Fetch synchronously (first load or after rate limit window)
-  try {
-    isFetching = true;
-    const items = await fetchNewsFromAPI();
-
-    if (items.length > 0) {
-      writeCache(items);
-    }
-
-    return items;
-  } catch (err) {
-    logger.error('Fetch error:', err);
-    return IN_CODE_FALLBACK;
-  } finally {
-    isFetching = false;
-  }
+  // No cache — must wait for the network.
+  return refreshFromNetwork();
 }
-
-export { IN_CODE_FALLBACK };

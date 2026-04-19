@@ -14,6 +14,7 @@ import '@fontsource/playfair-display/400-italic.css';
 import './index.css';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { BrowserRouter } from 'react-router-dom';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
@@ -36,9 +37,11 @@ root.render(
       v7_relativeSplatPath: true,
     }}
   >
-    <App />
-    {isProduction && <SpeedInsights />}
-    {isProduction && <Analytics />}
+    <ThemeProvider>
+      <App />
+      {isProduction && <SpeedInsights />}
+      {isProduction && <Analytics />}
+    </ThemeProvider>
   </BrowserRouter>
 );
 

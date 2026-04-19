@@ -1,32 +1,38 @@
 [
   {
-    "id": "fallback-1",
-    "title": "F1 News – Latest headlines",
-    "summary": "When the main news API is unavailable, headlines are loaded from this fallback. Run \"npm run dev\" (with the API server) or deploy to Vercel for live RSS news.",
-    "url": "https://www.the-race.com",
+    "id": "fallback-the-race",
+    "title": "Latest F1 news from The Race",
+    "summary": "When live headlines cannot be loaded, head straight to The Race for breaking F1 news, analysis and feature pieces from the paddock.",
+    "url": "https://www.the-race.com/formula-1/",
     "sourceName": "The Race",
+    "sources": ["The Race"],
     "image": "/favicon.svg",
     "publishedAt": "",
-    "sourceUrl": "https://www.the-race.com"
+    "publishedTs": 0,
+    "dateLabel": ""
   },
   {
-    "id": "fallback-2",
-    "title": "Formula 1 – Autosport",
-    "summary": "Visit Autosport for the latest F1 news and analysis.",
+    "id": "fallback-autosport",
+    "title": "Formula 1 — Autosport",
+    "summary": "Autosport's F1 hub: race reports, qualifying analysis, driver interviews and championship standings.",
     "url": "https://www.autosport.com/f1/",
     "sourceName": "Autosport",
+    "sources": ["Autosport"],
     "image": "/favicon.svg",
     "publishedAt": "",
-    "sourceUrl": "https://www.autosport.com/f1/"
+    "publishedTs": 0,
+    "dateLabel": ""
   },
   {
-    "id": "fallback-3",
-    "title": "Motorsport.com F1",
-    "summary": "Stay up to date with F1 on Motorsport.com.",
+    "id": "fallback-motorsport",
+    "title": "Motorsport.com — Formula 1",
+    "summary": "Live timing, news and technical features covering the entire Formula 1 season.",
     "url": "https://www.motorsport.com/f1/",
     "sourceName": "Motorsport.com",
+    "sources": ["Motorsport.com"],
     "image": "/favicon.svg",
     "publishedAt": "",
-    "sourceUrl": "https://www.motorsport.com/f1/"
+    "publishedTs": 0,
+    "dateLabel": ""
   }
 ]

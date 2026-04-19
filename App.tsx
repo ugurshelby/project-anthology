@@ -1,13 +1,9 @@
 import React, { useEffect, useState, Suspense, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
-const HeroSection = React.lazy(() => import('./components/HeroSection'));
-const ArchiveSection = React.lazy(() => import('./components/ArchiveSection'));
-const StoryModal = React.lazy(() => import('./components/StoryModal'));
-const Timeline = React.lazy(() => import('./components/Timeline'));
-const Gallery = React.lazy(() => import('./components/Gallery'));
-const News = React.lazy(() => import('./components/News'));
 import ErrorBoundary from './components/ErrorBoundary';
+import ChipCircuitLoader from './components/ui/ChipCircuitLoader';
+import Button from './components/ui/Button';
 import ShortcutsModal from './components/ui/ShortcutsModal';
 import OfflineIndicator from './components/OfflineIndicator';
 import { Story, LocationState } from './types';
@@ -16,7 +12,23 @@ import { createKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { preloadStoryHeroes } from './utils/imagePreloader';
 import { getDesktopOptimizedImage } from './utils/optimizedImages';
 import { useMetadata } from './hooks/useMetadata';
+import { useTheme } from './contexts/ThemeContext';
+import ThemeToggle from './components/ui/ThemeToggle';
+import { lazyWithMinDisplay, CHIP_CIRCUIT_LOADER_MIN_MS } from './utils/lazyWithMinDisplay';
 import metadata from './metadata.json';
+
+const HeroSection = lazyWithMinDisplay(() => import('./components/HeroSection'), CHIP_CIRCUIT_LOADER_MIN_MS);
+const ArchiveSection = lazyWithMinDisplay(() => import('./components/ArchiveSection'), CHIP_CIRCUIT_LOADER_MIN_MS);
+const StoryModal = lazyWithMinDisplay(() => import('./components/StoryModal'), CHIP_CIRCUIT_LOADER_MIN_MS);
+const Timeline = lazyWithMinDisplay(() => import('./components/Timeline'), CHIP_CIRCUIT_LOADER_MIN_MS);
+const Gallery = lazyWithMinDisplay(() => import('./components/Gallery'), CHIP_CIRCUIT_LOADER_MIN_MS);
+const News = lazyWithMinDisplay(() => import('./components/News'), CHIP_CIRCUIT_LOADER_MIN_MS);
+
+const routePageSuspenseFallback = (
+  <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-f1-black px-6 pt-28 pb-20">
+    <ChipCircuitLoader className="max-w-xl w-full opacity-90" />
+  </div>
+);
 
 // GLOBAL CRITIQUE & ARCHITECTURE NOTES:
 // 1. Eliminated "Hybrid CSS". We are pure Tailwind/Framer Motion now.
@@ -24,6 +36,7 @@ import metadata from './metadata.json';
 // 3. State management for the modal is lifted here to ensure the "Hero" and "Archive" can interact seamlessly.
 
 const Shell: React.FC = () => {
+  const { theme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const match = useMatch('/story/:id');
@@ -170,15 +183,23 @@ const Shell: React.FC = () => {
       <OfflineIndicator />
 
       <motion.nav 
-        className={`fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 text-white ${
-          scrolled 
-            ? 'bg-f1-black/95 backdrop-blur-md border-b border-white/10' 
-            : 'mix-blend-difference'
+        className={`fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 ${
+          theme === 'light'
+            ? scrolled
+              ? 'border-b border-white/10 bg-f1-black/95 backdrop-blur-md text-gray-900'
+              : 'border-transparent text-white drop-shadow-[0_1px_10px_rgba(0,0,0,0.9)]'
+            : scrolled
+              ? 'bg-f1-black/95 backdrop-blur-md border-b border-white/10 text-white'
+              : 'mix-blend-difference text-white'
         }`}
         aria-label="Main navigation"
         initial={false}
         animate={{
-          backgroundColor: scrolled ? 'rgba(10, 10, 10, 0.95)' : 'transparent',
+          backgroundColor: scrolled
+            ? theme === 'light'
+              ? 'rgba(232, 228, 220, 0.96)'
+              : 'rgba(10, 10, 10, 0.95)'
+            : 'rgba(0, 0, 0, 0)',
         }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
       >
@@ -190,22 +211,35 @@ const Shell: React.FC = () => {
         >
           Project Anthology <span className="text-f1-red">///</span> EST. 2026
         </button>
-        <div className="flex items-center gap-4">
-          <button
+        <div className="flex items-center gap-3 md:gap-4">
+          <ThemeToggle />
+          <Button
+            type="button"
+            variant="glow"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="font-mono text-xs tracking-widest uppercase opacity-90 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black rounded px-2 py-1 cursor-pointer"
             aria-label="Toggle menu"
             aria-expanded={isMenuOpen}
             data-testid="menu-button"
+            className={`text-xs tracking-[0.2em] px-5 py-2.5 cursor-pointer ${
+              isMenuOpen
+                ? '!bg-f1-red !border-f1-red !text-white opacity-100 shadow-[0_0_12px_rgba(255,24,1,0.5)]'
+                : ''
+            }`}
           >
             Menu
-          </button>
+          </Button>
         </div>
       </motion.nav>
 
       <main className="relative z-10">
         <ErrorBoundary>
-          <Suspense fallback={<div />}> 
+          <Suspense
+            fallback={
+              <div className="flex min-h-[50vh] items-center justify-center px-6 py-24">
+                <ChipCircuitLoader className="max-w-xl w-full opacity-90" />
+              </div>
+            }
+          >
             <HeroSection />
             <ArchiveSection onStorySelect={handleSelect} />
           </Suspense>
@@ -215,7 +249,13 @@ const Shell: React.FC = () => {
       <AnimatePresence>
         {activeStory && (
           <ErrorBoundary>
-            <Suspense fallback={<div />}> 
+            <Suspense
+              fallback={
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-f1-black/90 px-6">
+                  <ChipCircuitLoader className="max-w-xl w-full" label="Opening story" />
+                </div>
+              }
+            >
               <StoryModal story={activeStory} onClose={handleClose} onOpenMenu={() => { navigate('/'); setIsMenuOpen(true); }} onStorySelect={handleSelect} />
             </Suspense>
           </ErrorBoundary>
@@ -378,6 +418,7 @@ const Shell: React.FC = () => {
 };
 
 const TimelineShell: React.FC = () => {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const handleSelect = useCallback((story: Story) => {
@@ -394,7 +435,9 @@ const TimelineShell: React.FC = () => {
     <div className="relative min-h-screen bg-f1-black text-paper selection:bg-f1-red selection:text-white overflow-x-hidden">
       
       <motion.nav 
-        className="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 text-white bg-f1-black/95 backdrop-blur-md border-b border-white/10"
+        className={`fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 bg-f1-black/95 backdrop-blur-md border-b border-white/10 ${
+          theme === 'light' ? 'text-gray-900' : 'text-white'
+        }`}
         aria-label="Main navigation"
       >
         <button
@@ -405,18 +448,27 @@ const TimelineShell: React.FC = () => {
         >
           Project Anthology <span className="text-f1-red">///</span> EST. 2026
         </button>
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="font-mono text-xs tracking-widest uppercase opacity-90 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black rounded px-2 py-1 cursor-pointer"
-          aria-label="Toggle menu"
-          aria-expanded={isMenuOpen}
-          data-testid="menu-button"
-        >
-          Menu
-        </button>
+        <div className="flex items-center gap-3 md:gap-4">
+          <ThemeToggle />
+          <Button
+            type="button"
+            variant="glow"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+            data-testid="menu-button"
+            className={`text-xs tracking-[0.2em] px-5 py-2.5 cursor-pointer ${
+              isMenuOpen
+                ? '!bg-f1-red !border-f1-red !text-white opacity-100 shadow-[0_0_12px_rgba(255,24,1,0.5)]'
+                : ''
+            }`}
+          >
+            Menu
+          </Button>
+        </div>
       </motion.nav>
 
-      <Suspense fallback={<div className="min-h-screen bg-f1-black" />}>
+      <Suspense fallback={routePageSuspenseFallback}>
         <ErrorBoundary>
           <Timeline onStorySelect={handleSelect} onClose={() => navigate('/')} />
         </ErrorBoundary>
@@ -495,6 +547,7 @@ const TimelineShell: React.FC = () => {
 };
 
 const GalleryShell: React.FC = () => {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -508,7 +561,9 @@ const GalleryShell: React.FC = () => {
     <div className="relative min-h-screen bg-f1-black text-paper selection:bg-f1-red selection:text-white overflow-x-hidden">
       
       <motion.nav 
-        className="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 text-white bg-f1-black/95 backdrop-blur-md border-b border-white/10"
+        className={`fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 bg-f1-black/95 backdrop-blur-md border-b border-white/10 ${
+          theme === 'light' ? 'text-gray-900' : 'text-white'
+        }`}
         aria-label="Main navigation"
       >
         <button
@@ -519,18 +574,27 @@ const GalleryShell: React.FC = () => {
         >
           Project Anthology <span className="text-f1-red">///</span> EST. 2026
         </button>
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="font-mono text-xs tracking-widest uppercase opacity-90 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black rounded px-2 py-1 cursor-pointer"
-          aria-label="Toggle menu"
-          aria-expanded={isMenuOpen}
-          data-testid="menu-button"
-        >
-          Menu
-        </button>
+        <div className="flex items-center gap-3 md:gap-4">
+          <ThemeToggle />
+          <Button
+            type="button"
+            variant="glow"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+            data-testid="menu-button"
+            className={`text-xs tracking-[0.2em] px-5 py-2.5 cursor-pointer ${
+              isMenuOpen
+                ? '!bg-f1-red !border-f1-red !text-white opacity-100 shadow-[0_0_12px_rgba(255,24,1,0.5)]'
+                : ''
+            }`}
+          >
+            Menu
+          </Button>
+        </div>
       </motion.nav>
 
-      <Suspense fallback={<div className="min-h-screen bg-f1-black" />}>
+      <Suspense fallback={routePageSuspenseFallback}>
         <ErrorBoundary>
           <Gallery onClose={() => navigate('/')} />
         </ErrorBoundary>
@@ -609,6 +673,7 @@ const GalleryShell: React.FC = () => {
 };
 
 const NewsShell: React.FC = () => {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -622,7 +687,9 @@ const NewsShell: React.FC = () => {
     <div className="relative min-h-screen bg-f1-black text-paper selection:bg-f1-red selection:text-white overflow-x-hidden">
       
       <motion.nav 
-        className="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 text-white bg-f1-black/95 backdrop-blur-md border-b border-white/10"
+        className={`fixed top-0 left-0 w-full z-40 flex justify-between items-center px-8 py-6 bg-f1-black/95 backdrop-blur-md border-b border-white/10 ${
+          theme === 'light' ? 'text-gray-900' : 'text-white'
+        }`}
         aria-label="Main navigation"
       >
         <button
@@ -633,18 +700,27 @@ const NewsShell: React.FC = () => {
         >
           Project Anthology <span className="text-f1-red">///</span> EST. 2026
         </button>
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="font-mono text-xs tracking-widest uppercase opacity-90 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black rounded px-2 py-1 cursor-pointer"
-          aria-label="Toggle menu"
-          aria-expanded={isMenuOpen}
-          data-testid="menu-button"
-        >
-          Menu
-        </button>
+        <div className="flex items-center gap-3 md:gap-4">
+          <ThemeToggle />
+          <Button
+            type="button"
+            variant="glow"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+            data-testid="menu-button"
+            className={`text-xs tracking-[0.2em] px-5 py-2.5 cursor-pointer ${
+              isMenuOpen
+                ? '!bg-f1-red !border-f1-red !text-white opacity-100 shadow-[0_0_12px_rgba(255,24,1,0.5)]'
+                : ''
+            }`}
+          >
+            Menu
+          </Button>
+        </div>
       </motion.nav>
 
-      <Suspense fallback={<div className="min-h-screen bg-f1-black" />}>
+      <Suspense fallback={routePageSuspenseFallback}>
         <ErrorBoundary>
           <News onClose={() => navigate('/')} />
         </ErrorBoundary>

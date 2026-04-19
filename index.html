@@ -1,6 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="antialiased bg-[#0a0a0a] text-white">
+<html lang="en" class="antialiased">
   <head>
+    <script>
+      try {
+        if (localStorage.getItem('anthology-theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Project Anthology</title>
@@ -31,10 +38,28 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <!-- Preconnect to same origin: / causes EISDIR on some Windows builds when resolved as asset -->
     
-    <!-- Preload Critical Images - LCP için ilk 3 hero görseli -->
-    <link rel="preload" as="image" href="/images/Landscape 1280x720/1.png" fetchpriority="high">
-    <link rel="preload" as="image" href="/images/Landscape 1280x720/2.png" fetchpriority="high">
-    <link rel="preload" as="image" href="/images/Landscape 1280x720/3.png" fetchpriority="high">
+    <!-- Preload Critical Images - yalnızca masaüstü için ilk 3 hero görseli -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/Landscape 1280x720/1.png"
+      fetchpriority="high"
+      media="(min-width: 1024px)"
+    >
+    <link
+      rel="preload"
+      as="image"
+      href="/images/Landscape 1280x720/2.png"
+      fetchpriority="high"
+      media="(min-width: 1024px)"
+    >
+    <link
+      rel="preload"
+      as="image"
+      href="/images/Landscape 1280x720/3.png"
+      fetchpriority="high"
+      media="(min-width: 1024px)"
+    >
     
     <!-- Favicon: official logo (images/logo.* → public) – cache kırma ?v=4 -->
     <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=4">

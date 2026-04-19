@@ -30,10 +30,16 @@ async function optimizeOne(inputPath, outputPath, width, height) {
     return { skipped: true, reason: 'source not found' };
   }
   const statsBefore = fs.statSync(inputPath);
+  // Sharp forbids same path for input and output: write to temp then replace
+  const sameFile = path.resolve(inputPath) === path.resolve(outputPath);
+  const writePath = sameFile ? outputPath + '.tmp' : outputPath;
   await sharp(inputPath)
     .resize(width, height, { fit: 'cover', position: 'center' })
     .png(PNG_OPTIONS)
-    .toFile(outputPath);
+    .toFile(writePath);
+  if (sameFile) {
+    fs.renameSync(writePath, outputPath);
+  }
   const statsAfter = fs.statSync(outputPath);
   return {
     skipped: false,
