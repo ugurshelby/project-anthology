@@ -1,12 +1,17 @@
 {
+  "_comment_csp_todo": "TODO: Tighten the Content-Security-Policy below by removing 'unsafe-inline' / 'unsafe-eval' and the allorigins.win / third-party-proxy connect-src entries. Requires a coordinated effort with Sentry's runtime expectations and Vite HMR; treat as a separate follow-up and verify in staging before rolling out.",
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "dist",
   "framework": "vite",
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/news", "destination": "/" },
     { "source": "/timeline", "destination": "/" },
-    { "source": "/gallery", "destination": "/" },
     { "source": "/(.*)", "destination": "/" }
   ],
   "cleanUrls": true,

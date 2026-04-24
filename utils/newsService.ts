@@ -153,3 +153,19 @@ export async function fetchNews(): Promise<NewsItem[]> {
   // No cache — must wait for the network.
   return refreshFromNetwork();
 }
+
+/**
+ * Fire-and-forget background refresh. Called once at app mount from the top-level
+ * component so the news cache is warm from the very first page load, regardless
+ * of which route the user landed on. Swallows all errors so it never surfaces
+ * to the UI; the News page itself handles error UI via fetchNews().
+ */
+export function warmNewsOnLoad(): void {
+  try {
+    void refreshFromNetwork().catch(() => {
+      /* intentionally silent — non-blocking warmup */
+    });
+  } catch {
+    /* intentionally silent */
+  }
+}

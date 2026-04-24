@@ -35,7 +35,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h2 className="font-serif text-2xl text-white">Keyboard Shortcuts</h2>
+                <h2 className="font-display text-4xl text-white tracking-wide">Keyboard Shortcuts</h2>
                 <button
                   onClick={onClose}
                   className="font-mono text-xs uppercase tracking-widest text-gray-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-f1-red focus:ring-offset-2 focus:ring-offset-f1-black rounded px-2 py-1"

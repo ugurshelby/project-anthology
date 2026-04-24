@@ -20,7 +20,6 @@ const THRESHOLDS = {
   'vendor': 200, // Other vendor libraries
   'main': 100, // Main app bundle
   'story-modal': 50, // Story modal chunk
-  'gallery': 50, // Gallery chunk
   'timeline': 50, // Timeline chunk
   'news': 50, // News chunk
 };

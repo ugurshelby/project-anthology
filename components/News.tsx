@@ -84,20 +84,6 @@ const News: React.FC<NewsProps> = React.memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleRetry = useCallback(async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      const data = await refreshFromNetwork();
-      if (data.length > 0) applyItems(data);
-      else setError('No headlines available right now.');
-    } catch {
-      setError('Could not load latest headlines.');
-    } finally {
-      setLoading(false);
-    }
-  }, [applyItems]);
-
   const handleImageLoad = useCallback((itemId: string) => {
     setImageLoaded((prev) => (prev[itemId] ? prev : { ...prev, [itemId]: true }));
   }, []);
@@ -135,7 +121,7 @@ const News: React.FC<NewsProps> = React.memo(() => {
           transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
           className="mb-8 md:mb-10 text-center max-w-3xl mx-auto"
         >
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl mb-3 md:mb-4 tracking-tight">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl mb-3 md:mb-4 tracking-wide">
             <span className="text-f1-red">F1</span> News
           </h1>
           <p className="font-mono text-[11px] sm:text-xs md:text-sm text-gray-400 uppercase tracking-[0.2em] leading-relaxed">
@@ -166,15 +152,12 @@ const News: React.FC<NewsProps> = React.memo(() => {
 
         {(error || showEmpty) && !showSkeleton && (
           <div className="text-center py-12">
-            <p className="font-mono text-sm text-gray-400 mb-4">
+            <p className="font-mono text-sm text-gray-400 mb-2">
               {error || 'No headlines available right now.'}
             </p>
-            <button
-              onClick={handleRetry}
-              className="font-mono text-xs uppercase tracking-widest text-f1-red hover:text-white border border-f1-red hover:bg-f1-red px-4 py-2 transition-all"
-            >
-              Retry
-            </button>
+            <p className="font-mono text-[11px] text-gray-600 uppercase tracking-widest">
+              Refreshing automatically in the background.
+            </p>
           </div>
         )}
 
@@ -248,7 +231,7 @@ const News: React.FC<NewsProps> = React.memo(() => {
                   </div>
 
                   <div className="flex flex-col flex-1 min-h-0 p-4 md:p-5 pt-3 md:pt-4">
-                    <h3 className="font-serif text-lg sm:text-xl md:text-[1.35rem] text-white mb-2 group-hover:text-f1-red transition-colors duration-300 leading-snug line-clamp-2">
+                    <h3 className="font-condensed text-xl sm:text-2xl md:text-[1.55rem] text-white mb-2 group-hover:text-f1-red transition-colors duration-300 leading-snug line-clamp-2">
                       {item.sanitizedTitle}
                     </h3>
                     {item.sanitizedSummary && (

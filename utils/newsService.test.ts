@@ -1,5 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { fetchNews, readNewsCache, NewsItem } from './newsService';
+import { fetchNews, readNewsCache, sortByDate, NewsItem } from './newsService';
+
+const CACHE_KEY = 'news_cache_v2';
+
+function mockJsonResponse(body: unknown, contentType = 'application/json; charset=utf-8') {
+  return {
+    ok: true,
+    status: 200,
+    headers: {
+      get: (k: string) => (k.toLowerCase() === 'content-type' ? contentType : null),
+    },
+    json: async () => body,
+  } as unknown as Response;
+}
 
 describe('newsService', () => {
   beforeEach(() => {
@@ -25,12 +38,11 @@ describe('newsService', () => {
           sourceName: 'Test Source',
           image: 'https://example.com/image.jpg',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/news',
         },
       ];
 
       localStorage.setItem(
-        'news_cache_api_v1',
+        CACHE_KEY,
         JSON.stringify({
           ts: Date.now(),
           items: mockItems,
@@ -38,7 +50,7 @@ describe('newsService', () => {
       );
 
       const result = readNewsCache();
-      expect(result).toEqual(mockItems);
+      expect(result).toEqual(sortByDate(mockItems));
     });
 
     it('should return cached items even when cache is stale', () => {
@@ -51,14 +63,13 @@ describe('newsService', () => {
           sourceName: 'Test Source',
           image: 'https://example.com/image.jpg',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/news',
         },
       ];
 
       // Set cache with old timestamp (7 hours ago)
       const oldTimestamp = Date.now() - 7 * 60 * 60 * 1000;
       localStorage.setItem(
-        'news_cache_api_v1',
+        CACHE_KEY,
         JSON.stringify({
           ts: oldTimestamp,
           items: mockItems,
@@ -66,11 +77,11 @@ describe('newsService', () => {
       );
 
       const result = readNewsCache();
-      expect(result).toEqual(mockItems);
+      expect(result).toEqual(sortByDate(mockItems));
     });
 
     it('should return null when cache is invalid JSON', () => {
-      localStorage.setItem('news_cache_api_v1', 'invalid json');
+      localStorage.setItem(CACHE_KEY, 'invalid json');
       const result = readNewsCache();
       expect(result).toBeNull();
     });
@@ -87,29 +98,20 @@ describe('newsService', () => {
           sourceName: 'Test Source',
           image: 'https://example.com/image.jpg',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/news',
         },
       ];
 
       localStorage.setItem(
-        'news_cache_api_v1',
+        CACHE_KEY,
         JSON.stringify({
           ts: Date.now(),
           items: mockItems,
         })
       );
 
-      // Mock fetch for background fetch (even though it will fail, it shouldn't affect the test)
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockItems,
-      } as Response);
-
       const result = await fetchNews();
-      expect(result).toEqual(mockItems);
-      
-      // Wait a bit for background fetch to complete
-      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(result).toEqual(sortByDate(mockItems));
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('should fetch from API when cache is empty', async () => {
@@ -122,41 +124,36 @@ describe('newsService', () => {
           sourceName: 'API Source',
           image: 'https://example.com/api-image.jpg',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/api-news',
         },
       ];
 
       // Mock fetch to return API response
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockApiResponse,
-      } as Response);
+      global.fetch = vi.fn().mockResolvedValue(mockJsonResponse(mockApiResponse));
 
       const result = await fetchNews();
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/news', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      expect(global.fetch).toHaveBeenCalled();
+      expect((global.fetch as any).mock.calls[0][0]).toBe('/api/news');
+      expect((global.fetch as any).mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          headers: expect.objectContaining({ Accept: 'application/json' }),
+          signal: expect.any(Object),
+        })
+      );
 
-      expect(result).toEqual(mockApiResponse);
+      expect(result).toEqual(sortByDate(mockApiResponse));
 
       // Verify cache was written
       const cached = readNewsCache();
-      expect(cached).toEqual(mockApiResponse);
+      expect(cached).toEqual(sortByDate(mockApiResponse));
     });
 
-    it('should return empty array when API fails and no cache exists', async () => {
-      // Mock fetch to fail
+    it('should throw when API and fallback both fail and no cache exists', async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error('API Error'));
-
-      const result = await fetchNews();
-      expect(result).toEqual([]);
+      await expect(fetchNews()).rejects.toBeTruthy();
     });
 
-    it('should return cached data when API fails but cache exists', async () => {
+    it('should return cached data even if refresh fails (stale cache)', async () => {
       const mockCachedItems: NewsItem[] = [
         {
           id: 'cached-1',
@@ -166,12 +163,11 @@ describe('newsService', () => {
           sourceName: 'Cached Source',
           image: 'https://example.com/cached-image.jpg',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/cached',
         },
       ];
 
       localStorage.setItem(
-        'news_cache_api_v1',
+        CACHE_KEY,
         JSON.stringify({
           ts: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
           items: mockCachedItems,
@@ -182,49 +178,29 @@ describe('newsService', () => {
       global.fetch = vi.fn().mockRejectedValue(new Error('API Error'));
 
       const result = await fetchNews();
-      expect(result).toEqual(mockCachedItems);
+      expect(result).toEqual(sortByDate(mockCachedItems));
     });
 
-    it('should handle API response with invalid format', async () => {
-      // Mock fetch to return invalid response
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ invalid: 'data' }), // Not an array
-      } as Response);
-
-      const result = await fetchNews();
-      expect(result).toEqual([]);
-    });
-
-    it('should respect rate limiting', async () => {
-      // Set rate limit timestamp to recent time
-      localStorage.setItem('news_rate_limit_ts', String(Date.now() - 10000)); // 10 seconds ago
-
-      const mockCachedItems: NewsItem[] = [
+    it('should fall back to static JSON when API payload is invalid', async () => {
+      const fallbackItems: NewsItem[] = [
         {
-          id: 'cached-1',
-          title: 'Cached News',
-          summary: 'Cached summary',
-          url: 'https://example.com/cached',
-          sourceName: 'Cached Source',
-          image: 'https://example.com/cached-image.jpg',
+          id: 'fallback-1',
+          title: 'Fallback News',
+          summary: 'Fallback summary',
+          url: 'https://example.com/fallback',
+          sourceName: 'Fallback Source',
+          image: '',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/cached',
         },
       ];
 
-      localStorage.setItem(
-        'news_cache_api_v1',
-        JSON.stringify({
-          ts: Date.now() - 7 * 60 * 60 * 1000, // Stale cache
-          items: mockCachedItems,
-        })
-      );
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce(mockJsonResponse({ invalid: 'data' }))
+        .mockResolvedValueOnce(mockJsonResponse(fallbackItems));
 
       const result = await fetchNews();
-      // Should return cached data instead of fetching (rate limited)
-      expect(result).toEqual(mockCachedItems);
-      expect(global.fetch).not.toHaveBeenCalled();
+      expect(result).toEqual(sortByDate(fallbackItems));
     });
   });
 
@@ -239,31 +215,22 @@ describe('newsService', () => {
           sourceName: 'API Source',
           image: 'https://example.com/api-image.jpg',
           publishedAt: '2024-01-01',
-          sourceUrl: 'https://example.com/api-news',
         },
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockApiResponse,
-      } as Response);
+      global.fetch = vi.fn().mockResolvedValue(mockJsonResponse(mockApiResponse));
 
       await fetchNews();
 
       const cached = readNewsCache();
-      expect(cached).toEqual(mockApiResponse);
+      expect(cached).toEqual(sortByDate(mockApiResponse));
     });
 
     it('should not cache empty arrays', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => [],
-      } as Response);
-
-      await fetchNews();
-
-      const cached = readNewsCache();
-      expect(cached).toBeNull();
+      global.fetch = vi.fn().mockResolvedValue(mockJsonResponse([]));
+      const result = await fetchNews();
+      expect(result).toEqual([]);
+      expect(readNewsCache()).toBeNull();
     });
   });
 });

@@ -172,7 +172,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onOpenMenu, onS
                   </span>
                 </div>
                 
-                <h1 id="story-modal-title" className="font-serif text-3xl md:text-6xl lg:text-7xl leading-[0.9] text-white tracking-tight mb-4 md:mb-6 drop-shadow-2xl">
+                <h1 id="story-modal-title" className="font-display text-4xl md:text-7xl lg:text-8xl leading-[0.9] text-white tracking-wide mb-4 md:mb-6 drop-shadow-2xl">
                   {story.title}
                 </h1>
                 
@@ -204,7 +204,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onOpenMenu, onS
                         {section.title ? `Sequence 0${idx + 1}` : 'Prologue'}
                       </span>
                       {section.title && (
-                        <h2 className="font-serif text-3xl md:text-4xl text-white leading-none mb-4">
+                        <h2 className="font-display text-4xl md:text-5xl text-white leading-none mb-4 tracking-wide">
                           {section.title}
                         </h2>
                       )}
@@ -250,7 +250,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onOpenMenu, onS
                     transition={{ duration: 0.6 }}
                     className="mb-12"
                   >
-                    <h3 className="font-serif text-3xl md:text-4xl text-white mb-4">Related Stories</h3>
+                    <h3 className="font-display text-4xl md:text-5xl text-white mb-4 tracking-wide">Related Stories</h3>
                     <p className="font-mono text-sm text-gray-400 uppercase tracking-widest">
                       Continue the narrative
                     </p>
@@ -284,7 +284,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onOpenMenu, onS
                             </span>
                           </div>
                         </div>
-                        <h4 className="font-serif text-lg text-white mb-2 group-hover:text-f1-red transition-colors">
+                        <h4 className="font-display text-2xl text-white mb-2 group-hover:text-f1-red transition-colors tracking-wide">
                           {relatedStory.title}
                         </h4>
                         <p className="font-mono text-xs text-gray-400 line-clamp-2">
@@ -300,7 +300,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ story, onClose, onOpenMenu, onS
             {/* Footer/End Marker */}
             <div className="flex flex-col items-center justify-center pt-32 opacity-30 hover:opacity-60 transition-opacity duration-500 gap-4">
               <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-white to-transparent" />
-              <div className="font-serif text-2xl italic">End of Record</div>
+              <div className="font-condensed text-2xl italic tracking-wide">End of Record</div>
             </div>
 
           </div>
@@ -332,7 +332,7 @@ const ContentBlock: React.FC<{ block: StoryContent; isFirst: boolean; year: stri
 const ParagraphBlock: React.FC<{ text: string; isFirst: boolean }> = React.memo(({ text, isFirst }) => (
   <p className={`font-sans text-lg md:text-xl text-[#d4d4d4] leading-[1.7] font-light tracking-wide antialiased
     ${isFirst 
-      ? 'first-letter:float-left first-letter:text-6xl md:first-letter:text-8xl first-letter:font-serif first-letter:text-white first-letter:mr-4 first-letter:mt-[-10px] first-letter:leading-[0.8]' 
+      ? 'first-letter:float-left first-letter:text-6xl md:first-letter:text-8xl first-letter:font-display first-letter:text-white first-letter:mr-4 first-letter:mt-[-10px] first-letter:leading-[0.8]' 
       : ''}
   `}>
     {text}
@@ -351,7 +351,7 @@ const QuoteBlock: React.FC<{ text: string; author: string }> = React.memo(({ tex
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="relative py-8 my-12 pl-6 md:pl-10 border-l-2 border-f1-red bg-white/[0.02] will-change-transform"
     >
-      <blockquote className="font-serif text-2xl md:text-3xl text-white leading-tight italic">
+      <blockquote className="font-condensed text-2xl md:text-3xl text-white leading-tight italic tracking-wide">
         "{text}"
       </blockquote>
       <figcaption className="flex items-center gap-3 mt-6 pt-4 border-t border-white/10 w-fit">

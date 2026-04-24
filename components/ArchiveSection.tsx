@@ -146,7 +146,7 @@ const ArchiveSectionComponent: React.FC<ArchiveSectionProps> = ({ onStorySelect 
       {/* SECTION HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-end mb-20 border-b border-white/10 pb-8 gap-8">
         <div className="space-y-4">
-          <h2 className="font-serif text-5xl md:text-7xl text-white leading-[0.9] tracking-tight">
+          <h2 className="font-display text-6xl md:text-8xl text-white leading-[0.9] tracking-wide">
             The Archive
           </h2>
           <p className="font-mono text-[10px] md:text-xs text-f1-red uppercase tracking-[0.2em] flex items-center gap-3">
@@ -278,7 +278,7 @@ const ArchiveSectionComponent: React.FC<ArchiveSectionProps> = ({ onStorySelect 
       {/* No Results Message */}
       {filteredStories.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24">
-          <p className="font-serif text-2xl md:text-3xl text-white mb-4">No stories found</p>
+          <p className="font-display text-4xl md:text-5xl text-white mb-4 tracking-wide">No stories found</p>
           <p className="font-mono text-sm text-gray-400 uppercase tracking-widest">
             Try selecting a different category
           </p>
@@ -481,12 +481,12 @@ const ArchiveCard: React.FC<{
 
           <motion.h3
             layoutId={`title-${story.id}`}
-            className="font-serif text-3xl md:text-4xl lg:text-5xl text-white leading-[0.9] mb-3 group-hover:text-white mix-blend-screen transition-all duration-500 will-change-transform"
+            className="font-display text-4xl md:text-5xl lg:text-6xl text-white leading-[0.9] mb-3 group-hover:text-white mix-blend-screen transition-all duration-500 will-change-transform tracking-wide"
           >
             {story.title}
           </motion.h3>
 
-          <p className="font-serif text-xs md:text-sm text-gray-300 max-w-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75 leading-[1.6] border-l border-[#ff1801] pl-3">
+          <p className="font-sans text-xs md:text-sm text-gray-300 max-w-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75 leading-[1.6] border-l border-[#ff1801] pl-3">
             {story.subtitle}
           </p>
         </div>

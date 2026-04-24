@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
           <motion.h1 
             ref={titleRef}
             style={{ letterSpacing }}
-            className="font-serif text-[12vw] md:text-[14vw] font-black text-white uppercase leading-[0.85] tracking-tighter cursor-default select-none"
+            className="font-display text-[12vw] md:text-[14vw] text-white uppercase leading-[0.85] tracking-[0.04em] cursor-default select-none"
           >
             Anthology
           </motion.h1>
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
-            className="font-serif font-light text-lg md:text-2xl text-gray-300 mt-10 tracking-wide max-w-xl mx-auto leading-[1.6]"
+            className="font-condensed text-xl md:text-3xl text-gray-300 mt-10 tracking-[0.08em] max-w-xl mx-auto leading-[1.6]"
           >
             Beyond the checkered flag.
           </motion.p>

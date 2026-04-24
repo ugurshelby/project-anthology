@@ -48,7 +48,7 @@ const Timeline: React.FC<TimelineProps> = ({ onStorySelect, onClose }) => {
           transition={{ duration: 0.6 }}
           className="mb-20 text-center"
         >
-          <h1 className="font-serif text-5xl md:text-7xl mb-6">Chronological Timeline</h1>
+          <h1 className="font-display text-6xl md:text-8xl mb-6 tracking-wide">Chronological Timeline</h1>
           <p className="font-mono text-sm md:text-base text-gray-400 uppercase tracking-widest">
             The narrative history of Formula 1
           </p>
@@ -175,7 +175,7 @@ const Timeline: React.FC<TimelineProps> = ({ onStorySelect, onClose }) => {
                               whileHover={{ x: isEven ? 8 : -8 }}
                               transition={{ duration: 0.3 }}
                             >
-                              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-white mb-6 group-hover:text-f1-red transition-colors duration-300 leading-tight">
+                              <h3 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-white mb-6 group-hover:text-f1-red transition-colors duration-300 leading-tight tracking-wide">
                                 {story.title}
                               </h3>
                               <p className="font-mono text-base md:text-lg text-gray-300 leading-relaxed mb-8 line-clamp-4">

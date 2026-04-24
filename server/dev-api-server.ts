@@ -56,9 +56,21 @@ const server = http.createServer(async (req, res) => {
   const pathname = url.split('?')[0];
   try {
     if (pathname === '/api/news' || pathname === '/api/news/') {
-      const mod = await import('../api/news');
-      const handler = mod.default;
-      await handler(patchedReq as any, patchedRes as any);
+      try {
+        const mod = await import('../api/news');
+        const handler = mod.default;
+        await handler(patchedReq as any, patchedRes as any);
+      } catch (err) {
+        // In dev we never want warmNewsOnLoad() to log a red error in the
+        // console just because upstream RSS feeds / API keys aren't available.
+        // Respond with an empty list so the client silently falls back to its
+        // cache (or the public static fallback).
+        console.warn('[dev-api] /api/news handler failed, returning empty list:', err);
+        if (!patchedRes.headersSent) {
+          patchedRes.status(200);
+          patchedRes.json([]);
+        }
+      }
       return;
     }
     if (pathname === '/api/health' || pathname === '/api/health/') {
@@ -69,8 +81,10 @@ const server = http.createServer(async (req, res) => {
     }
   } catch (err) {
     console.error('Dev API error:', err);
-    patchedRes.status(500);
-    patchedRes.json({ error: 'Internal Server Error' });
+    if (!patchedRes.headersSent) {
+      patchedRes.status(500);
+      patchedRes.json({ error: 'Internal Server Error' });
+    }
     return;
   }
 

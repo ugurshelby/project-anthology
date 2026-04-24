@@ -5,7 +5,6 @@ import { defineConfig, loadEnv } from 'vite';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import react from '@vitejs/plugin-react';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
-import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -66,43 +65,6 @@ export default defineConfig(({ mode }) => {
             multipass: true
           },
           includePublic: true
-        }),
-        VitePWA({
-          registerType: 'autoUpdate',
-          outDir: 'dist',
-          includeAssets: ['images/favicon.ico', 'images/favicon.svg', 'images/logo.png'],
-          manifest: {
-            name: 'Project Anthology: The F1 Narrative',
-            short_name: 'Anthology',
-            description: 'A cinematic, editorial exploration of Formula 1 history',
-            theme_color: '#ff1801',
-            background_color: '#0a0a0a',
-            display: 'standalone',
-            orientation: 'portrait',
-            scope: '/',
-            start_url: '/',
-            icons: [
-              { src: '/images/favicon.ico', sizes: '48x48', type: 'image/x-icon', purpose: 'any' },
-              { src: '/images/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }
-            ],
-            categories: ['entertainment', 'sports', 'news'],
-            lang: 'en',
-            dir: 'ltr',
-            prefer_related_applications: false
-          },
-          workbox: {
-            globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,woff,woff2,ttf}'],
-            runtimeCaching: [
-              { urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i, handler: 'CacheFirst', options: { cacheName: 'cloudinary-images', expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } } },
-              { urlPattern: /^https:\/\/.*\.(jpg|jpeg|png|gif|webp|avif|svg)$/i, handler: 'CacheFirst', options: { cacheName: 'external-images', expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 } } },
-              { urlPattern: /^https:\/\/api\.allorigins\.win\/.*/i, handler: 'NetworkFirst', options: { cacheName: 'api-cache', expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 }, networkTimeoutSeconds: 10 } },
-              { urlPattern: /\/api\/news/i, handler: 'NetworkFirst', options: { cacheName: 'news-api', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 6 }, networkTimeoutSeconds: 10 } }
-            ],
-            skipWaiting: true,
-            clientsClaim: true,
-            cleanupOutdatedCaches: true
-          },
-          devOptions: { enabled: false, type: 'module' }
         })
       ],
       resolve: {
@@ -183,9 +145,6 @@ export default defineConfig(({ mode }) => {
               // Route-based splitting for better code splitting
               if (id.includes('components/StoryModal') || id.includes('data/storyContent')) {
                 return 'story-modal';
-              }
-              if (id.includes('components/Gallery')) {
-                return 'gallery';
               }
               if (id.includes('components/Timeline')) {
                 return 'timeline';

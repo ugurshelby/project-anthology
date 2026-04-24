@@ -69,7 +69,7 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Main Error Message */}
-            <h1 className="font-serif text-5xl md:text-7xl text-white leading-tight mb-6">
+            <h1 className="font-display text-6xl md:text-8xl text-white leading-tight mb-6 tracking-wide">
               Pit Stop Required
             </h1>
 

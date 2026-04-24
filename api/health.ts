@@ -18,8 +18,6 @@ export default async function handler(
       status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.VERCEL_GIT_COMMIT_SHA?.substring(0, 7) || 'unknown',
     };
 
     return res.status(200).json(health);

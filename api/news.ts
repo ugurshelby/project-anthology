@@ -362,8 +362,10 @@ function getAllowedOrigin(req: VercelRequest): string | null {
     const url = new URL(origin);
     const host = url.hostname.toLowerCase();
     if (host === 'localhost' || host === '127.0.0.1') return origin;
-    if (host.endsWith('.vercel.app')) return origin;
-    return origin;
+    // Production allowlist: only the canonical deployment host (and localhost for dev).
+    // Keep this tight to prevent other *.vercel.app origins from calling the API.
+    if (host === 'project-anthology.vercel.app') return origin;
+    return null;
   } catch {
     return null;
   }
@@ -446,8 +448,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const items = processFeeds(all).slice(0, MAX_ITEMS);
 
-    // CDN cache: 30 min fresh, 6h stale-while-revalidate
-    res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=21600');
+    // CDN cache: 5 min fresh, 10 min stale-while-revalidate.
+    // Aligned with the "fresh on every page load" intent; clients call
+    // warmNewsOnLoad() on mount and News.tsx polls every 5 min.
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.status(200).json(items);
   } catch (error) {
