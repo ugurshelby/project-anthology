@@ -1,0 +1,59 @@
+{
+  "slug": "schumacher-1994-spain",
+  "title": "The Fifth Gear Symphony",
+  "subtitle": "A gearbox jammed in fifth. A race that should have ended in the pits. Michael Schumacher rewrote the laws of physics to bring a broken machine home in second place.",
+  "year": 1994,
+  "category": "Technical Mastery",
+  "tags": [],
+  "cover_image": "/images/stories/full/12.png",
+  "cover_image_landscape": "/images/stories/landscape/12.png",
+  "cover_image_portrait": "/images/stories/portrait/12.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "The Jam"
+    },
+    {
+      "type": "paragraph",
+      "text": "Barcelona, lap 20. The gearbox locked in fifth—a mechanical sentence the Benetton engineers could not commute. Physics said stop. Schumacher said continue. The car became a single-speed machine, a metronome of impossibility the factory would study for years."
+    },
+    {
+      "type": "image",
+      "src": "/Schumacher_Benetton_B194.jpg",
+      "caption": "Schumacher Benetton B194 Spain 1994.",
+      "layout": "full"
+    },
+    {
+      "type": "paragraph",
+      "text": "He could not downshift. He could not upshift. The car was a prisoner of its own mechanics. Yet he drove it like a weapon, each corner a negotiation with momentum."
+    },
+    {
+      "type": "image",
+      "src": "/Schumacher_Spain_1994_cockpit.jpg",
+      "caption": "Steering wheel, Spain 1994.",
+      "layout": "portrait",
+      "isBackground": true
+    },
+    {
+      "type": "heading",
+      "text": "The Physics"
+    },
+    {
+      "type": "paragraph",
+      "text": "On the straights, he coasted. In the corners, he carried speed like a secret. The engine screamed in one note, a monotone of defiance. Second place was not a result; it was a rewrite of the rulebook."
+    },
+    {
+      "type": "image",
+      "src": "/Benetton_B194_exhaust.jpg",
+      "caption": "Benetton B194 exhaust flames.",
+      "layout": "landscape"
+    },
+    {
+      "type": "quote",
+      "text": "I had to drive the whole race in fifth gear. It was like driving a truck.",
+      "author": "Michael Schumacher"
+    }
+  ],
+  "published": true,
+  "sort_order": 11
+}

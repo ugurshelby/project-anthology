@@ -1,0 +1,43 @@
+{
+  "slug": "brawn-2009",
+  "title": "The Phoenix",
+  "subtitle": "From ashes to titles. The improbable geometry of the BGP 001.",
+  "year": 2009,
+  "category": "Miracle",
+  "tags": [],
+  "cover_image": "/images/stories/full/11.png",
+  "cover_image_landscape": "/images/stories/landscape/11.png",
+  "cover_image_portrait": "/images/stories/portrait/11.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "Buyout and Belief"
+    },
+    {
+      "type": "paragraph",
+      "text": "Honda left. Ross Brawn stayed—the same mind that had clocked Ferrari's mechanics into a dynasty. A Mercedes engine found a home, and a double diffuser found a loophole in the rulebook the way a lawyer finds a comma. The paddock laughed until Australia."
+    },
+    {
+      "type": "image",
+      "src": "/640px-Jenson_Button_(Brawn_BGP_001)_on_Sunday_at_2009_Abu_Dhabi_Grand_Prix.jpg",
+      "caption": "BGP001 lines, white and neon.",
+      "layout": "portrait"
+    },
+    {
+      "type": "heading",
+      "text": "Six of Seven"
+    },
+    {
+      "type": "paragraph",
+      "text": "Button won six of the first seven. Barrichello held the centre. By Brazil, a team that should not have existed owned the year."
+    },
+    {
+      "type": "image",
+      "src": "/Barrichello_2009_British_GP_2.jpg",
+      "caption": "Button's 2009 motif.",
+      "layout": "landscape"
+    }
+  ],
+  "published": true,
+  "sort_order": 10
+}

@@ -1,0 +1,58 @@
+{
+  "slug": "collins-fangio-1956",
+  "title": "The Ultimate Sacrifice",
+  "subtitle": "Peter Collins handed over his car—and his world title—to Juan Manuel Fangio. A ghost of chivalry from an era when honor was worth more than gold.",
+  "year": 1956,
+  "category": "Honor",
+  "tags": [],
+  "cover_image": "/images/stories/full/13.png",
+  "cover_image_landscape": "/images/stories/landscape/13.png",
+  "cover_image_portrait": "/images/stories/portrait/13.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "Monza, Final Round"
+    },
+    {
+      "type": "paragraph",
+      "text": "Peter Collins was leading the championship. Fangio's car had failed. In the pits, Collins made a decision that would cost him everything and define him forever."
+    },
+    {
+      "type": "image",
+      "src": "/Collins_Fangio_Monza_1956.jpg",
+      "caption": "Collins and Fangio, Monza 1956.",
+      "layout": "full"
+    },
+    {
+      "type": "paragraph",
+      "text": "He stepped out. He handed over the wheel. He gave away his world title to a man who had already won four. Ferrari's court would call it honor; the points table would call it arithmetic. The gesture was tribal loyalty written in steel and petrol."
+    },
+    {
+      "type": "image",
+      "src": "/Ferrari_D50_Monza_1956.jpg",
+      "caption": "Ferrari D50 Monza 1956 track action.",
+      "layout": "landscape"
+    },
+    {
+      "type": "heading",
+      "text": "The Gift"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fangio won his fifth title. Collins finished second. In the paddock, men shook hands. The sport understood that some victories are shared, some titles are earned through sacrifice."
+    },
+    {
+      "type": "image",
+      "src": "/Collins_giving_car_Fangio_1956.jpg",
+      "caption": "Collins giving car to Fangio, 1956.",
+      "layout": "portrait"
+    },
+    {
+      "type": "quote",
+      "text": "I would have done the same for him.",
+      "author": "Peter Collins"
+    }
+  ],
+  "published": true,
+  "sort_order": 12
+}

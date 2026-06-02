@@ -1,0 +1,38 @@
+[
+  {
+    "id": "fallback-the-race",
+    "title": "Latest F1 news from The Race",
+    "summary": "When live headlines cannot be loaded, head straight to The Race for breaking F1 news, analysis and feature pieces from the paddock.",
+    "url": "https://www.the-race.com/formula-1/",
+    "sourceName": "The Race",
+    "sources": ["The Race"],
+    "image": "/favicon.svg",
+    "publishedAt": "",
+    "publishedTs": 0,
+    "dateLabel": ""
+  },
+  {
+    "id": "fallback-autosport",
+    "title": "Formula 1 — Autosport",
+    "summary": "Autosport's F1 hub: race reports, qualifying analysis, driver interviews and championship standings.",
+    "url": "https://www.autosport.com/f1/",
+    "sourceName": "Autosport",
+    "sources": ["Autosport"],
+    "image": "/favicon.svg",
+    "publishedAt": "",
+    "publishedTs": 0,
+    "dateLabel": ""
+  },
+  {
+    "id": "fallback-motorsport",
+    "title": "Motorsport.com — Formula 1",
+    "summary": "Live timing, news and technical features covering the entire Formula 1 season.",
+    "url": "https://www.motorsport.com/f1/",
+    "sourceName": "Motorsport.com",
+    "sources": ["Motorsport.com"],
+    "image": "/favicon.svg",
+    "publishedAt": "",
+    "publishedTs": 0,
+    "dateLabel": ""
+  }
+]

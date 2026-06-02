@@ -1,0 +1,58 @@
+{
+  "slug": "senna-donington-1993",
+  "title": "The Ghost of Donington",
+  "subtitle": "Donington, 1993. Active Williams versus a McLaren in the rain—and Senna's opening lap as intimidation made visible.",
+  "year": 1993,
+  "category": "Legend",
+  "tags": [],
+  "cover_image": "/images/stories/full/16.png",
+  "cover_image_landscape": "/images/stories/landscape/16.png",
+  "cover_image_portrait": "/images/stories/portrait/16.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "The Deluge"
+    },
+    {
+      "type": "paragraph",
+      "text": "Donington Park, 1993. The rain fell like judgment. Williams had brought active suspension and a budget that made McLaren look mortal on paper—yet in the wet, Senna drove as if intimidation were a setup parameter. The opening lap became a gallery of impossible moves."
+    },
+    {
+      "type": "image",
+      "src": "/Senna_Donington_1993_Rain.jpg",
+      "caption": "Ayrton Senna Donington 1993 rain opening lap.",
+      "layout": "full"
+    },
+    {
+      "type": "paragraph",
+      "text": "He passed four cars before the first corner—Prost would have waited for lap twenty; Senna took the gap now or made one. He treated the water as his canvas, each spray a brushstroke. The MP4/8 danced where active suspension could not think fast enough."
+    },
+    {
+      "type": "image",
+      "src": "/Senna_MP4_8_Donington_spray.jpg",
+      "caption": "Senna McLaren MP4/8 Donington water spray.",
+      "layout": "landscape"
+    },
+    {
+      "type": "heading",
+      "text": "The Masterpiece"
+    },
+    {
+      "type": "paragraph",
+      "text": "By lap three, he was leading. The rest of the field was still finding their rhythm. Senna had already written the story—but the story was also a reminder: when the rules allow one team a technological cathedral, only certain drivers can storm it in the rain."
+    },
+    {
+      "type": "image",
+      "src": "/Senna_Donington_1993_trophy.jpg",
+      "caption": "Ayrton Senna Donington 1993 Sonic trophy.",
+      "layout": "portrait"
+    },
+    {
+      "type": "quote",
+      "text": "That first lap was the best lap of my life.",
+      "author": "Ayrton Senna"
+    }
+  ],
+  "published": true,
+  "sort_order": 15
+}

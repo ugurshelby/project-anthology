@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.env.local
+.env*.local
+.vercel
+*.log
+*.tsbuildinfo
+logs/_tree_temp.txt
+
+.vercel
+*.env
+*.env.*
+.env.*

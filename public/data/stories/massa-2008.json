@@ -1,0 +1,70 @@
+{
+  "slug": "massa-2008",
+  "title": "The 39-Second Champion",
+  "subtitle": "Interlagos, 2008. Felipe Massa crossed the line as the World Champion. Thirty-nine seconds later, history was rewritten in the final corner.",
+  "year": 2008,
+  "category": "Tragedy",
+  "tags": [],
+  "cover_image": "/images/stories/full/3.png",
+  "cover_image_landscape": "/images/stories/landscape/3.png",
+  "cover_image_portrait": "/images/stories/portrait/3.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "Interlagos Weather Front"
+    },
+    {
+      "type": "paragraph",
+      "text": "São Paulo hung heavy with rain. The grandstands shook when the engines fired—wet air carrying petrol and electricity. Ferrari red glowed against the slate sky. Men in ponchos banged the hoardings. Mothers covered children's ears. The circuit was a lung breathing water."
+    },
+    {
+      "type": "image",
+      "src": "/Massa_Brazil_2008.jpg",
+      "caption": "Interlagos grid in the rain.",
+      "layout": "landscape"
+    },
+    {
+      "type": "paragraph",
+      "text": "Felipe Massa launched clean. Visibility was a rumor, grip a superstition. Through the Senna S, he felt the car bite and release—a Ferrari built in Maranello, fuelled and tyred by decisions made on the pit wall as much as in the cockpit. Each lap cut a groove into the storm."
+    },
+    {
+      "type": "heading",
+      "text": "The Switch"
+    },
+    {
+      "type": "paragraph",
+      "text": "On worn slicks, Timo Glock became a question mark—a Toyota on the wrong rubber, playing the role of accident in someone else's formation. Hamilton, visor speckled with rain, was not chasing a driver; he was chasing a point tally McLaren had engineered all season. The penultimate corners turned into a courtroom."
+    },
+    {
+      "type": "image",
+      "src": "/Raikkonen_Brazil_2008.jpg",
+      "caption": "Ferrari cutting through spray.",
+      "layout": "portrait"
+    },
+    {
+      "type": "quote",
+      "text": "Is that Glock? Is that Glock going slowly?",
+      "author": "Martin Brundle"
+    },
+    {
+      "type": "paragraph",
+      "text": "Massa crossed the line a champion. Thirty-nine seconds later, Hamilton slipped past Glock at the last turn. The garage stopped breathing. The noise collapsed into a single syllable of disbelief."
+    },
+    {
+      "type": "heading",
+      "text": "Dignity"
+    },
+    {
+      "type": "paragraph",
+      "text": "On the podium, rain streaked his face like film grain. He beat his chest once, not in anger but in affirmation. The crowd did not chant points; they chanted a name. History measured him not by the trophy but by the manner in which he carried defeat."
+    },
+    {
+      "type": "image",
+      "src": "/Massa_Brazil_2008_Podium.jpg",
+      "caption": "Massa on the podium, rain and light.",
+      "layout": "full"
+    }
+  ],
+  "published": true,
+  "sort_order": 2
+}

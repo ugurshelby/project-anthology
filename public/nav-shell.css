@@ -1,0 +1,289 @@
+/* Shared nav for vanilla mini-apps — mirrors the React NavBar.
+   Desktop/tablet top bar + mobile bottom bar (no hamburger/drawer). */
+:root {
+  --anthology-nav-h: 52px;
+  --anthology-nav-z: 80;
+  --anthology-bottomnav-h: 64px;
+}
+
+body.has-anthology-nav {
+  padding-top: var(--anthology-nav-h);
+}
+
+/* Clear the fixed bottom bar on viewports where it is shown. */
+@media (max-width: 1023px) {
+  body.has-anthology-nav {
+    padding-bottom: var(--anthology-bottomnav-h);
+  }
+}
+
+/* ─────────────────────────── Top bar ─────────────────────────── */
+.anthology-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--anthology-nav-z);
+  display: flex;
+  align-items: center;
+  height: var(--anthology-nav-h);
+  padding: 0 1.25rem;
+  box-sizing: border-box;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 2px solid #ff1801;
+}
+
+@media (min-width: 640px) {
+  .anthology-topbar {
+    padding: 0 2rem;
+  }
+}
+
+.anthology-topbar__home {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  flex-shrink: 0;
+  font-family: var(--font-condensed, "Barlow Condensed", system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #ff1801;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.anthology-topbar__home:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.anthology-topbar__home:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 4px #ff1801;
+}
+
+.anthology-topbar__links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+@media (min-width: 1024px) {
+  .anthology-topbar__links {
+    gap: 2.5rem;
+  }
+}
+
+.anthology-topbar__link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-bottom: 3px;
+  font-family: var(--font-condensed, "Barlow Condensed", system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.15s ease;
+}
+
+.anthology-topbar__link:hover {
+  color: #ffb4a7;
+}
+
+.anthology-topbar__link.is-active {
+  color: #fff;
+}
+
+.anthology-topbar__link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 4px #ff1801;
+}
+
+.anthology-topbar__dot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: #ff1801;
+}
+
+/* ────────────────────────── Bottom bar ────────────────────────── */
+.anthology-bottomnav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--anthology-nav-z);
+  display: flex;
+  height: var(--anthology-bottomnav-h);
+  background: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.anthology-bottomnav__cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.anthology-bottomnav__cell:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #ff1801;
+}
+
+.anthology-bottomnav__dot {
+  width: 5px;
+  height: 5px;
+  margin-bottom: 1px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.anthology-bottomnav__cell.is-active {
+  color: #ff1801;
+}
+
+.anthology-bottomnav__cell.is-active .anthology-bottomnav__dot {
+  background: #ff1801;
+}
+
+.anthology-bottomnav__icon {
+  display: inline-flex;
+  color: inherit;
+}
+
+.anthology-bottomnav__label {
+  font-family: var(--font-condensed, "Barlow Condensed", system-ui, sans-serif);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.anthology-bottomnav__more {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.anthology-bottomnav__more .anthology-bottomnav__cell {
+  width: 100%;
+}
+
+/* ─────────────────────────── More popup ─────────────────────────── */
+.anthology-bottomnav__popup {
+  position: absolute;
+  bottom: 64px;
+  right: 4px;
+  width: 140px;
+  background: #161616;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.anthology-bottomnav__popup[hidden] {
+  display: none;
+}
+
+.anthology-bottomnav__popupItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.anthology-bottomnav__popupItem.is-active {
+  color: #ff1801;
+}
+
+.anthology-bottomnav__popupIcon {
+  display: inline-flex;
+  color: inherit;
+}
+
+.anthology-bottomnav__popupLabel {
+  font-family: var(--font-condensed, "Barlow Condensed", system-ui, sans-serif);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+/* ─────────────────────────── Visibility ─────────────────────────── */
+/* Top bar: hidden on mobile (bottom bar covers it). */
+@media (max-width: 767px) {
+  :root {
+    --anthology-nav-h: 0px;
+  }
+  .anthology-topbar {
+    display: none;
+  }
+}
+
+/* Bottom bar: hidden on desktop (lg+). */
+@media (min-width: 1024px) {
+  .anthology-bottomnav {
+    display: none;
+  }
+}
+
+/* Page sub-bar sits below the fixed top bar. */
+.page-subbar {
+  position: sticky;
+  top: var(--anthology-nav-h);
+  z-index: 50;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 10, 10, 0.88);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.page-subbar__inner {
+  max-width: calc(1180px + 48px);
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page-subbar__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-subbar .topbar__moments {
+  margin-left: auto;
+}

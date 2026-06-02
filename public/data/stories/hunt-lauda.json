@@ -1,0 +1,55 @@
+{
+  "slug": "hunt-lauda",
+  "title": "Fire & Ice",
+  "subtitle": "The 1976 season was not just a championship battle; it was a philosophical war between James Hunt and Niki Lauda.",
+  "year": 1976,
+  "category": "Rivalry",
+  "tags": [],
+  "cover_image": "/images/stories/full/2.png",
+  "cover_image_landscape": "/images/stories/landscape/2.png",
+  "cover_image_portrait": "/images/stories/portrait/2.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "Blueprints and Cigarettes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Lauda calculated risk with a pencil; Hunt calculated pleasure with a cigarette. In 1976, the paddock felt like a courtroom. Ferrari's tribal court had already exiled Lauda once; McLaren's garage ran on cold mathematics. The cars were loud, but the verdicts were louder."
+    },
+    {
+      "type": "image",
+      "src": "/James_Hunt_-_Dutch_GP_1976.jpg",
+      "caption": "Hunt in the rain, Zandvoort.",
+      "layout": "landscape"
+    },
+    {
+      "type": "paragraph",
+      "text": "On Sunday mornings, Hunt wore chaos like a suit. Lauda wore discipline. Their laps were the same sentence written in two handwritings."
+    },
+    {
+      "type": "heading",
+      "text": "The Ring"
+    },
+    {
+      "type": "paragraph",
+      "text": "At the Nürburgring, the track bit back. Steel met fire. Lauda's return six weeks later was not heroic in the Hollywood sense—it was a negotiation with pain, a handshake with mortality."
+    },
+    {
+      "type": "image",
+      "src": "/Niki_Lauda_-_Ferrari_312T2_heads_towards_the_swimming_pool_complex_at_the_1977_Monaco_GP.jpg",
+      "caption": "Lauda Ferrari 312T2.",
+      "layout": "portrait"
+    },
+    {
+      "type": "heading",
+      "text": "Championship as Philosophy"
+    },
+    {
+      "type": "paragraph",
+      "text": "The title did not crown the faster man; it crowned the framework. Hunt won the points. Lauda won the argument that bravery is not stupidity. The season wrote itself into F1's bones."
+    }
+  ],
+  "published": true,
+  "sort_order": 1
+}
