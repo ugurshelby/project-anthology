@@ -1,0 +1,42 @@
+{
+  "slug": "senna-monaco",
+  "title": "The Divine Lap",
+  "subtitle": "Monaco, 1988. Senna on the limit in the MP4/4, Prost on the data—and two seconds between two philosophies before the crash at Portier.",
+  "year": 1988,
+  "category": "Legend",
+  "tags": [],
+  "cover_image": "/images/stories/full/1.png",
+  "cover_image_landscape": "/images/stories/landscape/1.png",
+  "cover_image_portrait": "/images/stories/portrait/1.png",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "Monaco is not a race track; it is a cage. To drive fast here is to dance with a knife. In 1988, Ayrton Senna did not just drive; he entered a state of consciousness that few athletes ever reach. The car was an extension of his nervous system—but the car was an MP4/4, the product of a factory war McLaren and Honda were winning before either driver turned a wheel."
+    },
+    {
+      "type": "quote",
+      "text": "I was no longer driving the car consciously. I was driving it by a kind of instinct, only I was in a different dimension.",
+      "author": "Ayrton Senna"
+    },
+    {
+      "type": "paragraph",
+      "text": "He was two seconds faster than his teammate, Alain Prost—the Professor who read the same telemetry and refused to pay the price Senna demanded: tyres burned, margins spent, the limit held like a blade to the throat. In Formula 1, two seconds is not divinity; it is a psychological line drawn in the same cockpit."
+    },
+    {
+      "type": "image",
+      "src": "/Ayrton_Senna_1988_Canada.jpg",
+      "caption": "MP4/4, Senna 1988.",
+      "layout": "full"
+    },
+    {
+      "type": "heading",
+      "text": "The Crash"
+    },
+    {
+      "type": "paragraph",
+      "text": "And then, silence. At Portier, just before the tunnel, the concentration broke. The McLaren hit the barrier. Senna did not return to the pits. He walked straight to his apartment in Monaco and disappeared for hours. Perfection is fragile."
+    }
+  ],
+  "published": true,
+  "sort_order": 0
+}

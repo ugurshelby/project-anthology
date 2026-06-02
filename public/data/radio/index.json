@@ -1,0 +1,298 @@
+[
+  {
+    "id": "multi-21-malaysia-2013",
+    "slug": "multi-21-malaysia-2013",
+    "driver": "Sebastian Vettel",
+    "team": "Red Bull Racing",
+    "constructorId": "red_bull",
+    "quote": "Multi 21, Seb.",
+    "context": "With both cars on soft tyres in the closing laps, the pit wall reminded Vettel of the pre-race code “Multi 21” — car 2 ahead of car 1 on a controlled finish.",
+    "significance": "Vettel passed Webber anyway, detonating trust inside the garage and becoming shorthand for broken team orders in the modern era.",
+    "year": 2013,
+    "round": 2,
+    "gp_name": "Malaysian Grand Prix",
+    "tags": [
+      "team-orders",
+      "red-bull",
+      "2010s",
+      "championship"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "webber-unbelievable-china-2013",
+    "slug": "webber-unbelievable-china-2013",
+    "driver": "Mark Webber",
+    "team": "Red Bull Racing",
+    "constructorId": "red_bull",
+    "quote": "Unbelievable, guys… unbelievable.",
+    "context": "After a chaotic sequence in the garage and a mis-timed final stop, Webber rejoined out of position and vented on the radio with dry, exhausted disbelief.",
+    "significance": "The line captured the feeling of a driver who believed the machinery and strategy were fighting him as much as the field.",
+    "year": 2013,
+    "round": 3,
+    "gp_name": "Chinese Grand Prix",
+    "tags": [
+      "strategy",
+      "red-bull",
+      "2010s",
+      "frustration"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "vettel-brazil-2012-retire-debate",
+    "slug": "vettel-brazil-2012-retire-debate",
+    "driver": "Sebastian Vettel",
+    "team": "Red Bull Racing",
+    "constructorId": "red_bull",
+    "quote": "No, no, no — I can keep going.",
+    "context": "In a rain-hit title decider with visible damage, the pit wall feared terminal failure while Vettel argued to stay in the race and keep fighting through the spray.",
+    "significance": "The exchange framed how much a champion is willing to risk when a crown is one corner away — and how calm the cockpit must sound even when the car is not.",
+    "year": 2012,
+    "round": 20,
+    "gp_name": "Brazilian Grand Prix",
+    "tags": [
+      "brazil",
+      "red-bull",
+      "2010s",
+      "championship",
+      "pressure"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "raikkonen-leave-me-alone-india-2012",
+    "slug": "raikkonen-leave-me-alone-india-2012",
+    "driver": "Kimi Räikkönen",
+    "team": "Lotus F1 Team",
+    "constructorId": "lotus_f1",
+    "quote": "Just leave me alone — I know what to do.",
+    "context": "Race engineer Simon Rennie offered encouragement and gap information while Räikkönen was managing tyres on his way to the podium.",
+    "significance": "It became the meme-friendly distillation of Kimi’s persona: minimal words, maximum autonomy, and a refusal to dramatise the job.",
+    "year": 2012,
+    "round": 17,
+    "gp_name": "Indian Grand Prix",
+    "tags": [
+      "lotus",
+      "2010s",
+      "comedy",
+      "cool"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "hamilton-bwoah-germany-2017",
+    "slug": "hamilton-bwoah-germany-2017",
+    "driver": "Lewis Hamilton",
+    "team": "Mercedes",
+    "constructorId": "mercedes",
+    "quote": "Bwoah… I mean, it’s the same for everyone, I guess.",
+    "context": "Asked in a post-session interview how tricky the conditions felt, Hamilton answered with the now-famous elongated “bwoah” and a shrug toward fairness.",
+    "significance": "The delivery turned into a cultural fingerprint for the sport on the internet — proof that tone matters as much as words in how fans remember a moment.",
+    "year": 2017,
+    "round": 11,
+    "gp_name": "German Grand Prix",
+    "tags": [
+      "interview",
+      "meme",
+      "2010s",
+      "weather"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "sainz-smooth-operator-australia-2024",
+    "slug": "sainz-smooth-operator-australia-2024",
+    "driver": "Carlos Sainz",
+    "team": "Ferrari",
+    "constructorId": "ferrari",
+    "quote": "Smooth operator — copy that.",
+    "context": "Days after appendix surgery, Sainz took the win in Melbourne; the engineer’s “smooth operator” call-back landed as both joke and genuine admiration.",
+    "significance": "A rare radio snapshot where the story off the track (recovery) and the story on it (racecraft) lined up in one sentence.",
+    "year": 2024,
+    "round": 3,
+    "gp_name": "Australian Grand Prix",
+    "tags": [
+      "ferrari",
+      "2024",
+      "comeback",
+      "celebration"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "alonso-gp2-engine-hungary-2015",
+    "slug": "alonso-gp2-engine-hungary-2015",
+    "driver": "Fernando Alonso",
+    "team": "McLaren",
+    "constructorId": "mclaren",
+    "quote": "GP2 engine! GP2 — argh!",
+    "context": "Chasing a Toro Rosso on the main straight, Alonso’s Honda-powered McLaren was helplessly out-dragged; the exasperated cry was aimed at the power unit, not the category itself.",
+    "significance": "It distilled a painful era into one viral phrase — frustration so pure it became dark comedy for anyone who lived through McLaren-Honda.",
+    "year": 2015,
+    "round": 10,
+    "gp_name": "Hungarian Grand Prix",
+    "tags": [
+      "mclaren",
+      "2010s",
+      "frustration",
+      "meme",
+      "honda"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "norris-last-lap-austria-2020",
+    "slug": "norris-last-lap-austria-2020",
+    "driver": "Lando Norris",
+    "team": "McLaren",
+    "constructorId": "mclaren",
+    "quote": "Last lap! Push like never before!",
+    "context": "On the final tour at the Red Bull Ring, Norris needed to claw time from the cars ahead for his breakthrough podium; the engineer’s urgency matched the lap that changed his career.",
+    "significance": "The shout became the soundtrack to Norris’s first F1 rostrum — youthful hunger meeting a team that finally believed in the result.",
+    "year": 2020,
+    "round": 9,
+    "gp_name": "Styrian Grand Prix",
+    "tags": [
+      "mclaren",
+      "2021now",
+      "pressure",
+      "celebration"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "ricciardo-honda-looks-great-japan-2019",
+    "slug": "ricciardo-honda-looks-great-japan-2019",
+    "driver": "Daniel Ricciardo",
+    "team": "Renault",
+    "constructorId": "renault",
+    "quote": "Honda looks great, doesn’t it?",
+    "context": "Ricciardo was stuck behind Hamilton, who was limping on a failing Mercedes power unit; the sarcastic radio quip mocked the rival PU while Renault fought for position.",
+    "significance": "Peak Ricciardo wit — turning another team’s misery into a punchline without ever raising his voice in the cockpit.",
+    "year": 2019,
+    "round": 17,
+    "gp_name": "Japanese Grand Prix",
+    "tags": [
+      "renault",
+      "2010s",
+      "comedy",
+      "sarcasm"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "verstappen-simply-lovely-baku-2018",
+    "slug": "verstappen-simply-lovely-baku-2018",
+    "driver": "Max Verstappen",
+    "team": "Red Bull Racing",
+    "constructorId": "red_bull",
+    "quote": "Simply lovely — that was lovely.",
+    "context": "After a scrappy qualifying session on the Baku street circuit, Verstappen delivered the line with theatrical calm, as if the chaos had been choreographed.",
+    "significance": "It showed how early Max could weaponise understatement — comedy as pressure release on a weekend that rarely offers peace.",
+    "year": 2018,
+    "round": 4,
+    "gp_name": "Azerbaijan Grand Prix",
+    "tags": [
+      "red-bull",
+      "2010s",
+      "comedy",
+      "qualifying"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "button-is-it-a-bird-monaco-2009",
+    "slug": "button-is-it-a-bird-monaco-2009",
+    "driver": "Jenson Button",
+    "team": "Brawn GP",
+    "constructorId": "brawn",
+    "quote": "Is it a bird? Is it a plane? No — it’s Super Jenson!",
+    "context": "On a flying qualifying lap at Monaco, Button’s engineer riffed on the superhero line as the Brawn carved through the cliff faces — the car and the joke both untouchable that weekend.",
+    "significance": "A rare moment where radio joy matched fairytale results — Brawn’s miracle year finding its voice on the most romantic lap in the sport.",
+    "year": 2009,
+    "round": 6,
+    "gp_name": "Monaco Grand Prix",
+    "tags": [
+      "2000s",
+      "comedy",
+      "qualifying",
+      "championship"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "leclerc-i-am-stupid-monza-2019",
+    "slug": "leclerc-i-am-stupid-monza-2019",
+    "driver": "Charles Leclerc",
+    "team": "Ferrari",
+    "constructorId": "ferrari",
+    "quote": "I am stupid.",
+    "context": "Leclerc spun at Parabolica during qualifying at Ferrari’s home race; the blunt self-assessment on team radio was as immediate as the mistake.",
+    "significance": "Fans embraced the honesty — a star driver owning a error without deflection, in a sport that usually speaks in engineering euphemisms.",
+    "year": 2019,
+    "round": 14,
+    "gp_name": "Italian Grand Prix",
+    "tags": [
+      "ferrari",
+      "2010s",
+      "pressure",
+      "meme"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "grosjean-no-push-bahrain-2020",
+    "slug": "grosjean-no-push-bahrain-2020",
+    "driver": "Romain Grosjean",
+    "team": "Haas F1 Team",
+    "constructorId": "haas",
+    "quote": "No, no, don’t push — I’m in the barrier, I’m in the barrier!",
+    "context": "After a terrifying Turn 3 fireball, Grosjean’s first instinct was to stop anyone from shoving the car while he was still inside the survival cell.",
+    "significance": "The line marked the split second between violence and clarity — radio as lifeline, not theatre, on a day the sport will never forget.",
+    "year": 2020,
+    "round": 15,
+    "gp_name": "Bahrain Grand Prix",
+    "tags": [
+      "2021now",
+      "safety",
+      "pressure"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  },
+  {
+    "id": "verstappen-mate-celebration-brazil-2016",
+    "slug": "verstappen-mate-celebration-brazil-2016",
+    "driver": "Max Verstappen",
+    "team": "Red Bull Racing",
+    "constructorId": "red_bull",
+    "quote": "Mate, you’ve had the biggest celebration already — you’ve had a great season.",
+    "context": "Verstappen tried to thank the team after a wet masterclass at Interlagos; the engineer cut through the sentiment with a joke about Ricciardo’s earlier podium antics.",
+    "significance": "Proof that Red Bull’s radio culture runs on banter even in history-making drives — youth, rain, and laughter in one package.",
+    "year": 2016,
+    "round": 20,
+    "gp_name": "Brazilian Grand Prix",
+    "tags": [
+      "red-bull",
+      "2010s",
+      "comedy",
+      "brazil",
+      "rain"
+    ],
+    "audio_url": null,
+    "cover_image": null
+  }
+]

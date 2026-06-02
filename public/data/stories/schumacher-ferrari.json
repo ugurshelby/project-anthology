@@ -1,0 +1,58 @@
+{
+  "slug": "schumacher-ferrari",
+  "title": "The Red Baron",
+  "subtitle": "Todt, Brawn, and a factory finally run like a clock—not one driver alone—turning Maranello into an empire of process.",
+  "year": 2000,
+  "category": "Dynasty",
+  "tags": [],
+  "cover_image": "/images/stories/full/4.png",
+  "cover_image_landscape": "/images/stories/landscape/4.png",
+  "cover_image_portrait": "/images/stories/portrait/4.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "Maranello Bells"
+    },
+    {
+      "type": "paragraph",
+      "text": "For twenty-one years, the church at Maranello waited. The myth says one man rebuilt Ferrari; the ledger says Jean Todt, Ross Brawn, and a factory finally run like a clock—not a court. Schumacher was the needle; they were the mechanism. Pit stops became liturgy. Monday debriefs, penance."
+    },
+    {
+      "type": "image",
+      "src": "/Scuderia_Ferrari_F2004.jpg",
+      "caption": "Ferrari F2004 silhouette.",
+      "layout": "landscape"
+    },
+    {
+      "type": "paragraph",
+      "text": "Even his legendary feel for setup rode on Rubens Barrichello's laps and feedback—the number two doing the arithmetic the star would not admit. Mechanics trained like athletes. Engineers slept with spreadsheets. The F2004 was less a chariot than a ritual performed at 18,000 rpm."
+    },
+    {
+      "type": "heading",
+      "text": "Dynasty"
+    },
+    {
+      "type": "paragraph",
+      "text": "From 2000 to 2004, the sport bent around Maranello's process, not a lone will. The title runs were not inevitable; they were constructed—lap by lap, checklists stacked like bricks, tribal pressure finally channelled into engineering."
+    },
+    {
+      "type": "image",
+      "src": "/Michael_Schumacher_Ferrari_2004.jpg",
+      "caption": "Schumacher era, red dominance.",
+      "layout": "portrait"
+    },
+    {
+      "type": "quote",
+      "text": "I've always believed that you should never, ever give up and you should always keep fighting even when there's only the slightest chance.",
+      "author": "Michael Schumacher"
+    },
+    {
+      "type": "image",
+      "src": "/Italian_F1_-_Monza_-_Ank_Kumar_05.jpg",
+      "caption": "The Tifosi at Monza.",
+      "layout": "full"
+    }
+  ],
+  "published": true,
+  "sort_order": 3
+}

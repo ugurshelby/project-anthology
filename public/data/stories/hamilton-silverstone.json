@@ -1,0 +1,34 @@
+{
+  "slug": "hamilton-silverstone",
+  "title": "Copse Corner",
+  "subtitle": "Copse, 2021. Mercedes and Red Bull, two championship cars, one corner—and a collision the factories would argue about for months.",
+  "year": 2021,
+  "category": "Modern Era",
+  "tags": [],
+  "cover_image": "/images/stories/full/6.png",
+  "cover_image_landscape": "/images/stories/landscape/6.png",
+  "cover_image_portrait": "/images/stories/portrait/6.png",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "The collision heard around the world. It wasn't just an accident; it was two championship machines meeting where the track narrows—Mercedes' floor advantage against Red Bull's high-downforce knife, neither driver willing to yield the inside line that Sunday."
+    },
+    {
+      "type": "image",
+      "src": "/Lewis_Hamilton_on_his_victory_lap_(14634946913).jpg",
+      "caption": "Hamilton's victory lap, Silverstone 2021.",
+      "layout": "full"
+    },
+    {
+      "type": "paragraph",
+      "text": "Think of it like a basketball pick-and-roll gone wrong: two athletes executing the same play, each convinced the other broke the unwritten rule. The stewards would argue for days; the factories would file briefs in air."
+    },
+    {
+      "type": "quote",
+      "text": "This is not tennis. This is life and death.",
+      "author": "Toto Wolff"
+    }
+  ],
+  "published": true,
+  "sort_order": 5
+}

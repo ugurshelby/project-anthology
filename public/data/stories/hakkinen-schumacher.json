@@ -1,0 +1,47 @@
+{
+  "slug": "hakkinen-schumacher",
+  "title": "The Zonta Overtake",
+  "subtitle": "Spa-Francorchamps. 200mph. A backmarker in the middle. Two of the greatest drivers in history made a choice.",
+  "year": 2000,
+  "category": "Combat",
+  "tags": [],
+  "cover_image": "/images/stories/full/5.png",
+  "cover_image_landscape": "/images/stories/landscape/5.png",
+  "cover_image_portrait": "/images/stories/portrait/5.png",
+  "content": [
+    {
+      "type": "heading",
+      "text": "Knife Edge"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spa is a geography lesson taught with velocity. Two factories had built two philosophies in carbon: McLaren's knife against Ferrari's hammer. Häkkinen read Schumacher's lines like scripture, waiting for the parishioner to blink."
+    },
+    {
+      "type": "image",
+      "src": "/Mika_Häkkinen_1.jpg",
+      "caption": "Häkkinen, focus through Eau Rouge.",
+      "layout": "landscape"
+    },
+    {
+      "type": "paragraph",
+      "text": "Approaching Zonta, the universe narrowed to three cars and one choice. The tyres drew calligraphy at 300 km/h. Left for Schumacher. Right for Häkkinen."
+    },
+    {
+      "type": "heading",
+      "text": "The Split"
+    },
+    {
+      "type": "paragraph",
+      "text": "They passed on either side of a man trying to stay alive. It was not aggression; it was clarity. The move remains a lecture on decision under pressure."
+    },
+    {
+      "type": "image",
+      "src": "/Michael_Schumacher,_Ferrari_F2001_(8968595731)_(cropped).jpg",
+      "caption": "Schumacher, the constant adversary.",
+      "layout": "portrait"
+    }
+  ],
+  "published": true,
+  "sort_order": 4
+}
