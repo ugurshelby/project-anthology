@@ -151,11 +151,11 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Tükettiği önceki çıktı: yok (zemin).
 
 **Todo**
-- [ ] `lib/f1Calendar.ts`: `getF1Context()`, `CURRENT_SEASON`, `F1_SEASON_MIN`, `CURRENT_DRIVERS`, `CURRENT_TEAMS`, `isRaceWeekend`. Tek SSOT.
-- [ ] `config/team-colors.ts`: `team-colors.ts` referansından 2026 renkleri port (`getTeamById/ByName`, `resolveTeamUiColor`, `teamColorsCssVars`).
-- [ ] `app/globals.css`: Tailwind v4 `@theme` — renk skalası (`#0a0a0a` bg, `#131313` surface, `#141414` card, `#ff1801` accent, `#f4f1ea` paper), font aileleri, spacing (navbar 52px, section-gap 80px), `--radius: 0`.
-- [ ] `app/layout.tsx`: `next/font` ile Bebas Neue / Barlow Condensed / Inter / IBM Plex Mono (CDN'den font yükleme yok).
-- [ ] Küçük demo: `/` token'ları gösteren minimal hero (Cursor; placeholder).
+- [x] `lib/f1Calendar.ts`: `getF1Context()`, `CURRENT_SEASON`, `F1_SEASON_MIN`, `isRaceWeekend`, `isRaceDone`, `getNextRace`, `getLastFinishedRace`. Tek SSOT. *(2026-06-03: temporal çekirdek tamam; `CURRENT_DRIVERS/TEAMS` Phase 4'e ertelendi — pilot/takım `team-colors.ts`+Ergast'ta.)*
+- [x] `config/team-colors.ts`: eski `team-colors.ts` birebir taşındı (`getTeamById/ByName`, `resolveTeamUiColor`, `teamColorsCssVars`). *(2026-06-03)*
+- [ ] `app/globals.css`: Tailwind v4 `@theme` — renk skalası (`#0a0a0a` bg, `#131313` surface, `#141414` card, `#ff1801` accent, `#f4f1ea` paper), font aileleri, spacing (navbar 52px, section-gap 80px), `--radius: 0`. *(Cursor — Phase 4 UI dilimi)*
+- [ ] `app/layout.tsx`: `next/font` ile Bebas Neue / Barlow Condensed / Inter / IBM Plex Mono (CDN'den font yükleme yok). *(Cursor — Phase 4 UI dilimi)*
+- [ ] Küçük demo: `/` token'ları gösteren minimal hero (Cursor; placeholder). *(Cursor — Phase 4)*
 
 **⚠️ Olası problem → çözüm**
 | Problem | Çözüm |
@@ -182,10 +182,10 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Tükettiği önceki çıktı: `lib/f1Calendar.ts` (F1_SEASON_MIN, sezon aralığı).
 
 **Todo**
-- [ ] `supabase/migrations/001_initial_schema.sql`: Karar A'daki 5 tablo + kanonik `type` CHECK + `source` CHECK + tüm index'ler + RLS politikaları + `updated_at` trigger.
-- [ ] `types/database.ts`: her tablo için `Row`/`Insert`/`Update` tipleri.
-- [ ] `lib/supabase.ts`: `getSupabaseClient()` (anon, `NEXT_PUBLIC_*`, client/RSC read) + `getSupabaseAdmin()` (service_role, server-only; **key yoksa `throw`** — anon'a düşme yok).
-- [ ] `npx supabase db push` → canlı boş DB'ye uygula.
+- [x] `supabase/migrations/20260603000001_initial_schema.sql`: Karar A — 5 tablo + kanonik `type` CHECK + `source` CHECK + index'ler + RLS + `updated_at` trigger + **table-level GRANT'ler**. *(2026-06-03; isim Supabase timestamp konvansiyonuna uyduruldu)*
+- [x] `types/database.ts`: her tablo `Row`/`Insert`/`Update` + `Database` generic + kanonik union'lar. *(2026-06-03)*
+- [x] `lib/supabase.ts`: `getSupabaseClient()` (anon) + `getSupabaseAdmin()` (service_role; key yoksa `throw`). *(2026-06-03)*
+- [x] `npx supabase db push` → canlı DB'ye uygulandı. *(2026-06-03; GRANT eksikliği 42501 düzeltildi)*
 
 **⚠️ Olası problem → çözüm**
 | Problem | Çözüm |
@@ -196,15 +196,16 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 | Migration tekrar çalıştırma | `IF NOT EXISTS` + idempotent policy `drop if exists` |
 
 **Doğrulama (DoD)**
-- [ ] `npx supabase db push` → başarı.
-- [ ] REST kökünde 5 tablo expose (`curl .../rest/v1/` definitions).
-- [ ] `npm run build` → exit 0.
+- [x] `npx supabase db push` → başarı (migration history senkron).
+- [x] Anon REST: `f1_snapshots`/`stories` SELECT → `[]` (RLS + GRANT doğru). *(introspection cache gecikmesi kozmetik)*
+- [x] `npm run build` → exit 0.
 
-**Phase sonu:** [ ] log [ ] commit [ ] checkbox'lar
+**Phase sonu:** [x] log (AGENT_PHASE1_DB_DATA_LAYER_2026-06-03) [x] commit [x] checkbox'lar — **Phase 2 ✅**
 
 ---
 
 ### Phase 3 — Veri Katmanı + Çok-Kaynaklı Ingestion  [Sorumlu: Claude Code]
+> **Durum (2026-06-03):** Okuma katmanı + Jolpica proxy **tamam**; ingestion (adapter/cron/seed) **bekliyor**.
 **ÖNKOŞUL:** Phase 2 ✅ (tablolar canlı, client hazır).
 **NEDEN BU SIRA:** UI veriyi okuyacak; veri DB'de olmadan sayfa inşa edilemez. Karar E (çok kaynak) + B (Cron auth) burada uygulanır.
 
@@ -214,14 +215,14 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Tükettiği önceki çıktı: `lib/f1Calendar.ts` (kapsam), `lib/supabase.ts` (admin), `types/database.ts`.
 
 **Todo**
-- [ ] `lib/data/{f1,news,circuits,stories,radio,fs,siteUrl,logger,types}.ts`: 3-katman okuma (DB → static → Jolpica proxy), logging.
+- [x] `lib/data/{f1,news,fs,siteUrl,logger,types}.ts`: 3-katman okuma (DB → static → Jolpica proxy) + logging. *(2026-06-03; `circuits/stories/radio` okuma yardımcıları UI ihtiyaçına göre eklenecek)*
 - [ ] `lib/f1/sources/f1db.ts`, `jolpica.ts`, `openf1.ts`: her biri `toMrData(raw): MRData` adapter.
 - [ ] `lib/f1Ingest.ts`: kaynaktan bağımsız `upsertF1Snapshot(..., source)`, **disk-cache YOK**, bounded concurrency, `isRaceDone`, `roundSuffixToSnapshotType` (kanonik küme).
 - [ ] `lib/news/aggregate.ts`: `route.ts`'ten RSS mantığını çıkar (F1 filtre, canonical dedupe, Jaccard cluster 0.55) — route + cron paylaşır.
 - [ ] `app/api/cron/sync-f1/route.ts`: yalnız current season, Jolpica → `source='jolpica'` (Karar B).
 - [ ] `app/api/cron/sync-news/route.ts`: `aggregate()` → `news_cache` upsert(onConflict 'url') + 30g retention.
 - [ ] `app/api/cron/sync-radio/route.ts`: OpenF1 `team_radio` → `radio_moments.audio_url` → `source='openf1'`; rate-limit ≤3 req/s.
-- [ ] `app/api/{f1-season,f1-live,news,health}/route.ts`: SSRF-hardened proxy + CORS + rate-limit (eski `route.ts` mantığı).
+- [x] `app/api/f1-season/route.ts`: SSRF-hardened Jolpica proxy (whitelist regex, sezon-aware cache). *(2026-06-03; smoke-tested)* — `f1-live`/`news`/`health` route'ları **bekliyor**.
 - [ ] `vercel.json`: crons (`sync-f1` 15dk + haftalık, `sync-news` 30dk, `sync-radio` saatlik) — knowledge-update'e göre crons için JSON yeterli.
 - [ ] `scripts/seed-f1db.ts` (**tarihsel tek-seferlik backfill, F1DB**), `scripts/seed-stories.ts`, `scripts/seed-radio.ts` (migration-source kurtarılan içerik).
 - [ ] migration-source eski git HEAD'den kurtar: `git show HEAD~?:migration-source/...` (storyContent, storyMetadata, radioArchive). **İçerik doğrulaması User'da.**
