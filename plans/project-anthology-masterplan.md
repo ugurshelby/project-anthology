@@ -91,14 +91,14 @@ news_cache USING GIN (tags)
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;            // Vercel default timeout 300s
-// 1) Auth: Authorization: Bearer ${CRON_SECRET} doğrula → eşleşmezse 401
+// 1) Auth: Authorization: Bearer ${CRON_SECRET_KEY} doğrula → eşleşmezse 401
 // 2) Admin: getSupabaseAdmin() — service key yoksa 500 (anon'a DÜŞME yok)
 // 3) İş: in-memory fetch → guard → upsert → özet JSON { source, upserted, skipped, errors }
 ```
 
 ### C. Env değişkenleri (`.env.example`'a eklenecek)
 Mevcut: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
-**Eklenecek:** `CRON_SECRET` (cron auth), `GEMINI_API_KEY` (opsiyonel haber özeti), `NEXT_PUBLIC_SITE_URL` (RSC mutlak fetch). OpenF1 ve F1DB **auth gerektirmez** (anahtar yok).
+**Eklenecek:** `CRON_SECRET_KEY` (cron auth — Vercel'daki env adı), `GEMINI_API_KEY` (opsiyonel haber özeti), `NEXT_PUBLIC_SITE_URL` (RSC mutlak fetch — Vercel'da TANIMSIZ; kod hardcoded prod fallback'e düşer: `https://project-anthology-three.vercel.app`). OpenF1 ve F1DB **auth gerektirmez** (anahtar yok).
 
 ### D. Anti-pattern guard (HER phase'de geçerli)
 - İki-tablolu snapshot modeline dönüş **yok** (tek `f1_snapshots`).
@@ -239,16 +239,16 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 | `news_cache` ölü relation | cron `upsert(onConflict 'url')` + 30g retention |
 | serverless FS yazılamaz | in-memory; F1DB release belleğe indirilir, diske yazılmaz |
 | Kaynaklar farklı şekil | her adapter `toMrData` ile Ergast `MRData`'ya normalize |
-| Cron `Bearer` eşleşmezse | 401; `CRON_SECRET` Vercel env (User) |
+| Cron `Bearer` eşleşmezse | 401; `CRON_SECRET_KEY` Vercel env (User) |
 
 **⚠️ MANUEL AKSİYON GEREKLİ (User):**
-- `CRON_SECRET` ve (opsiyonel) `GEMINI_API_KEY` → Vercel env'e gir → `vercel env pull .env.local`.
+- `CRON_SECRET_KEY` ve (opsiyonel) `GEMINI_API_KEY` → Vercel env'e gir → `vercel env pull .env.local`.
 - migration-source kurtarılan hikaye/telsiz içeriğini doğrula.
 - (OpenF1/F1DB auth gerektirmez — manuel anahtar yok.)
 
 **Doğrulama (DoD — "çalıştığını gördük")**
 - [ ] `npm run seed:f1db` → tarihsel satırlar (`source='f1db'`) DB'de (satır sayısı raporlanır).
-- [ ] Cron manuel tetikle: `curl -H "Authorization: Bearer $CRON_SECRET" .../api/cron/sync-f1` → current-season (`source='jolpica'`) satırları DB'de.
+- [ ] Cron manuel tetikle: `curl -H "Authorization: Bearer $CRON_SECRET_KEY" .../api/cron/sync-f1` → current-season (`source='jolpica'`) satırları DB'de.
 - [ ] `sync-radio` → OpenF1 audio (`source='openf1'`) satırları `radio_moments`'ta.
 - [ ] Testler yeşil.
 - [ ] `npm run build` → exit 0.
@@ -386,7 +386,7 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 
 ## 5. ⚠️ MANUEL AKSİYON ÖZETİ (User)
 - Supabase login (**yapıldı**).
-- `CRON_SECRET` + (ops.) `GEMINI_API_KEY` + (ops.) Cloudinary → Vercel env → `vercel env pull` (Phase 3).
+- `CRON_SECRET_KEY` + (ops.) `GEMINI_API_KEY` + (ops.) Cloudinary → Vercel env → `vercel env pull` (Phase 3).
 - migration-source kurtarılan hikaye/telsiz içeriğini doğrula (Phase 3).
 - Tüm görsel asset üretimi (Phase 5).
 - Production push onayı (Phase 8).
