@@ -2,11 +2,16 @@
  * Resolve the absolute site URL for server-side (RSC) fetches of our own API
  * routes. RSC `fetch` needs an absolute URL; relative paths don't resolve.
  *
- * Order: NEXT_PUBLIC_SITE_URL → VERCEL_URL → localhost.
+ * Order: NEXT_PUBLIC_SITE_URL → hardcoded prod fallback → VERCEL_URL → localhost.
+ * NEXT_PUBLIC_SITE_URL is NOT defined in Vercel, so the hardcoded production URL
+ * is the effective default in deployed environments.
  */
 
+/** Hardcoded production URL — used when NEXT_PUBLIC_SITE_URL is unset. */
+const PROD_SITE_URL = 'https://project-anthology-three.vercel.app';
+
 export function getSiteUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '');
+  const explicit = (process.env.NEXT_PUBLIC_SITE_URL ?? PROD_SITE_URL).replace(/\/+$/, '');
   if (explicit) return explicit;
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${vercel.replace(/\/+$/, '')}`;
