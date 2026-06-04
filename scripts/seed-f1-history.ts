@@ -19,7 +19,8 @@
  * (loaded from .env.local via dotenv before running)
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 import {
   loadF1Db,
   toMRDataCalendar,
