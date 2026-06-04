@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-f1",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-news",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-radio",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

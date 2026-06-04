@@ -130,30 +130,46 @@ export interface NewsCacheInsert {
   summary?: string | null;
   image_url?: string | null;
   published_at?: string | null;
-  tags?: string[] | null;
+  // tags is text[] in Postgres; typed as unknown to satisfy supabase-js generics
+  tags?: unknown;
 }
 export type NewsCacheUpdate = Partial<NewsCacheInsert>;
 
 // ── Database (supabase-js generic) ───────────────────────────────────────────
+// supabase-js v2 requires `Relationships: []` on each table entry to correctly
+// resolve Insert/Update types through its generic machinery.
 export interface Database {
   public: {
     Tables: {
-      stories: { Row: StoryRow; Insert: StoryInsert; Update: StoryUpdate };
+      stories: {
+        Row: StoryRow;
+        Insert: StoryInsert;
+        Update: StoryUpdate;
+        Relationships: never[];
+      };
       radio_moments: {
         Row: RadioMomentRow;
         Insert: RadioMomentInsert;
         Update: RadioMomentUpdate;
+        Relationships: never[];
       };
-      circuits: { Row: CircuitRow; Insert: CircuitInsert; Update: CircuitUpdate };
+      circuits: {
+        Row: CircuitRow;
+        Insert: CircuitInsert;
+        Update: CircuitUpdate;
+        Relationships: never[];
+      };
       f1_snapshots: {
         Row: F1SnapshotRow;
         Insert: F1SnapshotInsert;
         Update: F1SnapshotUpdate;
+        Relationships: never[];
       };
       news_cache: {
         Row: NewsCacheRow;
         Insert: NewsCacheInsert;
         Update: NewsCacheUpdate;
+        Relationships: never[];
       };
     };
     Views: Record<string, never>;
