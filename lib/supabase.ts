@@ -12,9 +12,6 @@ import type { Database } from '@/types/database';
  *   surface as confusing "permission denied" rows instead of a clear config error.
  */
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
 type DB = SupabaseClient<Database>;
 
 let cachedAnon: DB | null = null;
@@ -22,12 +19,14 @@ let cachedAnon: DB | null = null;
 /** Anon client for reads (client + RSC). Subject to RLS. */
 export function getSupabaseClient(): DB {
   if (cachedAnon) return cachedAnon;
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
     throw new Error(
       'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY',
     );
   }
-  cachedAnon = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  cachedAnon = createClient<Database>(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   return cachedAnon;
@@ -41,8 +40,9 @@ let cachedAdmin: DB | null = null;
  */
 export function getSupabaseAdmin(): DB {
   if (cachedAdmin) return cachedAdmin;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!SUPABASE_URL) {
+  if (!url) {
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL');
   }
   if (!serviceKey) {
@@ -51,7 +51,7 @@ export function getSupabaseAdmin(): DB {
         'writes; refusing to fall back to the anon key (would fail RLS).',
     );
   }
-  cachedAdmin = createClient<Database>(SUPABASE_URL, serviceKey, {
+  cachedAdmin = createClient<Database>(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   return cachedAdmin;

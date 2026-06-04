@@ -3,12 +3,11 @@
  *
  * F1DB publishes CalVer JSON releases at:
  *   https://github.com/f1db/f1db/releases
- * Each release asset is a single large `f1db.json` containing the full
- * historical archive with nested race, qualifying, sprint, standings data.
+ * As of v2026, the asset is `f1db-json-single.zip` containing `f1db.json`.
  *
  * This adapter:
  *  1. Fetches the latest release tag from GitHub API (no auth needed for public repos).
- *  2. Downloads the `f1db.json` asset entirely in-memory — NO disk writes.
+ *  2. Downloads the `f1db-json-single.zip` asset in-memory and extracts `f1db.json` — NO disk writes.
  *  3. Exposes per-season extractor functions that return Ergast-shaped MRData
  *     objects so `lib/f1Ingest.ts` can upsert without knowing the source.
  *
@@ -16,12 +15,14 @@
  * reads at this scale. We fetch exactly once per seed invocation.
  */
 
+import { unzipSync } from 'fflate';
+
 export interface MRData {
   MRData: Record<string, unknown>;
 }
 
 const RELEASE_API = 'https://api.github.com/repos/f1db/f1db/releases/latest';
-const FETCH_TIMEOUT_MS = 60_000; // 60 s — large JSON asset
+const FETCH_TIMEOUT_MS = 120_000; // 120 s — zip download
 
 interface F1DbRace {
   year: number;
@@ -108,14 +109,26 @@ export async function loadF1Db(): Promise<F1DbData> {
   if (!relRes.ok) throw new Error(`F1DB release API ${relRes.status}`);
   const release = (await relRes.json()) as { tag_name?: string; assets?: Array<{ name: string; browser_download_url: string }> };
 
-  const asset = release.assets?.find((a) => a.name === 'f1db.json');
-  if (!asset) throw new Error('F1DB release has no f1db.json asset');
+  // Accept both the old bare JSON and the current zip packaging
+  const jsonAsset = release.assets?.find((a) => a.name === 'f1db.json');
+  const zipAsset = release.assets?.find((a) => a.name === 'f1db-json-single.zip');
+  const asset = jsonAsset ?? zipAsset;
+  if (!asset) throw new Error('F1DB release: neither f1db.json nor f1db-json-single.zip found');
 
-  // 2) Download the full JSON asset (in-memory)
+  // 2) Download the asset in-memory
   const dataRes = await fetchWithTimeout(asset.browser_download_url, FETCH_TIMEOUT_MS);
   if (!dataRes.ok) throw new Error(`F1DB asset download ${dataRes.status}`);
 
-  _cached = (await dataRes.json()) as F1DbData;
+  if (asset.name.endsWith('.zip')) {
+    const buf = await dataRes.arrayBuffer();
+    const files = unzipSync(new Uint8Array(buf));
+    const jsonEntry = Object.keys(files).find((k) => k.endsWith('f1db.json'));
+    if (!jsonEntry) throw new Error('f1db.json not found inside zip');
+    const text = new TextDecoder().decode(files[jsonEntry]);
+    _cached = JSON.parse(text) as F1DbData;
+  } else {
+    _cached = (await dataRes.json()) as F1DbData;
+  }
   return _cached;
 }
 
