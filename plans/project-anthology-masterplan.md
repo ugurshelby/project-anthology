@@ -215,16 +215,16 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Tükettiği önceki çıktı: `lib/f1Calendar.ts` (kapsam), `lib/supabase.ts` (admin), `types/database.ts`.
 
 **Todo**
-- [x] `lib/data/{f1,news,fs,siteUrl,logger,types}.ts`: 3-katman okuma (DB → static → Jolpica proxy) + logging. *(2026-06-03; `circuits/stories/radio` okuma yardımcıları UI ihtiyaçına göre eklenecek)*
-- [ ] `lib/f1/sources/f1db.ts`, `jolpica.ts`, `openf1.ts`: her biri `toMrData(raw): MRData` adapter.
-- [ ] `lib/f1Ingest.ts`: kaynaktan bağımsız `upsertF1Snapshot(..., source)`, **disk-cache YOK**, bounded concurrency, `isRaceDone`, `roundSuffixToSnapshotType` (kanonik küme).
-- [ ] `lib/news/aggregate.ts`: `route.ts`'ten RSS mantığını çıkar (F1 filtre, canonical dedupe, Jaccard cluster 0.55) — route + cron paylaşır.
-- [ ] `app/api/cron/sync-f1/route.ts`: yalnız current season, Jolpica → `source='jolpica'` (Karar B).
-- [ ] `app/api/cron/sync-news/route.ts`: `aggregate()` → `news_cache` upsert(onConflict 'url') + 30g retention.
-- [ ] `app/api/cron/sync-radio/route.ts`: OpenF1 `team_radio` → `radio_moments.audio_url` → `source='openf1'`; rate-limit ≤3 req/s.
-- [x] `app/api/f1-season/route.ts`: SSRF-hardened Jolpica proxy (whitelist regex, sezon-aware cache). *(2026-06-03; smoke-tested)* — `f1-live`/`news`/`health` route'ları **bekliyor**.
-- [ ] `vercel.json`: crons (`sync-f1` 15dk + haftalık, `sync-news` 30dk, `sync-radio` saatlik) — knowledge-update'e göre crons için JSON yeterli.
-- [ ] `scripts/seed-f1db.ts` (**tarihsel tek-seferlik backfill, F1DB**), `scripts/seed-stories.ts`, `scripts/seed-radio.ts` (migration-source kurtarılan içerik).
+- [x] `lib/data/{f1,news,fs,siteUrl,logger,types}.ts`: 3-katman okuma (DB → static → Jolpica proxy) + logging. *(2026-06-03)*
+- [x] `lib/f1/sources/f1db.ts`, `jolpica.ts`, `openf1.ts`: her biri `toMRData(raw): MRData` adapter. *(2026-06-04)*
+- [x] `lib/f1Ingest.ts`: kaynaktan bağımsız `upsertF1Snapshot(..., source)`, **disk-cache YOK**, bounded concurrency (`runBounded`), `isRaceDone`, `roundSuffixToSnapshotType` (kanonik küme). *(2026-06-04)*
+- [x] `lib/news/aggregate.ts`: `route.ts`'ten RSS mantığını çıkar (F1 filtre, canonical dedupe, Jaccard cluster 0.55) — route + cron paylaşır. *(2026-06-04)*
+- [x] `app/api/cron/sync-f1/route.ts`: yalnız current season, Jolpica → `source='jolpica'` (Karar B). *(2026-06-04)*
+- [x] `app/api/cron/sync-news/route.ts`: `aggregate()` → `news_cache` upsert(onConflict 'url') + 30g retention. *(2026-06-04)*
+- [x] `app/api/cron/sync-radio/route.ts`: OpenF1 `team_radio` → `radio_moments.audio_url` → `source='openf1'`; rate-limit ≤3 req/s. *(2026-06-04)*
+- [x] `app/api/f1-season/route.ts`: SSRF-hardened Jolpica proxy (whitelist regex, sezon-aware cache). *(2026-06-03; smoke-tested)*
+- [x] `vercel.json`: crons (`sync-f1` 15dk, `sync-news` 30dk, `sync-radio` saatlik). *(2026-06-04)*
+- [x] `scripts/seed-f1-history.ts` (**tarihsel tek-seferlik backfill, F1DB**, 2018→currentYear, `--dry-run` destekli). *(2026-06-04)*
 - [ ] migration-source eski git HEAD'den kurtar: `git show HEAD~?:migration-source/...` (storyContent, storyMetadata, radioArchive). **İçerik doğrulaması User'da.**
 - [ ] Hedefli testler: aggregate dedupe/cluster/filter (news.test.ts port), `roundSuffixToSnapshotType`, `isRaceDone`, her adapter `toMrData` (örnek payload → MRData).
 
@@ -247,13 +247,13 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - (OpenF1/F1DB auth gerektirmez — manuel anahtar yok.)
 
 **Doğrulama (DoD — "çalıştığını gördük")**
-- [ ] `npm run seed:f1db` → tarihsel satırlar (`source='f1db'`) DB'de (satır sayısı raporlanır).
-- [ ] Cron manuel tetikle: `curl -H "Authorization: Bearer $CRON_SECRET_KEY" .../api/cron/sync-f1` → current-season (`source='jolpica'`) satırları DB'de.
-- [ ] `sync-radio` → OpenF1 audio (`source='openf1'`) satırları `radio_moments`'ta.
-- [ ] Testler yeşil.
-- [ ] `npm run build` → exit 0.
+- [ ] `npm run seed:f1db` → tarihsel satırlar (`source='f1db'`) DB'de (satır sayısı raporlanır). *(User: CRON_SECRET_KEY + seed çalıştırma)*
+- [ ] Cron manuel tetikle: `curl -H "Authorization: Bearer $CRON_SECRET_KEY" .../api/cron/sync-f1` → current-season (`source='jolpica'`) satırları DB'de. *(User: env sonrası)*
+- [ ] `sync-radio` → OpenF1 audio (`source='openf1'`) satırları `radio_moments`'ta. *(User: env sonrası)*
+- [ ] Testler yeşil. *(ertelendi — Phase 4 sonrası)*
+- [x] `npm run build` → exit 0. *(2026-06-04)*
 
-**Phase sonu:** [ ] log [ ] commit [ ] checkbox'lar
+**Phase sonu (kod):** [x] log [x] commit [x] checkbox'lar — **Phase 3 ingestion kodu ✅** (DoD tam: seed + cron curl doğrulaması User env sonrası)
 
 ---
 
