@@ -1,65 +1,174 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { SectionDivider } from '@/components/ui/SectionDivider';
+import { fetchSeasonSnapshotTyped } from '@/lib/data/f1';
+import { getLatestNews } from '@/lib/data/news';
+import {
+  formatRaceCountdown,
+  getDriverStandings,
+  getRacesFromCalendar,
+  raceStartMs,
+} from '@/lib/f1/mrdata';
+import { CURRENT_SEASON, getF1Context } from '@/lib/f1Calendar';
 
-export default function Home() {
+export default async function HomePage() {
+  const [calendarData, standingsData, news] = await Promise.all([
+    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
+    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
+    getLatestNews(6),
+  ]);
+
+  const races = getRacesFromCalendar(calendarData);
+  const ctx = getF1Context(races);
+  const standings = getDriverStandings(standingsData, 5);
+  const countdown =
+    ctx.nextRace != null
+      ? formatRaceCountdown(raceStartMs(ctx.nextRace), Date.now())
+      : 'Season calendar loading';
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      <AtmosphericHero>
+        <p
+          className="font-[family-name:var(--font-condensed)] text-[11px] uppercase tracking-[0.2em] text-muted"
+          style={{ color: 'var(--muted)' }}
+        >
+          {CURRENT_SEASON} Season Hub
+        </p>
+        <h1
+          className="mt-2 font-[family-name:var(--font-display)] text-[clamp(3rem,12vw,5rem)] leading-[0.88] tracking-[0.04em] text-paper"
+          style={{ color: 'var(--paper)' }}
+        >
+          ANTHOLOGY
+        </h1>
+        <p className="mt-3 max-w-xl text-sm font-light text-muted" style={{ color: 'var(--muted)' }}>
+          Standings, race countdown, and curated F1 news — powered by live snapshots.
+        </p>
+      </AtmosphericHero>
+
+      <div className="content-wrap space-y-[var(--section-gap)]">
+        <section>
+          <SectionDivider title="Quick Standings" />
+          {standings.length === 0 ? (
+            <p className="font-[family-name:var(--font-mono)] text-xs text-muted" style={{ color: 'var(--muted)' }}>
+              Standings sync pending — check back after the next cron run.
+            </p>
+          ) : (
+            <ul className="divide-y divide-[var(--border)] border border-[var(--border)] bg-surface">
+              {standings.map((row) => (
+                <li
+                  key={row.position + row.driverName}
+                  className="flex items-center gap-4 px-4 py-3 font-[family-name:var(--font-mono)] text-xs tracking-[0.05em]"
+                >
+                  <span className="w-6 text-accent" style={{ color: 'var(--accent)' }}>
+                    {row.position}
+                  </span>
+                  {row.driverCode ? (
+                    <SafeImage
+                      src={`/drivers/${row.driverCode}.svg`}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 object-contain"
+                    />
+                  ) : null}
+                  <span className="flex-1 text-paper" style={{ color: 'var(--paper)' }}>
+                    {row.driverName}
+                  </span>
+                  <span className="text-muted" style={{ color: 'var(--muted)' }}>
+                    {row.points} pts
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link
+            href="/season"
+            className="mt-4 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em] text-accent"
+            style={{ color: 'var(--accent)' }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Full season →
+          </Link>
+        </section>
+
+        <section>
+          <SectionDivider title="Race Countdown" />
+          <div className="anthology-card p-6">
+            <p className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-[0.05em] text-accent/70" style={{ color: 'rgba(255,24,1,0.7)' }}>
+              Next Grand Prix
+            </p>
+            <p
+              className="mt-2 font-[family-name:var(--font-display)] text-[2.5rem] leading-none tracking-[0.04em]"
+              style={{ color: 'var(--paper)' }}
+            >
+              {ctx.nextRace?.raceName ?? 'TBC'}
+            </p>
+            <p className="mt-2 font-[family-name:var(--font-mono)] text-sm tracking-[0.05em] text-paper" style={{ color: 'var(--paper)' }}>
+              {countdown}
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <SectionDivider title="News Highlights" />
+          {news.length === 0 ? (
+            <p className="text-sm text-muted" style={{ color: 'var(--muted)' }}>
+              No cached headlines yet.
+            </p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {news.map((item) => (
+                <article key={item.id} className="anthology-card overflow-hidden">
+                  <div className="relative aspect-video bg-card">
+                    <SafeImage
+                      src={item.image}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)',
+                      }}
+                    />
+                    <h3
+                      className="absolute bottom-3 left-3 right-3 font-[family-name:var(--font-display)] text-[1.3rem] leading-tight tracking-[0.04em]"
+                      style={{ color: 'var(--paper)' }}
+                    >
+                      {item.title}
+                    </h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="line-clamp-2 text-xs font-light text-muted" style={{ color: 'var(--muted)' }}>
+                      {item.summary}
+                    </p>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em]"
+                      style={{ color: 'var(--accent)' }}
+                    >
+                      Read →
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+          <Link
+            href="/news"
+            className="mt-4 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em]"
+            style={{ color: 'var(--accent)' }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            All news →
+          </Link>
+        </section>
+      </div>
+    </>
   );
 }

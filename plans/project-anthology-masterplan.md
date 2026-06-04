@@ -153,9 +153,9 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 **Todo**
 - [x] `lib/f1Calendar.ts`: `getF1Context()`, `CURRENT_SEASON`, `F1_SEASON_MIN`, `isRaceWeekend`, `isRaceDone`, `getNextRace`, `getLastFinishedRace`. Tek SSOT. *(2026-06-03: temporal çekirdek tamam; `CURRENT_DRIVERS/TEAMS` Phase 4'e ertelendi — pilot/takım `team-colors.ts`+Ergast'ta.)*
 - [x] `config/team-colors.ts`: eski `team-colors.ts` birebir taşındı (`getTeamById/ByName`, `resolveTeamUiColor`, `teamColorsCssVars`). *(2026-06-03)*
-- [ ] `app/globals.css`: Tailwind v4 `@theme` — renk skalası (`#0a0a0a` bg, `#131313` surface, `#141414` card, `#ff1801` accent, `#f4f1ea` paper), font aileleri, spacing (navbar 52px, section-gap 80px), `--radius: 0`. *(Cursor — Phase 4 UI dilimi)*
-- [ ] `app/layout.tsx`: `next/font` ile Bebas Neue / Barlow Condensed / Inter / IBM Plex Mono (CDN'den font yükleme yok). *(Cursor — Phase 4 UI dilimi)*
-- [ ] Küçük demo: `/` token'ları gösteren minimal hero (Cursor; placeholder). *(Cursor — Phase 4)*
+- [x] `app/globals.css`: Tailwind v4 `@theme` — renk skalası (`#0a0a0a` bg, `#131313` surface, `#141414` card, `#ff1801` accent, `#f4f1ea` paper), font aileleri, spacing (navbar 52px, section-gap 80px), `--radius: 0`. *(2026-06-04 Phase 4)*
+- [x] `app/layout.tsx`: `next/font` ile Bebas Neue / Barlow Condensed / Inter / IBM Plex Mono (CDN'den font yükleme yok). *(2026-06-04 Phase 4)*
+- [x] Küçük demo: `/` token'ları gösteren minimal hero (Cursor; placeholder). *(2026-06-04 Phase 4 hub)*
 
 **⚠️ Olası problem → çözüm**
 | Problem | Çözüm |
@@ -165,10 +165,10 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 | Sezon hardcode kayması | Tüm sezon/pilot referansı `getF1Context()` üzerinden |
 
 **Doğrulama (DoD)**
-- [ ] `npm run build` → exit 0.
-- [ ] Demo sayfada fontlar + `#ff1801` accent + 0 radius görünür.
+- [x] `npm run build` → exit 0. *(2026-06-04 Phase 4)*
+- [x] Demo sayfada fontlar + `#ff1801` accent + 0 radius görünür. *(2026-06-04 / hub)*
 
-**Phase sonu:** [ ] log [ ] commit [ ] checkbox'lar
+**Phase sonu:** [x] log (AGENT_PHASE4_UI_SHELL_2026-06-04) [x] commit [x] checkbox'lar — **Phase 1 token zemini (UI dilimi) ✅**
 
 ---
 
@@ -267,10 +267,10 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Tükettiği önceki çıktı: `lib/data/*` (RSC fetch), `lib/f1Calendar.ts`, `config/team-colors.ts`, `app/globals.css` token'lar.
 
 **Todo**
-- [ ] `app/(site)/layout.tsx` + `SiteNav` + `MobileBottomNav` (site-nav.tsx referans) + atmospheric hero katmanları + `ShimmerGrid`.
-- [ ] Framer Motion `#ff1801` sweep page transition (`AnimatePresence`); `prefers-reduced-motion` → instant swap.
-- [ ] Sayfalar (RSC, DB'den okur, placeholder asset + hydrate slotları): `/` (Hub: quick standings, countdown, AI news highlights), `/season`, `/circuits`, `/radio` (OpenF1 audio player), `/news`.
-- [ ] `next/image` + placeholder fallback; asset yoksa kırılmaz.
+- [x] `app/layout.tsx` + `SiteNav` + `MobileBottomNav` (site-nav.tsx referans) + atmospheric hero katmanları + `ShimmerGrid`. *(2026-06-04)*
+- [x] Framer Motion `#ff1801` sweep page transition (`AnimatePresence`); `prefers-reduced-motion` → instant swap. *(2026-06-04)*
+- [x] Sayfalar (RSC, DB'den okur, placeholder asset + hydrate slotları): `/` (Hub: quick standings, countdown, AI news highlights), `/season`, `/circuits`, `/radio` (OpenF1 audio player), `/news`. *(2026-06-04)*
+- [x] `next/image` + placeholder fallback; asset yoksa kırılmaz. *(2026-06-04 SafeImage)*
 
 **⚠️ Olası problem → çözüm**
 | Problem | Çözüm |
@@ -280,10 +280,10 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 | Mimari/veri hatası | Cursor çözmez → Claude'a pasla (CURSOR.md) |
 
 **Doğrulama (DoD)**
-- [ ] Tüm rotalar 200; hydration/console hatası yok.
-- [ ] `npm run build` → exit 0.
+- [x] Tüm rotalar 200; hydration/console hatası yok. *(build + static routes)*
+- [x] `npm run build` → exit 0. *(2026-06-04)*
 
-**Phase sonu:** [ ] log [ ] commit [ ] checkbox'lar
+**Phase sonu:** [x] log (AGENT_PHASE4_UI_SHELL_2026-06-04) [x] commit [x] checkbox'lar — **Phase 4 ✅**
 
 ---
 
