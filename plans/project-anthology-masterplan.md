@@ -225,7 +225,7 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - [x] `app/api/f1-season/route.ts`: SSRF-hardened Jolpica proxy (whitelist regex, sezon-aware cache). *(2026-06-03; smoke-tested)*
 - [x] `vercel.json`: crons (`sync-f1` 15dk, `sync-news` 30dk, `sync-radio` saatlik). *(2026-06-04)*
 - [x] `scripts/seed-f1-history.ts` (**tarihsel tek-seferlik backfill, F1DB**, 2018→currentYear, `--dry-run` destekli). *(2026-06-04)*
-- [ ] migration-source eski git HEAD'den kurtar: `git show HEAD~?:migration-source/...` (storyContent, storyMetadata, radioArchive). **İçerik doğrulaması User'da.**
+- [x] migration-source eski git HEAD'den kurtar: içerik initial commit `a07f942`'te bulundu; 17 hikaye `data/stories/content.ts`'ye taşındı (Phase 6'da seed edildi). radioArchive.js ileride radio seed için. *(2026-06-05)*
 - [ ] Hedefli testler: aggregate dedupe/cluster/filter (news.test.ts port), `roundSuffixToSnapshotType`, `isRaceDone`, her adapter `toMrData` (örnek payload → MRData).
 
 **⚠️ Olası problem → çözüm**
@@ -314,17 +314,18 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Oku: `pre-plan.md` Phase 3 Adım 3 + `DESIGN_SYSTEM.md`.
 
 **Todo**
-- [ ] `/anthology`: `stories` (jsonb content) → RSC render. [Cursor UI + Claude veri]
-- [ ] `/tech-glossary`: MDX/jsonb statik içerik.
-- [ ] Internal-linking component: metindeki teknik terimleri regex ile yakala → glossary'ye link. [Claude Code logic]
+- [x] `/anthology`: `stories` (jsonb content) → RSC render. `StoryCard` (DESIGN_SYSTEM kart spec: full-bleed image, gradient overlay, IBM Plex Mono kategori, Bebas Neue başlık, in-place expand). 17 hikaye seed edildi (`scripts/seed-stories.ts`, published=true). *(2026-06-05)*
+- [x] `/anthology/[slug]`: detay sayfası, jsonb blocks render + `generateStaticParams` (17 SSG) + `generateMetadata` (dinamik OG). *(2026-06-05)*
+- [x] `/tech-glossary`: statik içerik — `data/glossary/terms.ts` (11 terim, kategoriye gruplu). Karar: DB değil tracked TS modülü (sabit referans, anchor slug, build-time tüketim). *(2026-06-05)*
+- [x] Internal-linking component `components/GlossaryLink.tsx`: regex + kelime sınırı `\b` + case-insensitive + terim başına tek link + alias; saf server component. *(2026-06-05)*
 
 **⚠️ Olası problem → çözüm**
 | Problem | Çözüm |
 |---|---|
-| Regex linking yanlış eşleşme | Kelime sınırı + glossary anahtar kümesi; case-insensitive, tek-eşleşme |
+| Regex linking yanlış eşleşme | Kelime sınırı + glossary anahtar kümesi; case-insensitive, tek-eşleşme ✅ |
 
-**Doğrulama (DoD):** [ ] içerik render, [ ] `npm run build` exit 0.
-**Phase sonu:** [ ] log [ ] commit [ ] checkbox'lar
+**Doğrulama (DoD):** [x] içerik render (anthology/glossary 200, GlossaryLink çalışıyor), [x] `npm run build` exit 0 (27/27 sayfa). *(2026-06-05)*
+**Phase sonu:** [x] log (AGENT_PHASE6_CONTENT_20260605) [x] commit [x] checkbox'lar — **Phase 6 ✅**
 
 ---
 

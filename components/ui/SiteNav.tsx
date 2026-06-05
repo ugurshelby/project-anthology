@@ -6,10 +6,12 @@ import { useEffect, useState } from 'react';
 
 const links = [
   { href: '/', label: 'Home' },
+  { href: '/anthology', label: 'Anthology' },
   { href: '/news', label: 'News' },
   { href: '/circuits', label: 'Circuits' },
   { href: '/season', label: 'Season' },
   { href: '/radio', label: 'Radio' },
+  { href: '/tech-glossary', label: 'Glossary' },
 ];
 
 function isActive(pathname: string, href: string): boolean {
