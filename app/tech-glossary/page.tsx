@@ -4,7 +4,7 @@ import { SectionDivider } from '@/components/ui/SectionDivider';
 import { glossaryTerms, type GlossaryTerm } from '@/data/glossary/terms';
 
 export const metadata: Metadata = {
-  title: 'Tech Glossary — F1 Terms',
+  title: 'Tech Glossary',
   description:
     'A reference glossary of Formula 1 technical terms: aerodynamics, power units, tyres, chassis, strategy and regulations.',
   openGraph: {

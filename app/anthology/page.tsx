@@ -5,7 +5,7 @@ import { getPublishedStories } from '@/lib/data/stories';
 import { StoryCard } from './_components/StoryCard';
 
 export const metadata: Metadata = {
-  title: 'Anthology — F1 Stories',
+  title: 'Anthology',
   description:
     'An anthology of Formula 1 stories: legends, rivalries, tragedies and miracles, told as long-form narrative.',
   openGraph: {

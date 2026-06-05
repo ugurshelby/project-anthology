@@ -1,6 +1,24 @@
+import type { Metadata } from 'next';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getPublishedRadioMoments } from '@/lib/data/radio';
+
+const TITLE = 'Team Radio';
+const DESCRIPTION =
+  'Iconic Formula 1 team radio moments — transcripts and audio of the messages that defined races.';
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: `${TITLE} — F1 Moments`,
+    description: DESCRIPTION,
+    url: '/radio',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image', title: `${TITLE} — F1 Moments`, description: DESCRIPTION },
+  alternates: { canonical: '/radio' },
+};
 
 export default async function RadioPage() {
   const moments = await getPublishedRadioMoments(40);

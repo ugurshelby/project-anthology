@@ -33,7 +33,6 @@ import {
   hasSprintResults,
 } from '@/lib/f1/sources/jolpica';
 import {
-  upsertF1Snapshot,
   ingestSeasonSnapshot,
   ingestRoundSnapshot,
   type IngestStats,

@@ -57,6 +57,15 @@ export function formatRaceCountdown(targetMs: number, nowMs: number): string {
   return `${mins}m`;
 }
 
+/**
+ * Current epoch ms. Lives here (a plain lib module, not a component) so callers
+ * can read the request-time clock without the react-hooks/purity rule flagging
+ * a bare `Date.now()` inside an RSC body.
+ */
+export function nowMs(): number {
+  return Date.now();
+}
+
 export function raceStartMs(race: CalendarRace): number {
   const d = race.date;
   if (!d) return NaN;

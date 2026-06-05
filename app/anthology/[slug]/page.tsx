@@ -5,6 +5,7 @@ import { SafeImage } from '@/components/ui/SafeImage';
 import { GlossaryLink } from '@/components/GlossaryLink';
 import { getStoryBySlug, getStorySlugs, type Story } from '@/lib/data/stories';
 import type { StoryBlock } from '@/data/stories/types';
+import { articleJsonLd } from '@/lib/seo';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -19,17 +20,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const story = await getStoryBySlug(slug);
   if (!story) {
-    return { title: 'Story not found — Anthology' };
+    return { title: 'Story not found' };
   }
   const description = story.subtitle || `An F1 anthology story: ${story.title}.`;
   return {
-    title: `${story.title} — Anthology`,
+    title: story.title,
     description,
+    alternates: { canonical: `/anthology/${slug}` },
     openGraph: {
       title: `${story.title} (${story.year})`,
       description,
       type: 'article',
-      images: story.heroImage ? [{ url: story.heroImage }] : undefined,
+      url: `/anthology/${slug}`,
+      // OG image is provided by the colocated opengraph-image.tsx (dynamic card).
     },
     twitter: {
       card: 'summary_large_image',
@@ -92,8 +95,22 @@ export default async function StoryDetailPage({ params }: PageProps) {
   const story: Story | null = await getStoryBySlug(slug);
   if (!story) notFound();
 
+  const jsonLd = articleJsonLd({
+    title: story.title,
+    description: story.subtitle || `An F1 anthology story: ${story.title}.`,
+    slug: story.slug,
+    imageUrl: story.heroImage,
+    year: story.year,
+    category: story.category,
+  });
+
   return (
     <article>
+      <script
+        type="application/ld+json"
+        // Server-rendered Article schema from trusted story fields.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <header className="relative aspect-video w-full overflow-hidden">
         <SafeImage
