@@ -1,7 +1,25 @@
+import type { Metadata } from 'next';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { CIRCUIT_SVG_FILES, circuitLabelFromFile } from '@/lib/circuits-public';
+
+const TITLE = 'Circuits';
+const DESCRIPTION =
+  'Track maps of the Formula 1 calendar — every circuit rendered as a clean vector layout.';
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: `${TITLE} — F1 Track Maps`,
+    description: DESCRIPTION,
+    url: '/circuits',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image', title: `${TITLE} — F1 Track Maps`, description: DESCRIPTION },
+  alternates: { canonical: '/circuits' },
+};
 
 export default function CircuitsPage() {
   return (

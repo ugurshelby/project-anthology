@@ -1,7 +1,25 @@
+import type { Metadata } from 'next';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getLatestNews } from '@/lib/data/news';
+
+const TITLE = 'News';
+const DESCRIPTION =
+  'Curated Formula 1 headlines aggregated from across the paddock, deduplicated and updated continuously.';
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: `${TITLE} — F1 Headlines`,
+    description: DESCRIPTION,
+    url: '/news',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image', title: `${TITLE} — F1 Headlines`, description: DESCRIPTION },
+  alternates: { canonical: '/news' },
+};
 
 export default async function NewsPage() {
   const news = await getLatestNews(24);
@@ -10,13 +28,13 @@ export default async function NewsPage() {
     <>
       <AtmosphericHero>
         <p
-          className="font-[family-name:var(--font-condensed)] text-[11px] uppercase tracking-[0.2em]"
+          className="font-condensed text-[11px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--muted)' }}
         >
           Headlines
         </p>
         <h1
-          className="mt-2 font-[family-name:var(--font-display)] text-[2.5rem] leading-[0.88] tracking-[0.04em]"
+          className="mt-2 font-display text-[2.5rem] leading-[0.88] tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           NEWS
@@ -49,7 +67,7 @@ export default async function NewsPage() {
                     }}
                   />
                   <h2
-                    className="absolute bottom-3 left-3 right-3 font-[family-name:var(--font-display)] text-[1.3rem] leading-tight tracking-[0.04em]"
+                    className="absolute bottom-3 left-3 right-3 font-display text-[1.3rem] leading-tight tracking-[0.04em]"
                     style={{ color: 'var(--paper)' }}
                   >
                     {item.title}
@@ -57,7 +75,7 @@ export default async function NewsPage() {
                 </div>
                 <div className="p-4">
                   <p
-                    className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-[0.05em] text-muted"
+                    className="font-mono text-[9px] uppercase tracking-wider text-muted"
                     style={{ color: 'var(--muted)' }}
                   >
                     {item.dateLabel} · {item.sourceName}
@@ -69,7 +87,7 @@ export default async function NewsPage() {
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em]"
+                    className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
                     style={{ color: 'var(--accent)' }}
                   >
                     Read story →

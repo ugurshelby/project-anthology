@@ -8,6 +8,7 @@ import {
 import { MobileBottomNav } from '@/components/ui/MobileBottomNav';
 import { SiteNav } from '@/components/ui/SiteNav';
 import { PageTransition } from '@/components/providers/PageTransition';
+import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
 import './globals.css';
 
 const bebasNeue = Bebas_Neue({
@@ -39,8 +40,26 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Project Anthology',
-  description: 'Formula 1 data, news, circuits, and team radio — Project Anthology',
+  metadataBase: new URL(siteUrl()),
+  title: {
+    default: SITE_NAME,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_TAGLINE,
+  applicationName: SITE_NAME,
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_TAGLINE,
+    url: siteUrl(),
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_NAME,
+    description: SITE_TAGLINE,
+  },
 };
 
 export default function RootLayout({
@@ -54,6 +73,11 @@ export default function RootLayout({
       className={`${bebasNeue.variable} ${barlowCondensed.variable} ${inter.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-dvh flex-col">
+        <script
+          type="application/ld+json"
+          // Static, server-rendered site schema — safe stringified JSON.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
+        />
         <SiteNav />
         <PageTransition>
           <main className="site-main flex flex-1 flex-col">{children}</main>

@@ -337,10 +337,10 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 - Oku: `pre-plan.md` Phase 4 + `pre-plans/CLAUDE.md` (QA/CSO).
 
 **Todo**
-- [ ] Dinamik Open Graph meta (`generateMetadata`) + JSON-LD schema (tüm sayfalar).
-- [ ] `sitemap.ts` + `robots.ts`.
-- [ ] Headless smoke (rotalar 200, console/hydration temiz).
-- [ ] Supabase index kullanımı + Vercel cache (`s-maxage`/SWR) kurallarını teyit.
+- [x] Dinamik Open Graph meta (`generateMetadata`) + JSON-LD schema (tüm sayfalar). *(next/og OG image: site + story; WebSite+Article JSON-LD; tüm rotalarda metadata+canonical+title template; 2026-06-05)*
+- [x] `sitemap.ts` + `robots.ts`. *(24 loc sitemap; robots /api/cron + /api disallow; 2026-06-05)*
+- [x] Headless smoke (rotalar 200, console/hydration temiz). *(12 rota 200, JSON-LD doğrulandı, 0 hydration marker; `/qa` skill yok → prod server + curl; 2026-06-05)*
+- [x] Supabase index kullanımı + Vercel cache (`s-maxage`/SWR) kurallarını teyit. *(idx_f1_snapshots_season_type migration'da; query birebir eşleşiyor; 219 satır; EXPLAIN ANALYZE manuel — PostgREST plan kapalı, DATABASE_URL yok. Log'da SQL verildi. 2026-06-05)*
 
 **⚠️ Olası problem → çözüm**
 | Problem | Çözüm |
@@ -348,8 +348,8 @@ yerde**; `data-ingestion-plan.md`'nin in-memory upsert mimarisi **korunur**. Tek
 | OG image üretimi | `next/og` (ImageResponse) dinamik OG |
 | Yavaş first paint | RSC + `news_cache`/`f1_snapshots` indexli SELECT (RSS kullanıcı yolundan çıkar) |
 
-**Doğrulama (DoD):** [ ] `npm run build` exit 0, [ ] rotalar 200, [ ] temel Lighthouse geçer.
-**Phase sonu:** [ ] log [ ] commit [ ] checkbox'lar
+**Doğrulama (DoD):** [x] `npm run build` exit 0, [x] rotalar 200, [ ] temel Lighthouse geçer *(Phase 8/manuel — prod deploy sonrası ölçülecek)*.
+**Phase sonu:** [x] log (AGENT_PHASE7_SEO_QA_20260605) [x] commit [x] checkbox'lar — **Phase 7 ✅**
 
 ---
 
