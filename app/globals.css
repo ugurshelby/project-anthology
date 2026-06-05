@@ -36,6 +36,7 @@
   --color-muted: rgba(244, 241, 234, 0.5);
   --color-border: rgba(255, 255, 255, 0.07);
   --color-border-hover: rgba(255, 255, 255, 0.14);
+  --spacing-section-gap: var(--section-gap);
   --font-display: var(--font-bebas-neue), system-ui, sans-serif;
   --font-condensed: var(--font-barlow-condensed), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
@@ -428,4 +429,78 @@ body {
   :root {
     --section-gap: 48px;
   }
+}
+
+/* ── Glossary internal link ────────────────────────────────────────────── */
+.glossary-link {
+  color: var(--paper);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(255, 24, 1, 0.6);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.glossary-link:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Story prose (anthology detail) ────────────────────────────────────── */
+.story-prose {
+  max-width: 680px;
+}
+
+.story-prose p {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--paper);
+  margin: 1.5rem 0;
+}
+
+.story-prose h2 {
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 1.1rem;
+  color: var(--paper);
+  margin: 2.5rem 0 0.5rem;
+}
+
+.story-prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin: 2rem 0;
+}
+
+.story-prose blockquote p {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--paper);
+  margin: 0;
+}
+
+.story-prose blockquote cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.story-figure {
+  margin: 2rem 0;
+}
+
+.story-figure figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
 }

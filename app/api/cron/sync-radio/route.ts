@@ -87,7 +87,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
       // Fetch meeting for GP name / round (best-effort)
       let gpName: string = session.location ?? '';
-      let round: number | null = null;
+      const round: number | null = null;
       try {
         const meeting = await fetchMeeting(session.meeting_key);
         if (meeting) {

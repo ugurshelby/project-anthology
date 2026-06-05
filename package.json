@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:f1db": "npx tsx scripts/seed-f1-history.ts"
+    "seed:f1db": "npx tsx scripts/seed-f1-history.ts",
+    "seed:stories": "npx tsx scripts/seed-stories.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.56.0",
