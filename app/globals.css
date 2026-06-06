@@ -293,7 +293,11 @@ body {
 .atmospheric-hero {
   position: relative;
   isolation: isolate;
-  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100vh;
+  min-height: 100svh;
   background-color: var(--background);
   background-image: var(--carbon-grid);
 }
@@ -368,6 +372,7 @@ body {
 .hero-content {
   position: relative;
   z-index: 10;
+  width: 100%;
 }
 
 /* ── Page transition sweep ─────────────────────────────────────────────── */
