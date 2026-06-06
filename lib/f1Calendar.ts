@@ -21,12 +21,21 @@ export const F1_SEASON_MIN = 1950;
 export const CURRENT_SEASON: number = new Date().getUTCFullYear();
 
 /** Minimal shape of an Ergast/Jolpica race (only what temporal helpers need). */
+export interface CalendarCircuit {
+  circuitId?: string;
+  circuitName?: string;
+  Location?: {
+    locality?: string;
+    country?: string;
+  };
+}
+
 export interface CalendarRace {
   round?: string | number;
   date?: string; // YYYY-MM-DD
   time?: string; // HH:mm:ssZ
   raceName?: string;
-  Circuit?: { circuitId?: string };
+  Circuit?: CalendarCircuit;
 }
 
 export interface F1Context {

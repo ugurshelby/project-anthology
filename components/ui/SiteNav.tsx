@@ -10,7 +10,6 @@ const links = [
   { href: '/news', label: 'News' },
   { href: '/circuits', label: 'Circuits' },
   { href: '/season', label: 'Season' },
-  { href: '/radio', label: 'Radio' },
   { href: '/tech-glossary', label: 'Glossary' },
 ];
 

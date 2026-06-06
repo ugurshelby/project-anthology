@@ -193,3 +193,63 @@ export function raceStartMs(race: CalendarRace): number {
   const iso = race.time ? `${d}T${race.time}` : `${d}T12:00:00Z`;
   return new Date(iso).getTime();
 }
+
+export function findRaceByCircuitId(
+  races: CalendarRace[],
+  circuitId: string,
+): CalendarRace | null {
+  const id = circuitId.trim().toLowerCase();
+  return races.find((r) => (r.Circuit?.circuitId ?? '').toLowerCase() === id) ?? null;
+}
+
+export interface RaceWinner {
+  driverName: string;
+  constructorName: string;
+  laps: string | null;
+}
+
+/** Extract P1 winner from a round `results` snapshot. */
+export function getRaceWinner(data: MrData | null): RaceWinner | null {
+  const race = firstRace(data);
+  if (!race) return null;
+
+  const results = (race.Results as
+    | Array<{
+        position?: string;
+        laps?: string;
+        Driver?: { givenName?: string; familyName?: string };
+        Constructor?: { name?: string };
+      }>
+    | undefined) ?? [];
+
+  const winner = results.find((r) => r.position === '1') ?? results[0];
+  if (!winner) return null;
+
+  const given = winner.Driver?.givenName ?? '';
+  const family = winner.Driver?.familyName ?? '';
+  return {
+    driverName: `${given} ${family}`.trim() || '—',
+    constructorName: winner.Constructor?.name ?? '—',
+    laps: winner.laps ?? null,
+  };
+}
+
+export interface CircuitWinnerEntry {
+  season: number;
+  raceName: string;
+  driverName: string;
+  constructorName: string;
+}
+
+/** Collect unique circuit IDs from a calendar race list. */
+export function getCircuitIdsFromRaces(races: CalendarRace[]): string[] {
+  const seen = new Set<string>();
+  const ids: string[] = [];
+  for (const race of races) {
+    const id = (race.Circuit?.circuitId ?? '').trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    ids.push(id);
+  }
+  return ids;
+}

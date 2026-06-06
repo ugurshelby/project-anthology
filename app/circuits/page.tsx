@@ -1,8 +1,14 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
-import { CIRCUIT_SVG_FILES, circuitLabelFromFile } from '@/lib/circuits-public';
+import {
+  circuitGridSpan,
+  getCurrentSeasonCircuitCards,
+  isFeaturedCircuitCard,
+} from '@/lib/data/circuits';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
 const TITLE = 'Circuits';
 const DESCRIPTION =
@@ -21,7 +27,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/circuits' },
 };
 
-export default function CircuitsPage() {
+export default async function CircuitsPage() {
+  const cards = await getCurrentSeasonCircuitCards();
+
   return (
     <>
       <AtmosphericHero>
@@ -38,40 +46,74 @@ export default function CircuitsPage() {
           CIRCUITS
         </h1>
         <p className="mt-2 text-sm text-muted" style={{ color: 'var(--muted)' }}>
-          {CIRCUIT_SVG_FILES.length} circuit layouts — hydrate from Supabase in later phases.
+          {cards.length} circuits · {CURRENT_SEASON} season
         </p>
       </AtmosphericHero>
 
       <div className="content-wrap">
         <SectionDivider title="All Circuits" />
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {CIRCUIT_SVG_FILES.map((file) => (
-            <article
-              key={file}
-              className="anthology-card flex flex-col items-center gap-3 p-4"
-            >
-              <SafeImage
-                src={`/circuits/${file}`}
-                alt={circuitLabelFromFile(file)}
-                width={160}
-                height={120}
-                className="h-24 w-full object-contain opacity-90"
-              />
-              <p
-                className="font-condensed text-[10px] uppercase tracking-[0.12em]"
-                style={{ color: 'var(--paper)' }}
-              >
-                {circuitLabelFromFile(file)}
-              </p>
-              <p
-                className="font-mono text-[9px] uppercase tracking-wider text-muted"
-                style={{ color: 'var(--muted)' }}
-              >
-                {file.replace('.svg', '')}
-              </p>
-            </article>
-          ))}
-        </div>
+        {cards.length === 0 ? (
+          <p className="text-sm" style={{ color: 'var(--muted)' }}>
+            Calendar not available. Run F1 sync or seed.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[minmax(140px,auto)]">
+            {cards.map((card, index) => {
+              const featured = isFeaturedCircuitCard(index);
+              return (
+                <Link
+                  key={card.circuitId}
+                  href={`/circuits/${card.circuitId}`}
+                  className={`anthology-card group flex flex-col justify-between gap-3 p-4 transition-colors hover:border-accent/40 ${circuitGridSpan(index)}`}
+                >
+                  {card.svgSrc ? (
+                    <SafeImage
+                      src={card.svgSrc}
+                      alt={card.circuitName}
+                      width={featured ? 320 : 160}
+                      height={featured ? 200 : 120}
+                      className={`w-full object-contain opacity-90 transition-opacity group-hover:opacity-100 ${featured ? 'h-40 md:h-52' : 'h-24'}`}
+                    />
+                  ) : (
+                    <div
+                      className={`w-full ${featured ? 'h-40 md:h-52' : 'h-24'}`}
+                      style={{ backgroundColor: 'var(--surface)' }}
+                      aria-hidden
+                    />
+                  )}
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className="font-mono text-[9px] uppercase tracking-[0.15em]"
+                        style={{ color: 'rgba(255,24,1,0.7)' }}
+                      >
+                        Round {card.round}
+                      </span>
+                      <span
+                        className="font-mono text-[9px] uppercase tracking-[0.15em]"
+                        style={{ color: 'var(--muted)' }}
+                      >
+                        {card.date}
+                      </span>
+                    </div>
+                    <p
+                      className={`mt-2 font-display leading-tight tracking-[0.04em] ${featured ? 'text-[1.8rem] md:text-[2.2rem]' : 'text-[1.2rem]'}`}
+                      style={{ color: 'var(--paper)' }}
+                    >
+                      {card.circuitName}
+                    </p>
+                    <p
+                      className="mt-1 font-condensed text-[10px] uppercase tracking-[0.12em]"
+                      style={{ color: 'var(--muted)' }}
+                    >
+                      {card.country}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );
