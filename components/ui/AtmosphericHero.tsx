@@ -24,7 +24,7 @@ export function AtmosphericHero({ children, className = '' }: AtmosphericHeroPro
         <rect width="100%" height="100%" filter="url(#hero-grain-filter)" />
       </svg>
       <div className="hero-layer hero-light-streak" aria-hidden />
-      <div className="hero-content content-wrap flex flex-col items-center justify-center px-6 py-24 text-center">
+      <div className="hero-content content-wrap flex min-h-screen flex-col items-center justify-center px-6 py-28 text-center">
         {children}
       </div>
     </section>

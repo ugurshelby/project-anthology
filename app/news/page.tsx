@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/news' },
 };
 
+// Always read the freshest news_cache rows (cron updates the DB; a static
+// prerender would otherwise freeze headlines at build time).
+export const revalidate = 0;
+
 export default async function NewsPage() {
   const [news, featured] = await Promise.all([getLatestNews(24), getFeaturedNews()]);
   // Drop the featured story from the grid so it isn't shown twice.

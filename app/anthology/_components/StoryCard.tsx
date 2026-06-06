@@ -11,18 +11,22 @@ import type { Story } from '@/lib/data/stories';
  * Bebas Neue title over image bottom-left, in-place expand on click
  * (300ms cubic-bezier), border-left 3px→6px on hover, no radius/shadow.
  */
-export function StoryCard({ story }: { story: Story }) {
+export function StoryCard({ story, featured = false }: { story: Story; featured?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <article className="anthology-card overflow-hidden">
+    <article className="anthology-card flex h-full flex-col overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="block w-full cursor-pointer text-left"
+        className="block w-full flex-1 cursor-pointer text-left"
       >
-        <div className="relative aspect-video w-full overflow-hidden">
+        <div
+          className={`relative w-full overflow-hidden ${
+            featured ? 'aspect-16/10 md:h-full md:min-h-80' : 'aspect-video'
+          }`}
+        >
           <SafeImage
             src={story.heroImage}
             alt={story.title}

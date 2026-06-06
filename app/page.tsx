@@ -17,6 +17,10 @@ import {
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { CURRENT_SEASON, getF1Context, getLastFinishedRace } from '@/lib/f1Calendar';
 
+// Re-read on each request so the countdown and news highlights stay current
+// (the cron updates news_cache / f1_snapshots; a static prerender would freeze them).
+export const revalidate = 0;
+
 export default async function HomePage() {
   const [calendarData, standingsData, news] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
@@ -73,19 +77,27 @@ export default async function HomePage() {
     <>
       <AtmosphericHero>
         <p
-          className="font-condensed text-[11px] uppercase tracking-[0.2em] text-muted"
+          className="font-condensed text-[12px] uppercase tracking-[0.42em] text-muted"
           style={{ color: 'var(--muted)' }}
         >
-          {CURRENT_SEASON} Season Hub
+          Formula 1 · {CURRENT_SEASON}
         </p>
         <h1
-          className="mt-2 font-display text-[clamp(3.5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em] text-paper"
-          style={{ color: 'var(--paper)' }}
+          className="mt-5 font-display leading-[0.82] tracking-[0.06em] text-[clamp(5.5rem,26vw,20rem)] text-paper"
+          style={{
+            color: 'var(--paper)',
+            textShadow: '0 0 80px rgba(255,24,1,0.18)',
+          }}
         >
-          PROJECT
-          <br />
           ANTHOLOGY
         </h1>
+        <p
+          className="mt-6 max-w-md font-light text-sm leading-relaxed"
+          style={{ color: 'var(--muted)' }}
+        >
+          A living archive of the championship — standings, circuits, radio and the
+          stories that made the sport.
+        </p>
         <RaceHeroPanels
           previous={previousPanel}
           next={nextPanel}
