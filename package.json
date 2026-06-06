@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:vercel": "next build",
     "start": "next start",
     "lint": "eslint",
     "seed:f1db": "npx tsx scripts/seed-f1-history.ts",
