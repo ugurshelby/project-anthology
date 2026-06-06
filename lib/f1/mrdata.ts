@@ -202,6 +202,24 @@ export function findRaceByCircuitId(
   return races.find((r) => (r.Circuit?.circuitId ?? '').toLowerCase() === id) ?? null;
 }
 
+/**
+ * The race immediately after the given round (by round number). Used by the
+ * homepage hero's "race after next" panel. Returns null when there is no
+ * later round on the calendar (e.g. `next` is the season finale).
+ */
+export function getRaceAfter(
+  races: CalendarRace[],
+  round: number | string | null | undefined,
+): CalendarRace | null {
+  const r = Number(round);
+  if (!Number.isFinite(r)) return null;
+  return (
+    races
+      .filter((race) => Number(race.round) > r)
+      .sort((a, b) => Number(a.round ?? 0) - Number(b.round ?? 0))[0] ?? null
+  );
+}
+
 export interface RaceWinner {
   driverName: string;
   constructorName: string;

@@ -1,26 +1,27 @@
 import Link from 'next/link';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
-import { NewsFeaturedHero } from '@/components/ui/NewsFeaturedHero';
+import { RaceHeroPanels, type RaceHeroPanel } from '@/components/ui/RaceHeroPanels';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
-import { fetchSeasonSnapshotTyped } from '@/lib/data/f1';
-import { getFeaturedNews, getLatestNews } from '@/lib/data/news';
+import { fetchSeasonSnapshotTyped, fetchRoundSnapshot } from '@/lib/data/f1';
+import { getLatestNews } from '@/lib/data/news';
 import {
   formatRaceCountdown,
   getDriverStandings,
+  getRaceAfter,
+  getRaceWinner,
   getRacesFromCalendar,
   nowMs,
   raceStartMs,
 } from '@/lib/f1/mrdata';
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
-import { CURRENT_SEASON, getF1Context } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, getF1Context, getLastFinishedRace } from '@/lib/f1Calendar';
 
 export default async function HomePage() {
-  const [calendarData, standingsData, news, featured] = await Promise.all([
+  const [calendarData, standingsData, news] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
     getLatestNews(6),
-    getFeaturedNews(),
   ]);
 
   // Capture the clock once at request time via a lib helper (keeps the render
@@ -30,34 +31,67 @@ export default async function HomePage() {
   const races = getRacesFromCalendar(calendarData);
   const ctx = getF1Context(races);
   const standings = getDriverStandings(standingsData, 5);
+
+  // Hero race hierarchy: previous · next (countdown) · after-next.
+  const previousRace = getLastFinishedRace(races);
+  const nextRace = ctx.nextRace;
+  const afterNextRace = nextRace ? getRaceAfter(races, nextRace.round) : null;
+
+  // The previous race's winner enriches the "Previous" panel (results snapshot).
+  const previousRound =
+    previousRace?.round != null ? Number(previousRace.round) : null;
+  const previousResults =
+    previousRound != null && Number.isFinite(previousRound)
+      ? await fetchRoundSnapshot(CURRENT_SEASON, previousRound, 'results')
+      : null;
+  const previousWinner = getRaceWinner(previousResults);
+
   const countdown =
-    ctx.nextRace != null
-      ? formatRaceCountdown(raceStartMs(ctx.nextRace), renderNowMs)
+    nextRace != null
+      ? formatRaceCountdown(raceStartMs(nextRace), renderNowMs)
       : 'Season calendar loading';
+
+  const previousPanel: RaceHeroPanel | null = previousRace
+    ? {
+        race: previousRace,
+        role: 'Previous',
+        detail: previousWinner ? `Winner · ${previousWinner.driverName}` : undefined,
+      }
+    : null;
+  const nextPanel: RaceHeroPanel | null = nextRace
+    ? { race: nextRace, role: 'Next Race', emphasis: true, countdown }
+    : null;
+  const afterNextPanel: RaceHeroPanel | null = afterNextRace
+    ? {
+        race: afterNextRace,
+        role: 'Then',
+        detail: `Round ${afterNextRace.round ?? '—'}`,
+      }
+    : null;
 
   return (
     <>
-      {featured ? (
-        <NewsFeaturedHero item={featured} />
-      ) : (
-        <AtmosphericHero>
-          <p
-            className="font-condensed text-[11px] uppercase tracking-[0.2em] text-muted"
-            style={{ color: 'var(--muted)' }}
-          >
-            {CURRENT_SEASON} Season Hub
-          </p>
-          <h1
-            className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em] text-paper"
-            style={{ color: 'var(--paper)' }}
-          >
-            ANTHOLOGY
-          </h1>
-          <p className="mt-3 max-w-xl mx-auto text-sm font-light text-muted" style={{ color: 'var(--muted)' }}>
-            Standings, race countdown, and curated F1 news — powered by live snapshots.
-          </p>
-        </AtmosphericHero>
-      )}
+      <AtmosphericHero>
+        <p
+          className="font-condensed text-[11px] uppercase tracking-[0.2em] text-muted"
+          style={{ color: 'var(--muted)' }}
+        >
+          {CURRENT_SEASON} Season Hub
+        </p>
+        <h1
+          className="mt-2 font-display text-[clamp(3.5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em] text-paper"
+          style={{ color: 'var(--paper)' }}
+        >
+          PROJECT
+          <br />
+          ANTHOLOGY
+        </h1>
+        <RaceHeroPanels
+          previous={previousPanel}
+          next={nextPanel}
+          afterNext={afterNextPanel}
+        />
+      </AtmosphericHero>
 
       <div className="content-wrap space-y-section-gap">
         <section>
@@ -114,24 +148,6 @@ export default async function HomePage() {
           >
             Full season →
           </Link>
-        </section>
-
-        <section>
-          <SectionDivider title="Race Countdown" />
-          <div className="anthology-card p-6">
-            <p className="font-mono text-[9px] uppercase tracking-wider text-accent/70" style={{ color: 'rgba(255,24,1,0.7)' }}>
-              Next Grand Prix
-            </p>
-            <p
-              className="mt-2 font-display text-[2.5rem] leading-none tracking-[0.04em]"
-              style={{ color: 'var(--paper)' }}
-            >
-              {ctx.nextRace?.raceName ?? 'TBC'}
-            </p>
-            <p className="mt-2 font-mono text-sm tracking-wider text-paper" style={{ color: 'var(--paper)' }}>
-              {countdown}
-            </p>
-          </div>
         </section>
 
         <section>
