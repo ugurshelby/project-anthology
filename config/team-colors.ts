@@ -63,6 +63,8 @@ export const TEAM_COLORS: readonly TeamColorSet[] = [
     ui: '#2647D8',
     aliases: [
       'rb',
+      'rb f1',
+      'rb f1 team',
       'racing_bulls',
       'racing bulls',
       'visa cash app rb',
@@ -107,7 +109,7 @@ export const TEAM_COLORS: readonly TeamColorSet[] = [
     secondary: '#111111',
     accent: '#FF87BC',
     ui: '#0090FF',
-    aliases: ['alpine', 'bwt alpine', 'bwt alpine formula one team'],
+    aliases: ['alpine', 'alpine f1 team', 'bwt alpine', 'bwt alpine formula one team'],
     carAsset: 'alpine.png',
   },
   {
@@ -183,7 +185,27 @@ export function getTeamById(id: string): TeamColorSet | undefined {
 export function getTeamByName(name: string): TeamColorSet | undefined {
   const key = name.trim().toLowerCase();
   if (!key) return undefined;
-  return TEAM_LOOKUP.get(key);
+
+  const exact = TEAM_LOOKUP.get(key);
+  if (exact) return exact;
+
+  // Fuzzy: Jolpica returns short or variant names (e.g. "Alpine F1 Team", "RB F1 Team").
+  let best: { team: TeamColorSet; score: number } | undefined;
+  for (const team of TEAM_COLORS) {
+    const candidates = [
+      team.id.replace(/-/g, ' '),
+      ...team.aliases,
+    ];
+    for (const alias of candidates) {
+      if (key === alias || key.includes(alias) || alias.includes(key)) {
+        const score = alias.length;
+        if (!best || score > best.score) {
+          best = { team, score };
+        }
+      }
+    }
+  }
+  return best?.team;
 }
 
 /** Resolve the best UI accent color from live API hex and/or team name. */
