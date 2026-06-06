@@ -49,7 +49,7 @@ function newsFromCache(row: NewsCacheRow): NewsItem {
     url: row.url,
     sourceName: row.source ?? '',
     sources: row.source ? [row.source] : [],
-    image: row.image_url ?? '/favicon.svg',
+    image: row.image_url ?? '/placeholder.svg',
     publishedAt,
     publishedTs: Number.isFinite(publishedTs) ? publishedTs : 0,
     dateLabel: formatDateLabel(publishedAt),
@@ -68,7 +68,7 @@ function newsFromApiItem(item: ApiNewsItem): NewsItem {
     url: item.url,
     sourceName: item.sourceName,
     sources: item.sources?.length ? item.sources : [item.sourceName],
-    image: item.image || '/favicon.svg',
+    image: item.image || '/placeholder.svg',
     publishedAt: item.publishedAt,
     publishedTs,
     dateLabel: item.dateLabel ?? formatDateLabel(item.publishedAt),
@@ -81,7 +81,7 @@ function sortNews(items: NewsItem[]): NewsItem[] {
 
 /** Does this item have a real (non-placeholder) image usable as a hero background? */
 function hasRealImage(item: NewsItem): boolean {
-  return Boolean(item.image) && item.image !== '/favicon.svg';
+  return Boolean(item.image) && item.image !== '/placeholder.svg';
 }
 
 /**
