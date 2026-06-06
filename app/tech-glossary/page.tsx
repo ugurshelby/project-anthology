@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { glossaryTerms, type GlossaryTerm } from '@/data/glossary/terms';
+import { TYRE_COMPOUNDS } from '@/data/glossary/tyres';
 
 export const metadata: Metadata = {
   title: 'Tech Glossary',
@@ -52,6 +54,59 @@ export default function TechGlossaryPage() {
       </AtmosphericHero>
 
       <div className="content-wrap">
+        {/* ── Tyre compounds ──────────────────────────────────────────── */}
+        <section className="mb-12">
+          <SectionDivider title="Tyre Compounds" />
+          <p
+            className="mb-8 max-w-2xl text-[15px] font-light leading-relaxed"
+            style={{ color: 'var(--paper)' }}
+          >
+            Pirelli brings a range of five dry slicks, named C1 (hardest) to C5
+            (softest), plus two treaded wet tyres. For each Grand Prix only three of
+            the slicks are nominated — the hard, medium and soft of that weekend.
+            Softer compounds offer more grip but wear faster; the whole race is a
+            trade-off between pace and tyre life.
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {TYRE_COMPOUNDS.map((tyre) => (
+              <div key={tyre.id} className="anthology-card flex gap-4 p-5">
+                <SafeImage
+                  src={`/tyres/${tyre.id}.svg`}
+                  alt={tyre.name}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 shrink-0 object-contain"
+                />
+                <div className="min-w-0">
+                  <p
+                    className="font-mono text-[9px] uppercase tracking-[0.15em]"
+                    style={{ color: 'rgba(255,24,1,0.7)' }}
+                  >
+                    {tyre.kicker}
+                  </p>
+                  <h3
+                    className="mt-1 flex items-center gap-2 font-display text-[1.3rem] leading-none tracking-[0.03em]"
+                    style={{ color: 'var(--paper)' }}
+                  >
+                    <span
+                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: tyre.color }}
+                      aria-hidden
+                    />
+                    {tyre.name}
+                  </h3>
+                  <p
+                    className="mt-2 text-[13px] font-light leading-relaxed"
+                    style={{ color: 'var(--muted)' }}
+                  >
+                    {tyre.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {groups.map(([category, terms]) => (
           <section key={category} className="mb-12">
             <SectionDivider title={category} />

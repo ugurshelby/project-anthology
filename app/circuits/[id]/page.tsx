@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getCircuitDetail, getCircuitIdsForSitemap } from '@/lib/data/circuits';
+import { getCircuitFacts } from '@/data/circuits/facts';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -39,15 +40,27 @@ export default async function CircuitDetailPage({ params }: PageProps) {
   const circuit = await getCircuitDetail(id);
   if (!circuit) notFound();
 
+  const facts = getCircuitFacts(id);
+
+  // Prefer seeded editorial data, fall back to the curated facts module.
+  const lengthKm = circuit.editorial.lapLengthKm ?? facts?.lengthKm?.toString() ?? null;
+  const drsZones = circuit.editorial.drsZones ?? facts?.drsZones?.toString() ?? null;
+
   const stats = [
-    circuit.editorial.lapLengthKm
-      ? { label: 'Length', value: `${circuit.editorial.lapLengthKm} km` }
-      : null,
-    circuit.laps ? { label: 'Laps', value: circuit.laps } : null,
-    circuit.editorial.drsZones
-      ? { label: 'DRS Zones', value: circuit.editorial.drsZones }
-      : null,
+    lengthKm ? { label: 'Length', value: `${lengthKm} km` } : null,
+    circuit.laps ? { label: 'Race Laps', value: circuit.laps } : null,
+    facts?.corners ? { label: 'Corners', value: String(facts.corners) } : null,
+    drsZones ? { label: 'DRS Zones', value: String(drsZones) } : null,
+    facts?.firstGp ? { label: 'First GP', value: String(facts.firstGp) } : null,
   ].filter((s): s is { label: string; value: string } => s !== null);
+
+  const characteristics = facts
+    ? [
+        facts.character ? { label: 'Character', value: facts.character } : null,
+        facts.signatureCorner ? { label: 'Signature Corner', value: facts.signatureCorner } : null,
+        facts.lapRecord ? { label: 'Lap Record', value: facts.lapRecord } : null,
+      ].filter((s): s is { label: string; value: string } => s !== null)
+    : [];
 
   return (
     <div className="content-wrap py-section-gap">
@@ -114,11 +127,40 @@ export default async function CircuitDetailPage({ params }: PageProps) {
             </div>
           ))}
         </div>
-      ) : (
-        <p className="mt-6 text-xs font-light" style={{ color: 'var(--muted)' }}>
-          Track length and DRS data appear when the circuits table is seeded.
+      ) : null}
+
+      {facts?.note ? (
+        <p
+          className="mt-8 max-w-2xl text-[15px] font-light leading-relaxed"
+          style={{ color: 'var(--paper)' }}
+        >
+          {facts.note}
         </p>
-      )}
+      ) : null}
+
+      {characteristics.length > 0 ? (
+        <section className="mt-section-gap">
+          <SectionDivider title="Characteristics" />
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {characteristics.map((c) => (
+              <div key={c.label} className="anthology-card p-5">
+                <dt
+                  className="font-mono text-[9px] uppercase tracking-[0.15em]"
+                  style={{ color: 'rgba(255,24,1,0.7)' }}
+                >
+                  {c.label}
+                </dt>
+                <dd
+                  className="mt-2 font-display text-[1.4rem] leading-tight tracking-[0.03em]"
+                  style={{ color: 'var(--paper)' }}
+                >
+                  {c.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : null}
 
       <section className="mt-section-gap">
         <SectionDivider title="Past Winners" />

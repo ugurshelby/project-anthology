@@ -56,10 +56,22 @@ export default async function AnthologyPage() {
               No published stories yet. Run <code>npm run seed:stories</code>.
             </p>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {stories.map((story) => (
-                <StoryCard key={story.slug} story={story} />
-              ))}
+            <div className="grid auto-rows-[minmax(180px,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {stories.map((story, index) => {
+                const featured = index % 6 === 0;
+                return (
+                  <div
+                    key={story.slug}
+                    className={
+                      featured
+                        ? 'sm:col-span-2 sm:row-span-2 lg:col-span-2'
+                        : ''
+                    }
+                  >
+                    <StoryCard story={story} featured={featured} />
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
