@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.motorsport.com' },
+      { protocol: 'https', hostname: '**.autosport.com' },
+      { protocol: 'https', hostname: 'storage.ghost.io' },
+      { protocol: 'https', hostname: '**.the-race.com' },
+    ],
+  },
   // Keep heavy/unnecessary files out of serverless function bundles. jsdom is
   // only loaded via dynamic import in the news aggregator; public assets and the
   // next cache never belong in a function bundle.

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
+import { NewsFeaturedHero } from '@/components/ui/NewsFeaturedHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getLatestNews } from '@/lib/data/news';
@@ -23,23 +24,28 @@ export const metadata: Metadata = {
 
 export default async function NewsPage() {
   const news = await getLatestNews(24);
+  const featured = news[0];
 
   return (
     <>
-      <AtmosphericHero>
-        <p
-          className="font-condensed text-[11px] uppercase tracking-[0.2em]"
-          style={{ color: 'var(--muted)' }}
-        >
-          Headlines
-        </p>
-        <h1
-          className="mt-2 font-display text-[2.5rem] leading-[0.88] tracking-[0.04em]"
-          style={{ color: 'var(--paper)' }}
-        >
-          NEWS
-        </h1>
-      </AtmosphericHero>
+      {featured ? (
+        <NewsFeaturedHero item={featured} />
+      ) : (
+        <AtmosphericHero>
+          <p
+            className="font-condensed text-[11px] uppercase tracking-[0.2em]"
+            style={{ color: 'var(--muted)' }}
+          >
+            Headlines
+          </p>
+          <h1
+            className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
+            style={{ color: 'var(--paper)' }}
+          >
+            NEWS
+          </h1>
+        </AtmosphericHero>
+      )}
 
       <div className="content-wrap">
         <SectionDivider title="Latest" />
