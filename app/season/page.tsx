@@ -120,7 +120,71 @@ export default async function SeasonPage() {
               No standings in database yet.
             </p>
           ) : (
-            <div className="overflow-x-auto border border-border">
+            <>
+            {/* Mobile (<md): vertical cards — no horizontal scroll. */}
+            <ul className="space-y-2 md:hidden">
+              {standings.map((row, i) => {
+                const teamColor = resolveTeamUiColor(null, row.constructorName);
+                const isLeader = i === 0;
+                const driverSrc = driverIconSrc(row.driverCode, row.driverName);
+                const teamSrc = teamIconSrc(row.constructorName);
+                return (
+                  <li
+                    key={row.position + row.driverName}
+                    className="flex items-center gap-3 border border-border px-3 py-3"
+                    style={{
+                      borderLeft: `3px solid ${teamColor}`,
+                      backgroundColor: isLeader ? 'rgba(255,24,1,0.06)' : undefined,
+                    }}
+                  >
+                    <span
+                      className="w-6 shrink-0 font-mono text-sm"
+                      style={{ color: isLeader ? 'var(--accent)' : 'var(--paper)' }}
+                    >
+                      {row.position}
+                    </span>
+                    {driverSrc ? (
+                      <SafeImage
+                        src={driverSrc}
+                        alt=""
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 shrink-0 object-contain"
+                      />
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm" style={{ color: 'var(--paper)' }}>
+                        {row.driverName}
+                      </p>
+                      <p
+                        className="inline-flex items-center gap-1.5 truncate font-mono text-[10px] uppercase tracking-[0.12em]"
+                        style={{ color: 'var(--muted)' }}
+                      >
+                        {teamSrc ? (
+                          <SafeImage
+                            src={teamSrc}
+                            alt=""
+                            width={14}
+                            height={14}
+                            className="h-3.5 w-3.5 shrink-0 object-contain opacity-90"
+                          />
+                        ) : null}
+                        {row.constructorName}
+                      </p>
+                    </div>
+                    <span
+                      className="shrink-0 font-mono text-sm"
+                      style={{ color: 'var(--paper)' }}
+                    >
+                      {row.points}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Desktop (md+): full table. */}
+            <div className="hidden overflow-x-auto border border-border md:block">
               <table className="w-full min-w-[480px] text-left font-mono text-xs tracking-wider">
                 <thead className="bg-surface" style={{ color: 'var(--muted)' }}>
                   <tr>
@@ -187,6 +251,7 @@ export default async function SeasonPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </section>
 
