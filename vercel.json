@@ -2,15 +2,15 @@
   "crons": [
     {
       "path": "/api/cron/sync-f1",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/cron/sync-news",
-      "schedule": "0 */12 * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/sync-radio",
-      "schedule": "0 0 * * *"
+      "schedule": "0 16 * * *"
     }
   ]
 }
