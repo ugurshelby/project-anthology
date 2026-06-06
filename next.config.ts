@@ -42,13 +42,14 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.the-race.com' },
     ],
   },
-  // Keep heavy/unnecessary files out of serverless function bundles. jsdom is
-  // only loaded via dynamic import in the news aggregator; public assets and the
-  // next cache never belong in a function bundle.
+  // Keep heavy/unnecessary files out of serverless function bundles. NOTE:
+  // jsdom must NOT be excluded — the news aggregator (lib/news/aggregate.ts)
+  // loads it via dynamic import at runtime in the sync-news cron, so excluding
+  // it crashes that function ("Cannot find module 'jsdom-…'"). canvas is jsdom's
+  // optional peer (not used here) and stays excluded to keep the bundle small.
   outputFileTracingExcludes: {
     '*': [
       './public/**/*',
-      './node_modules/jsdom/**/*',
       './node_modules/canvas/**/*',
       './.next/cache/**/*',
     ],

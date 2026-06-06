@@ -46,7 +46,9 @@ export const metadata: Metadata = {
   },
   description: SITE_TAGLINE,
   applicationName: SITE_NAME,
-  alternates: { canonical: '/' },
+  // Absolute canonical from the single URL source (siteUrl()), so it tracks the
+  // real production origin instead of a hardcoded string.
+  alternates: { canonical: siteUrl() },
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
