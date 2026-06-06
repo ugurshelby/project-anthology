@@ -1,19 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "buildCommand": "npm run build:vercel",
-  "crons": [
-    {
-      "path": "/api/cron/sync-f1",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/sync-news",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/cron/sync-radio",
-      "schedule": "0 16 * * *"
-    }
-  ]
+  "framework": "nextjs"
 }
