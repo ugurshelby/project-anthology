@@ -7,7 +7,6 @@ const mobileLinks = [
   { href: '/', label: 'Home' },
   { href: '/season', label: 'Season' },
   { href: '/circuits', label: 'Circuits' },
-  { href: '/radio', label: 'Radio' },
   { href: '/news', label: 'More' },
 ];
 
