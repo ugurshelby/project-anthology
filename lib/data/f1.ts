@@ -60,6 +60,10 @@ export async function fetchSeasonSnapshotTyped(
         .eq('season', season)
         .is('round', null)
         .eq('type', type)
+        // Round-NULL rows can duplicate (Postgres treats NULLs as distinct in the
+        // UNIQUE constraint), so take the freshest row instead of erroring on >1.
+        .order('fetched_at', { ascending: false })
+        .limit(1)
         .maybeSingle<{ data: Json }>(),
     );
     logSupabaseCall('f1_snapshots', `season=${season} type=${type}`, durationMs);
@@ -107,6 +111,9 @@ export async function fetchRoundSnapshot(
         .eq('season', season)
         .eq('round', round)
         .eq('type', type)
+        // Defensive: take the freshest row if duplicates ever exist.
+        .order('fetched_at', { ascending: false })
+        .limit(1)
         .maybeSingle<{ data: Json }>(),
     );
     logSupabaseCall('f1_snapshots', `season=${season} round=${round} type=${type}`, durationMs);

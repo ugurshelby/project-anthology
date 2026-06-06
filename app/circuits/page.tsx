@@ -26,13 +26,13 @@ export default function CircuitsPage() {
     <>
       <AtmosphericHero>
         <p
-          className="font-[family-name:var(--font-condensed)] text-[11px] uppercase tracking-[0.2em]"
+          className="font-condensed text-[11px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--muted)' }}
         >
           Track Maps
         </p>
         <h1
-          className="mt-2 font-[family-name:var(--font-display)] text-[2.5rem] leading-[0.88] tracking-[0.04em]"
+          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           CIRCUITS
@@ -58,13 +58,13 @@ export default function CircuitsPage() {
                 className="h-24 w-full object-contain opacity-90"
               />
               <p
-                className="font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em]"
+                className="font-condensed text-[10px] uppercase tracking-[0.12em]"
                 style={{ color: 'var(--paper)' }}
               >
                 {circuitLabelFromFile(file)}
               </p>
               <p
-                className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-[0.05em] text-muted"
+                className="font-mono text-[9px] uppercase tracking-wider text-muted"
                 style={{ color: 'var(--muted)' }}
               >
                 {file.replace('.svg', '')}

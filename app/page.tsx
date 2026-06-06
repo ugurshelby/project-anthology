@@ -36,13 +36,13 @@ export default async function HomePage() {
     <>
       <AtmosphericHero>
         <p
-          className="font-[family-name:var(--font-condensed)] text-[11px] uppercase tracking-[0.2em] text-muted"
+          className="font-condensed text-[11px] uppercase tracking-[0.2em] text-muted"
           style={{ color: 'var(--muted)' }}
         >
           {CURRENT_SEASON} Season Hub
         </p>
         <h1
-          className="mt-2 font-[family-name:var(--font-display)] text-[clamp(3rem,12vw,5rem)] leading-[0.88] tracking-[0.04em] text-paper"
+          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em] text-paper"
           style={{ color: 'var(--paper)' }}
         >
           ANTHOLOGY
@@ -52,19 +52,19 @@ export default async function HomePage() {
         </p>
       </AtmosphericHero>
 
-      <div className="content-wrap space-y-[var(--section-gap)]">
+      <div className="content-wrap space-y-section-gap">
         <section>
           <SectionDivider title="Quick Standings" />
           {standings.length === 0 ? (
-            <p className="font-[family-name:var(--font-mono)] text-xs text-muted" style={{ color: 'var(--muted)' }}>
+            <p className="font-mono text-xs text-muted" style={{ color: 'var(--muted)' }}>
               Standings sync pending — check back after the next cron run.
             </p>
           ) : (
-            <ul className="divide-y divide-[var(--border)] border border-[var(--border)] bg-surface">
+            <ul className="divide-y divide-border border border-border bg-surface">
               {standings.map((row) => (
                 <li
                   key={row.position + row.driverName}
-                  className="flex items-center gap-4 px-4 py-3 font-[family-name:var(--font-mono)] text-xs tracking-[0.05em]"
+                  className="flex items-center gap-4 px-4 py-3 font-mono text-xs tracking-wider"
                 >
                   <span className="w-6 text-accent" style={{ color: 'var(--accent)' }}>
                     {row.position}
@@ -90,7 +90,7 @@ export default async function HomePage() {
           )}
           <Link
             href="/season"
-            className="mt-4 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em] text-accent"
+            className="mt-4 inline-block font-condensed text-[10px] uppercase tracking-[0.12em] text-accent"
             style={{ color: 'var(--accent)' }}
           >
             Full season →
@@ -100,16 +100,16 @@ export default async function HomePage() {
         <section>
           <SectionDivider title="Race Countdown" />
           <div className="anthology-card p-6">
-            <p className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-[0.05em] text-accent/70" style={{ color: 'rgba(255,24,1,0.7)' }}>
+            <p className="font-mono text-[9px] uppercase tracking-wider text-accent/70" style={{ color: 'rgba(255,24,1,0.7)' }}>
               Next Grand Prix
             </p>
             <p
-              className="mt-2 font-[family-name:var(--font-display)] text-[2.5rem] leading-none tracking-[0.04em]"
+              className="mt-2 font-display text-[2.5rem] leading-none tracking-[0.04em]"
               style={{ color: 'var(--paper)' }}
             >
               {ctx.nextRace?.raceName ?? 'TBC'}
             </p>
-            <p className="mt-2 font-[family-name:var(--font-mono)] text-sm tracking-[0.05em] text-paper" style={{ color: 'var(--paper)' }}>
+            <p className="mt-2 font-mono text-sm tracking-wider text-paper" style={{ color: 'var(--paper)' }}>
               {countdown}
             </p>
           </div>
@@ -141,7 +141,7 @@ export default async function HomePage() {
                       }}
                     />
                     <h3
-                      className="absolute bottom-3 left-3 right-3 font-[family-name:var(--font-display)] text-[1.3rem] leading-tight tracking-[0.04em]"
+                      className="absolute bottom-3 left-3 right-3 font-display text-[1.3rem] leading-tight tracking-[0.04em]"
                       style={{ color: 'var(--paper)' }}
                     >
                       {item.title}
@@ -155,7 +155,7 @@ export default async function HomePage() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em]"
+                      className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
                       style={{ color: 'var(--accent)' }}
                     >
                       Read →
@@ -167,7 +167,7 @@ export default async function HomePage() {
           )}
           <Link
             href="/news"
-            className="mt-4 inline-block font-[family-name:var(--font-condensed)] text-[10px] uppercase tracking-[0.12em]"
+            className="mt-4 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
             style={{ color: 'var(--accent)' }}
           >
             All news →

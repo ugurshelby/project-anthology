@@ -46,3 +46,4 @@ supabase/.branches/
 next-env.d.ts
 
 .env*
+.vercel

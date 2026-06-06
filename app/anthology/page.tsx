@@ -29,7 +29,7 @@ export default async function AnthologyPage() {
           Long-form
         </p>
         <h1
-          className="mt-2 font-display text-[clamp(3rem,12vw,8rem)] leading-[0.88] tracking-[0.04em]"
+          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           ANTHOLOGY

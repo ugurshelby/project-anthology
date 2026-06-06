@@ -46,6 +46,125 @@ export function getDriverStandings(data: MrData | null, limit = 22): DriverStand
   });
 }
 
+export interface ConstructorStandingRow {
+  position: string;
+  points: string;
+  constructorName: string;
+  wins: string;
+}
+
+export function getConstructorStandings(
+  data: MrData | null,
+  limit = 12,
+): ConstructorStandingRow[] {
+  const list = (
+    data?.MRData as {
+      StandingsTable?: {
+        StandingsLists?: Array<{
+          ConstructorStandings?: Array<{
+            position?: string;
+            points?: string;
+            wins?: string;
+            Constructor?: { name?: string };
+          }>;
+        }>;
+      };
+    }
+  )?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings;
+
+  if (!Array.isArray(list)) return [];
+
+  return list.slice(0, limit).map((row) => ({
+    position: row.position ?? '—',
+    points: row.points ?? '0',
+    wins: row.wins ?? '0',
+    constructorName: row.Constructor?.name ?? '—',
+  }));
+}
+
+export interface RacePodiumDriver {
+  position: string;
+  driverName: string;
+  driverCode: string;
+  constructorName: string;
+}
+
+export interface LastRaceRecap {
+  raceName: string;
+  round: string;
+  podium: RacePodiumDriver[];
+  fastestLapDriver: string | null;
+  fastestLapTime: string | null;
+}
+
+function firstRace(data: MrData | null): Record<string, unknown> | null {
+  const races = (data?.MRData as { RaceTable?: { Races?: Array<Record<string, unknown>> } })
+    ?.RaceTable?.Races;
+  return Array.isArray(races) && races.length > 0 ? races[0] : null;
+}
+
+/** Build a podium + fastest-lap recap from a round `results` snapshot. */
+export function getLastRaceResult(data: MrData | null): LastRaceRecap | null {
+  const race = firstRace(data);
+  if (!race) return null;
+
+  const results = (race.Results as
+    | Array<{
+        position?: string;
+        Driver?: { givenName?: string; familyName?: string; code?: string };
+        Constructor?: { name?: string };
+        FastestLap?: { rank?: string; Time?: { time?: string } };
+      }>
+    | undefined) ?? [];
+
+  if (results.length === 0) return null;
+
+  const podium: RacePodiumDriver[] = results.slice(0, 3).map((r) => {
+    const given = r.Driver?.givenName ?? '';
+    const family = r.Driver?.familyName ?? '';
+    return {
+      position: r.position ?? '—',
+      driverName: `${given} ${family}`.trim() || '—',
+      driverCode: (r.Driver?.code ?? '').toLowerCase(),
+      constructorName: r.Constructor?.name ?? '—',
+    };
+  });
+
+  const flEntry = results.find((r) => r.FastestLap?.rank === '1');
+  const fastestLapDriver = flEntry
+    ? `${flEntry.Driver?.givenName ?? ''} ${flEntry.Driver?.familyName ?? ''}`.trim() || null
+    : null;
+
+  return {
+    raceName: (race.raceName as string) ?? 'Grand Prix',
+    round: (race.round as string) ?? '—',
+    podium,
+    fastestLapDriver,
+    fastestLapTime: flEntry?.FastestLap?.Time?.time ?? null,
+  };
+}
+
+export interface PoleInfo {
+  driverName: string;
+  time: string | null;
+}
+
+/** Extract pole position (P1 qualifying) from a round `qualifying` snapshot. */
+export function getQualifyingPole(data: MrData | null): PoleInfo | null {
+  const race = firstRace(data);
+  if (!race) return null;
+  const q = (race.QualifyingResults as
+    | Array<{ position?: string; Q3?: string; Q2?: string; Q1?: string; Driver?: { givenName?: string; familyName?: string } }>
+    | undefined) ?? [];
+  const pole = q.find((r) => r.position === '1') ?? q[0];
+  if (!pole) return null;
+  const name = `${pole.Driver?.givenName ?? ''} ${pole.Driver?.familyName ?? ''}`.trim();
+  return {
+    driverName: name || '—',
+    time: pole.Q3 ?? pole.Q2 ?? pole.Q1 ?? null,
+  };
+}
+
 export function formatRaceCountdown(targetMs: number, nowMs: number): string {
   const diff = targetMs - nowMs;
   if (!Number.isFinite(diff) || diff <= 0) return 'Race underway or finished';
