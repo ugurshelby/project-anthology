@@ -12,6 +12,7 @@ import {
 } from '@/lib/f1/mrdata';
 import { CURRENT_SEASON, isRaceDone, getLastFinishedRace } from '@/lib/f1Calendar';
 import { resolveTeamUiColor } from '@/config/team-colors';
+import { circuitIconSrc, driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 
 const TITLE = 'Season';
 const DESCRIPTION = `Live ${CURRENT_SEASON} Formula 1 season: driver and constructor standings, full race calendar, and the latest race recap — powered by snapshot data.`;
@@ -55,6 +56,9 @@ export default async function SeasonPage() {
   const pole = getQualifyingPole(qualiData);
 
   const leader = standings[0] ?? null;
+  const recapCircuitSrc = lastRace ? circuitIconSrc(lastRace.Circuit?.circuitId) : null;
+  const leaderDriverSrc = leader ? driverIconSrc(leader.driverCode) : null;
+  const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName) : null;
   const maxConstructorPts = constructors.reduce(
     (m, c) => Math.max(m, Number(c.points) || 0),
     0,
@@ -70,18 +74,36 @@ export default async function SeasonPage() {
           {CURRENT_SEASON} World Championship
         </p>
         <h1
-          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
+          className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           SEASON
         </h1>
         {leader ? (
-          <p className="mt-4 font-condensed text-sm uppercase tracking-[0.18em]" style={{ color: 'var(--muted)' }}>
+          <p className="mt-4 flex flex-wrap items-center justify-center gap-3 font-condensed text-sm uppercase tracking-[0.18em]" style={{ color: 'var(--muted)' }}>
             Championship leader
-            <span className="ml-3 font-display text-2xl tracking-[0.04em]" style={{ color: 'var(--paper)' }}>
+            {leaderDriverSrc ? (
+              <SafeImage
+                src={leaderDriverSrc}
+                alt=""
+                width={36}
+                height={36}
+                className="h-9 w-9 object-contain"
+              />
+            ) : null}
+            <span className="font-display text-2xl tracking-[0.04em]" style={{ color: 'var(--paper)' }}>
               {leader.driverName}
             </span>
-            <span className="ml-3 font-mono text-xs" style={{ color: 'var(--accent)' }}>
+            {leaderTeamSrc ? (
+              <SafeImage
+                src={leaderTeamSrc}
+                alt=""
+                width={28}
+                height={28}
+                className="h-7 w-7 object-contain opacity-90"
+              />
+            ) : null}
+            <span className="font-mono text-xs" style={{ color: 'var(--accent)' }}>
               {leader.points} PTS
             </span>
           </p>
@@ -111,6 +133,8 @@ export default async function SeasonPage() {
                   {standings.map((row, i) => {
                     const teamColor = resolveTeamUiColor(null, row.constructorName);
                     const isLeader = i === 0;
+                    const driverSrc = driverIconSrc(row.driverCode);
+                    const teamSrc = teamIconSrc(row.constructorName);
                     return (
                       <tr
                         key={row.position + row.driverName}
@@ -127,9 +151,9 @@ export default async function SeasonPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="inline-flex items-center gap-2">
-                            {row.driverCode ? (
+                            {driverSrc ? (
                               <SafeImage
-                                src={`/drivers/${row.driverCode}.svg`}
+                                src={driverSrc}
                                 alt=""
                                 width={28}
                                 height={28}
@@ -139,8 +163,19 @@ export default async function SeasonPage() {
                             <span style={{ color: 'var(--paper)' }}>{row.driverName}</span>
                           </span>
                         </td>
-                        <td className="px-4 py-3" style={{ color: 'var(--muted)' }}>
-                          {row.constructorName}
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center gap-2" style={{ color: 'var(--muted)' }}>
+                            {teamSrc ? (
+                              <SafeImage
+                                src={teamSrc}
+                                alt=""
+                                width={22}
+                                height={22}
+                                className="h-[22px] w-[22px] object-contain opacity-90"
+                              />
+                            ) : null}
+                            {row.constructorName}
+                          </span>
                         </td>
                         <td className="px-4 py-3 text-right" style={{ color: 'var(--paper)' }}>
                           {row.points}
@@ -162,11 +197,23 @@ export default async function SeasonPage() {
               {constructors.map((c) => {
                 const color = resolveTeamUiColor(null, c.constructorName);
                 const pct = maxConstructorPts > 0 ? (Number(c.points) / maxConstructorPts) * 100 : 0;
+                const teamSrc = teamIconSrc(c.constructorName);
                 return (
                   <li key={c.position + c.constructorName} className="flex items-center gap-4">
                     <span className="w-6 shrink-0 font-mono text-xs" style={{ color: 'var(--muted)' }}>
                       {c.position}
                     </span>
+                    {teamSrc ? (
+                      <SafeImage
+                        src={teamSrc}
+                        alt=""
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 shrink-0 object-contain"
+                      />
+                    ) : (
+                      <span className="h-8 w-8 shrink-0" aria-hidden />
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-baseline justify-between gap-2">
                         <span
@@ -198,16 +245,31 @@ export default async function SeasonPage() {
           <section>
             <SectionDivider title="Last Race Recap" />
             <div className="anthology-card p-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255,24,1,0.7)' }}>
-                Round {recap.round}
-              </p>
-              <p className="mt-1 font-display text-[1.6rem] tracking-[0.04em]" style={{ color: 'var(--paper)' }}>
-                {recap.raceName}
-              </p>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255,24,1,0.7)' }}>
+                    Round {recap.round}
+                  </p>
+                  <p className="mt-1 font-display text-[1.6rem] tracking-[0.04em]" style={{ color: 'var(--paper)' }}>
+                    {recap.raceName}
+                  </p>
+                </div>
+                {recapCircuitSrc ? (
+                  <SafeImage
+                    src={recapCircuitSrc}
+                    alt=""
+                    width={120}
+                    height={80}
+                    className="h-16 w-28 object-contain opacity-80"
+                  />
+                ) : null}
+              </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 {recap.podium.map((p) => {
                   const color = resolveTeamUiColor(null, p.constructorName);
+                  const driverSrc = driverIconSrc(p.driverCode);
+                  const teamSrc = teamIconSrc(p.constructorName);
                   return (
                     <div
                       key={p.position}
@@ -217,11 +279,29 @@ export default async function SeasonPage() {
                       <span className="font-display text-2xl" style={{ color: 'var(--accent)' }}>
                         P{p.position}
                       </span>
-                      <div className="min-w-0">
+                      {driverSrc ? (
+                        <SafeImage
+                          src={driverSrc}
+                          alt=""
+                          width={36}
+                          height={36}
+                          className="h-9 w-9 shrink-0 object-contain"
+                        />
+                      ) : null}
+                      <div className="min-w-0 flex-1">
                         <p className="truncate text-sm" style={{ color: 'var(--paper)' }}>
                           {p.driverName}
                         </p>
-                        <p className="truncate font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                        <p className="inline-flex items-center gap-1.5 truncate font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                          {teamSrc ? (
+                            <SafeImage
+                              src={teamSrc}
+                              alt=""
+                              width={14}
+                              height={14}
+                              className="h-3.5 w-3.5 shrink-0 object-contain opacity-90"
+                            />
+                          ) : null}
                           {p.constructorName}
                         </p>
                       </div>
@@ -230,10 +310,19 @@ export default async function SeasonPage() {
                 })}
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2 font-mono text-xs">
+              <div className="mt-5 flex flex-wrap gap-x-8 gap-y-3 font-mono text-xs">
                 {pole ? (
-                  <span style={{ color: 'var(--muted)' }}>
-                    POLE{' '}
+                  <span className="inline-flex items-center gap-2" style={{ color: 'var(--muted)' }}>
+                    POLE
+                    {driverIconSrc(pole.driverCode) ? (
+                      <SafeImage
+                        src={driverIconSrc(pole.driverCode)!}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="h-5 w-5 object-contain"
+                      />
+                    ) : null}
                     <span style={{ color: 'var(--paper)' }}>
                       {pole.driverName}
                       {pole.time ? ` · ${pole.time}` : ''}
@@ -265,11 +354,23 @@ export default async function SeasonPage() {
             <div className="-mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-2">
               {races.map((race) => {
                 const done = isRaceDone(race);
+                const circuitSrc = circuitIconSrc(race.Circuit?.circuitId);
                 return (
                   <div
                     key={String(race.round ?? race.raceName)}
                     className="anthology-card flex w-[220px] shrink-0 snap-start flex-col justify-between gap-4 p-4"
                   >
+                    {circuitSrc ? (
+                      <SafeImage
+                        src={circuitSrc}
+                        alt=""
+                        width={180}
+                        height={72}
+                        className="h-14 w-full object-contain opacity-75"
+                      />
+                    ) : (
+                      <div className="h-14 w-full" style={{ backgroundColor: 'var(--surface)' }} aria-hidden />
+                    )}
                     <div className="flex items-center justify-between">
                       <span
                         className="font-mono text-[9px] uppercase tracking-[0.15em]"

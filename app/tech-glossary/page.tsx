@@ -38,13 +38,13 @@ export default function TechGlossaryPage() {
           Reference
         </p>
         <h1
-          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
+          className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           TECH GLOSSARY
         </h1>
         <p
-          className="mt-3 max-w-xl text-sm font-light leading-relaxed"
+          className="mt-3 max-w-xl mx-auto text-sm font-light leading-relaxed"
           style={{ color: 'var(--muted)' }}
         >
           The vocabulary of Formula 1 engineering — the terms our stories link to.

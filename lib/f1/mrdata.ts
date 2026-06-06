@@ -146,6 +146,7 @@ export function getLastRaceResult(data: MrData | null): LastRaceRecap | null {
 
 export interface PoleInfo {
   driverName: string;
+  driverCode: string;
   time: string | null;
 }
 
@@ -154,13 +155,14 @@ export function getQualifyingPole(data: MrData | null): PoleInfo | null {
   const race = firstRace(data);
   if (!race) return null;
   const q = (race.QualifyingResults as
-    | Array<{ position?: string; Q3?: string; Q2?: string; Q1?: string; Driver?: { givenName?: string; familyName?: string } }>
+    | Array<{ position?: string; Q3?: string; Q2?: string; Q1?: string; Driver?: { givenName?: string; familyName?: string; code?: string } }>
     | undefined) ?? [];
   const pole = q.find((r) => r.position === '1') ?? q[0];
   if (!pole) return null;
   const name = `${pole.Driver?.givenName ?? ''} ${pole.Driver?.familyName ?? ''}`.trim();
   return {
     driverName: name || '—',
+    driverCode: (pole.Driver?.code ?? '').toLowerCase(),
     time: pole.Q3 ?? pole.Q2 ?? pole.Q1 ?? null,
   };
 }

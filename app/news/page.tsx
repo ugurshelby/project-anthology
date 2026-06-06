@@ -3,7 +3,7 @@ import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { NewsFeaturedHero } from '@/components/ui/NewsFeaturedHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
-import { getLatestNews } from '@/lib/data/news';
+import { getFeaturedNews, getLatestNews } from '@/lib/data/news';
 
 const TITLE = 'News';
 const DESCRIPTION =
@@ -23,8 +23,9 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  const news = await getLatestNews(24);
-  const featured = news[0];
+  const [news, featured] = await Promise.all([getLatestNews(24), getFeaturedNews()]);
+  // Drop the featured story from the grid so it isn't shown twice.
+  const rest = featured ? news.filter((item) => item.id !== featured.id) : news;
 
   return (
     <>
@@ -39,7 +40,7 @@ export default async function NewsPage() {
             Headlines
           </p>
           <h1
-            className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
+            className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em]"
             style={{ color: 'var(--paper)' }}
           >
             NEWS
@@ -49,13 +50,13 @@ export default async function NewsPage() {
 
       <div className="content-wrap">
         <SectionDivider title="Latest" />
-        {news.length === 0 ? (
+        {rest.length === 0 ? (
           <p className="text-sm text-muted" style={{ color: 'var(--muted)' }}>
             News cache empty — sync-news cron will populate headlines.
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map((item) => (
+            {rest.map((item) => (
               <article key={item.id} className="anthology-card overflow-hidden">
                 <div className="relative aspect-video bg-card">
                   <SafeImage
