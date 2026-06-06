@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
+import { NewsFeaturedHero } from '@/components/ui/NewsFeaturedHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { fetchSeasonSnapshotTyped } from '@/lib/data/f1';
-import { getLatestNews } from '@/lib/data/news';
+import { getFeaturedNews, getLatestNews } from '@/lib/data/news';
 import {
   formatRaceCountdown,
   getDriverStandings,
@@ -14,10 +15,11 @@ import {
 import { CURRENT_SEASON, getF1Context } from '@/lib/f1Calendar';
 
 export default async function HomePage() {
-  const [calendarData, standingsData, news] = await Promise.all([
+  const [calendarData, standingsData, news, featured] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
     getLatestNews(6),
+    getFeaturedNews(),
   ]);
 
   // Capture the clock once at request time via a lib helper (keeps the render
@@ -34,23 +36,27 @@ export default async function HomePage() {
 
   return (
     <>
-      <AtmosphericHero>
-        <p
-          className="font-condensed text-[11px] uppercase tracking-[0.2em] text-muted"
-          style={{ color: 'var(--muted)' }}
-        >
-          {CURRENT_SEASON} Season Hub
-        </p>
-        <h1
-          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em] text-paper"
-          style={{ color: 'var(--paper)' }}
-        >
-          ANTHOLOGY
-        </h1>
-        <p className="mt-3 max-w-xl text-sm font-light text-muted" style={{ color: 'var(--muted)' }}>
-          Standings, race countdown, and curated F1 news — powered by live snapshots.
-        </p>
-      </AtmosphericHero>
+      {featured ? (
+        <NewsFeaturedHero item={featured} />
+      ) : (
+        <AtmosphericHero>
+          <p
+            className="font-condensed text-[11px] uppercase tracking-[0.2em] text-muted"
+            style={{ color: 'var(--muted)' }}
+          >
+            {CURRENT_SEASON} Season Hub
+          </p>
+          <h1
+            className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em] text-paper"
+            style={{ color: 'var(--paper)' }}
+          >
+            ANTHOLOGY
+          </h1>
+          <p className="mt-3 max-w-xl mx-auto text-sm font-light text-muted" style={{ color: 'var(--muted)' }}>
+            Standings, race countdown, and curated F1 news — powered by live snapshots.
+          </p>
+        </AtmosphericHero>
+      )}
 
       <div className="content-wrap space-y-section-gap">
         <section>

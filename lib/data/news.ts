@@ -79,6 +79,25 @@ function sortNews(items: NewsItem[]): NewsItem[] {
   return [...items].sort((a, b) => b.publishedTs - a.publishedTs);
 }
 
+/** Does this item have a real (non-placeholder) image usable as a hero background? */
+function hasRealImage(item: NewsItem): boolean {
+  return Boolean(item.image) && item.image !== '/favicon.svg';
+}
+
+/**
+ * The single featured story for hero placements (homepage + /news).
+ * Picks the most recent headline that actually has an image, so the cinematic
+ * background hero is never rendered with the favicon placeholder. Falls back to
+ * the newest item if none have images, and null if there's no news at all.
+ *
+ * Reuses getLatestNews so the DB → /api/news → static fallback chain is shared.
+ */
+export async function getFeaturedNews(): Promise<NewsItem | null> {
+  const items = await getLatestNews(20);
+  if (items.length === 0) return null;
+  return items.find(hasRealImage) ?? items[0];
+}
+
 /**
  * Latest news. DB (news_cache) → /api/news → static fallback.
  */

@@ -29,13 +29,13 @@ export default async function AnthologyPage() {
           Long-form
         </p>
         <h1
-          className="mt-2 font-display text-[clamp(4rem,14vw,10rem)] leading-[0.88] tracking-[0.04em]"
+          className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           ANTHOLOGY
         </h1>
         <p
-          className="mt-3 max-w-xl text-sm font-light leading-relaxed"
+          className="mt-3 max-w-xl mx-auto text-sm font-light leading-relaxed"
           style={{ color: 'var(--muted)' }}
         >
           {stories.length} stories from the history of Formula 1 — the divine laps,

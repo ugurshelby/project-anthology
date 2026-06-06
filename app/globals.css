@@ -295,9 +295,11 @@ body {
   isolation: isolate;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
   min-height: 100svh;
+  overflow: hidden;
   background-color: var(--background);
   background-image: var(--carbon-grid);
 }
@@ -310,25 +312,25 @@ body {
 
 .hero-spotlight-left {
   background: radial-gradient(
-    ellipse 60% 50% at 20% 0%,
-    rgba(255, 255, 255, 0.05),
-    transparent 70%
+    circle at 15% 15%,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 50%
   );
 }
 
 .hero-spotlight-right {
   background: radial-gradient(
-    ellipse 60% 50% at 80% 0%,
-    rgba(255, 255, 255, 0.04),
-    transparent 70%
+    circle at 85% 15%,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 60%
   );
 }
 
 .hero-red-glow {
   background: radial-gradient(
-    ellipse 80% 40% at 50% 100%,
-    rgba(255, 24, 1, 0.12),
-    transparent 70%
+    circle at 50% 100%,
+    rgba(255, 24, 1, 0.15) 0%,
+    transparent 60%
   );
 }
 
@@ -338,16 +340,16 @@ body {
 }
 
 .hero-light-streak {
-  top: 35%;
+  top: 55%;
   height: 2px;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 24, 1, 0.35),
+    rgba(255, 24, 1, 0.5),
     transparent
   );
-  filter: blur(6px);
-  animation: hero-streak 8s ease-in-out infinite;
+  filter: blur(8px);
+  animation: hero-streak 12s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
