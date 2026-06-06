@@ -12,6 +12,7 @@ import {
   nowMs,
   raceStartMs,
 } from '@/lib/f1/mrdata';
+import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { CURRENT_SEASON, getF1Context } from '@/lib/f1Calendar';
 
 export default async function HomePage() {
@@ -67,7 +68,10 @@ export default async function HomePage() {
             </p>
           ) : (
             <ul className="divide-y divide-border border border-border bg-surface">
-              {standings.map((row) => (
+              {standings.map((row) => {
+                const driverSrc = driverIconSrc(row.driverCode, row.driverName);
+                const teamSrc = teamIconSrc(row.constructorName);
+                return (
                 <li
                   key={row.position + row.driverName}
                   className="flex items-center gap-4 px-4 py-3 font-mono text-xs tracking-wider"
@@ -75,9 +79,9 @@ export default async function HomePage() {
                   <span className="w-6 text-accent" style={{ color: 'var(--accent)' }}>
                     {row.position}
                   </span>
-                  {row.driverCode ? (
+                  {driverSrc ? (
                     <SafeImage
-                      src={`/drivers/${row.driverCode}.svg`}
+                      src={driverSrc}
                       alt=""
                       width={32}
                       height={32}
@@ -87,11 +91,20 @@ export default async function HomePage() {
                   <span className="flex-1 text-paper" style={{ color: 'var(--paper)' }}>
                     {row.driverName}
                   </span>
+                  {teamSrc ? (
+                    <SafeImage
+                      src={teamSrc}
+                      alt=""
+                      width={24}
+                      height={24}
+                      className="h-6 w-6 object-contain opacity-90"
+                    />
+                  ) : null}
                   <span className="text-muted" style={{ color: 'var(--muted)' }}>
                     {row.points} pts
                   </span>
                 </li>
-              ))}
+              );})}
             </ul>
           )}
           <Link

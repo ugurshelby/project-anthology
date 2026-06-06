@@ -56,8 +56,9 @@ export default async function SeasonPage() {
   const pole = getQualifyingPole(qualiData);
 
   const leader = standings[0] ?? null;
+  const poleDriverSrc = pole ? driverIconSrc(pole.driverCode, pole.driverName) : null;
   const recapCircuitSrc = lastRace ? circuitIconSrc(lastRace.Circuit?.circuitId) : null;
-  const leaderDriverSrc = leader ? driverIconSrc(leader.driverCode) : null;
+  const leaderDriverSrc = leader ? driverIconSrc(leader.driverCode, leader.driverName) : null;
   const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName) : null;
   const maxConstructorPts = constructors.reduce(
     (m, c) => Math.max(m, Number(c.points) || 0),
@@ -133,7 +134,7 @@ export default async function SeasonPage() {
                   {standings.map((row, i) => {
                     const teamColor = resolveTeamUiColor(null, row.constructorName);
                     const isLeader = i === 0;
-                    const driverSrc = driverIconSrc(row.driverCode);
+                    const driverSrc = driverIconSrc(row.driverCode, row.driverName);
                     const teamSrc = teamIconSrc(row.constructorName);
                     return (
                       <tr
@@ -268,7 +269,7 @@ export default async function SeasonPage() {
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 {recap.podium.map((p) => {
                   const color = resolveTeamUiColor(null, p.constructorName);
-                  const driverSrc = driverIconSrc(p.driverCode);
+                  const driverSrc = driverIconSrc(p.driverCode, p.driverName);
                   const teamSrc = teamIconSrc(p.constructorName);
                   return (
                     <div
@@ -314,9 +315,9 @@ export default async function SeasonPage() {
                 {pole ? (
                   <span className="inline-flex items-center gap-2" style={{ color: 'var(--muted)' }}>
                     POLE
-                    {driverIconSrc(pole.driverCode) ? (
+                    {poleDriverSrc ? (
                       <SafeImage
-                        src={driverIconSrc(pole.driverCode)!}
+                        src={poleDriverSrc}
                         alt=""
                         width={20}
                         height={20}
