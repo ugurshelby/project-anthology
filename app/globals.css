@@ -415,6 +415,10 @@ body {
 @media (min-width: 1024px) {
   .bento-hero-tile {
     min-height: 500px;
+  }
+
+  /* Hero siblings in the same grid row share height */
+  .bento-hero-tile > * {
     height: 100%;
   }
 }
