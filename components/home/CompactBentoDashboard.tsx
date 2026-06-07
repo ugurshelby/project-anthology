@@ -22,7 +22,7 @@ function MidRowPanels({
   totalRounds: number;
 }) {
   return (
-    <div className="bento-mid-row col-span-2 w-full">
+    <div className="bento-mid-row col-span-2 w-full lg:col-span-12">
       <BentoLastRaceTile recap={lastRaceRecap} />
       <BentoConstructorsTile constructors={constructors} />
       <BentoTyreTile />
@@ -71,34 +71,31 @@ export function CompactBentoDashboard({
         </div>
       </div>
 
-      {/* Desktop */}
-      <div className="hidden lg:grid lg:grid-cols-12 lg:gap-8">
-        <div className="col-span-8 flex flex-col gap-8">
-          <div className="bento-hero-tile">
-            <BentoLeaderTile leader={leader} />
-          </div>
-          <MidRowPanels
-            lastRaceRecap={lastRaceRecap}
-            constructors={constructors}
-            standings={standings}
-            currentRound={currentRound}
-            totalRounds={totalRounds}
-          />
+      {/* Desktop: hero row (Leader + Next Race), then full-width 4-panel row */}
+      <div className="hidden lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-8">
+        <div className="bento-hero-tile col-span-8">
+          <BentoLeaderTile leader={leader} />
         </div>
 
-        <div className="col-span-4 flex">
-          {nextPanel ? (
-            <div className="bento-hero-tile w-full">
-              <BentoRaceTile
-                panel={nextPanel}
-                variant="sidebar"
-                renderNowMs={renderNowMs}
-              />
-            </div>
-          ) : (
-            <div className="bento-hero-tile w-full" aria-hidden />
-          )}
-        </div>
+        {nextPanel ? (
+          <div className="bento-hero-tile col-span-4">
+            <BentoRaceTile
+              panel={nextPanel}
+              variant="sidebar"
+              renderNowMs={renderNowMs}
+            />
+          </div>
+        ) : (
+          <div className="bento-hero-tile col-span-4" aria-hidden />
+        )}
+
+        <MidRowPanels
+          lastRaceRecap={lastRaceRecap}
+          constructors={constructors}
+          standings={standings}
+          currentRound={currentRound}
+          totalRounds={totalRounds}
+        />
 
         <BentoNeonDivider />
         <BentoNewsTile news={news} />
