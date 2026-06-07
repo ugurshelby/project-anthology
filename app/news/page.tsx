@@ -34,7 +34,9 @@ export default async function NewsPage() {
   return (
     <>
       {featured ? (
-        <NewsFeaturedHero item={featured} />
+        <div id={featured.id} className="scroll-mt-20">
+          <NewsFeaturedHero item={featured} />
+        </div>
       ) : (
         <AtmosphericHero>
           <p
@@ -61,7 +63,11 @@ export default async function NewsPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((item) => (
-              <article key={item.id} className="anthology-card overflow-hidden">
+              <article
+                key={item.id}
+                id={item.id}
+                className="news-article-anchor anthology-card overflow-hidden scroll-mt-20"
+              >
                 <div className="relative aspect-video bg-card">
                   <SafeImage
                     src={item.image}

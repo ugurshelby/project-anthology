@@ -16,7 +16,7 @@ function driverShort(name: string): string {
 export function BentoLastRaceTile({ recap }: BentoLastRaceTileProps) {
   if (!recap) {
     return (
-      <div className="bento-panel flex min-h-[140px] flex-col justify-center p-3 lg:p-6">
+      <div className="bento-panel bento-tile-fill justify-center p-3 lg:p-6">
         <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
           No recent race results yet.
         </p>
@@ -27,7 +27,7 @@ export function BentoLastRaceTile({ recap }: BentoLastRaceTileProps) {
   const winner = recap.podium[0];
 
   return (
-    <Link href="/season" className="bento-panel flex min-h-[140px] flex-col justify-between p-3 lg:p-6">
+    <Link href="/season" className="bento-panel bento-tile-fill justify-between p-3 lg:p-5">
       <div>
         <p
           className="mb-1 font-condensed text-[9px] uppercase tracking-[0.2em] lg:mb-4 lg:text-[11px]"

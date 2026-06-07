@@ -26,7 +26,10 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
 
   if (variant === 'sidebar') {
     return (
-      <Link href={circuitHref(race)} className="bento-panel bento-panel-accent flex flex-col gap-6 p-6 lg:p-8">
+      <Link
+        href={circuitHref(race)}
+        className="bento-panel bento-panel-accent bento-tile-fill gap-6 p-6 lg:p-8"
+      >
         <div>
           <div className="mb-1 flex items-center gap-2">
             <span className="h-2 w-2 animate-pulse rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
@@ -52,7 +55,7 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
 
         {circuitSrc ? (
           <div
-            className="flex h-32 w-full items-center justify-center lg:h-40"
+            className="flex min-h-0 flex-1 w-full items-center justify-center"
             style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
           >
             <SafeImage
@@ -60,7 +63,7 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
               alt={race.Circuit?.circuitName ?? raceLabel}
               width={280}
               height={120}
-              className="h-20 w-3/4 object-contain opacity-70 transition-opacity hover:opacity-100 lg:h-28"
+              className="h-24 w-3/4 max-h-[40%] object-contain opacity-70 transition-opacity hover:opacity-100 lg:h-32 lg:max-h-none"
             />
           </div>
         ) : null}

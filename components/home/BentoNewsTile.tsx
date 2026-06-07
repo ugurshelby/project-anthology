@@ -1,14 +1,71 @@
 import Link from 'next/link';
+import { SafeImage } from '@/components/ui/SafeImage';
 import type { NewsItem } from '@/lib/data/types';
 
 interface BentoNewsTileProps {
   news: NewsItem[];
 }
 
+function newsHref(id: string): string {
+  return `/news#${encodeURIComponent(id)}`;
+}
+
+function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boolean }) {
+  return (
+    <Link
+      href={newsHref(item.id)}
+      className="bento-panel group relative flex min-h-[140px] flex-col justify-end overflow-hidden p-4 transition-colors lg:min-h-[200px] lg:p-6"
+    >
+      {item.image ? (
+        <SafeImage
+          src={item.image}
+          alt=""
+          fill
+          className="object-cover opacity-25 transition-opacity duration-300 group-hover:opacity-35"
+          sizes="(max-width: 1024px) 100vw, 33vw"
+        />
+      ) : null}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.82) 55%, rgba(10,10,10,0.95) 100%)',
+        }}
+      />
+      <div className="relative z-10">
+        <span
+          className="mb-2 block font-mono text-[8px] uppercase lg:text-[10px]"
+          style={{ color: featured ? 'var(--accent)' : 'var(--muted)' }}
+        >
+          {item.sourceName} · {item.dateLabel}
+        </span>
+        <h4
+          className="font-display text-base leading-tight tracking-[0.04em] transition-colors group-hover:text-[var(--accent)] lg:text-xl"
+          style={{ color: 'var(--paper)' }}
+        >
+          {item.title}
+        </h4>
+        <p
+          className="mt-2 line-clamp-2 hidden text-xs font-light lg:block"
+          style={{ color: 'var(--muted)' }}
+        >
+          {item.summary}
+        </p>
+        <span
+          className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
+          style={{ color: 'var(--accent)' }}
+        >
+          Read on news →
+        </span>
+      </div>
+    </Link>
+  );
+}
+
 export function BentoNewsTile({ news }: BentoNewsTileProps) {
   if (news.length === 0) {
     return (
-      <section className="bento-panel col-span-2 p-4 lg:col-span-full lg:p-0 lg:border-0 lg:bg-transparent">
+      <section className="col-span-2 lg:col-span-full">
         <p className="text-sm" style={{ color: 'var(--muted)' }}>
           No cached headlines yet.
         </p>
@@ -16,7 +73,6 @@ export function BentoNewsTile({ news }: BentoNewsTileProps) {
     );
   }
 
-  const [featured] = news;
   const desktopItems = news.slice(0, 3);
 
   return (
@@ -38,79 +94,9 @@ export function BentoNewsTile({ news }: BentoNewsTileProps) {
         </Link>
       </div>
 
-      {/* Mobile / tablet: stacked articles */}
-      <div className="bento-panel flex flex-col gap-4 p-4 lg:hidden">
-        {news.slice(0, 2).map((item) => (
-          <article
-            key={item.id}
-            className="border-b pb-4 last:border-0 last:pb-0"
-            style={{ borderColor: 'var(--border)' }}
-          >
-            <div className="mb-1 flex items-center gap-2">
-              <span
-                className="font-mono text-[8px] px-1 py-0.5"
-                style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
-              >
-                {item.sourceName.toUpperCase()}
-              </span>
-              <span className="font-mono text-[8px]" style={{ color: 'var(--muted)' }}>
-                {item.dateLabel}
-              </span>
-            </div>
-            <h4
-              className="mb-2 font-display text-lg leading-tight tracking-[0.04em]"
-              style={{ color: 'var(--paper)' }}
-            >
-              {item.title}
-            </h4>
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-condensed text-[10px] uppercase tracking-[0.12em]"
-              style={{ color: 'var(--accent)' }}
-            >
-              Read story →
-            </a>
-          </article>
-        ))}
-      </div>
-
-      {/* Desktop: 3-card grid */}
-      <div className="hidden grid-cols-3 gap-8 lg:grid">
-        {desktopItems.map((item) => (
-          <article
-            key={item.id}
-            className="bento-panel group cursor-pointer p-6 transition-colors"
-            style={{ borderLeftColor: 'var(--border)' }}
-          >
-            <span
-              className="mb-2 block font-mono text-[10px] uppercase"
-              style={{ color: item === featured ? 'var(--accent)' : 'var(--muted)' }}
-            >
-              {item.sourceName} · {item.dateLabel}
-            </span>
-            <h4
-              className="mb-4 font-display text-xl leading-tight tracking-[0.04em] transition-colors group-hover:text-[var(--accent)]"
-              style={{ color: 'var(--paper)' }}
-            >
-              {item.title}
-            </h4>
-            <div className="mt-auto flex items-center justify-between">
-              <span className="font-condensed text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--muted)' }}>
-                {item.summary.slice(0, 40)}…
-              </span>
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-condensed border px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition-colors group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white"
-                style={{ borderColor: 'var(--border-hover)', color: 'var(--paper)' }}
-              >
-                Read story
-              </a>
-            </div>
-          </article>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+        {desktopItems.map((item, index) => (
+          <NewsCard key={item.id} item={item} featured={index === 0} />
         ))}
       </div>
     </section>
