@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
+import { GlossaryCard } from '@/components/ui/GlossaryCard';
 import { glossaryTerms, type GlossaryTerm } from '@/data/glossary/terms';
 import { TYRE_COMPOUNDS } from '@/data/glossary/tyres';
 
@@ -110,36 +111,11 @@ export default function TechGlossaryPage() {
         {groups.map(([category, terms]) => (
           <section key={category} className="mb-12">
             <SectionDivider title={category} />
-            <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {terms.map((t) => (
-                <div
-                  key={t.slug}
-                  id={t.slug}
-                  className="anthology-card scroll-mt-20 p-5"
-                >
-                  <dt
-                    className="font-display text-[1.4rem] leading-none tracking-[0.04em]"
-                    style={{ color: 'var(--paper)' }}
-                  >
-                    {t.term}
-                  </dt>
-                  {t.aliases?.length ? (
-                    <p
-                      className="mt-1 font-mono text-[9px] uppercase tracking-wider"
-                      style={{ color: 'rgba(255,24,1,0.7)' }}
-                    >
-                      {t.aliases.join(' · ')}
-                    </p>
-                  ) : null}
-                  <dd
-                    className="mt-2 text-[13px] font-light leading-relaxed"
-                    style={{ color: 'var(--muted)' }}
-                  >
-                    {t.definition}
-                  </dd>
-                </div>
+                <GlossaryCard key={t.slug} term={t} />
               ))}
-            </dl>
+            </div>
           </section>
         ))}
       </div>
