@@ -401,6 +401,139 @@ body {
   background: var(--accent);
 }
 
+/* Hero row — Championship Leader + Next Race share height */
+.bento-hero-tile {
+  min-height: 220px;
+}
+
+@media (min-width: 768px) {
+  .bento-hero-tile {
+    min-height: 360px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-hero-tile {
+    min-height: 500px;
+    height: 100%;
+  }
+}
+
+/* Mid row — Last Race, Constructors, Tyre, Drivers (equal height) */
+.bento-mid-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .bento-mid-row {
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-mid-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.bento-mid-row > * {
+  min-height: 240px;
+  height: 100%;
+}
+
+@media (min-width: 1024px) {
+  .bento-mid-row > * {
+    min-height: 280px;
+  }
+}
+
+.bento-tile-fill {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Drivers standings — ~5 rows visible, scroll for 6–10 */
+.bento-standings-scroll {
+  max-height: 11.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 1024px) {
+  .bento-standings-scroll {
+    max-height: 12.75rem;
+  }
+}
+
+/* Neon flow divider between dashboard grid and Latest Intel */
+.bento-neon-divider {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  margin: 2rem 0;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .bento-neon-divider {
+    margin: 3rem 0;
+  }
+}
+
+.bento-neon-divider-glow {
+  position: absolute;
+  top: -1px;
+  left: -35%;
+  width: 35%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 24, 1, 0.15) 20%,
+    var(--accent) 50%,
+    rgba(255, 24, 1, 0.15) 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 8px rgba(255, 24, 1, 0.9),
+    0 0 20px rgba(255, 24, 1, 0.45),
+    0 0 40px rgba(255, 24, 1, 0.2);
+  animation: bento-neon-flow 5s ease-in-out infinite;
+}
+
+@keyframes bento-neon-flow {
+  0% {
+    left: -35%;
+    opacity: 0.4;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bento-neon-divider-glow {
+    animation: none;
+    left: 32%;
+    width: 36%;
+    opacity: 0.75;
+  }
+}
+
 .anthology-card {
   background: var(--card);
   border-left: 3px solid var(--accent);

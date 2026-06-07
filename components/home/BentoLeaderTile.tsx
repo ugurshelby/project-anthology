@@ -9,7 +9,7 @@ interface BentoLeaderTileProps {
 export function BentoLeaderTile({ leader }: BentoLeaderTileProps) {
   if (!leader) {
     return (
-      <section className="bento-panel bento-panel-accent col-span-2 flex min-h-[160px] flex-col justify-center p-4 lg:col-span-1 lg:min-h-[500px] lg:p-12">
+      <section className="bento-panel bento-panel-accent bento-tile-fill justify-center p-4 lg:p-12">
         <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
           Standings sync pending — check back after the next cron run.
         </p>
@@ -24,7 +24,7 @@ export function BentoLeaderTile({ leader }: BentoLeaderTileProps) {
   const lastName = nameParts.slice(1).join(' ') || leader.driverName.toUpperCase();
 
   return (
-    <section className="bento-panel bento-panel-accent relative col-span-2 flex min-h-[160px] items-end overflow-hidden lg:col-span-1 lg:min-h-[500px]">
+    <section className="bento-panel bento-panel-accent relative flex h-full min-h-0 items-end overflow-hidden">
       {driverSrc ? (
         <div className="absolute inset-0 z-0">
           <SafeImage
@@ -44,13 +44,16 @@ export function BentoLeaderTile({ leader }: BentoLeaderTileProps) {
         </div>
       ) : null}
 
-      <div className="relative z-10 flex w-full flex-col justify-between gap-4 p-4 lg:flex-row lg:items-end lg:p-12">
+      <div className="relative z-10 flex h-full w-full flex-col justify-between gap-4 p-4 lg:flex-row lg:items-end lg:p-12">
         <div>
           <span
             className="mb-2 flex items-center gap-2 font-condensed text-[10px] uppercase tracking-[0.2em] lg:mb-2 lg:text-[11px]"
             style={{ color: 'var(--accent)' }}
           >
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
+            <span
+              className="h-1.5 w-1.5 animate-pulse rounded-full"
+              style={{ backgroundColor: 'var(--accent)' }}
+            />
             Championship Leader
           </span>
           <h1

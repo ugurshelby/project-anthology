@@ -45,7 +45,7 @@ export function BentoTyreTile() {
   const totalSets = rows.reduce((sum, row) => sum + row.sets, 0);
 
   return (
-    <div className="bento-panel bento-panel-accent flex min-h-[140px] flex-col p-3 lg:min-h-[220px] lg:p-5">
+    <div className="bento-panel bento-panel-accent bento-tile-fill p-3 lg:p-5">
       <div className="mb-3 flex shrink-0 items-start justify-between gap-2 lg:mb-4">
         <div>
           <span

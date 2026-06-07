@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
+import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { SafeImage } from '@/components/ui/SafeImage';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
 
@@ -23,12 +23,11 @@ export function BentoStandingsTile({
   totalRounds,
 }: BentoStandingsTileProps) {
   const top = standings.slice(0, 10);
-  const mobileTop = standings.slice(0, 5);
   const leaderPts = Number(standings[0]?.points) || 0;
 
   if (top.length === 0) {
     return (
-      <div className="bento-panel col-span-2 p-4 lg:col-span-1">
+      <div className="bento-panel bento-tile-fill justify-center p-4">
         <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
           Standings sync pending.
         </p>
@@ -36,85 +35,101 @@ export function BentoStandingsTile({
     );
   }
 
-  const rowList = (rows: DriverStandingRow[], showBars: boolean) =>
-    rows.map((row) => {
-      const color = resolveTeamUiColor(null, row.constructorName);
-      const pct =
-        leaderPts > 0 ? Math.max(8, (Number(row.points) / leaderPts) * 100) : 8;
-      const iconSrc = driverIconSrc(row.driverCode, row.driverName);
-
-      return (
-        <div
-          key={row.position + row.driverName}
-          className="group flex items-center gap-2 p-2 transition-colors lg:gap-3 lg:p-3"
-          style={{
-            borderLeft: `4px solid ${color}`,
-            backgroundColor: 'rgba(255,255,255,0.02)',
-          }}
-        >
-          <span className="w-4 font-mono text-[10px] lg:w-8 lg:text-xs" style={{ color: 'var(--muted)' }}>
-            {row.position.padStart(2, '0')}
-          </span>
-          {iconSrc ? (
-            <SafeImage
-              src={iconSrc}
-              alt=""
-              width={20}
-              height={20}
-              className="hidden h-5 w-5 object-contain lg:block"
-            />
-          ) : null}
-          <span
-            className="w-10 font-condensed text-sm tracking-wider lg:text-lg"
-            style={{ color: 'var(--paper)' }}
-          >
-            {driverCode(row)}
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex items-center justify-between gap-2">
-              <span
-                className="truncate font-condensed text-[10px] uppercase tracking-wider lg:text-sm"
-                style={{ color: 'var(--muted)' }}
-              >
-                {row.constructorName}
-              </span>
-              <span className="font-mono text-sm font-medium lg:text-base" style={{ color: 'var(--paper)' }}>
-                {row.points}
-              </span>
-            </div>
-            {showBars ? (
-              <div className="h-1 w-full" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
-                <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color }} />
-              </div>
-            ) : null}
-          </div>
-        </div>
-      );
-    });
-
   return (
-    <div className="bento-panel col-span-2 flex flex-col lg:col-span-1 lg:flex-grow">
+    <div className="bento-panel bento-tile-fill">
       <div
-        className="flex items-center justify-between border-b p-4 lg:p-6"
+        className="flex shrink-0 items-center justify-between border-b px-3 py-2.5 lg:px-4 lg:py-3"
         style={{ borderColor: 'var(--border)' }}
       >
-        <h3 className="font-display text-lg tracking-[0.04em] lg:text-xl" style={{ color: 'var(--paper)' }}>
+        <h3
+          className="font-display text-sm tracking-[0.04em] lg:text-base"
+          style={{ color: 'var(--paper)' }}
+        >
           Drivers Standings
         </h3>
-        <span className="font-mono text-[10px] lg:text-xs" style={{ color: 'var(--muted)' }}>
-          R{currentRound} / {totalRounds}
+        <span className="font-mono text-[9px] lg:text-[10px]" style={{ color: 'var(--muted)' }}>
+          R{currentRound}/{totalRounds}
         </span>
       </div>
 
-      <div className="flex flex-col gap-3 p-3 lg:hidden">{rowList(mobileTop, true)}</div>
+      <div className="custom-scrollbar bento-standings-scroll min-h-0 flex-1 px-2 py-2 lg:px-3">
+        <div className="space-y-1">
+          {top.map((row) => {
+            const color = resolveTeamUiColor(null, row.constructorName);
+            const pct =
+              leaderPts > 0 ? Math.max(8, (Number(row.points) / leaderPts) * 100) : 8;
+            const driverSrc = driverIconSrc(row.driverCode, row.driverName);
+            const teamSrc = teamIconSrc(row.constructorName);
 
-      <div className="custom-scrollbar hidden max-h-[600px] overflow-y-auto p-2 lg:block">
-        <div className="space-y-1">{rowList(top, false)}</div>
+            return (
+              <div
+                key={row.position + row.driverName}
+                className="flex h-9 items-center gap-1.5 px-1.5 lg:h-10 lg:gap-2 lg:px-2"
+                style={{
+                  borderLeft: `3px solid ${color}`,
+                  backgroundColor: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                <span
+                  className="w-5 font-mono text-[9px] lg:w-6 lg:text-[10px]"
+                  style={{ color: 'var(--muted)' }}
+                >
+                  {row.position.padStart(2, '0')}
+                </span>
+                {driverSrc ? (
+                  <SafeImage
+                    src={driverSrc}
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="h-4 w-4 shrink-0 object-contain lg:h-5 lg:w-5"
+                  />
+                ) : null}
+                <span
+                  className="w-8 font-condensed text-[11px] tracking-wider lg:w-9 lg:text-xs"
+                  style={{ color: 'var(--paper)' }}
+                >
+                  {driverCode(row)}
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="flex min-w-0 items-center gap-1">
+                      {teamSrc ? (
+                        <SafeImage
+                          src={teamSrc}
+                          alt=""
+                          width={12}
+                          height={12}
+                          className="h-3 w-3 shrink-0 object-contain opacity-80"
+                        />
+                      ) : null}
+                      <span
+                        className="truncate font-condensed text-[8px] uppercase tracking-wider lg:text-[9px]"
+                        style={{ color: 'var(--muted)' }}
+                      >
+                        {row.constructorName}
+                      </span>
+                    </span>
+                    <span
+                      className="shrink-0 font-mono text-[10px] font-medium lg:text-xs"
+                      style={{ color: 'var(--paper)' }}
+                    >
+                      {row.points}
+                    </span>
+                  </div>
+                  <div className="h-0.5 w-full" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <Link
         href="/season"
-        className="mt-auto border-t p-3 text-center font-condensed text-[10px] uppercase tracking-[0.12em] lg:p-4"
+        className="shrink-0 border-t px-3 py-2 text-center font-condensed text-[9px] uppercase tracking-[0.12em] lg:py-2.5 lg:text-[10px]"
         style={{ borderColor: 'var(--border)', color: 'var(--accent)' }}
       >
         Full season →
