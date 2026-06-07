@@ -77,7 +77,7 @@ export function NewsFeaturedHero({ item }: NewsFeaturedHeroProps) {
         ) : null}
 
         <h1
-          className="mt-4 max-w-5xl font-display text-[clamp(2.5rem,7vw,5.5rem)] leading-none tracking-[0.04em]"
+          className="mt-4 line-clamp-3 max-w-5xl font-display text-[clamp(2.5rem,7vw,5.5rem)] leading-none tracking-[0.04em]"
           style={{ color: 'var(--paper)' }}
         >
           {item.title}

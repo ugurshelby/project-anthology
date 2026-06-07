@@ -48,7 +48,12 @@ function newsFromCache(row: NewsCacheRow): NewsItem {
     summary: row.summary ?? row.description ?? '',
     url: row.url,
     sourceName: row.source ?? '',
-    sources: row.source ? [row.source] : [],
+    sources:
+      Array.isArray(row.tags) && row.tags.length > 0
+        ? row.tags
+        : row.source
+          ? [row.source]
+          : [],
     image: row.image_url ?? '/placeholder.svg',
     publishedAt,
     publishedTs: Number.isFinite(publishedTs) ? publishedTs : 0,

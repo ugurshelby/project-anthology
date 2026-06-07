@@ -8,7 +8,7 @@
  *  - Per-source AbortController timeout.
  *  - F1 keyword filter + non-F1 keyword exclusion.
  *  - Canonical URL deduplication (strips UTM / hash).
- *  - Jaccard title-similarity clustering (threshold 0.55).
+ *  - Jaccard title-similarity clustering (threshold 0.65).
  *  - Sorted newest-first.
  *  - JSDOM DOMParser polyfill for Node.js.
  */
@@ -57,6 +57,16 @@ export const NEWS_SOURCES = [
     rssUrl: 'https://www.motorsport.com/rss/f1/news/',
     baseUrl: 'https://www.motorsport.com',
   },
+  {
+    name: 'BBC Sport F1',
+    rssUrl: 'https://feeds.bbci.co.uk/sport/formula1/rss.xml',
+    baseUrl: 'https://www.bbc.co.uk',
+  },
+  {
+    name: 'RaceFans',
+    rssUrl: 'https://www.racefans.net/feed/',
+    baseUrl: 'https://www.racefans.net',
+  },
 ] as const;
 
 // ── F1 keyword sets ────────────────────────────────────────────────────────
@@ -70,6 +80,7 @@ const F1_KEYWORDS = [
   'russell', 'alonso', 'stroll', 'ocon', 'gasly', 'albon',
   'bottas', 'zhou', 'tsunoda', 'hulkenberg', 'magnussen',
   'bearman', 'lawson', 'doohan', 'antonelli', 'colapinto',
+  'lindblad', 'bortoleto', 'cadillac', 'audi',
   'monaco', 'monza', 'silverstone', 'spa-francorchamps', 'suzuka', 'interlagos',
   'bahrain', 'jeddah', 'melbourne', 'imola', 'barcelona', 'montreal',
   'red bull ring', 'hungaroring', 'zandvoort', 'marina bay', 'yas marina',
@@ -84,6 +95,7 @@ const NON_F1_KEYWORDS = [
   'indycar', 'indy car', 'indy 500',
   'nascar',
   'formula e', 'formula-e',
+  'formula 2', ' f2 ', 'f2 championship',
   'super gt', 'dtm', 'gt3 ', 'gt4 ',
   'superbike', 'worldsbk', 'wsbk',
   'motocross', 'mxgp', 'supercross',
@@ -255,7 +267,7 @@ function jaccard(a: Set<string>, b: Set<string>): number {
 }
 
 function clusterAndPickPrimary(items: RawNewsItem[]): NewsItem[] {
-  const SIM_THRESHOLD = 0.55;
+  const SIM_THRESHOLD = 0.65;
   const tokens = items.map((it) => tokenize(it.title));
   const claimed = new Array<boolean>(items.length).fill(false);
   const result: NewsItem[] = [];
@@ -394,7 +406,7 @@ export function processFeeds(rawItems: RawNewsItem[]): NewsItem[] {
 // ── Main aggregator ────────────────────────────────────────────────────────
 
 const PER_FEED_TIMEOUT_MS = 6_000;
-const TOTAL_TIMEOUT_MS = 8_500;
+const TOTAL_TIMEOUT_MS = 12_000;
 
 export interface AggregateOptions {
   maxItems?: number;

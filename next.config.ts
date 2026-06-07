@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.autosport.com' },
       { protocol: 'https', hostname: 'storage.ghost.io' },
       { protocol: 'https', hostname: '**.the-race.com' },
+      { protocol: 'https', hostname: '**.bbc.co.uk' },
+      { protocol: 'https', hostname: '**.racefans.net' },
     ],
   },
   // Keep heavy/unnecessary files out of serverless function bundles. NOTE:

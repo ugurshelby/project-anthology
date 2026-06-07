@@ -40,7 +40,7 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
           {item.sourceName} · {item.dateLabel}
         </span>
         <h4
-          className="font-display text-base leading-tight tracking-[0.04em] transition-colors group-hover:text-[var(--accent)] lg:text-xl"
+          className="line-clamp-2 font-display text-base leading-tight tracking-[0.04em] transition-colors group-hover:text-[var(--accent)] lg:text-xl"
           style={{ color: 'var(--paper)' }}
         >
           {item.title}
