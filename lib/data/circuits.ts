@@ -42,6 +42,108 @@ export interface CircuitDetail {
   winners: CircuitWinnerEntry[];
 }
 
+export interface CircuitWeather {
+  /** Air temperature in °C. */
+  temperatureC: number;
+  /** Apparent ("feels like") temperature in °C. */
+  apparentC: number | null;
+  /** Wind speed in km/h. */
+  windKmh: number | null;
+  /** WMO weather interpretation code (0 = clear … 95+ = thunderstorm). */
+  weatherCode: number;
+  /** Human-readable summary derived from the WMO code. */
+  summary: string;
+  /** Whether it is currently day (1) or night (0) at the circuit. */
+  isDay: boolean;
+}
+
+// Minimal WMO weather-code → label map (Open-Meteo current.weather_code).
+const WMO_SUMMARY: Record<number, string> = {
+  0: 'Clear sky',
+  1: 'Mainly clear',
+  2: 'Partly cloudy',
+  3: 'Overcast',
+  45: 'Fog',
+  48: 'Rime fog',
+  51: 'Light drizzle',
+  53: 'Drizzle',
+  55: 'Heavy drizzle',
+  56: 'Freezing drizzle',
+  57: 'Freezing drizzle',
+  61: 'Light rain',
+  63: 'Rain',
+  65: 'Heavy rain',
+  66: 'Freezing rain',
+  67: 'Freezing rain',
+  71: 'Light snow',
+  73: 'Snow',
+  75: 'Heavy snow',
+  77: 'Snow grains',
+  80: 'Rain showers',
+  81: 'Rain showers',
+  82: 'Violent rain showers',
+  85: 'Snow showers',
+  86: 'Snow showers',
+  95: 'Thunderstorm',
+  96: 'Thunderstorm w/ hail',
+  99: 'Thunderstorm w/ hail',
+};
+
+/**
+ * Live local weather at a circuit via Open-Meteo (no API key, server-side).
+ * Returns null on any failure or missing coordinates so the panel can hide
+ * gracefully — weather is a nice-to-have, never a hard dependency of the page.
+ */
+export async function getCircuitWeather(
+  lat: number | undefined | null,
+  lon: number | undefined | null,
+): Promise<CircuitWeather | null> {
+  if (lat == null || lon == null || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+    return null;
+  }
+
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current=temperature_2m,apparent_temperature,wind_speed_10m,weather_code,is_day`;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      // Cache at the edge for 15 min, serve stale for an hour while revalidating.
+      next: { revalidate: 900 },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+
+    const json = (await res.json()) as {
+      current?: {
+        temperature_2m?: number;
+        apparent_temperature?: number;
+        wind_speed_10m?: number;
+        weather_code?: number;
+        is_day?: number;
+      };
+    };
+    const c = json.current;
+    if (!c || typeof c.temperature_2m !== 'number') return null;
+
+    const code = typeof c.weather_code === 'number' ? c.weather_code : 0;
+    return {
+      temperatureC: Math.round(c.temperature_2m),
+      apparentC:
+        typeof c.apparent_temperature === 'number' ? Math.round(c.apparent_temperature) : null,
+      windKmh: typeof c.wind_speed_10m === 'number' ? Math.round(c.wind_speed_10m) : null,
+      weatherCode: code,
+      summary: WMO_SUMMARY[code] ?? 'Unknown',
+      isDay: c.is_day !== 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getCurrentSeasonRaces(): Promise<CalendarRace[]> {
   const calendarData = await fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
   return getRacesFromCalendar(calendarData);

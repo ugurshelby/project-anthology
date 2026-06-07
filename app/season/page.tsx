@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
@@ -424,12 +425,10 @@ export default async function SeasonPage() {
             <div className="-mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-2">
               {races.map((race) => {
                 const done = isRaceDone(race);
+                const circuitId = race.Circuit?.circuitId?.trim();
                 const circuitSrc = circuitIconSrc(race.Circuit?.circuitId);
-                return (
-                  <div
-                    key={String(race.round ?? race.raceName)}
-                    className="anthology-card flex w-[220px] shrink-0 snap-start flex-col justify-between gap-4 p-4"
-                  >
+                const cardInner = (
+                  <>
                     {circuitSrc ? (
                       <SafeImage
                         src={circuitSrc}
@@ -464,6 +463,25 @@ export default async function SeasonPage() {
                     <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
                       {race.date ?? '—'}
                     </span>
+                  </>
+                );
+
+                const cardClass =
+                  'anthology-card flex w-[220px] shrink-0 snap-start flex-col justify-between gap-4 p-4';
+                const key = String(race.round ?? race.raceName);
+
+                // Clickable only when we have a circuitId that maps to a detail page.
+                return circuitId ? (
+                  <Link
+                    key={key}
+                    href={`/circuits/${circuitId}`}
+                    className={`${cardClass} transition-opacity hover:opacity-80`}
+                  >
+                    {cardInner}
+                  </Link>
+                ) : (
+                  <div key={key} className={cardClass}>
+                    {cardInner}
                   </div>
                 );
               })}

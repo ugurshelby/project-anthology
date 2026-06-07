@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { BackButton } from '@/components/ui/BackButton';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
-import { getCircuitDetail, getCircuitIdsForSitemap } from '@/lib/data/circuits';
+import { getCircuitDetail, getCircuitIdsForSitemap, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 
 interface PageProps {
@@ -42,6 +42,9 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
   const facts = getCircuitFacts(id);
 
+  // Live local weather (Open-Meteo, server-side). Null → panel hidden.
+  const weather = await getCircuitWeather(facts?.lat, facts?.lon);
+
   // Prefer seeded editorial data, fall back to the curated facts module.
   const lengthKm = circuit.editorial.lapLengthKm ?? facts?.lengthKm?.toString() ?? null;
   const drsZones = circuit.editorial.drsZones ?? facts?.drsZones?.toString() ?? null;
@@ -64,13 +67,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
   return (
     <div className="content-wrap py-section-gap">
-      <Link
-        href="/circuits"
-        className="font-condensed text-[10px] uppercase tracking-[0.12em]"
-        style={{ color: 'var(--accent)' }}
-      >
-        ← All Circuits
-      </Link>
+      <BackButton fallbackHref="/circuits" label="All Circuits" />
 
       <header className="mt-6">
         <p
@@ -126,6 +123,57 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </p>
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {weather ? (
+        <div className="anthology-card mt-6 flex flex-wrap items-center gap-x-8 gap-y-3 p-5">
+          <div>
+            <p
+              className="font-mono text-[9px] uppercase tracking-[0.15em]"
+              style={{ color: 'rgba(255,24,1,0.7)' }}
+            >
+              Trackside Now · {weather.isDay ? 'Day' : 'Night'}
+            </p>
+            <p
+              className="mt-1 font-display text-2xl tracking-[0.04em]"
+              style={{ color: 'var(--paper)' }}
+            >
+              {weather.temperatureC}°C · {weather.summary}
+            </p>
+          </div>
+          {weather.apparentC !== null ? (
+            <div>
+              <p
+                className="font-mono text-[9px] uppercase tracking-[0.15em]"
+                style={{ color: 'var(--muted)' }}
+              >
+                Feels Like
+              </p>
+              <p
+                className="mt-1 font-display text-xl tracking-[0.04em]"
+                style={{ color: 'var(--paper)' }}
+              >
+                {weather.apparentC}°C
+              </p>
+            </div>
+          ) : null}
+          {weather.windKmh !== null ? (
+            <div>
+              <p
+                className="font-mono text-[9px] uppercase tracking-[0.15em]"
+                style={{ color: 'var(--muted)' }}
+              >
+                Wind
+              </p>
+              <p
+                className="mt-1 font-display text-xl tracking-[0.04em]"
+                style={{ color: 'var(--paper)' }}
+              >
+                {weather.windKmh} km/h
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

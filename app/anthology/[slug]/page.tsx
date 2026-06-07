@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { BackButton } from '@/components/ui/BackButton';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { GlossaryLink } from '@/components/GlossaryLink';
 import { getStoryBySlug, getStorySlugs, type Story } from '@/lib/data/stories';
@@ -162,13 +162,7 @@ export default async function StoryDetailPage({ params }: PageProps) {
         </div>
 
         <div className="story-prose mx-auto mt-10 border-t pt-6" style={{ borderColor: 'var(--border)' }}>
-          <Link
-            href="/anthology"
-            className="font-condensed text-[11px] uppercase tracking-[0.12em]"
-            style={{ color: 'var(--accent)' }}
-          >
-            ← All stories
-          </Link>
+          <BackButton fallbackHref="/anthology" label="All stories" />
         </div>
       </div>
     </article>
