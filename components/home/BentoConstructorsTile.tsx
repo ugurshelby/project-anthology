@@ -32,9 +32,9 @@ export function BentoConstructorsTile({ constructors }: BentoConstructorsTilePro
   }
 
   return (
-    <Link href="/season" className="bento-panel flex min-h-[140px] flex-col p-3 lg:p-6">
+    <Link href="/season" className="bento-panel flex min-h-[140px] flex-col p-3 lg:min-h-[220px] lg:p-6">
       <span
-        className="mb-3 block font-condensed text-[9px] uppercase tracking-[0.2em] lg:mb-4 lg:text-[11px]"
+        className="mb-3 block shrink-0 font-condensed text-[9px] uppercase tracking-[0.2em] lg:mb-4 lg:text-[11px]"
         style={{ color: 'var(--muted)' }}
       >
         Constructors Ranking
@@ -74,22 +74,26 @@ export function BentoConstructorsTile({ constructors }: BentoConstructorsTilePro
         })}
       </div>
 
-      {/* Desktop: vertical bar chart */}
-      <div className="hidden h-32 items-end justify-between gap-2 lg:flex">
+      {/* Desktop: vertical bar chart — bars grow upward from bottom, title stays clear */}
+      <div className="hidden min-h-[100px] flex-1 items-end justify-between gap-3 lg:flex">
         {top.map((row) => {
           const color = resolveTeamUiColor(null, row.constructorName);
-          const pct = maxPts > 0 ? Math.max(20, (Number(row.points) / maxPts) * 100) : 20;
+          const pts = Number(row.points) || 0;
+          const barPx =
+            maxPts > 0 ? Math.max(16, Math.round((pts / maxPts) * 72)) : 16;
           return (
-            <div key={row.constructorName} className="flex w-full flex-col items-center gap-2">
-              <span className="font-mono text-xs" style={{ color: 'var(--paper)' }}>
+            <div
+              key={row.constructorName}
+              className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
+            >
+              <span className="font-mono text-xs leading-none" style={{ color: 'var(--paper)' }}>
                 {row.points}
               </span>
               <div
                 className="w-full"
                 style={{
-                  height: `${Math.round((pct / 100) * 128)}px`,
+                  height: `${barPx}px`,
                   backgroundColor: color,
-                  minHeight: '24px',
                 }}
               />
               <span
