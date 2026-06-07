@@ -1,0 +1,30 @@
+name: sync-f1 race-aware
+
+# Hourly check: if a qualifying / sprint / race-results / standings window
+# fell due in the last ~65 minutes, trigger production sync-f1?scope=live.
+# Complements the daily Vercel cron (scope=season baseline at 07:00 UTC).
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Race-calendar sync check
+        env:
+          CRON_SECRET_KEY: ${{ secrets.CRON_SECRET_KEY }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: npx tsx scripts/sync-f1-scheduled.ts
