@@ -2,22 +2,15 @@
  * Cron: sync-f1 (Masterplan Karar B + E)
  *
  * Syncs current-season F1 data from Jolpica into f1_snapshots.
- * - Auth: Authorization: Bearer ${CRON_SECRET_KEY}  (Vercel Cron sends this automatically)
- * - Scope: current season only (F1DB handles historical; never Jolpica for past years)
- * - scope=live  → only rounds done in the last 7 days (race-weekend fast path)
- * - scope=season (default) → full season: calendar + standings + all finished rounds
- * - isRaceWeekend short-circuit: if scope not forced, defaults to 'live' during a race weekend
+ * - Auth: Authorization: Bearer ${CRON_SECRET_KEY}
+ * - scope=live   → race-calendar windows (quali / sprint / results) for active rounds
+ * - scope=season → full season backfill (all rounds past results sync window)
  *
  * Response shape: { source, scope, season, upserted, skipped, errors, durationMs }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  CURRENT_SEASON,
-  isRaceWeekend,
-  isRaceDone,
-  type CalendarRace,
-} from '@/lib/f1Calendar';
+import { CURRENT_SEASON, isRaceWeekend, type CalendarRace } from '@/lib/f1Calendar';
 import {
   fetchCalendar,
   fetchDriverStandings,
@@ -37,6 +30,13 @@ import {
   ingestRoundSnapshot,
   type IngestStats,
 } from '@/lib/f1Ingest';
+import {
+  isRoundInLiveScope,
+  shouldFetchQualifying,
+  shouldFetchResults,
+  shouldFetchSprint,
+  shouldFetchStandings,
+} from '@/lib/f1/syncSchedule';
 import type { Json } from '@/types/database';
 
 export const runtime = 'nodejs';
@@ -74,57 +74,69 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const onRaceWeekend = isRaceWeekend(races);
     const scope: 'live' | 'season' = forcedScope ?? (onRaceWeekend ? 'live' : 'season');
 
-    // 3) Upsert calendar
+    const now = new Date();
+
+    // 3) Upsert calendar (always — picks up postponements)
     if (hasRaces(calendarData)) {
       await ingestSeasonSnapshot(CURRENT_SEASON, 'calendar', calendarData as unknown as Json, 'jolpica', stats);
     }
 
-    // 4) Driver + constructor standings
-    const driverSt = await fetchDriverStandings(CURRENT_SEASON);
-    if (hasDriverStandings(driverSt)) {
-      await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_drivers', driverSt as unknown as Json, 'jolpica', stats);
-    }
-
-    const constrSt = await fetchConstructorStandings(CURRENT_SEASON);
-    if (hasConstructorStandings(constrSt)) {
-      await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_constructors', constrSt as unknown as Json, 'jolpica', stats);
-    }
-
-    // 5) Per-round data
-    const now = new Date();
-    const cutoff = scope === 'live' ? new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) : null;
-
-    for (const race of races) {
-      if (!isRaceDone(race, now)) continue;
-
-      // live scope: only rounds whose race date is within the last 7 days
-      if (cutoff && race.date) {
-        const raceDate = new Date(`${race.date}T23:59:59Z`);
-        if (raceDate < cutoff) {
-          stats.skipped++;
-          continue;
-        }
+    // 4) Standings — refresh when any race results window has passed
+    const refreshStandings = scope === 'season' || shouldFetchStandings(races, now);
+    if (refreshStandings) {
+      const driverSt = await fetchDriverStandings(CURRENT_SEASON);
+      if (hasDriverStandings(driverSt)) {
+        await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_drivers', driverSt as unknown as Json, 'jolpica', stats);
       }
 
+      const constrSt = await fetchConstructorStandings(CURRENT_SEASON);
+      if (hasConstructorStandings(constrSt)) {
+        await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_constructors', constrSt as unknown as Json, 'jolpica', stats);
+      }
+    }
+
+    // 5) Per-round data — race-calendar-aware session fetches
+    for (const race of races) {
       const round = Number(race.round);
       if (!round) continue;
 
-      // Results
-      const results = await fetchResults(CURRENT_SEASON, round);
-      if (hasResults(results)) {
-        await ingestRoundSnapshot(CURRENT_SEASON, round, 'results', results as unknown as Json, 'jolpica', stats);
+      const fetchQuali = shouldFetchQualifying(race, now);
+      const fetchSprintData = shouldFetchSprint(race, now);
+      const fetchRaceResults = shouldFetchResults(race, now);
+
+      const inScope =
+        scope === 'live'
+          ? isRoundInLiveScope(race, now)
+          : fetchQuali || fetchSprintData || fetchRaceResults;
+
+      if (!inScope) {
+        stats.skipped++;
+        continue;
       }
 
-      // Qualifying
-      const qual = await fetchQualifying(CURRENT_SEASON, round);
-      if (hasQualifyingResults(qual)) {
-        await ingestRoundSnapshot(CURRENT_SEASON, round, 'qualifying', qual as unknown as Json, 'jolpica', stats);
+      if (fetchQuali) {
+        const qual = await fetchQualifying(CURRENT_SEASON, round);
+        if (hasQualifyingResults(qual)) {
+          await ingestRoundSnapshot(CURRENT_SEASON, round, 'qualifying', qual as unknown as Json, 'jolpica', stats);
+        }
       }
 
-      // Sprint (optional — skip if no sprint data)
-      const sprint = await fetchSprint(CURRENT_SEASON, round);
-      if (hasSprintResults(sprint)) {
-        await ingestRoundSnapshot(CURRENT_SEASON, round, 'sprint', sprint as unknown as Json, 'jolpica', stats);
+      if (fetchSprintData) {
+        const sprint = await fetchSprint(CURRENT_SEASON, round);
+        if (hasSprintResults(sprint)) {
+          await ingestRoundSnapshot(CURRENT_SEASON, round, 'sprint', sprint as unknown as Json, 'jolpica', stats);
+        }
+      }
+
+      if (fetchRaceResults) {
+        const results = await fetchResults(CURRENT_SEASON, round);
+        if (hasResults(results)) {
+          await ingestRoundSnapshot(CURRENT_SEASON, round, 'results', results as unknown as Json, 'jolpica', stats);
+        }
+      }
+
+      if (!fetchQuali && !fetchSprintData && !fetchRaceResults) {
+        stats.skipped++;
       }
     }
 

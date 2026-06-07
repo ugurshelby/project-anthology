@@ -30,12 +30,36 @@ export interface CalendarCircuit {
   };
 }
 
+/** Ergast/Jolpica session slot (practice, qualifying, sprint, race). */
+export interface SessionSlot {
+  date?: string; // YYYY-MM-DD
+  time?: string; // HH:mm:ssZ
+}
+
 export interface CalendarRace {
   round?: string | number;
   date?: string; // YYYY-MM-DD
-  time?: string; // HH:mm:ssZ
+  time?: string; // HH:mm:ssZ — race green-light start (Ergast convention)
   raceName?: string;
   Circuit?: CalendarCircuit;
+  Qualifying?: SessionSlot;
+  Sprint?: SessionSlot;
+}
+
+/** UTC epoch ms for a session start, or null when the slot is unusable. */
+export function sessionStartMs(slot: SessionSlot | undefined): number | null {
+  if (!slot?.date) return null;
+  const iso = slot.time ? `${slot.date}T${slot.time}` : `${slot.date}T12:00:00Z`;
+  const t = Date.parse(iso);
+  return Number.isFinite(t) ? t : null;
+}
+
+/** Race green-light start (Ergast `date` + `time`). */
+export function raceStartMs(race: CalendarRace): number | null {
+  if (!race?.date) return null;
+  const iso = race.time ? `${race.date}T${race.time}` : `${race.date}T12:00:00Z`;
+  const t = Date.parse(iso);
+  return Number.isFinite(t) ? t : null;
 }
 
 export interface F1Context {
@@ -51,12 +75,10 @@ export interface F1Context {
   lastFinishedRace: CalendarRace | null;
 }
 
-/** Parse a race's end instant. Falls back to end-of-day UTC when time is absent. */
+/** @deprecated Ergast `time` is race start, not end — prefer `raceStartMs` + buffers in syncSchedule. */
 function raceEnd(race: CalendarRace): number {
-  const d = race?.date;
-  if (!d) return NaN;
-  const iso = race.time ? `${d}T${race.time}` : `${d}T23:59:59Z`;
-  return new Date(iso).getTime();
+  const start = raceStartMs(race);
+  return start ?? NaN;
 }
 
 /**
@@ -74,19 +96,25 @@ export function isRaceDone(race: CalendarRace, now: Date = new Date()): boolean 
  * `now` (covers practice Fri → race Sun). Requires a calendar; without one we
  * conservatively return false.
  */
+const RACE_WEEKEND_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
+
+/** True when `now` is within ±2 days of this race's scheduled date. */
+export function isRoundWeekend(
+  race: CalendarRace,
+  now: Date = new Date(),
+): boolean {
+  if (!race.date) return false;
+  const dayStart = new Date(`${race.date}T00:00:00Z`).getTime();
+  if (Number.isNaN(dayStart)) return false;
+  return Math.abs(dayStart - now.getTime()) <= RACE_WEEKEND_WINDOW_MS;
+}
+
 export function isRaceWeekend(
   races: CalendarRace[] | null | undefined,
   now: Date = new Date(),
 ): boolean {
   if (!races?.length) return false;
-  const t = now.getTime();
-  const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
-  return races.some((r) => {
-    if (!r.date) return false;
-    const start = new Date(`${r.date}T00:00:00Z`).getTime();
-    if (Number.isNaN(start)) return false;
-    return Math.abs(start - t) <= TWO_DAYS;
-  });
+  return races.some((r) => isRoundWeekend(r, now));
 }
 
 /** Next not-yet-finished race (earliest by round) from a calendar. */

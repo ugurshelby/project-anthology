@@ -81,18 +81,44 @@ export async function upsertF1Snapshot(
   source: SnapshotSource,
 ): Promise<void> {
   const db = getSupabaseAdmin();
+  const row = {
+    season,
+    round: round ?? null,
+    type,
+    data,
+    source,
+    fetched_at: new Date().toISOString(),
+  };
+
+  // Season-level rows (round IS NULL): Postgres UNIQUE(season,round,type) treats
+  // each NULL as distinct, so plain upsert can INSERT duplicates and hit the
+  // partial unique index idx_f1_snapshots_season_type_no_round. Update-first instead.
+  if (round === null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: updated, error: updateError } = await (db.from('f1_snapshots') as any)
+      .update({ data: row.data, source: row.source, fetched_at: row.fetched_at })
+      .eq('season', season)
+      .is('round', null)
+      .eq('type', type)
+      .select('id');
+
+    if (updateError) {
+      throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${updateError.message}`);
+    }
+    if (updated?.length) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: insertError } = await (db.from('f1_snapshots') as any).insert(row);
+    if (insertError) {
+      throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${insertError.message}`);
+    }
+    return;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (db.from('f1_snapshots') as any).upsert(
-    {
-      season,
-      round: round ?? null,
-      type,
-      data,
-      source,
-      fetched_at: new Date().toISOString(),
-    },
-    { onConflict: 'season,round,type' },
-  );
+  const { error } = await (db.from('f1_snapshots') as any).upsert(row, {
+    onConflict: 'season,round,type',
+  });
   if (error) {
     throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${error.message}`);
   }
