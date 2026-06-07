@@ -49,9 +49,9 @@ export function SiteNav() {
           ))}
         </nav>
 
-        <Link href="/" className="brand" aria-label="Project Anthology home">
+        <Link href="/" className="brand" aria-label="Home">
           <span className="brand-top">FORMULA 1</span>
-          <span className="brand-main">ANTHOLOGY</span>
+          <span className="brand-main">HOME</span>
         </Link>
 
         <nav className="nav-links nav-links-right" aria-label="Primary">
