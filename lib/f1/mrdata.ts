@@ -167,12 +167,29 @@ export function getQualifyingPole(data: MrData | null): PoleInfo | null {
   };
 }
 
-export function formatRaceCountdown(targetMs: number, nowMs: number): string {
+export interface CountdownParts {
+  days: number;
+  hours: number;
+  mins: number;
+  secs: number;
+  expired: boolean;
+}
+
+export function getCountdownParts(targetMs: number, nowMs: number): CountdownParts {
   const diff = targetMs - nowMs;
-  if (!Number.isFinite(diff) || diff <= 0) return 'Race underway or finished';
+  if (!Number.isFinite(diff) || diff <= 0) {
+    return { days: 0, hours: 0, mins: 0, secs: 0, expired: true };
+  }
   const days = Math.floor(diff / (24 * 60 * 60 * 1000));
   const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
   const mins = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  const secs = Math.floor((diff % (60 * 1000)) / 1000);
+  return { days, hours, mins, secs, expired: false };
+}
+
+export function formatRaceCountdown(targetMs: number, nowMs: number): string {
+  const { days, hours, mins, expired } = getCountdownParts(targetMs, nowMs);
+  if (expired) return 'Race underway or finished';
   if (days > 0) return `${days}d ${hours}h ${mins}m`;
   if (hours > 0) return `${hours}h ${mins}m`;
   return `${mins}m`;

@@ -377,6 +377,30 @@ body {
 }
 
 /* ── Cards ─────────────────────────────────────────────────────────────── */
+/* ── Bento dashboard (homepage) ───────────────────────────────────────── */
+.bento-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-panel-accent {
+  border-left: 3px solid var(--accent);
+}
+
+.bento-panel:hover {
+  border-left-width: 3px;
+}
+
+.bento-dashboard .custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bento-dashboard .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--accent);
+}
+
 .anthology-card {
   background: var(--card);
   border-left: 3px solid var(--accent);
