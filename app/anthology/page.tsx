@@ -6,6 +6,10 @@ import { getPublishedStories } from '@/lib/data/stories';
 import { RadioMomentCard } from './_components/RadioMomentCard';
 import { StoryCard } from './_components/StoryCard';
 
+// ISR: stories + radio_moments are seeded/synced server-side; 15-min revalidate
+// surfaces new published content without rebuilding the whole page each request.
+export const revalidate = 900;
+
 export const metadata: Metadata = {
   title: 'Anthology',
   description:

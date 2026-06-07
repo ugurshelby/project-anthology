@@ -8,7 +8,6 @@ interface BentoLastRaceTileProps {
 function driverShort(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 0) return '—';
-  const code = parts.map((p) => p[0]).join('').toUpperCase();
   if (parts.length === 1) return parts[0].slice(0, 3).toUpperCase();
   return `${parts[0][0]}${parts[parts.length - 1].slice(0, 2)}`.toUpperCase();
 }

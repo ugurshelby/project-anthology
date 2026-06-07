@@ -14,6 +14,10 @@ import { CURRENT_SEASON, isRaceDone, getLastFinishedRace } from '@/lib/f1Calenda
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { circuitIconSrc, driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 
+// ISR: cron updates f1_snapshots daily; 15-min revalidate keeps the page fresh
+// after a sync without forcing fully-dynamic rendering on every request.
+export const revalidate = 900;
+
 const TITLE = 'Season';
 const DESCRIPTION = `Live ${CURRENT_SEASON} Formula 1 season: driver and constructor standings, full race calendar, and the latest race recap — powered by snapshot data.`;
 
