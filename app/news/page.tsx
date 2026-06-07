@@ -84,7 +84,7 @@ export default async function NewsPage() {
                     }}
                   />
                   <h2
-                    className="absolute bottom-3 left-3 right-3 font-display text-[1.3rem] leading-tight tracking-[0.04em]"
+                    className="absolute bottom-3 left-3 right-3 line-clamp-3 font-display text-[1.3rem] leading-tight tracking-[0.04em]"
                     style={{ color: 'var(--paper)' }}
                   >
                     {item.title}
