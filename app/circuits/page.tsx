@@ -10,6 +10,10 @@ import {
 } from '@/lib/data/circuits';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
+// ISR: circuit cards derive from the f1_snapshots calendar, which the cron
+// refreshes daily; 15-min revalidate keeps it fresh without full dynamic rendering.
+export const revalidate = 900;
+
 const TITLE = 'Circuits';
 const DESCRIPTION =
   'Track maps of the Formula 1 calendar — every circuit rendered as a clean vector layout.';
