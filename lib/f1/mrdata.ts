@@ -376,6 +376,39 @@ export function getDriverSeasonRecords(
   return records.slice(0, 3);
 }
 
+export interface DriverRoundStats {
+  wins: number;
+  podiums: number;
+}
+
+/** Per-driver win and podium counts from all finished-round results. */
+export function getPerDriverRoundStats(
+  allRoundResults: MrData[],
+): Record<string, DriverRoundStats> {
+  const wins = new Map<string, number>();
+  const podiums = new Map<string, number>();
+
+  for (const snapshot of allRoundResults) {
+    for (const row of extractRoundResults(snapshot)) {
+      if (!row.driverName) continue;
+      const pos = Number(row.position);
+      if (pos === 1) {
+        wins.set(row.driverName, (wins.get(row.driverName) ?? 0) + 1);
+      }
+      if (pos >= 1 && pos <= 3) {
+        podiums.set(row.driverName, (podiums.get(row.driverName) ?? 0) + 1);
+      }
+    }
+  }
+
+  const names = new Set([...wins.keys(), ...podiums.keys()]);
+  const result: Record<string, DriverRoundStats> = {};
+  for (const name of names) {
+    result[name] = { wins: wins.get(name) ?? 0, podiums: podiums.get(name) ?? 0 };
+  }
+  return result;
+}
+
 /** Constructor season records from standings + all finished-round results. */
 export function getConstructorSeasonRecords(
   constructorStandings: ConstructorStandingRow[],

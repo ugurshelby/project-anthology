@@ -33,6 +33,8 @@ import {
   getConstructorStandings,
   getDriverSeasonRecords,
   getDriverStandings,
+  getPerDriverRoundStats,
+  type DriverRoundStats,
   getLastRaceResult,
   getQualifyingPole,
   getRaceWinner,
@@ -321,6 +323,8 @@ export interface SeasonData {
   constructorRecords: ConstructorSeasonRecord[];
   /** Race card key (`round` or `raceName`) closest to today for calendar centering. */
   nearestRaceKey: string | null;
+  /** Per-driver wins/podiums from finished rounds (keyed by driver name). */
+  driverStats: Record<string, DriverRoundStats>;
 }
 
 function nearestRaceKeyFromCalendar(races: CalendarRace[], nowMs: number): string | null {
@@ -377,6 +381,7 @@ export async function getSeasonData(year: number): Promise<SeasonData> {
     driverRecords: getDriverSeasonRecords(standings, roundData),
     constructorRecords: getConstructorSeasonRecords(constructors, roundData),
     nearestRaceKey: nearestRaceKeyFromCalendar(races, Date.now()),
+    driverStats: getPerDriverRoundStats(roundData),
   };
 }
 
