@@ -276,6 +276,165 @@ export interface CircuitWinnerEntry {
   constructorName: string;
 }
 
+export interface SeasonRecord {
+  label: string;
+  holderName: string;
+  value: string;
+  teamName?: string;
+}
+
+export type DriverSeasonRecord = SeasonRecord;
+export type ConstructorSeasonRecord = SeasonRecord;
+
+function extractRoundResults(data: MrData | null): Array<{
+  position: string;
+  driverName: string;
+  constructorName: string;
+}> {
+  const race = firstRace(data);
+  if (!race) return [];
+  const results =
+    (race.Results as
+      | Array<{
+          position?: string;
+          Driver?: { givenName?: string; familyName?: string };
+          Constructor?: { name?: string };
+        }>
+      | undefined) ?? [];
+  return results.map((r) => ({
+    position: r.position ?? '',
+    driverName: `${r.Driver?.givenName ?? ''} ${r.Driver?.familyName ?? ''}`.trim(),
+    constructorName: r.Constructor?.name ?? '',
+  }));
+}
+
+/** Driver season records from standings + all finished-round results. */
+export function getDriverSeasonRecords(
+  driverStandings: DriverStandingRow[],
+  allRoundResults: MrData[],
+): DriverSeasonRecord[] {
+  const records: DriverSeasonRecord[] = [];
+
+  const leader = driverStandings[0];
+  if (leader) {
+    records.push({
+      label: 'Most Points',
+      holderName: leader.driverName,
+      value: leader.points,
+      teamName: leader.constructorName,
+    });
+  }
+
+  const wins = new Map<string, { name: string; team: string; count: number }>();
+  const podiums = new Map<string, { name: string; team: string; count: number }>();
+
+  for (const snapshot of allRoundResults) {
+    for (const row of extractRoundResults(snapshot)) {
+      if (!row.driverName) continue;
+      const pos = Number(row.position);
+      if (pos === 1) {
+        const cur = wins.get(row.driverName) ?? {
+          name: row.driverName,
+          team: row.constructorName,
+          count: 0,
+        };
+        cur.count++;
+        wins.set(row.driverName, cur);
+      }
+      if (pos >= 1 && pos <= 3) {
+        const cur = podiums.get(row.driverName) ?? {
+          name: row.driverName,
+          team: row.constructorName,
+          count: 0,
+        };
+        cur.count++;
+        podiums.set(row.driverName, cur);
+      }
+    }
+  }
+
+  const topWinner = [...wins.values()].sort((a, b) => b.count - a.count)[0];
+  if (topWinner && topWinner.count > 0) {
+    records.push({
+      label: 'Most Wins',
+      holderName: topWinner.name,
+      value: String(topWinner.count),
+      teamName: topWinner.team,
+    });
+  }
+
+  const topPodium = [...podiums.values()].sort((a, b) => b.count - a.count)[0];
+  if (topPodium && topPodium.count > 0) {
+    records.push({
+      label: 'Most Podiums',
+      holderName: topPodium.name,
+      value: String(topPodium.count),
+      teamName: topPodium.team,
+    });
+  }
+
+  return records.slice(0, 3);
+}
+
+/** Constructor season records from standings + all finished-round results. */
+export function getConstructorSeasonRecords(
+  constructorStandings: ConstructorStandingRow[],
+  allRoundResults: MrData[],
+): ConstructorSeasonRecord[] {
+  const records: ConstructorSeasonRecord[] = [];
+
+  const leader = constructorStandings[0];
+  if (leader) {
+    records.push({
+      label: 'Most Points',
+      holderName: leader.constructorName,
+      value: leader.points,
+    });
+  }
+
+  const oneTwoFinishes = new Map<string, number>();
+  const winCounts = new Map<string, number>();
+
+  for (const snapshot of allRoundResults) {
+    const results = extractRoundResults(snapshot);
+    const p1 = results.find((r) => r.position === '1');
+    const p2 = results.find((r) => r.position === '2');
+    if (
+      p1?.constructorName &&
+      p2?.constructorName &&
+      p1.constructorName === p2.constructorName
+    ) {
+      oneTwoFinishes.set(
+        p1.constructorName,
+        (oneTwoFinishes.get(p1.constructorName) ?? 0) + 1,
+      );
+    }
+    if (p1?.constructorName) {
+      winCounts.set(p1.constructorName, (winCounts.get(p1.constructorName) ?? 0) + 1);
+    }
+  }
+
+  const topOneTwo = [...oneTwoFinishes.entries()].sort((a, b) => b[1] - a[1])[0];
+  if (topOneTwo && topOneTwo[1] > 0) {
+    records.push({
+      label: 'Most 1-2 Finishes',
+      holderName: topOneTwo[0],
+      value: String(topOneTwo[1]),
+    });
+  }
+
+  const topWins = [...winCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+  if (topWins && topWins[1] > 0) {
+    records.push({
+      label: 'Most Wins',
+      holderName: topWins[0],
+      value: String(topWins[1]),
+    });
+  }
+
+  return records.slice(0, 3);
+}
+
 /** Collect unique circuit IDs from a calendar race list. */
 export function getCircuitIdsFromRaces(races: CalendarRace[]): string[] {
   const seen = new Set<string>();

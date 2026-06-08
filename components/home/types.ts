@@ -1,3 +1,4 @@
+import type { OnThisDayEntry } from '@/lib/data/f1';
 import type { NewsItem } from '@/lib/data/types';
 import type {
   ConstructorStandingRow,
@@ -24,6 +25,7 @@ export interface CompactBentoDashboardProps {
   nextPanel: BentoRacePanel | null;
   afterNextPanel: BentoRacePanel | null;
   news: NewsItem[];
+  onThisDay: OnThisDayEntry[];
   renderNowMs: number;
   totalRounds: number;
   currentRound: number;
