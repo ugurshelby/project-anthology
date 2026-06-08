@@ -1,12 +1,17 @@
 name: sync-f1 race-aware
 
-# Hourly check: if a qualifying / sprint / race-results / standings window
-# fell due in the last ~65 minutes, trigger production sync-f1?scope=live.
-# Complements the daily Vercel cron (scope=season baseline at 07:00 UTC).
+# Manual-only. The hourly `schedule` trigger was disabled because it requires the
+# repo secret `CRON_SECRET_KEY` (and var `SITE_URL`), which are not set — every
+# scheduled run failed. The daily Vercel cron (vercel.json:
+# /api/cron/sync-f1?scope=season at 07:00 UTC) covers the baseline sync, and the
+# season page now reads live Jolpica per-request when the DB snapshot is stale.
+#
+# To re-enable the race-aware hourly sync: set repo secret CRON_SECRET_KEY and
+# var SITE_URL, then restore the `schedule:` block below:
+#   schedule:
+#     - cron: '0 * * * *'  # every hour on the hour (UTC)
 
 on:
-  schedule:
-    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:

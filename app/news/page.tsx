@@ -3,7 +3,8 @@ import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
 import { NewsFeaturedHero } from '@/components/ui/NewsFeaturedHero';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
-import { getFeaturedNews, getLatestNews } from '@/lib/data/news';
+import { hasRealImage } from '@/lib/data/news';
+import { aggregate } from '@/lib/news/aggregate';
 
 const TITLE = 'News';
 const DESCRIPTION =
@@ -22,13 +23,15 @@ export const metadata: Metadata = {
   alternates: { canonical: '/news' },
 };
 
-// Always read the freshest news_cache rows (cron updates the DB; a static
-// prerender would otherwise freeze headlines at build time).
+// Pull live RSS on every request (aggregate() has its own 15-min in-memory
+// cache, so this won't flood the sources). A static prerender would otherwise
+// freeze headlines at build time.
 export const revalidate = 0;
 
 export default async function NewsPage() {
-  const [news, featured] = await Promise.all([getLatestNews(24), getFeaturedNews()]);
-  // Drop the featured story from the grid so it isn't shown twice.
+  const news = await aggregate({ maxItems: 100 });
+  // Featured = newest item with a real (non-placeholder) image; rest = the grid.
+  const featured = news.find(hasRealImage) ?? news[0] ?? null;
   const rest = featured ? news.filter((item) => item.id !== featured.id) : news;
 
   return (

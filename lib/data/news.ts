@@ -85,7 +85,7 @@ function sortNews(items: NewsItem[]): NewsItem[] {
 }
 
 /** Does this item have a real (non-placeholder) image usable as a hero background? */
-function hasRealImage(item: NewsItem): boolean {
+export function hasRealImage(item: { image: string }): boolean {
   return Boolean(item.image) && item.image !== '/placeholder.svg';
 }
 

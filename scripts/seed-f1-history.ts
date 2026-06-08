@@ -23,6 +23,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 import {
   loadF1Db,
+  getF1DbLookups,
   toMRDataCalendar,
   toMRDataResults,
   toMRDataQualifying,
@@ -87,9 +88,12 @@ async function main(): Promise<void> {
 
   console.log('Loading F1DB JSON from GitHub…');
   const db = await loadF1Db();
+  const lk = getF1DbLookups(db);
   const races = db.races ?? [];
   const seasons = db.seasons ?? [];
-  console.log(`  ${races.length} races, ${seasons.length} season records loaded.\n`);
+  console.log(
+    `  ${races.length} races, ${seasons.length} season records, ${lk.drivers.size} drivers, ${lk.constructors.size} constructors loaded.\n`,
+  );
 
   for (let season = from; season <= to; season++) {
     const seasonRaces = races.filter((r) => r.year === season);
@@ -102,10 +106,10 @@ async function main(): Promise<void> {
     await upsert(season, null, 'calendar', calData as unknown as Json, dryRun, stats);
 
     if (seasonRecord) {
-      const drvSt = toMRDataDriverStandings(season, seasonRecord);
+      const drvSt = toMRDataDriverStandings(season, seasonRecord, lk);
       await upsert(season, null, 'standings_drivers', drvSt as unknown as Json, dryRun, stats);
 
-      const conSt = toMRDataConstructorStandings(season, seasonRecord);
+      const conSt = toMRDataConstructorStandings(season, seasonRecord, lk);
       await upsert(season, null, 'standings_constructors', conSt as unknown as Json, dryRun, stats);
     }
 
@@ -114,7 +118,7 @@ async function main(): Promise<void> {
       const tasks: Array<() => Promise<void>> = [];
 
       // Results
-      const resultsData = toMRDataResults(season, race.round, races);
+      const resultsData = toMRDataResults(season, race.round, races, lk);
       const raceArr = (resultsData.MRData as { RaceTable?: { Races?: Array<{ Results?: unknown[] }> } })?.RaceTable?.Races?.[0];
       if (raceArr?.Results && raceArr.Results.length > 0) {
         tasks.push(() =>
@@ -123,7 +127,7 @@ async function main(): Promise<void> {
       }
 
       // Qualifying
-      const qualData = toMRDataQualifying(season, race.round, races);
+      const qualData = toMRDataQualifying(season, race.round, races, lk);
       const qualRace = (qualData.MRData as { RaceTable?: { Races?: Array<{ QualifyingResults?: unknown[] }> } })?.RaceTable?.Races?.[0];
       if (qualRace?.QualifyingResults && qualRace.QualifyingResults.length > 0) {
         tasks.push(() =>
@@ -132,7 +136,7 @@ async function main(): Promise<void> {
       }
 
       // Sprint (only if data present)
-      const sprintData = toMRDataSprint(season, race.round, races);
+      const sprintData = toMRDataSprint(season, race.round, races, lk);
       const sprintRace = (sprintData.MRData as { RaceTable?: { Races?: unknown[] } })?.RaceTable?.Races;
       if (Array.isArray(sprintRace) && sprintRace.length > 0) {
         tasks.push(() =>

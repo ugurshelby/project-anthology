@@ -24,6 +24,9 @@ export interface MRData {
 const RELEASE_API = 'https://api.github.com/repos/f1db/f1db/releases/latest';
 const FETCH_TIMEOUT_MS = 120_000; // 120 s — zip download
 
+// F1DB is fully normalized: result/standing items carry only IDs; driver and
+// constructor names live in top-level `drivers[]` / `constructors[]` lookups.
+
 interface F1DbRace {
   year: number;
   round: number;
@@ -32,41 +35,39 @@ interface F1DbRace {
   time?: string;
   circuitId?: string;
   circuit?: { circuitId?: string; name?: string; country?: string; city?: string };
-  driverResults?: F1DbDriverResult[];
+  raceResults?: F1DbDriverResult[];
   qualifyingResults?: F1DbQualResult[];
-  sprintResults?: F1DbDriverResult[];
+  sprintRaceResults?: F1DbDriverResult[];
 }
 
 interface F1DbDriverResult {
   driverId?: string;
-  position?: number | null;
+  constructorId?: string;
+  positionNumber?: number | null;
+  positionText?: string | null;
   points?: number;
   laps?: number;
-  status?: string;
-  constructor?: { constructorId?: string; name?: string };
-  driver?: { code?: string; givenName?: string; familyName?: string; nationality?: string };
-  fastestLap?: { rank?: number; time?: string };
-  grid?: number;
+  gridPositionNumber?: number | null;
+  reasonRetired?: string | null;
+  fastestLap?: boolean;
 }
 
 interface F1DbQualResult {
   driverId?: string;
-  position?: number | null;
-  q1?: string;
-  q2?: string;
-  q3?: string;
-  driver?: { code?: string; givenName?: string; familyName?: string };
-  constructor?: { constructorId?: string; name?: string };
+  constructorId?: string;
+  positionNumber?: number | null;
+  positionText?: string | null;
+  q1?: string | null;
+  q2?: string | null;
+  q3?: string | null;
 }
 
 interface F1DbStanding {
   driverId?: string;
   constructorId?: string;
-  position?: number;
+  positionNumber?: number | null;
+  positionText?: string | null;
   points?: number;
-  wins?: number;
-  driver?: { code?: string; givenName?: string; familyName?: string; nationality?: string };
-  constructor?: { name?: string; nationality?: string };
 }
 
 interface F1DbSeasonStandings {
@@ -75,14 +76,49 @@ interface F1DbSeasonStandings {
   constructorStandings?: F1DbStanding[];
 }
 
+interface F1DbDriver {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  abbreviation?: string;
+  nationalityCountryId?: string;
+}
+
+interface F1DbConstructor {
+  id?: string;
+  name?: string;
+  fullName?: string;
+}
+
 export interface F1DbData {
   races?: F1DbRace[];
+  drivers?: F1DbDriver[];
+  constructors?: F1DbConstructor[];
   seasons?: Array<{
     year: number;
     rounds?: number;
     driverStandings?: F1DbStanding[];
     constructorStandings?: F1DbStanding[];
   }>;
+}
+
+/** Lookup maps from id → name records, built once per loaded F1DB instance. */
+export interface F1DbLookups {
+  drivers: Map<string, F1DbDriver>;
+  constructors: Map<string, F1DbConstructor>;
+}
+
+let _lookups: F1DbLookups | null = null;
+
+/** Build (and memoize) id→record lookups from the loaded F1DB data. */
+export function getF1DbLookups(db: F1DbData): F1DbLookups {
+  if (_lookups) return _lookups;
+  const drivers = new Map<string, F1DbDriver>();
+  for (const d of db.drivers ?? []) if (d.id) drivers.set(d.id, d);
+  const constructors = new Map<string, F1DbConstructor>();
+  for (const c of db.constructors ?? []) if (c.id) constructors.set(c.id, c);
+  _lookups = { drivers, constructors };
+  return _lookups;
 }
 
 let _cached: F1DbData | null = null;
@@ -135,47 +171,61 @@ export async function loadF1Db(): Promise<F1DbData> {
 /** Clear in-process cache (for testing). */
 export function clearF1DbCache(): void {
   _cached = null;
+  _lookups = null;
 }
 
 // ── Ergast-shape normalizers ──────────────────────────────────────────────────
 
-function driverResultToErgast(r: F1DbDriverResult): Record<string, unknown> {
+/** Ergast-shape Driver block resolved from an id via the lookup map. */
+function ergastDriver(driverId: string | undefined, lk: F1DbLookups): Record<string, unknown> {
+  const d = driverId ? lk.drivers.get(driverId) : undefined;
   return {
-    position: r.position != null ? String(r.position) : null,
-    points: String(r.points ?? 0),
-    Driver: {
-      driverId: r.driverId ?? '',
-      code: r.driver?.code ?? '',
-      givenName: r.driver?.givenName ?? '',
-      familyName: r.driver?.familyName ?? '',
-      nationality: r.driver?.nationality ?? '',
-    },
-    Constructor: {
-      constructorId: r.constructor?.constructorId ?? '',
-      name: r.constructor?.name ?? '',
-    },
-    laps: String(r.laps ?? 0),
-    grid: String(r.grid ?? 0),
-    status: r.status ?? '',
-    FastestLap: r.fastestLap
-      ? { rank: String(r.fastestLap.rank ?? ''), Time: { time: r.fastestLap.time ?? '' } }
-      : undefined,
+    driverId: driverId ?? '',
+    code: d?.abbreviation ?? '',
+    givenName: d?.firstName ?? '',
+    familyName: d?.lastName ?? '',
+    nationality: d?.nationalityCountryId ?? '',
   };
 }
 
-function qualResultToErgast(r: F1DbQualResult): Record<string, unknown> {
+/** Ergast-shape Constructor block resolved from an id via the lookup map. */
+function ergastConstructor(
+  constructorId: string | undefined,
+  lk: F1DbLookups,
+): Record<string, unknown> {
+  const c = constructorId ? lk.constructors.get(constructorId) : undefined;
   return {
-    position: r.position != null ? String(r.position) : null,
-    Driver: {
-      driverId: r.driverId ?? '',
-      code: r.driver?.code ?? '',
-      givenName: r.driver?.givenName ?? '',
-      familyName: r.driver?.familyName ?? '',
-    },
-    Constructor: {
-      constructorId: r.constructor?.constructorId ?? '',
-      name: r.constructor?.name ?? '',
-    },
+    constructorId: constructorId ?? '',
+    name: c?.name ?? c?.fullName ?? '',
+  };
+}
+
+/** A position string Ergast consumers expect ("1", "R", …). */
+function ergastPosition(r: { positionNumber?: number | null; positionText?: string | null }): string | null {
+  if (r.positionNumber != null) return String(r.positionNumber);
+  if (r.positionText) return r.positionText;
+  return null;
+}
+
+function driverResultToErgast(r: F1DbDriverResult, lk: F1DbLookups): Record<string, unknown> {
+  return {
+    position: ergastPosition(r),
+    points: String(r.points ?? 0),
+    Driver: ergastDriver(r.driverId, lk),
+    Constructor: ergastConstructor(r.constructorId, lk),
+    laps: String(r.laps ?? 0),
+    grid: String(r.gridPositionNumber ?? 0),
+    status: r.reasonRetired ?? '',
+    // F1DB exposes the fastest lap only as a boolean flag (no time/rank).
+    FastestLap: r.fastestLap ? { rank: '1' } : undefined,
+  };
+}
+
+function qualResultToErgast(r: F1DbQualResult, lk: F1DbLookups): Record<string, unknown> {
+  return {
+    position: ergastPosition(r),
+    Driver: ergastDriver(r.driverId, lk),
+    Constructor: ergastConstructor(r.constructorId, lk),
     Q1: r.q1 ?? '',
     Q2: r.q2 ?? '',
     Q3: r.q3 ?? '',
@@ -216,7 +266,12 @@ export function toMRDataCalendar(season: number, races: F1DbRace[]): MRData {
 }
 
 /** Build MRData results envelope for a specific season+round. */
-export function toMRDataResults(season: number, round: number, races: F1DbRace[]): MRData {
+export function toMRDataResults(
+  season: number,
+  round: number,
+  races: F1DbRace[],
+  lk: F1DbLookups,
+): MRData {
   const race = races.find((r) => r.year === season && r.round === round);
   const raceArr = race
     ? [
@@ -225,8 +280,8 @@ export function toMRDataResults(season: number, round: number, races: F1DbRace[]
           round: String(round),
           raceName: race.name ?? '',
           date: race.date ?? '',
-          Circuit: { circuitId: race.circuit?.circuitId ?? '' },
-          Results: (race.driverResults ?? []).map(driverResultToErgast),
+          Circuit: { circuitId: race.circuit?.circuitId ?? race.circuitId ?? '' },
+          Results: (race.raceResults ?? []).map((r) => driverResultToErgast(r, lk)),
         },
       ]
     : [];
@@ -238,7 +293,12 @@ export function toMRDataResults(season: number, round: number, races: F1DbRace[]
 }
 
 /** Build MRData qualifying envelope for a specific season+round. */
-export function toMRDataQualifying(season: number, round: number, races: F1DbRace[]): MRData {
+export function toMRDataQualifying(
+  season: number,
+  round: number,
+  races: F1DbRace[],
+  lk: F1DbLookups,
+): MRData {
   const race = races.find((r) => r.year === season && r.round === round);
   const raceArr = race
     ? [
@@ -247,8 +307,8 @@ export function toMRDataQualifying(season: number, round: number, races: F1DbRac
           round: String(round),
           raceName: race.name ?? '',
           date: race.date ?? '',
-          Circuit: { circuitId: race.circuit?.circuitId ?? '' },
-          QualifyingResults: (race.qualifyingResults ?? []).map(qualResultToErgast),
+          Circuit: { circuitId: race.circuit?.circuitId ?? race.circuitId ?? '' },
+          QualifyingResults: (race.qualifyingResults ?? []).map((r) => qualResultToErgast(r, lk)),
         },
       ]
     : [];
@@ -260,9 +320,14 @@ export function toMRDataQualifying(season: number, round: number, races: F1DbRac
 }
 
 /** Build MRData sprint envelope for a specific season+round. */
-export function toMRDataSprint(season: number, round: number, races: F1DbRace[]): MRData {
+export function toMRDataSprint(
+  season: number,
+  round: number,
+  races: F1DbRace[],
+  lk: F1DbLookups,
+): MRData {
   const race = races.find((r) => r.year === season && r.round === round);
-  const sprintResults = race?.sprintResults ?? [];
+  const sprintResults = race?.sprintRaceResults ?? [];
   const raceArr =
     sprintResults.length > 0
       ? [
@@ -270,7 +335,7 @@ export function toMRDataSprint(season: number, round: number, races: F1DbRace[])
             season: String(season),
             round: String(round),
             raceName: race?.name ?? '',
-            SprintResults: sprintResults.map(driverResultToErgast),
+            SprintResults: sprintResults.map((r) => driverResultToErgast(r, lk)),
           },
         ]
       : [];
@@ -282,7 +347,11 @@ export function toMRDataSprint(season: number, round: number, races: F1DbRace[])
 }
 
 /** Build MRData driver standings envelope for a season. */
-export function toMRDataDriverStandings(season: number, standings: F1DbSeasonStandings): MRData {
+export function toMRDataDriverStandings(
+  season: number,
+  standings: F1DbSeasonStandings,
+  lk: F1DbLookups,
+): MRData {
   const list = standings.driverStandings ?? [];
   return {
     MRData: {
@@ -292,22 +361,19 @@ export function toMRDataDriverStandings(season: number, standings: F1DbSeasonSta
           {
             season: String(season),
             round: null,
-            DriverStandings: list.map((s) => ({
-              position: String(s.position ?? ''),
-              positionText: String(s.position ?? ''),
-              points: String(s.points ?? 0),
-              wins: String(s.wins ?? 0),
-              Driver: {
-                driverId: s.driverId ?? '',
-                code: s.driver?.code ?? '',
-                givenName: s.driver?.givenName ?? '',
-                familyName: s.driver?.familyName ?? '',
-                nationality: s.driver?.nationality ?? '',
-              },
-              Constructors: s.constructor
-                ? [{ constructorId: s.constructorId ?? '', name: s.constructor.name ?? '' }]
-                : [],
-            })),
+            DriverStandings: list.map((s) => {
+              const pos = ergastPosition(s) ?? '';
+              return {
+                position: pos,
+                positionText: pos,
+                points: String(s.points ?? 0),
+                wins: '0', // F1DB season standings don't carry a win count.
+                Driver: ergastDriver(s.driverId, lk),
+                Constructors: s.constructorId
+                  ? [ergastConstructor(s.constructorId, lk)]
+                  : [],
+              };
+            }),
           },
         ],
       },
@@ -319,6 +385,7 @@ export function toMRDataDriverStandings(season: number, standings: F1DbSeasonSta
 export function toMRDataConstructorStandings(
   season: number,
   standings: F1DbSeasonStandings,
+  lk: F1DbLookups,
 ): MRData {
   const list = standings.constructorStandings ?? [];
   return {
@@ -329,17 +396,16 @@ export function toMRDataConstructorStandings(
           {
             season: String(season),
             round: null,
-            ConstructorStandings: list.map((s) => ({
-              position: String(s.position ?? ''),
-              positionText: String(s.position ?? ''),
-              points: String(s.points ?? 0),
-              wins: String(s.wins ?? 0),
-              Constructor: {
-                constructorId: s.constructorId ?? '',
-                name: s.constructor?.name ?? '',
-                nationality: s.constructor?.nationality ?? '',
-              },
-            })),
+            ConstructorStandings: list.map((s) => {
+              const pos = ergastPosition(s) ?? '';
+              return {
+                position: pos,
+                positionText: pos,
+                points: String(s.points ?? 0),
+                wins: '0', // F1DB season standings don't carry a win count.
+                Constructor: ergastConstructor(s.constructorId, lk),
+              };
+            }),
           },
         ],
       },
