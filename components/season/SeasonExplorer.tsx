@@ -2,18 +2,69 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type KeyboardEvent } from 'react';
 import { CalendarScroller } from '@/components/season/CalendarScroller';
+import {
+  EntityDrawer,
+  type DriverEntityDetail,
+  type EntityDetail,
+  type TeamEntityDetail,
+} from '@/components/ui/EntityDrawer';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import type { SeasonData } from '@/lib/data/f1';
 import { circuitIconSrc, driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { CURRENT_SEASON, isRaceDone } from '@/lib/f1Calendar';
 import { resolveTeamUiColor } from '@/config/team-colors';
+import type { ConstructorStandingRow, DriverStandingRow } from '@/lib/f1/mrdata';
 
 interface SeasonExplorerProps {
   initialData: SeasonData;
   seasons: number[];
+}
+
+function buildDriverEntity(row: DriverStandingRow, data: SeasonData): DriverEntityDetail {
+  const stats = data.driverStats?.[row.driverName] ?? { wins: 0, podiums: 0 };
+  return {
+    kind: 'driver',
+    seasonYear: data.year,
+    driverName: row.driverName,
+    driverCode: row.driverCode,
+    constructorName: row.constructorName,
+    position: row.position,
+    points: row.points,
+    driverIconSrc: driverIconSrc(row.driverCode, row.driverName),
+    wins: stats.wins,
+    podiums: stats.podiums,
+  };
+}
+
+function buildTeamEntity(c: ConstructorStandingRow, data: SeasonData): TeamEntityDetail {
+  const teamColor = resolveTeamUiColor(null, c.constructorName);
+  const drivers = data.standings
+    .filter((row) => row.constructorName === c.constructorName)
+    .map((row) => ({
+      driverName: row.driverName,
+      driverCode: row.driverCode,
+      position: row.position,
+      points: row.points,
+      driverIconSrc: driverIconSrc(row.driverCode, row.driverName),
+    }));
+  return {
+    kind: 'team',
+    seasonYear: data.year,
+    constructorName: c.constructorName,
+    position: c.position,
+    points: c.points,
+    wins: c.wins,
+    teamIconSrc: teamIconSrc(c.constructorName),
+    teamColor,
+    drivers,
+  };
+}
+
+function entityActivateKey(e: KeyboardEvent) {
+  return e.key === 'Enter' || e.key === ' ';
 }
 
 export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
@@ -22,6 +73,15 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
   const [year, setYear] = useState(initialData.year);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [selectedEntity, setSelectedEntity] = useState<EntityDetail | null>(null);
+
+  const openEntity = useCallback((entity: EntityDetail) => {
+    setSelectedEntity(entity);
+  }, []);
+
+  const closeEntity = useCallback(() => {
+    setSelectedEntity(null);
+  }, []);
 
   const selectSeason = useCallback(
     async (nextYear: number) => {
@@ -76,6 +136,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
 
   return (
     <div className="content-wrap space-y-section-gap">
+      <EntityDrawer entity={selectedEntity} onClose={closeEntity} />
       {/* Season archive pills */}
       <section>
         <div className="flex flex-wrap gap-2">
@@ -134,10 +195,22 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                 return (
                   <li
                     key={row.position + row.driverName}
-                    className="flex items-center gap-3 border border-border px-3 py-3"
+                    role="button"
+                    tabIndex={0}
+                    className="flex cursor-pointer items-center gap-3 border border-border px-3 py-3 transition-colors hover:bg-[rgba(255,255,255,0.03)]"
                     style={{
                       borderLeft: `3px solid ${teamColor}`,
                       backgroundColor: isLeader ? 'rgba(255,24,1,0.06)' : undefined,
+                    }}
+                    onClick={(e) => {
+                      e.currentTarget.focus();
+                      openEntity(buildDriverEntity(row, data));
+                    }}
+                    onKeyDown={(e) => {
+                      if (entityActivateKey(e)) {
+                        e.preventDefault();
+                        openEntity(buildDriverEntity(row, data));
+                      }
                     }}
                   >
                     <span
@@ -205,7 +278,20 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                     return (
                       <tr
                         key={row.position + row.driverName}
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer transition-colors hover:bg-[rgba(255,255,255,0.03)]"
                         style={isLeader ? { backgroundColor: 'rgba(255,24,1,0.06)' } : undefined}
+                        onClick={(e) => {
+                          e.currentTarget.focus();
+                          openEntity(buildDriverEntity(row, data));
+                        }}
+                        onKeyDown={(e) => {
+                          if (entityActivateKey(e)) {
+                            e.preventDefault();
+                            openEntity(buildDriverEntity(row, data));
+                          }
+                        }}
                       >
                         <td
                           className="px-4 py-3"
@@ -270,7 +356,22 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               const pct = maxConstructorPts > 0 ? (Number(c.points) / maxConstructorPts) * 100 : 0;
               const teamSrc = teamIconSrc(c.constructorName);
               return (
-                <li key={c.position + c.constructorName} className="flex items-center gap-4">
+                <li
+                  key={c.position + c.constructorName}
+                  role="button"
+                  tabIndex={0}
+                  className="flex cursor-pointer items-center gap-4 transition-opacity hover:opacity-90"
+                  onClick={(e) => {
+                    e.currentTarget.focus();
+                    openEntity(buildTeamEntity(c, data));
+                  }}
+                  onKeyDown={(e) => {
+                    if (entityActivateKey(e)) {
+                      e.preventDefault();
+                      openEntity(buildTeamEntity(c, data));
+                    }
+                  }}
+                >
                   <span className="w-6 shrink-0 font-mono text-xs" style={{ color: 'var(--muted)' }}>
                     {c.position}
                   </span>
