@@ -401,6 +401,21 @@ body {
   background: var(--accent);
 }
 
+/* Race Calendar horizontal scrollbar — thin, accent thumb on dark track. */
+.race-calendar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #ff1801 #131313;
+}
+.race-calendar-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.race-calendar-scroll::-webkit-scrollbar-thumb {
+  background: #ff1801;
+}
+.race-calendar-scroll::-webkit-scrollbar-track {
+  background: #131313;
+}
+
 /* Hero row — Championship Leader + Next Race share height */
 .bento-hero-tile {
   min-height: 220px;

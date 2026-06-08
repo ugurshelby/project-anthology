@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AtmosphericHero } from '@/components/ui/AtmosphericHero';
+import { CalendarScroller } from '@/components/season/CalendarScroller';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { fetchSeasonSnapshotTyped, fetchRoundSnapshot } from '@/lib/data/f1';
@@ -15,9 +16,10 @@ import { CURRENT_SEASON, isRaceDone, getLastFinishedRace } from '@/lib/f1Calenda
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { circuitIconSrc, driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 
-// ISR: cron updates f1_snapshots daily; 15-min revalidate keeps the page fresh
-// after a sync without forcing fully-dynamic rendering on every request.
-export const revalidate = 900;
+// Fully dynamic: re-run the staleness→live path on every request so /season
+// matches the homepage (both bypass a stale DB snapshot to live Jolpica).
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 const TITLE = 'Season';
 const DESCRIPTION = `Live ${CURRENT_SEASON} Formula 1 season: driver and constructor standings, full race calendar, and the latest race recap — powered by snapshot data.`;
@@ -46,6 +48,20 @@ export default async function SeasonPage() {
   const races = getRacesFromCalendar(calendarData);
   const standings = getDriverStandings(driverData);
   const constructors = getConstructorStandings(constructorData);
+
+  // Race closest to today (past or upcoming) — used to center the calendar.
+  const nowForCalendar = Date.now();
+  let nearestRaceKey: string | null = null;
+  let nearestDist = Infinity;
+  for (const race of races) {
+    const ms = race.date ? Date.parse(`${race.date}T00:00:00Z`) : NaN;
+    if (!Number.isFinite(ms)) continue;
+    const dist = Math.abs(ms - nowForCalendar);
+    if (dist < nearestDist) {
+      nearestDist = dist;
+      nearestRaceKey = String(race.round ?? race.raceName);
+    }
+  }
 
   // Last finished round → results + qualifying for the recap.
   const lastRace = getLastFinishedRace(races);
@@ -422,7 +438,7 @@ export default async function SeasonPage() {
               Calendar not available.
             </p>
           ) : (
-            <div className="-mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-2">
+            <CalendarScroller className="race-calendar-scroll -mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-2">
               {races.map((race) => {
                 const done = isRaceDone(race);
                 const circuitId = race.Circuit?.circuitId?.trim();
@@ -469,23 +485,25 @@ export default async function SeasonPage() {
                 const cardClass =
                   'anthology-card flex w-[220px] shrink-0 snap-start flex-col justify-between gap-4 p-4';
                 const key = String(race.round ?? race.raceName);
+                const isNearest = key === nearestRaceKey;
 
                 // Clickable only when we have a circuitId that maps to a detail page.
                 return circuitId ? (
                   <Link
                     key={key}
                     href={`/circuits/${circuitId}`}
+                    data-nearest={isNearest ? 'true' : undefined}
                     className={`${cardClass} transition-opacity hover:opacity-80`}
                   >
                     {cardInner}
                   </Link>
                 ) : (
-                  <div key={key} className={cardClass}>
+                  <div key={key} data-nearest={isNearest ? 'true' : undefined} className={cardClass}>
                     {cardInner}
                   </div>
                 );
               })}
-            </div>
+            </CalendarScroller>
           )}
         </section>
       </div>

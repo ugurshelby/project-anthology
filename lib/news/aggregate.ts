@@ -412,13 +412,8 @@ export interface AggregateOptions {
   maxItems?: number;
 }
 
-/**
- * Fetch all RSS sources, process, and return NewsItems.
- * Suitable for both the cron route and direct API routes.
- */
-export async function aggregate(opts: AggregateOptions = {}): Promise<NewsItem[]> {
-  const { maxItems = 60 } = opts;
-
+/** Fetch + process every RSS source into the full deduped/clustered feed. */
+async function aggregateUncached(): Promise<NewsItem[]> {
   await ensureDOMParser();
 
   const totalDeadline = Date.now() + TOTAL_TIMEOUT_MS;
@@ -435,5 +430,53 @@ export async function aggregate(opts: AggregateOptions = {}): Promise<NewsItem[]
     if (r.status === 'fulfilled') all.push(...r.value);
   });
 
-  return processFeeds(all).slice(0, maxItems);
+  return processFeeds(all);
+}
+
+// ── In-memory cache (per warm instance) ──────────────────────────────────────
+// Public /news calls aggregate() on every request (revalidate=0). The 15-min
+// memo stops a hammering of the RSS sources: one fetch per warm instance per
+// window, shared across concurrent requests via the in-flight guard.
+
+const AGGREGATE_TTL_MS = 15 * 60 * 1000;
+let _cache: { items: NewsItem[]; ts: number } | null = null;
+let _inflight: Promise<NewsItem[]> | null = null;
+
+/**
+ * Fetch all RSS sources, process, and return NewsItems (newest first).
+ * Backed by a 15-minute in-memory cache with a stampede guard; the cached full
+ * set is sliced to `maxItems` per call. Suitable for the cron route and direct
+ * API routes.
+ */
+export async function aggregate(opts: AggregateOptions = {}): Promise<NewsItem[]> {
+  const { maxItems = 60 } = opts;
+
+  // 1) Fresh cache → serve immediately.
+  if (_cache && Date.now() - _cache.ts < AGGREGATE_TTL_MS) {
+    return _cache.items.slice(0, maxItems);
+  }
+
+  // 2) A fetch is already running → share it (stampede guard).
+  if (_inflight) {
+    const items = await _inflight;
+    return items.slice(0, maxItems);
+  }
+
+  // 3) Start a fetch; cache on success, serve stale on failure.
+  _inflight = aggregateUncached()
+    .then((items) => {
+      _cache = { items, ts: Date.now() };
+      return items;
+    })
+    .finally(() => {
+      _inflight = null;
+    });
+
+  try {
+    const items = await _inflight;
+    return items.slice(0, maxItems);
+  } catch (err) {
+    if (_cache) return _cache.items.slice(0, maxItems); // serve-stale-on-error
+    throw err;
+  }
 }
