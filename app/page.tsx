@@ -1,6 +1,6 @@
 import { CompactBentoDashboard } from '@/components/home/CompactBentoDashboard';
 import type { BentoRacePanel } from '@/components/home/types';
-import { fetchSeasonSnapshotTyped, fetchRoundSnapshot } from '@/lib/data/f1';
+import { fetchSeasonSnapshotTyped, fetchRoundSnapshot, getOnThisDay } from '@/lib/data/f1';
 import { getLatestNews } from '@/lib/data/news';
 import {
   formatRaceCountdown,
@@ -16,11 +16,12 @@ import { CURRENT_SEASON, getF1Context, getLastFinishedRace } from '@/lib/f1Calen
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const [calendarData, standingsData, constructorData, news] = await Promise.all([
+  const [calendarData, standingsData, constructorData, news, onThisDay] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_constructors'),
     getLatestNews(6),
+    getOnThisDay(),
   ]);
 
   const renderNowMs = nowMs();
@@ -76,6 +77,7 @@ export default async function HomePage() {
       nextPanel={nextPanel}
       afterNextPanel={null}
       news={news}
+      onThisDay={onThisDay}
       renderNowMs={renderNowMs}
       totalRounds={totalRounds}
       currentRound={currentRound}

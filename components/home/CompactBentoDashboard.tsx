@@ -3,6 +3,7 @@ import { BentoLastRaceTile } from '@/components/home/BentoLastRaceTile';
 import { BentoLeaderTile } from '@/components/home/BentoLeaderTile';
 import { BentoNeonDivider } from '@/components/home/BentoNeonDivider';
 import { BentoNewsTile } from '@/components/home/BentoNewsTile';
+import { BentoOnThisDayTile } from '@/components/home/BentoOnThisDayTile';
 import { BentoRaceTile } from '@/components/home/BentoRaceTile';
 import { BentoStandingsTile } from '@/components/home/BentoStandingsTile';
 import { BentoTyreTile } from '@/components/home/BentoTyreTile';
@@ -42,6 +43,7 @@ export function CompactBentoDashboard({
   lastRaceRecap,
   nextPanel,
   news,
+  onThisDay,
   renderNowMs,
   totalRounds,
   currentRound,
@@ -67,6 +69,7 @@ export function CompactBentoDashboard({
             totalRounds={totalRounds}
           />
           <BentoNeonDivider />
+          {onThisDay.length > 0 ? <BentoOnThisDayTile entries={onThisDay} /> : null}
           <BentoNewsTile news={news} />
         </div>
       </div>
@@ -98,6 +101,7 @@ export function CompactBentoDashboard({
         />
 
         <BentoNeonDivider />
+        {onThisDay.length > 0 ? <BentoOnThisDayTile entries={onThisDay} /> : null}
         <BentoNewsTile news={news} />
       </div>
     </div>

@@ -11,9 +11,12 @@ import { useEffect, useRef, type ReactNode } from 'react';
 export function CalendarScroller({
   children,
   className,
+  scrollKey,
 }: {
   children: ReactNode;
   className?: string;
+  /** When this changes (e.g. season year), re-center the nearest race card. */
+  scrollKey?: string | number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -25,7 +28,7 @@ export function CalendarScroller({
     // Center the nearest card without nudging vertical page scroll.
     container.scrollLeft =
       nearest.offsetLeft - container.clientWidth / 2 + nearest.clientWidth / 2;
-  }, []);
+  }, [scrollKey]);
 
   return (
     <div ref={ref} className={className}>

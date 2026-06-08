@@ -16,13 +16,34 @@ import { getSupabaseClient } from '@/lib/supabase';
 import type { Json, SnapshotType } from '@/types/database';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
 import { fetchSiteJson } from '@/lib/data/siteUrl';
-import { CURRENT_SEASON, type CalendarRace } from '@/lib/f1Calendar';
+import {
+  CURRENT_SEASON,
+  F1_SEASON_MIN,
+  getLastFinishedRace,
+  isRaceDone,
+  type CalendarRace,
+} from '@/lib/f1Calendar';
 import {
   isCalendarSnapshotStale,
   isRoundSnapshotStale,
   isStandingsSnapshotStale,
 } from '@/lib/f1/snapshotStaleness';
-import { getRacesFromCalendar } from '@/lib/f1/mrdata';
+import {
+  getConstructorSeasonRecords,
+  getConstructorStandings,
+  getDriverSeasonRecords,
+  getDriverStandings,
+  getLastRaceResult,
+  getQualifyingPole,
+  getRaceWinner,
+  getRacesFromCalendar,
+  type ConstructorSeasonRecord,
+  type ConstructorStandingRow,
+  type DriverSeasonRecord,
+  type DriverStandingRow,
+  type LastRaceRecap,
+  type PoleInfo,
+} from '@/lib/f1/mrdata';
 import { readPublicJson } from '@/lib/data/fs';
 
 /** Ergast/Jolpica envelope — kept as opaque Json; UI consumes the shape directly. */
@@ -217,5 +238,148 @@ export async function fetchRoundSnapshot(
 export async function fetchCurrentCalendar(): Promise<MrData | null> {
   return fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
 }
+
+export interface OnThisDayEntry {
+  season: number;
+  raceName: string;
+  winnerName: string;
+  winnerConstructor: string;
+}
+
+/** Races on this calendar day (MM-DD) across all seasons with results snapshots. */
+export async function getOnThisDay(): Promise<OnThisDayEntry[]> {
+  const now = new Date();
+  const todayMd = `${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+
+  try {
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from('f1_snapshots')
+      .select('season, data')
+      .eq('type', 'results')
+      .returns<Array<{ season: number; data: Json }>>();
+
+    if (error || !data?.length) return [];
+
+    const entries: OnThisDayEntry[] = [];
+    for (const row of data) {
+      if (!hasMrData(row.data)) continue;
+      const race = (
+        row.data as MrData
+      ).MRData?.RaceTable as { Races?: Array<{ date?: string; raceName?: string }> } | undefined;
+      const first = race?.Races?.[0];
+      if (!first?.date || first.date.slice(5) !== todayMd) continue;
+
+      const winner = getRaceWinner(row.data as MrData);
+      if (!winner) continue;
+
+      entries.push({
+        season: row.season,
+        raceName: first.raceName ?? 'Grand Prix',
+        winnerName: winner.driverName,
+        winnerConstructor: winner.constructorName,
+      });
+    }
+
+    return entries.sort((a, b) => b.season - a.season);
+  } catch (err) {
+    logFallback('getOnThisDay', 'empty', (err as Error).message);
+    return [];
+  }
+}
+
+export interface RoundResultSnapshot {
+  round: number;
+  data: MrData;
+}
+
+/** Parallel fetch of `results` snapshots for every finished round on the calendar. */
+export async function fetchAllRoundResults(
+  season: number,
+  races: CalendarRace[],
+): Promise<RoundResultSnapshot[]> {
+  const finished = races.filter((r) => isRaceDone(r));
+  const snapshots = await Promise.all(
+    finished.map(async (race) => {
+      const round = Number(race.round);
+      if (!Number.isFinite(round)) return null;
+      const data = await fetchRoundSnapshot(season, round, 'results');
+      return data ? { round, data } : null;
+    }),
+  );
+  return snapshots.filter((s): s is RoundResultSnapshot => s !== null);
+}
+
+export interface SeasonData {
+  year: number;
+  standings: DriverStandingRow[];
+  constructors: ConstructorStandingRow[];
+  races: CalendarRace[];
+  recap: LastRaceRecap | null;
+  pole: PoleInfo | null;
+  driverRecords: DriverSeasonRecord[];
+  constructorRecords: ConstructorSeasonRecord[];
+  /** Race card key (`round` or `raceName`) closest to today for calendar centering. */
+  nearestRaceKey: string | null;
+}
+
+function nearestRaceKeyFromCalendar(races: CalendarRace[], nowMs: number): string | null {
+  let key: string | null = null;
+  let nearestDist = Infinity;
+  for (const race of races) {
+    const ms = race.date ? Date.parse(`${race.date}T00:00:00Z`) : NaN;
+    if (!Number.isFinite(ms)) continue;
+    const dist = Math.abs(ms - nowMs);
+    if (dist < nearestDist) {
+      nearestDist = dist;
+      key = String(race.round ?? race.raceName);
+    }
+  }
+  return key;
+}
+
+/** Full season bundle for the archive explorer and API route. */
+export async function getSeasonData(year: number): Promise<SeasonData> {
+  const [calendarData, driverData, constructorData] = await Promise.all([
+    fetchSeasonSnapshotTyped(year, 'calendar'),
+    fetchSeasonSnapshotTyped(year, 'standings_drivers'),
+    fetchSeasonSnapshotTyped(year, 'standings_constructors'),
+  ]);
+
+  const races = getRacesFromCalendar(calendarData);
+  const standings = getDriverStandings(driverData);
+  const constructors = getConstructorStandings(constructorData);
+
+  const lastRace = getLastFinishedRace(races);
+  const lastRound = lastRace?.round != null ? Number(lastRace.round) : null;
+
+  const [resultsData, qualiData, allRoundResults] = await Promise.all([
+    lastRound != null
+      ? fetchRoundSnapshot(year, lastRound, 'results')
+      : Promise.resolve(null),
+    lastRound != null
+      ? fetchRoundSnapshot(year, lastRound, 'qualifying')
+      : Promise.resolve(null),
+    fetchAllRoundResults(year, races),
+  ]);
+
+  const recap = getLastRaceResult(resultsData);
+  const pole = getQualifyingPole(qualiData);
+  const roundData = allRoundResults.map((r) => r.data);
+
+  return {
+    year,
+    standings,
+    constructors,
+    races,
+    recap,
+    pole,
+    driverRecords: getDriverSeasonRecords(standings, roundData),
+    constructorRecords: getConstructorSeasonRecords(constructors, roundData),
+    nearestRaceKey: nearestRaceKeyFromCalendar(races, Date.now()),
+  };
+}
+
+export { F1_SEASON_MIN };
 
 export type { Json };
