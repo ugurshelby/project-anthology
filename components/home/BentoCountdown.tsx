@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { FlipDigit } from '@/components/ui/FlipDigit';
 import { getCountdownParts } from '@/lib/f1/mrdata';
 
 interface BentoCountdownProps {
@@ -11,6 +12,25 @@ interface BentoCountdownProps {
 
 function pad(n: number): string {
   return n.toString().padStart(2, '0');
+}
+
+function FlipNumber({
+  value,
+  className,
+  style,
+}: {
+  value: number;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const digits = pad(value).split('');
+  return (
+    <span className={className} style={style}>
+      {digits.map((digit, index) => (
+        <FlipDigit key={index} digit={digit} />
+      ))}
+    </span>
+  );
 }
 
 export function BentoCountdown({
@@ -39,14 +59,14 @@ export function BentoCountdown({
     return (
       <div className="font-mono text-sm tracking-widest flex gap-1" style={{ color: 'var(--paper)' }}>
         <span>
-          {pad(parts.days)}
+          <FlipNumber value={parts.days} />
           <span className="text-[9px]" style={{ color: 'var(--muted)' }}>
             D
           </span>
         </span>
         :
         <span>
-          {pad(parts.hours)}
+          <FlipNumber value={parts.hours} />
           <span className="text-[9px]" style={{ color: 'var(--muted)' }}>
             H
           </span>
@@ -66,12 +86,11 @@ export function BentoCountdown({
     <div className="grid grid-cols-4 gap-2 text-center">
       {cells.map((cell) => (
         <div key={cell.label}>
-          <span
-            className="font-display text-3xl leading-none lg:text-4xl"
+          <FlipNumber
+            value={cell.value}
+            className="inline-flex font-display text-3xl leading-none lg:text-4xl"
             style={{ color: 'var(--paper)' }}
-          >
-            {pad(cell.value)}
-          </span>
+          />
           <span
             className="font-condensed mt-1 block text-[10px] uppercase tracking-[0.2em]"
             style={{ color: 'var(--muted)' }}
