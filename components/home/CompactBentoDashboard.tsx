@@ -15,28 +15,32 @@ function MidRowPanels({
   standings,
   currentRound,
   totalRounds,
+  season,
 }: {
   lastRaceRecap: CompactBentoDashboardProps['lastRaceRecap'];
   constructors: CompactBentoDashboardProps['constructors'];
   standings: CompactBentoDashboardProps['standings'];
   currentRound: number;
   totalRounds: number;
+  season: number;
 }) {
   return (
     <div className="bento-mid-row col-span-2 w-full lg:col-span-12">
       <BentoLastRaceTile recap={lastRaceRecap} />
-      <BentoConstructorsTile constructors={constructors} />
+      <BentoConstructorsTile constructors={constructors} season={season} />
       <BentoTyreTile />
       <BentoStandingsTile
         standings={standings}
         currentRound={currentRound}
         totalRounds={totalRounds}
+        season={season}
       />
     </div>
   );
 }
 
 export function CompactBentoDashboard({
+  season,
   leader,
   standings,
   constructors,
@@ -54,7 +58,7 @@ export function CompactBentoDashboard({
       <div className="mx-auto max-w-[480px] md:max-w-[768px] lg:hidden">
         <div className="grid grid-cols-2 gap-3 md:gap-4">
           <div className="bento-hero-tile col-span-2">
-            <BentoLeaderTile leader={leader} />
+            <BentoLeaderTile leader={leader} season={season} />
           </div>
           {nextPanel ? (
             <div className="bento-hero-tile col-span-2">
@@ -67,6 +71,7 @@ export function CompactBentoDashboard({
             standings={standings}
             currentRound={currentRound}
             totalRounds={totalRounds}
+            season={season}
           />
           <BentoNeonDivider />
           {onThisDay.length > 0 ? <BentoOnThisDayTile entries={onThisDay} /> : null}
@@ -77,7 +82,7 @@ export function CompactBentoDashboard({
       {/* Desktop: hero row (Leader + Next Race), then full-width 4-panel row */}
       <div className="hidden lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-8">
         <div className="bento-hero-tile col-span-8">
-          <BentoLeaderTile leader={leader} />
+          <BentoLeaderTile leader={leader} season={season} />
         </div>
 
         {nextPanel ? (
@@ -98,6 +103,7 @@ export function CompactBentoDashboard({
           standings={standings}
           currentRound={currentRound}
           totalRounds={totalRounds}
+          season={season}
         />
 
         <BentoNeonDivider />

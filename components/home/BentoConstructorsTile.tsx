@@ -6,6 +6,7 @@ import type { ConstructorStandingRow } from '@/lib/f1/mrdata';
 
 interface BentoConstructorsTileProps {
   constructors: ConstructorStandingRow[];
+  season: number;
 }
 
 function teamAbbr(name: string): string {
@@ -19,7 +20,7 @@ function teamAbbr(name: string): string {
     .toUpperCase();
 }
 
-export function BentoConstructorsTile({ constructors }: BentoConstructorsTileProps) {
+export function BentoConstructorsTile({ constructors, season }: BentoConstructorsTileProps) {
   const top = constructors.slice(0, 3);
   const maxPts = top.reduce((m, c) => Math.max(m, Number(c.points) || 0), 0);
 
@@ -47,7 +48,7 @@ export function BentoConstructorsTile({ constructors }: BentoConstructorsTilePro
         {top.map((row) => {
           const color = resolveTeamUiColor(null, row.constructorName);
           const pct = maxPts > 0 ? (Number(row.points) / maxPts) * 100 : 0;
-          const logoSrc = teamIconSrc(row.constructorName);
+          const logoSrc = teamIconSrc(row.constructorName, season);
           return (
             <div key={row.constructorName} className="flex items-center gap-2">
               <span className="w-3 font-mono text-[10px]" style={{ color: 'var(--muted)' }}>
@@ -97,7 +98,7 @@ export function BentoConstructorsTile({ constructors }: BentoConstructorsTilePro
           const pts = Number(row.points) || 0;
           const barPx =
             maxPts > 0 ? Math.max(16, Math.round((pts / maxPts) * 72)) : 16;
-          const logoSrc = teamIconSrc(row.constructorName);
+          const logoSrc = teamIconSrc(row.constructorName, season);
           return (
             <div
               key={row.constructorName}

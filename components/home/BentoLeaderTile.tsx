@@ -4,9 +4,10 @@ import type { DriverStandingRow } from '@/lib/f1/mrdata';
 
 interface BentoLeaderTileProps {
   leader: DriverStandingRow | null;
+  season: number;
 }
 
-export function BentoLeaderTile({ leader }: BentoLeaderTileProps) {
+export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
   if (!leader) {
     return (
       <section className="bento-panel bento-panel-accent bento-tile-fill justify-center p-4 lg:p-12">
@@ -17,8 +18,8 @@ export function BentoLeaderTile({ leader }: BentoLeaderTileProps) {
     );
   }
 
-  const driverSrc = driverIconSrc(leader.driverCode, leader.driverName);
-  const teamSrc = teamIconSrc(leader.constructorName);
+  const driverSrc = driverIconSrc(leader.driverCode, leader.driverName, season);
+  const teamSrc = teamIconSrc(leader.constructorName, season);
   const nameParts = leader.driverName.toUpperCase().split(' ');
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') || leader.driverName.toUpperCase();

@@ -33,7 +33,7 @@ function buildDriverEntity(row: DriverStandingRow, data: SeasonData): DriverEnti
     constructorName: row.constructorName,
     position: row.position,
     points: row.points,
-    driverIconSrc: driverIconSrc(row.driverCode, row.driverName),
+    driverIconSrc: driverIconSrc(row.driverCode, row.driverName, data.year),
     wins: stats.wins,
     podiums: stats.podiums,
   };
@@ -48,7 +48,7 @@ function buildTeamEntity(c: ConstructorStandingRow, data: SeasonData): TeamEntit
       driverCode: row.driverCode,
       position: row.position,
       points: row.points,
-      driverIconSrc: driverIconSrc(row.driverCode, row.driverName),
+      driverIconSrc: driverIconSrc(row.driverCode, row.driverName, data.year),
     }));
   return {
     kind: 'team',
@@ -57,7 +57,7 @@ function buildTeamEntity(c: ConstructorStandingRow, data: SeasonData): TeamEntit
     position: c.position,
     points: c.points,
     wins: c.wins,
-    teamIconSrc: teamIconSrc(c.constructorName),
+    teamIconSrc: teamIconSrc(c.constructorName, data.year),
     teamColor,
     drivers,
   };
@@ -118,7 +118,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
     nearestRaceKey,
   } = data;
 
-  const poleDriverSrc = pole ? driverIconSrc(pole.driverCode, pole.driverName) : null;
+  const poleDriverSrc = pole ? driverIconSrc(pole.driverCode, pole.driverName, year) : null;
 
   const lastRace = useMemo(() => {
     const done = races.filter((r) => isRaceDone(r));
@@ -190,8 +190,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               {standings.map((row, i) => {
                 const teamColor = resolveTeamUiColor(null, row.constructorName);
                 const isLeader = i === 0;
-                const driverSrc = driverIconSrc(row.driverCode, row.driverName);
-                const teamSrc = teamIconSrc(row.constructorName);
+                const driverSrc = driverIconSrc(row.driverCode, row.driverName, year);
+                const teamSrc = teamIconSrc(row.constructorName, year);
                 return (
                   <li
                     key={row.position + row.driverName}
@@ -273,8 +273,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                   {standings.map((row, i) => {
                     const teamColor = resolveTeamUiColor(null, row.constructorName);
                     const isLeader = i === 0;
-                    const driverSrc = driverIconSrc(row.driverCode, row.driverName);
-                    const teamSrc = teamIconSrc(row.constructorName);
+                    const driverSrc = driverIconSrc(row.driverCode, row.driverName, year);
+                    const teamSrc = teamIconSrc(row.constructorName, year);
                     return (
                       <tr
                         key={row.position + row.driverName}
@@ -354,7 +354,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
             {constructors.map((c) => {
               const color = resolveTeamUiColor(null, c.constructorName);
               const pct = maxConstructorPts > 0 ? (Number(c.points) / maxConstructorPts) * 100 : 0;
-              const teamSrc = teamIconSrc(c.constructorName);
+              const teamSrc = teamIconSrc(c.constructorName, year);
               return (
                 <li
                   key={c.position + c.constructorName}
@@ -443,8 +443,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {recap.podium.map((p) => {
                 const color = resolveTeamUiColor(null, p.constructorName);
-                const driverSrc = driverIconSrc(p.driverCode, p.driverName);
-                const teamSrc = teamIconSrc(p.constructorName);
+                const driverSrc = driverIconSrc(p.driverCode, p.driverName, year);
+                const teamSrc = teamIconSrc(p.constructorName, year);
                 return (
                   <div
                     key={p.position}

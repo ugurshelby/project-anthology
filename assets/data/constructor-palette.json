@@ -1,0 +1,344 @@
+{
+  "ferrari": {
+    "slug": "ferrari",
+    "abbr": "FER",
+    "primary": "#DC0000",
+    "secondary": "#111111",
+    "accent": "#F7D117",
+    "text": "#FFFFFF"
+  },
+  "mclaren": {
+    "slug": "mclaren",
+    "abbr": "MCL",
+    "primary": "#C0C0C0",
+    "secondary": "#111111",
+    "accent": "#FF0000",
+    "text": "#000000",
+    "eras": [
+      { "from": 2015, "to": 2017, "primary": "#2D2D2D", "accent": "#FF8000", "text": "#FFFFFF" },
+      { "from": 2018, "to": 2099, "primary": "#FF8000", "secondary": "#2D2D2D", "accent": "#47C7FC", "text": "#FFFFFF" }
+    ]
+  },
+  "mercedes": {
+    "slug": "mercedes",
+    "abbr": "MER",
+    "primary": "#00D2BE",
+    "secondary": "#000000",
+    "accent": "#C0C0C0",
+    "text": "#000000"
+  },
+  "williams": {
+    "slug": "williams",
+    "abbr": "WIL",
+    "primary": "#005AFF",
+    "secondary": "#041E42",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF",
+    "eras": [
+      { "from": 2014, "to": 2019, "primary": "#FFFFFF", "secondary": "#003274", "accent": "#E10600", "text": "#003274" }
+    ]
+  },
+  "benetton": {
+    "slug": "benetton",
+    "abbr": "BEN",
+    "primary": "#0033CC",
+    "secondary": "#FFFFFF",
+    "accent": "#FFFF00",
+    "text": "#FFFFFF"
+  },
+  "renault": {
+    "slug": "renault",
+    "abbr": "REN",
+    "primary": "#FFD700",
+    "secondary": "#111111",
+    "accent": "#00BFFF",
+    "text": "#111111",
+    "eras": [
+      { "from": 2002, "to": 2006, "primary": "#0033CC", "secondary": "#FFFF00", "accent": "#FFFFFF", "text": "#FFFFFF" }
+    ]
+  },
+  "bar": {
+    "slug": "bar",
+    "abbr": "BAR",
+    "primary": "#FFFFFF",
+    "secondary": "#006633",
+    "accent": "#FF0000",
+    "text": "#006633"
+  },
+  "honda": {
+    "slug": "honda",
+    "abbr": "HON",
+    "primary": "#FFFFFF",
+    "secondary": "#111111",
+    "accent": "#E40521",
+    "text": "#111111"
+  },
+  "brawn": {
+    "slug": "brawn",
+    "abbr": "BRA",
+    "primary": "#BDFF00",
+    "secondary": "#FFFFFF",
+    "accent": "#111111",
+    "text": "#111111"
+  },
+  "jordan": {
+    "slug": "jordan",
+    "abbr": "JOR",
+    "primary": "#FFD700",
+    "secondary": "#111111",
+    "accent": "#00AA00",
+    "text": "#111111"
+  },
+  "jaguar": {
+    "slug": "jaguar",
+    "abbr": "JAG",
+    "primary": "#004225",
+    "secondary": "#111111",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "red_bull": {
+    "slug": "red-bull",
+    "abbr": "RBR",
+    "primary": "#1E41FF",
+    "secondary": "#DC052D",
+    "accent": "#FFD700",
+    "text": "#FFFFFF",
+    "eras": [
+      { "from": 2023, "to": 2099, "primary": "#1E5BC6", "accent": "#F7C300" }
+    ]
+  },
+  "sauber": {
+    "slug": "sauber",
+    "abbr": "SAU",
+    "primary": "#0066CC",
+    "secondary": "#FFFFFF",
+    "accent": "#111111",
+    "text": "#FFFFFF",
+    "eras": [
+      { "from": 2024, "to": 2025, "primary": "#52E252", "secondary": "#111111", "accent": "#FFFFFF", "text": "#111111", "slug": "kick-sauber", "abbr": "KIC" }
+    ]
+  },
+  "bmw_sauber": {
+    "slug": "bmw-sauber",
+    "abbr": "BMW",
+    "primary": "#FFFFFF",
+    "secondary": "#0066B3",
+    "accent": "#00BFFF",
+    "text": "#0066B3"
+  },
+  "alfa": {
+    "slug": "alfa-romeo",
+    "abbr": "ALF",
+    "primary": "#9B0000",
+    "secondary": "#FFFFFF",
+    "accent": "#00A550",
+    "text": "#FFFFFF"
+  },
+  "toro_rosso": {
+    "slug": "toro-rosso",
+    "abbr": "STR",
+    "primary": "#003282",
+    "secondary": "#FFFFFF",
+    "accent": "#DC0000",
+    "text": "#FFFFFF"
+  },
+  "alphatauri": {
+    "slug": "alpha-tauri",
+    "abbr": "AT",
+    "primary": "#2B4562",
+    "secondary": "#FFFFFF",
+    "accent": "#00A0DE",
+    "text": "#FFFFFF"
+  },
+  "rb": {
+    "slug": "racing-bulls",
+    "abbr": "RB",
+    "primary": "#2647D8",
+    "secondary": "#FFFFFF",
+    "accent": "#E10600",
+    "text": "#FFFFFF"
+  },
+  "force_india": {
+    "slug": "force-india",
+    "abbr": "FIF",
+    "primary": "#FF8700",
+    "secondary": "#C0C0C0",
+    "accent": "#003274",
+    "text": "#FFFFFF",
+    "eras": [
+      { "from": 2017, "to": 2018, "primary": "#F596C8", "secondary": "#C0C0C0", "accent": "#FF8700", "text": "#111111" }
+    ]
+  },
+  "racing_point": {
+    "slug": "racing-point",
+    "abbr": "RP",
+    "primary": "#F596B8",
+    "secondary": "#003274",
+    "accent": "#FFFFFF",
+    "text": "#003274"
+  },
+  "aston_martin": {
+    "slug": "aston-martin",
+    "abbr": "AMR",
+    "primary": "#006F62",
+    "secondary": "#111111",
+    "accent": "#CEDC00",
+    "text": "#FFFFFF"
+  },
+  "lotus_f1": {
+    "slug": "lotus",
+    "abbr": "LOT",
+    "primary": "#FFD700",
+    "secondary": "#111111",
+    "accent": "#00AA00",
+    "text": "#111111"
+  },
+  "lotus_racing": {
+    "slug": "lotus-racing",
+    "abbr": "LRT",
+    "primary": "#111111",
+    "secondary": "#FFD700",
+    "accent": "#00CFFF",
+    "text": "#FFFFFF"
+  },
+  "minardi": {
+    "slug": "minardi",
+    "abbr": "MIN",
+    "primary": "#FFFFFF",
+    "secondary": "#111111",
+    "accent": "#FF0000",
+    "text": "#111111"
+  },
+  "prost": {
+    "slug": "prost",
+    "abbr": "PRO",
+    "primary": "#003399",
+    "secondary": "#FFFFFF",
+    "accent": "#FF0000",
+    "text": "#FFFFFF"
+  },
+  "arrows": {
+    "slug": "arrows",
+    "abbr": "ARR",
+    "primary": "#FF6600",
+    "secondary": "#FFFFFF",
+    "accent": "#003399",
+    "text": "#FFFFFF"
+  },
+  "toyota": {
+    "slug": "toyota",
+    "abbr": "TOY",
+    "primary": "#FFFFFF",
+    "secondary": "#111111",
+    "accent": "#E40521",
+    "text": "#111111"
+  },
+  "super_aguri": {
+    "slug": "super-aguri",
+    "abbr": "SAG",
+    "primary": "#FFFFFF",
+    "secondary": "#111111",
+    "accent": "#E40521",
+    "text": "#111111"
+  },
+  "spyker": {
+    "slug": "spyker",
+    "abbr": "SPY",
+    "primary": "#FF6600",
+    "secondary": "#111111",
+    "accent": "#C0C0C0",
+    "text": "#FFFFFF"
+  },
+  "spyker_mf1": {
+    "slug": "spyker",
+    "abbr": "SPY",
+    "primary": "#FF6600",
+    "secondary": "#111111",
+    "accent": "#C0C0C0",
+    "text": "#FFFFFF"
+  },
+  "mf1": {
+    "slug": "mf1",
+    "abbr": "MF1",
+    "primary": "#FF6600",
+    "secondary": "#003399",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "caterham": {
+    "slug": "caterham",
+    "abbr": "CAT",
+    "primary": "#006633",
+    "secondary": "#FFD700",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "marussia": {
+    "slug": "marussia",
+    "abbr": "MAR",
+    "primary": "#CF0000",
+    "secondary": "#111111",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "manor": {
+    "slug": "manor",
+    "abbr": "MAN",
+    "primary": "#CF0000",
+    "secondary": "#111111",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "hrt": {
+    "slug": "hrt",
+    "abbr": "HRT",
+    "primary": "#C0C0C0",
+    "secondary": "#111111",
+    "accent": "#FFD700",
+    "text": "#111111"
+  },
+  "virgin": {
+    "slug": "virgin",
+    "abbr": "VRG",
+    "primary": "#CF0000",
+    "secondary": "#111111",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "haas": {
+    "slug": "haas",
+    "abbr": "HAA",
+    "primary": "#FFFFFF",
+    "secondary": "#111111",
+    "accent": "#E10600",
+    "text": "#111111",
+    "eras": [
+      { "from": 2016, "to": 2099, "primary": "#111111", "accent": "#E10600", "text": "#FFFFFF" }
+    ]
+  },
+  "alpine": {
+    "slug": "alpine",
+    "abbr": "ALP",
+    "primary": "#0090FF",
+    "secondary": "#111111",
+    "accent": "#FF87BC",
+    "text": "#FFFFFF"
+  },
+  "audi": {
+    "slug": "audi",
+    "abbr": "AUD",
+    "primary": "#C00000",
+    "secondary": "#8B9196",
+    "accent": "#FFFFFF",
+    "text": "#FFFFFF"
+  },
+  "cadillac": {
+    "slug": "cadillac",
+    "abbr": "CAD",
+    "primary": "#111111",
+    "secondary": "#FFFFFF",
+    "accent": "#C8102E",
+    "text": "#FFFFFF"
+  }
+}

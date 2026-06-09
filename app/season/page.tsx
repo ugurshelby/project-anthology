@@ -52,8 +52,10 @@ export default async function SeasonPage({ searchParams }: PageProps) {
   const seasonData = await getSeasonData(initialYear);
 
   const leader = seasonData.standings[0] ?? null;
-  const leaderDriverSrc = leader ? driverIconSrc(leader.driverCode, leader.driverName) : null;
-  const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName) : null;
+  const leaderDriverSrc = leader
+    ? driverIconSrc(leader.driverCode, leader.driverName, initialYear)
+    : null;
+  const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName, initialYear) : null;
 
   return (
     <>

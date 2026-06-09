@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <clipPath id="card-MCL">
+      <rect width="80" height="80" rx="12"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#card-MCL)">
+    <rect width="80" height="80" rx="12" fill="#2D2D2D"/>
+    <polygon points="0,80 80,0 80,80" fill="#111111" opacity="0.35"/>
+    <rect x="0" y="0" width="5" height="80" fill="#FF8000"/>
+    <text x="42" y="42" font-family="'Arial Black', sans-serif" font-weight="900" font-size="24" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">MCL</text>
+    <rect x="0" y="74" width="80" height="6" fill="#FF8000"/>
+  </g>
+</svg>

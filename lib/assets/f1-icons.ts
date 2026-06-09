@@ -1,4 +1,5 @@
 import { getTeamByName } from '@/config/team-colors';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
 /** FIA 3-letter driver code → public/drivers SVG basename (surname slug). */
 const DRIVER_CODE_TO_SLUG: Record<string, string> = {
@@ -28,11 +29,33 @@ const DRIVER_CODE_TO_SLUG: Record<string, string> = {
   doo: 'doohan',
 };
 
-/** Ergast driverId → asset slug (when code alone is insufficient). */
+/** Ergast driverId → current-season asset slug (when code alone is insufficient). */
 const DRIVER_ID_TO_SLUG: Record<string, string> = {
   max_verstappen: 'verstappen',
   colapinto: 'colapinto',
   lindblad: 'lindblad',
+};
+
+/** Ergast given_family ids that use a shorter on-disk basename in historical seasons. */
+const ERGAST_SLUG_ALIASES: Record<string, string> = {
+  lewis_hamilton: 'hamilton',
+  carlos_sainz: 'sainz',
+  charles_leclerc: 'leclerc',
+  george_russell: 'russell',
+  fernando_alonso: 'alonso',
+  lance_stroll: 'stroll',
+  pierre_gasly: 'gasly',
+  alexander_albon: 'albon',
+  nico_hulkenberg: 'hulkenberg',
+  valtteri_bottas: 'bottas',
+  sergio_perez: 'perez',
+  lando_norris: 'norris',
+  oscar_piastri: 'piastri',
+  yuki_tsunoda: 'tsunoda',
+  esteban_ocon: 'ocon',
+  daniel_ricciardo: 'ricciardo',
+  zhou_guanyu: 'zhou',
+  logan_sargeant: 'sargeant',
 };
 
 const DRIVER_ASSET_SLUGS = new Set(Object.values(DRIVER_CODE_TO_SLUG));
@@ -68,6 +91,55 @@ const CIRCUIT_ID_TO_SVG: Record<string, string> = {
   madring: 'es-2026.svg',
 };
 
+/** Historical constructor display names → public/teams SVG slug (matches assets/data/constructor-palette.json). */
+const CONSTRUCTOR_NAME_TO_SLUG: Record<string, string> = {
+  'alfa romeo': 'alfa-romeo',
+  'alfa romeo racing': 'alfa-romeo',
+  alphatauri: 'alpha-tauri',
+  'alpha tauri': 'alpha-tauri',
+  'scuderia alphatauri': 'alpha-tauri',
+  'aston martin': 'aston-martin',
+  'aston martin cognizant': 'aston-martin',
+  bar: 'bar',
+  benetton: 'benetton',
+  bmw: 'bmw-sauber',
+  'bmw sauber': 'bmw-sauber',
+  brawn: 'brawn',
+  caterham: 'caterham',
+  'force india': 'force-india',
+  'racing point': 'racing-point',
+  'racing point f1 team': 'racing-point',
+  'bwt racing point': 'racing-point',
+  honda: 'honda',
+  hrt: 'hrt',
+  jaguar: 'jaguar',
+  jordan: 'jordan',
+  'kick sauber': 'kick-sauber',
+  'stake f1 team kick sauber': 'kick-sauber',
+  lotus: 'lotus',
+  'lotus f1': 'lotus',
+  'lotus racing': 'lotus-racing',
+  manor: 'manor',
+  marussia: 'marussia',
+  mf1: 'mf1',
+  minardi: 'minardi',
+  prost: 'prost',
+  renault: 'renault',
+  sauber: 'sauber',
+  spyker: 'spyker',
+  'super aguri': 'super-aguri',
+  toro: 'toro-rosso',
+  'toro rosso': 'toro-rosso',
+  'scuderia toro rosso': 'toro-rosso',
+  toyota: 'toyota',
+  virgin: 'virgin',
+  arrows: 'arrows',
+};
+
+function resolveSeason(season?: number): number {
+  return season ?? CURRENT_SEASON;
+}
+
 function slugFromDriverId(driverId: string): string | null {
   const id = driverId.trim().toLowerCase();
   if (!id) return null;
@@ -84,34 +156,94 @@ function slugFromSurname(driverName: string): string | null {
   return last;
 }
 
-/**
- * Resolve a driver portrait path. Returns null when no asset exists (avoids 404).
- * Accepts FIA code, Ergast driverId, or full driver name (surname fallback).
- */
-export function driverIconSrc(
+function ergastIdFromName(driverName: string): string | null {
+  const parts = driverName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return parts[0]?.toLowerCase() ?? null;
+  const family = parts[parts.length - 1].toLowerCase();
+  const given = parts.slice(0, -1).join('_').toLowerCase();
+  const ergast = `${given}_${family}`;
+  return ERGAST_SLUG_ALIASES[ergast] ?? ergast;
+}
+
+function resolveDriverSlug(
   driverCode?: string | null,
   driverIdOrName?: string | null,
+  season?: number,
 ): string | null {
+  const effectiveSeason = resolveSeason(season);
+  const isCurrentSeason = effectiveSeason >= CURRENT_SEASON;
   const code = (driverCode ?? '').trim().toLowerCase();
-  if (code && DRIVER_CODE_TO_SLUG[code]) {
-    return `/drivers/${DRIVER_CODE_TO_SLUG[code]}.svg`;
+  const secondary = (driverIdOrName ?? '').trim();
+
+  if (isCurrentSeason && code && DRIVER_CODE_TO_SLUG[code]) {
+    return DRIVER_CODE_TO_SLUG[code];
   }
 
-  const secondary = (driverIdOrName ?? '').trim();
-  if (!secondary) return null;
+  if (secondary) {
+    const lowered = secondary.toLowerCase();
+    if (lowered.includes('_')) {
+      if (isCurrentSeason) {
+        const fromId = slugFromDriverId(lowered);
+        if (fromId) return fromId;
+      }
+      return ERGAST_SLUG_ALIASES[lowered] ?? lowered;
+    }
 
-  const fromId = slugFromDriverId(secondary);
-  if (fromId) return `/drivers/${fromId}.svg`;
+    const fromId = slugFromDriverId(lowered);
+    if (fromId && isCurrentSeason) return fromId;
 
-  const fromName = slugFromSurname(secondary);
-  if (fromName) return `/drivers/${fromName}.svg`;
+    const ergast = ergastIdFromName(secondary);
+    if (ergast) return ergast;
+
+    const fromName = slugFromSurname(secondary);
+    if (fromName) return fromName;
+  }
+
+  if (code && DRIVER_CODE_TO_SLUG[code]) {
+    return DRIVER_CODE_TO_SLUG[code];
+  }
 
   return null;
 }
 
-export function teamIconSrc(teamName: string | undefined | null): string | null {
-  const team = getTeamByName((teamName ?? '').trim());
-  return team ? `/teams/${team.id}.svg` : null;
+function teamSlugFromName(teamName: string): string | null {
+  const key = teamName.trim().toLowerCase();
+  if (!key) return null;
+
+  const current = getTeamByName(teamName);
+  if (current) return current.id;
+
+  const exact = CONSTRUCTOR_NAME_TO_SLUG[key];
+  if (exact) return exact;
+
+  for (const [alias, slug] of Object.entries(CONSTRUCTOR_NAME_TO_SLUG)) {
+    if (key.includes(alias) || alias.includes(key)) return slug;
+  }
+
+  return null;
+}
+
+/**
+ * Resolve a driver portrait path. Returns null when no slug can be derived (avoids guessing 404s).
+ * Accepts FIA code, Ergast driverId, or full driver name (surname / ergast fallback).
+ */
+export function driverIconSrc(
+  driverCode?: string | null,
+  driverIdOrName?: string | null,
+  season?: number,
+): string | null {
+  const slug = resolveDriverSlug(driverCode, driverIdOrName, season);
+  if (!slug) return null;
+  return `/drivers/${resolveSeason(season)}/${slug}.svg`;
+}
+
+export function teamIconSrc(
+  teamName: string | undefined | null,
+  season?: number,
+): string | null {
+  const slug = teamSlugFromName((teamName ?? '').trim());
+  if (!slug) return null;
+  return `/teams/${resolveSeason(season)}/${slug}.svg`;
 }
 
 export function circuitIconSrc(circuitId: string | undefined | null): string | null {
