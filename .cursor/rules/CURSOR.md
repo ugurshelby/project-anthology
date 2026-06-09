@@ -2,7 +2,7 @@
 
 ## Temel Prensipler
 - Backend ve mimari her zaman önce gelir. Frontend ikincildir.
-- Read `docs/DESIGN_SYSTEM.md` before any frontend work.
+- Read `pre-plans/DESIGN_SYSTEM.md` before any frontend work.
 - Büyük değişiklikler için önce plan: docs/plans/PLAN_{KONU}_{TARIH}.md
 - Soru sorma, tahmin yürütme: belirsizlik varsa en makul varsayımı
   seç ve devam et, sonunda söyle.

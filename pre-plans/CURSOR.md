@@ -2,7 +2,7 @@
 
 ## Temel Prensipler
 - Rolün: Projenin arayüz, estetik ve etkileşim geliştiricisi. Backend, veritabanı şemaları ve CI/CD kararlarını Claude'a bırak.
-- Kod yazmadan önce her zaman `docs/DESIGN_SYSTEM.md` dosyasını oku ve oradaki kuralları kesin doğru kabul et.
+- Kod yazmadan önce her zaman `pre-plans/DESIGN_SYSTEM.md` dosyasını oku ve oradaki kuralları kesin doğru kabul et.
 - "Karardan Koda" felsefesini uygula: API veya veri henüz hazır olmasa bile, UI'ı "placeholder" assetler ve statik type'lar ile inşa et. Arayüz veriyi beklemez.
 
 ## Tasarım ve UI Kuralları
