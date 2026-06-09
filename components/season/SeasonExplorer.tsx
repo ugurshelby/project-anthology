@@ -199,6 +199,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                     key={row.position + row.driverName}
                     role="button"
                     tabIndex={0}
+                    aria-haspopup="dialog"
+                    aria-label={`${row.driverName}, ${row.constructorName}, ${row.points} points — open details`}
                     className="flex cursor-pointer items-center gap-3 border border-border px-3 py-3 transition-colors hover:bg-[rgba(255,255,255,0.03)]"
                     style={{
                       borderLeft: `3px solid ${teamColor}`,
@@ -285,6 +287,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         key={row.position + row.driverName}
                         role="button"
                         tabIndex={0}
+                        aria-haspopup="dialog"
+                        aria-label={`${row.driverName}, ${row.constructorName}, ${row.points} points — open details`}
                         className="cursor-pointer transition-colors hover:bg-[rgba(255,255,255,0.03)]"
                         style={isLeader ? { backgroundColor: 'rgba(255,24,1,0.06)' } : undefined}
                         onClick={(e) => {
@@ -368,6 +372,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                   key={c.position + c.constructorName}
                   role="button"
                   tabIndex={0}
+                  aria-haspopup="dialog"
+                  aria-label={`${c.constructorName}, ${c.points} points — open details`}
                   className="flex cursor-pointer items-center gap-4 transition-opacity hover:opacity-90"
                   onClick={(e) => {
                     e.currentTarget.focus();

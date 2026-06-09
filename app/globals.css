@@ -53,6 +53,14 @@
   border-radius: 0;
 }
 
+/* Keyboard focus: visible accent ring on any focusable element. Uses
+   :focus-visible so it only shows for keyboard/AT users, not mouse clicks.
+   Applies to native controls and custom role="button" / tabIndex elements. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
