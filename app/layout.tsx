@@ -5,6 +5,7 @@ import {
   IBM_Plex_Mono,
   Inter,
 } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import { SiteNav } from '@/components/ui/SiteNav';
 import { PageTransition } from '@/components/providers/PageTransition';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
@@ -83,6 +84,7 @@ export default function RootLayout({
         <PageTransition>
           <main className="site-main flex flex-1 flex-col">{children}</main>
         </PageTransition>
+        <Analytics />
       </body>
     </html>
   );

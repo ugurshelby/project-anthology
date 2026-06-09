@@ -49,9 +49,32 @@ export function SiteNav() {
           ))}
         </nav>
 
-        <Link href="/" className="brand" aria-label="Home">
-          <span className="brand-top">FORMULA 1</span>
-          <span className="brand-main">HOME</span>
+        <Link href="/" className="brand" aria-label="Apex — Home">
+          <svg
+            className="brand-mark"
+            width="14"
+            height="18"
+            viewBox="0 0 14 18"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6,16 L14,9 L6,2"
+              stroke="#ffffff"
+              strokeOpacity="0.35"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M0,16 L8,9 L0,2"
+              stroke="#ff1801"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="brand-main">APEX</span>
         </Link>
 
         <nav className="nav-links nav-links-right" aria-label="Primary">

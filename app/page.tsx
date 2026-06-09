@@ -1,7 +1,7 @@
 import { CompactBentoDashboard } from '@/components/home/CompactBentoDashboard';
 import type { BentoRacePanel } from '@/components/home/types';
 import { fetchSeasonSnapshotTyped, fetchRoundSnapshot, getOnThisDay } from '@/lib/data/f1';
-import { getLatestNews } from '@/lib/data/news';
+import { aggregate } from '@/lib/news/aggregate';
 import {
   formatRaceCountdown,
   getConstructorStandings,
@@ -20,7 +20,7 @@ export default async function HomePage() {
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_constructors'),
-    getLatestNews(6),
+    aggregate({ maxItems: 6 }),
     getOnThisDay(),
   ]);
 

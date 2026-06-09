@@ -6,9 +6,9 @@
 
 import { getSiteUrl } from '@/lib/data/siteUrl';
 
-export const SITE_NAME = 'Project Anthology';
+export const SITE_NAME = 'Apex';
 export const SITE_TAGLINE =
-  'Formula 1 data, news, circuits, and team radio — Project Anthology';
+  'Apex — F1 archive: data, news, circuits, season standings, and team radio.';
 
 /** Absolute site origin (prod fallback baked into getSiteUrl). */
 export function siteUrl(): string {

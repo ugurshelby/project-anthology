@@ -142,6 +142,42 @@ function isSeasonSnapshotStale(
   return isStandingsSnapshotStale(fetchedAt, races);
 }
 
+/**
+ * Content-validity guard (independent of time-based staleness).
+ *
+ * The F1DB seed can write a placeholder current-season snapshot whose rows are
+ * structurally present but semantically empty — calendar races with a blank
+ * `raceName`, or driver-standings rows with no `Constructors[]` block. Those
+ * rows pass the freshness check (fetched_at is recent) yet render as "—" in the
+ * UI. Treat such a snapshot as unusable so the read path falls through to live
+ * Jolpica, which always carries the full shape.
+ */
+function isSeasonSnapshotContentInvalid(type: SeasonSnapshotType, data: MrData): boolean {
+  if (type === 'calendar') {
+    const races = getRacesFromCalendar(data);
+    if (races.length === 0) return true;
+    // Every race lacks a usable name → placeholder calendar.
+    return races.every((r) => !(r.raceName ?? '').trim());
+  }
+
+  if (type === 'standings_drivers') {
+    const list = (
+      data.MRData as {
+        StandingsTable?: {
+          StandingsLists?: Array<{
+            DriverStandings?: Array<{ Constructors?: Array<{ name?: string }> }>;
+          }>;
+        };
+      }
+    )?.StandingsTable?.StandingsLists?.[0]?.DriverStandings;
+    if (!Array.isArray(list) || list.length === 0) return false;
+    // No driver row carries a constructor name → team column would be all "—".
+    return list.every((row) => !(row.Constructors?.[0]?.name ?? '').trim());
+  }
+
+  return false;
+}
+
 async function fetchLiveSeasonSnapshot(
   season: number,
   type: SeasonSnapshotType,
@@ -177,6 +213,12 @@ export async function fetchSeasonSnapshotTyped(
 
   if (row && hasMrData(row.data)) {
     if (season >= CURRENT_SEASON) {
+      // Content-invalid placeholder (e.g. F1DB seed with empty raceName /
+      // missing Constructors) → go live regardless of fetched_at age.
+      if (isSeasonSnapshotContentInvalid(type, row.data as MrData)) {
+        const live = await fetchLiveSeasonSnapshot(season, type, `${type} content-invalid`);
+        if (live) return live;
+      }
       const races = await getRacesForStaleness(season);
       if (isSeasonSnapshotStale(type, row.fetched_at, races)) {
         const live = await fetchLiveSeasonSnapshot(season, type, `${type} stale`);
