@@ -59,8 +59,12 @@ function FlipDigitInner({ digit }: FlipDigitProps) {
       className="relative inline-block overflow-hidden align-top"
       style={{ height: '1em', width: '0.55em' }}
     >
+      {/* Screen-reader value: the current digit, read without the flip layers'
+          duplicated/animating text. The visual spans below are aria-hidden. */}
+      <span className="sr-only">{current}</span>
       {previous !== null ? (
         <span
+          aria-hidden
           className="absolute inset-0 flex items-center justify-center"
           style={{
             transition,
@@ -72,6 +76,7 @@ function FlipDigitInner({ digit }: FlipDigitProps) {
         </span>
       ) : null}
       <span
+        aria-hidden
         className="absolute inset-0 flex items-center justify-center"
         style={{
           transition,

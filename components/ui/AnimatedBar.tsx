@@ -67,10 +67,14 @@ export function AnimatedBar({
     backgroundColor: color,
   };
 
+  // Decorative: the numeric value/points is always rendered as adjacent text by
+  // callers, so the bar is visual reinforcement only — hidden from AT to avoid
+  // a redundant, value-less announcement.
   if (axis === 'vertical') {
     return (
       <div
         ref={fillRef}
+        aria-hidden
         className={`standings-bar-fill standings-bar-fill--vertical w-full ${trackClassName}`.trim()}
         style={fillStyle}
       />
@@ -79,6 +83,7 @@ export function AnimatedBar({
 
   return (
     <div
+      aria-hidden
       className={`h-1.5 w-full ${trackClassName}`.trim()}
       style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
     >
