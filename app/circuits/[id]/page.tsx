@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BackButton } from '@/components/ui/BackButton';
-import { SafeImage } from '@/components/ui/SafeImage';
+import { CircuitLapLine } from '@/components/ui/CircuitLapLine';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getCircuitDetail, getCircuitIdsForSitemap, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
@@ -93,13 +93,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
       <div className="anthology-card mt-8 flex items-center justify-center p-8">
         {circuit.svgSrc ? (
-          <SafeImage
-            src={circuit.svgSrc}
-            alt={circuit.circuitName}
-            width={640}
-            height={400}
-            className="h-auto max-h-[400px] w-full max-w-2xl object-contain opacity-95"
-          />
+          <CircuitLapLine svgSrc={circuit.svgSrc} alt={circuit.circuitName} />
         ) : (
           <div className="h-64 w-full max-w-2xl" style={{ backgroundColor: 'var(--surface)' }} aria-hidden />
         )}

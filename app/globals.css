@@ -385,6 +385,17 @@ body {
   width: 100%;
 }
 
+/* ── Circuit lap line ──────────────────────────────────────────────────── */
+@keyframes lapLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.circuit-lap-line-animate {
+  animation: lapLine 3s ease-in-out forwards;
+}
+
 /* ── Page transition sweep ─────────────────────────────────────────────── */
 .page-transition-sweep {
   position: fixed;
