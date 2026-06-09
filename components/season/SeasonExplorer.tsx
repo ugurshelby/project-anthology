@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState, type KeyboardEvent } from 'react';
 import { CalendarScroller } from '@/components/season/CalendarScroller';
+import { TiltCard } from '@/components/ui/TiltCard';
 import {
   EntityDrawer,
   type DriverEntityDetail,
@@ -668,23 +669,19 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               );
 
               const cardClass =
-                'anthology-card flex w-[220px] shrink-0 snap-start flex-col justify-between gap-4 p-4';
+                'anthology-card flex w-full flex-col justify-between gap-4 p-4 transition-opacity hover:opacity-80';
               const key = String(race.round ?? race.raceName);
               const isNearest = key === nearestRaceKey;
 
-              return circuitId ? (
-                <Link
+              return (
+                <TiltCard
                   key={key}
-                  href={`/circuits/${circuitId}`}
+                  href={circuitId ? `/circuits/${circuitId}` : undefined}
                   data-nearest={isNearest ? 'true' : undefined}
-                  className={`${cardClass} transition-opacity hover:opacity-80`}
+                  className={cardClass}
                 >
                   {cardInner}
-                </Link>
-              ) : (
-                <div key={key} data-nearest={isNearest ? 'true' : undefined} className={cardClass}>
-                  {cardInner}
-                </div>
+                </TiltCard>
               );
             })}
           </CalendarScroller>
