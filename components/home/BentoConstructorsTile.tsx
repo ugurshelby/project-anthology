@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AnimatedBar, AnimatedBarGroup } from '@/components/ui/AnimatedBar';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { teamIconSrc } from '@/lib/assets/f1-icons';
 import { SafeImage } from '@/components/ui/SafeImage';
@@ -43,9 +44,10 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
         Constructors Ranking
       </span>
 
+      <AnimatedBarGroup className="flex min-h-0 flex-1 flex-col">
       {/* Mobile / tablet: horizontal bars with team logos */}
       <div className="flex flex-1 flex-col justify-center gap-3 lg:hidden">
-        {top.map((row) => {
+        {top.map((row, index) => {
           const color = resolveTeamUiColor(null, row.constructorName);
           const pct = maxPts > 0 ? (Number(row.points) / maxPts) * 100 : 0;
           const logoSrc = teamIconSrc(row.constructorName, season);
@@ -82,9 +84,12 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
                     {row.points}
                   </span>
                 </div>
-                <div className="h-1.5 w-full" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
-                  <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color }} />
-                </div>
+                <AnimatedBar
+                  barSize={`${pct}%`}
+                  color={color}
+                  index={index}
+                  axis="horizontal"
+                />
               </div>
             </div>
           );
@@ -93,7 +98,7 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
 
       {/* Desktop: vertical bar chart with team logos */}
       <div className="hidden min-h-0 flex-1 items-end justify-between gap-2 lg:flex">
-        {top.map((row) => {
+        {top.map((row, index) => {
           const color = resolveTeamUiColor(null, row.constructorName);
           const pts = Number(row.points) || 0;
           const barPx =
@@ -116,12 +121,11 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
               <span className="font-mono text-xs leading-none" style={{ color: 'var(--paper)' }}>
                 {row.points}
               </span>
-              <div
-                className="w-full"
-                style={{
-                  height: `${barPx}px`,
-                  backgroundColor: color,
-                }}
+              <AnimatedBar
+                barSize={`${barPx}px`}
+                color={color}
+                index={index}
+                axis="vertical"
               />
               {logoSrc ? (
                 <SafeImage
@@ -143,6 +147,7 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
           );
         })}
       </div>
+      </AnimatedBarGroup>
     </Link>
   );
 }
