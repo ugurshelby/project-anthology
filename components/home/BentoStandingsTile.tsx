@@ -8,6 +8,7 @@ interface BentoStandingsTileProps {
   standings: DriverStandingRow[];
   currentRound: number;
   totalRounds: number;
+  season: number;
 }
 
 function driverCode(row: DriverStandingRow): string {
@@ -21,6 +22,7 @@ export function BentoStandingsTile({
   standings,
   currentRound,
   totalRounds,
+  season,
 }: BentoStandingsTileProps) {
   const top = standings.slice(0, 10);
   const leaderPts = Number(standings[0]?.points) || 0;
@@ -58,8 +60,8 @@ export function BentoStandingsTile({
             const color = resolveTeamUiColor(null, row.constructorName);
             const pct =
               leaderPts > 0 ? Math.max(8, (Number(row.points) / leaderPts) * 100) : 8;
-            const driverSrc = driverIconSrc(row.driverCode, row.driverName);
-            const teamSrc = teamIconSrc(row.constructorName);
+            const driverSrc = driverIconSrc(row.driverCode, row.driverName, season);
+            const teamSrc = teamIconSrc(row.constructorName, season);
 
             return (
               <div
