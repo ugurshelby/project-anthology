@@ -8,11 +8,11 @@ import { withSentryConfig } from "@sentry/nextjs";
 // nonce-based policy is a separate future hardening step.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
+  "connect-src 'self' data: https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.the-race.com' },
       { protocol: 'https', hostname: '**.bbc.co.uk' },
       { protocol: 'https', hostname: '**.racefans.net' },
+      { protocol: 'https', hostname: 'ichef.bbci.co.uk' },
     ],
   },
   // Keep heavy/unnecessary files out of serverless function bundles. NOTE:

@@ -18,7 +18,11 @@ Usage rule: every frontend agent reads this file first before any frontend work.
 - Default state: background transparent, `backdrop-filter: blur(8px)`, border-bottom `0.5px solid rgba(255,255,255,0.06)`
 - Hover/scroll state: background `rgba(10,10,10,0.92)`, `backdrop-filter: blur(16px)`, border-bottom `2px solid #ff1801`
 - Transition: background `300ms ease`, border `300ms ease`
-- Left: "FORMULA 1" Inter `8px` muted above "ANTHOLOGY" Bebas Neue `15px`
+- Brand (center, links Home): inline chevron mark + "APEX" wordmark, laid out in a row with `6px` gap
+  - Wordmark: "APEX" Bebas Neue `22px`, `letter-spacing 0.08em`, color `#ffffff`
+  - Chevron mark: nested right-pointing arrows, inline SVG `14×18px` (`viewBox="0 0 14 18"`), `stroke-width 2.5px`, rounded caps/joins
+    - Front arrow (`M0,16 L8,9 L0,2`): `#ff1801`
+    - Back arrow (`M6,16 L14,9 L6,2`): `#ffffff` at `opacity 0.35`
 - Center-right: nav links Barlow Condensed `11px` uppercase `tracking-[0.12em]`
 - Active link: color white + `4px` red dot below via `::after`
 - Far right: hamburger (3 lines, `18px`, `1.5px` each)
