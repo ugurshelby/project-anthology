@@ -12,6 +12,7 @@ import {
   type TeamEntityDetail,
 } from '@/components/ui/EntityDrawer';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { AssetFallback } from '@/components/ui/AssetFallback';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import type { SeasonData } from '@/lib/data/f1';
 import { circuitIconSrc, driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
@@ -227,8 +228,11 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         width={32}
                         height={32}
                         className="h-8 w-8 shrink-0 object-contain"
+                        fallbackNode={<AssetFallback label={row.driverCode || row.driverName} size={32} />}
                       />
-                    ) : null}
+                    ) : (
+                      <AssetFallback label={row.driverCode || row.driverName} size={32} />
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm" style={{ color: 'var(--paper)' }}>
                         {row.driverName}
@@ -312,8 +316,11 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                                 width={28}
                                 height={28}
                                 className="h-7 w-7 object-contain"
+                                fallbackNode={<AssetFallback label={row.driverCode || row.driverName} size={28} />}
                               />
-                            ) : null}
+                            ) : (
+                              <AssetFallback label={row.driverCode || row.driverName} size={28} />
+                            )}
                             <span style={{ color: 'var(--paper)' }}>{row.driverName}</span>
                           </span>
                         </td>
@@ -383,9 +390,10 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                       width={32}
                       height={32}
                       className="h-8 w-8 shrink-0 object-contain"
+                      fallbackNode={<AssetFallback label={c.constructorName} size={32} />}
                     />
                   ) : (
-                    <span className="h-8 w-8 shrink-0" aria-hidden />
+                    <AssetFallback label={c.constructorName} size={32} />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-baseline justify-between gap-2">
@@ -462,8 +470,11 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         width={36}
                         height={36}
                         className="h-9 w-9 shrink-0 object-contain"
+                        fallbackNode={<AssetFallback label={p.driverCode || p.driverName} size={36} />}
                       />
-                    ) : null}
+                    ) : (
+                      <AssetFallback label={p.driverCode || p.driverName} size={36} />
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm" style={{ color: 'var(--paper)' }}>
                         {p.driverName}
