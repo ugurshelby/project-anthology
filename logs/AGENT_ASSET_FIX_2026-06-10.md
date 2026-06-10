@@ -9,11 +9,15 @@ Paralel çalışma: Cursor aynı anda asset/renk işleri yapıyordu (public/driv
 - `script-src` ve `connect-src` **değiştirilmedi**.
 - Amaç: Vercel Live (preview yorum/feedback toolbar) iframe'lerinin CSP tarafından bloklanmaması.
 
-### 2. Submodule sorunu → ZATEN ÇÖZÜLMÜŞ (Cursor tarafından)
-- **Kök neden (doğrulandı):** `assets/f1-circuits` git'te gitlink (mode `160000`) olarak kayıtlıydı ama `.gitmodules` yoktu → Vercel "Failed to fetch one or more git submodules".
+### 2. Submodule sorunu → static copy (Çözüm A) — DÜZELTİLDİ
+- **Kök neden (doğrulandı):** `assets/f1-circuits` git'te gitlink (mode `160000`, commit `855000c`) olarak kayıtlıydı ama `.gitmodules` yoktu → Vercel "Failed to fetch one or more git submodules".
 - **Tespit:** Hiçbir kaynak dosya `assets/f1-circuits`'i import etmiyor (grep boş). Runtime `public/circuits/` (24 SVG, commit'li) kullanıyor — submodule'den bağımsız.
-- **DURUM:** Bu sprint sırasında Cursor paralelde `a51e207` commit'i ("fix: normalize driver slug special characters") ile submodule'ü zaten düz dosya ağacına çevirmiş. HEAD'de (`fbd4950`) `assets/f1-circuits` artık `040000 tree` (gitlink değil). Benim aynı işlemim (`git rm --cached` + inner `.git` sil + `git add`) **no-op** oldu (stage edilecek fark yok). Çözüm A doğruydu, sadece Cursor önce uyguladı.
-- **Net sonuç:** gitlink yok, `.gitmodules` yok → Vercel submodule fetch denemeyecek. Ayrı commit'e gerek kalmadı.
+- **DİKKAT (tuzak):** `git ls-tree HEAD assets/` (recursive DEĞİL) yanıltıcı şekilde `040000 tree` gösteriyordu; submodule'ün düzeldiği sanıldı. `git ls-tree -r HEAD` ile gerçek görüldü: gitlink HEAD'de **hâlâ duruyordu**. İlk `git rm --cached`'im paralel git aktivitesi sırasında index'e geri yazılmıştı.
+- **Uygulanan çözüm (A):**
+  - `git rm --cached assets/f1-circuits` (gitlink index'ten çıkarıldı)
+  - inner `assets/f1-circuits/.git` silindi (zaten kaldırılmıştı)
+  - `git add assets/f1-circuits` → 37 dosya `100644` (düz blob) olarak stage edildi, gitlink `D` ile silindi
+  - **Commit edildi** (bu sefer kalıcı): `git ls-tree -r HEAD | grep ^160000` → boş. Vercel-safe.
 
 ### 3. Driver slug resolver — özel karakter normalizasyonu
 - `lib/assets/f1-icons.ts`:
@@ -35,9 +39,10 @@ Paralel çalışma: Cursor aynı anda asset/renk işleri yapıyordu (public/driv
 - `next.config.ts` (CSP frame-src) — commit `427742d`
 - `lib/assets/f1-icons.ts` (normalizeDiacritics + alias + resolver dalları) — commit `aa26ee9`
 - `tests/f1-icons.test.ts` (5 yeni test) — commit `aa26ee9`
+- `assets/f1-circuits/**` (gitlink → 37 düz dosya) — submodule fix commit
 - `logs/AGENT_ASSET_FIX_2026-06-10.md` (bu log)
 
-> Not: `assets/f1-circuits/**` (gitlink → düz dosya) Cursor'un `a51e207` commit'inde zaten yapılmıştı; bu ajan dokunmadı. Cursor'un lane'indeki dosyalara (`app/layout.tsx`, `package.json`, `package-lock.json`, `assets/scripts/`, `config/team-colors.ts`, `public/drivers|teams/`) **dokunulmadı**.
+> Cursor'un lane'indeki dosyalara (`app/layout.tsx`, `package.json`, `package-lock.json`, `assets/scripts/audit-missing-assets.ts`, `config/team-colors.ts`, `public/drivers|teams/`, `.cursor/`) **dokunulmadı**.
 
 ## Çalıştırılan komutlar
 - `git rm --cached assets/f1-circuits` + `rm -rf assets/f1-circuits/.git` + `git add assets/f1-circuits`
