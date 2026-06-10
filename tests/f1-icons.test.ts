@@ -21,6 +21,35 @@ describe('driverIconSrc', () => {
   });
 });
 
+describe('driverIconSrc — diacritic / punctuation normalization', () => {
+  // Asset files use ASCII surname basenames (raikkonen.svg, perez.svg,
+  // hulkenberg.svg, sainz.svg). A driver name carrying diacritics must resolve
+  // to the same ASCII path, never to an accented slug that would 404.
+  it('normalizes ä/ö in Räikkönen to raikkonen', () => {
+    expect(driverIconSrc(null, 'Kimi Räikkönen', 2007)).toBe('/drivers/2007/raikkonen.svg');
+  });
+
+  it('normalizes é in Pérez to perez', () => {
+    expect(driverIconSrc(null, 'Sergio Pérez', 2014)).toBe('/drivers/2014/perez.svg');
+  });
+
+  it('normalizes ü in Hülkenberg to hulkenberg', () => {
+    expect(driverIconSrc(null, 'Nico Hülkenberg', 2014)).toBe('/drivers/2014/hulkenberg.svg');
+  });
+
+  it('strips the trailing dot in "Carlos Sainz Jr." style names', () => {
+    // The pre-built ergast id form with a trailing dot must not leak into the path.
+    expect(driverIconSrc(null, 'carlos_sainz_jr.', 2015)).toBe('/drivers/2015/sainz.svg');
+  });
+
+  it('produces an ASCII-only path (no combining marks) for accented input', () => {
+    const src = driverIconSrc(null, 'Kimi Räikkönen', 2008);
+    expect(src).not.toBeNull();
+    // eslint-disable-next-line no-control-regex
+    expect(/[^\x00-\x7F]/.test(src!)).toBe(false);
+  });
+});
+
 describe('teamIconSrc', () => {
   it('returns null for an unknown team', () => {
     expect(teamIconSrc('Totally Fake Team', 2026)).toBeNull();

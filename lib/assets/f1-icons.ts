@@ -1,6 +1,26 @@
 import { getTeamByName } from '@/config/team-colors';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
+/**
+ * Strip diacritics and normalize punctuation so a driver's display name maps to
+ * its ASCII on-disk asset slug. Cursor renames asset files to ASCII basenames
+ * (räikkönen→raikkonen, pérez→perez); the resolver must apply the same transform
+ * or it generates slugs that 404. Handles: ä→a é→e ü→u ö→o ñ→n etc. (via Unicode
+ * NFD decomposition), German ß→ss, and trailing/internal punctuation (jr.→jr).
+ */
+function normalizeDiacritics(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // combining marks (accents)
+    .replace(/ß/g, 'ss')
+    .replace(/ø/g, 'o')
+    .replace(/đ/g, 'd')
+    .replace(/ł/g, 'l')
+    .replace(/[.'’]/g, '') // drop dots/apostrophes: jr. → jr, o'ward → oward
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, ''); // trim leading/trailing underscores
+}
+
 /** FIA 3-letter driver code → public/drivers SVG basename (surname slug). */
 const DRIVER_CODE_TO_SLUG: Record<string, string> = {
   ant: 'antonelli',
@@ -56,6 +76,16 @@ const ERGAST_SLUG_ALIASES: Record<string, string> = {
   daniel_ricciardo: 'ricciardo',
   zhou_guanyu: 'zhou',
   logan_sargeant: 'sargeant',
+  // Special-character names: explicit aliases as a safety net for when an upstream
+  // source sends a pre-built ergast id carrying diacritics. The resolver also
+  // normalizes diacritics generically (normalizeDiacritics), but these pin the
+  // exact on-disk surname basename (assets are surname-only: raikkonen.svg etc.).
+  kimi_räikkönen: 'raikkonen',
+  kimi_raikkonen: 'raikkonen',
+  sergio_pérez: 'perez',
+  nico_hülkenberg: 'hulkenberg',
+  'carlos_sainz_jr.': 'sainz',
+  carlos_sainz_jr: 'sainz',
 };
 
 const DRIVER_ASSET_SLUGS = new Set(Object.values(DRIVER_CODE_TO_SLUG));
@@ -144,25 +174,37 @@ function slugFromDriverId(driverId: string): string | null {
   const id = driverId.trim().toLowerCase();
   if (!id) return null;
   if (DRIVER_ID_TO_SLUG[id]) return DRIVER_ID_TO_SLUG[id];
-  const normalized = id.replace(/^max_/, '').replace(/_/g, '');
-  if (DRIVER_ASSET_SLUGS.has(normalized)) return normalized;
+  const collapsed = id.replace(/^max_/, '').replace(/_/g, '');
+  if (DRIVER_ASSET_SLUGS.has(collapsed)) return collapsed;
   if (DRIVER_ASSET_SLUGS.has(id)) return id;
+  const ascii = normalizeDiacritics(collapsed);
+  if (ascii !== collapsed && DRIVER_ASSET_SLUGS.has(ascii)) return ascii;
   return null;
 }
 
 function slugFromSurname(driverName: string): string | null {
   const last = driverName.trim().split(/\s+/).pop()?.toLowerCase();
-  if (!last || !DRIVER_ASSET_SLUGS.has(last)) return null;
-  return last;
+  if (!last) return null;
+  if (DRIVER_ASSET_SLUGS.has(last)) return last;
+  const normalized = normalizeDiacritics(last);
+  if (normalized !== last && DRIVER_ASSET_SLUGS.has(normalized)) return normalized;
+  return null;
 }
 
 function ergastIdFromName(driverName: string): string | null {
   const parts = driverName.trim().split(/\s+/).filter(Boolean);
-  if (parts.length < 2) return parts[0]?.toLowerCase() ?? null;
+  if (parts.length < 2) {
+    const single = parts[0]?.toLowerCase();
+    return single ? normalizeDiacritics(single) : null;
+  }
   const family = parts[parts.length - 1].toLowerCase();
   const given = parts.slice(0, -1).join('_').toLowerCase();
   const ergast = `${given}_${family}`;
-  return ERGAST_SLUG_ALIASES[ergast] ?? ergast;
+  // Try alias on the raw id first (covers explicit diacritic keys), then fall
+  // back to the ASCII-normalized id (covers files renamed to plain basenames).
+  if (ERGAST_SLUG_ALIASES[ergast]) return ERGAST_SLUG_ALIASES[ergast];
+  const normalized = normalizeDiacritics(ergast);
+  return ERGAST_SLUG_ALIASES[normalized] ?? normalized;
 }
 
 function resolveDriverSlug(
@@ -186,7 +228,9 @@ function resolveDriverSlug(
         const fromId = slugFromDriverId(lowered);
         if (fromId) return fromId;
       }
-      return ERGAST_SLUG_ALIASES[lowered] ?? lowered;
+      if (ERGAST_SLUG_ALIASES[lowered]) return ERGAST_SLUG_ALIASES[lowered];
+      const normalized = normalizeDiacritics(lowered);
+      return ERGAST_SLUG_ALIASES[normalized] ?? normalized;
     }
 
     const fromId = slugFromDriverId(lowered);
