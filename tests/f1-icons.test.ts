@@ -48,6 +48,19 @@ describe('driverIconSrc — diacritic / punctuation normalization', () => {
     // eslint-disable-next-line no-control-regex
     expect(/[^\x00-\x7F]/.test(src!)).toBe(false);
   });
+
+  // QA checklist (deploy verification): exact paths the /season pages request.
+  // These basenames exist on disk (public/drivers/2019/{raikkonen,perez}.svg,
+  // public/drivers/2026/{colapinto,lindblad}.svg).
+  it('2019 season resolves Räikkönen and Pérez to existing assets', () => {
+    expect(driverIconSrc('rai', 'Kimi Räikkönen', 2019)).toBe('/drivers/2019/raikkonen.svg');
+    expect(driverIconSrc('per', 'Sergio Pérez', 2019)).toBe('/drivers/2019/perez.svg');
+  });
+
+  it('2026 season resolves Colapinto and Lindblad to existing assets', () => {
+    expect(driverIconSrc('col', 'Franco Colapinto', 2026)).toBe('/drivers/2026/colapinto.svg');
+    expect(driverIconSrc('lin', 'Arvid Lindblad', 2026)).toBe('/drivers/2026/lindblad.svg');
+  });
 });
 
 describe('teamIconSrc', () => {
