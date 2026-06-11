@@ -468,6 +468,128 @@ export function getConstructorSeasonRecords(
   return records.slice(0, 3);
 }
 
+// ── Round detail extractors (/season/[year]/round/[n]) ───────────────────────
+
+export interface RoundRaceInfo {
+  raceName: string;
+  date: string | null;
+  circuitId: string | null;
+  circuitName: string | null;
+  locality: string | null;
+  country: string | null;
+}
+
+/** Header info (race name, date, circuit) from any round-level snapshot. */
+export function getRoundRaceInfo(data: MrData | null): RoundRaceInfo | null {
+  const race = firstRace(data);
+  if (!race) return null;
+  const circuit = race.Circuit as
+    | { circuitId?: string; circuitName?: string; Location?: { locality?: string; country?: string } }
+    | undefined;
+  return {
+    raceName: (race.raceName as string) ?? 'Grand Prix',
+    date: (race.date as string) ?? null,
+    circuitId: circuit?.circuitId ?? null,
+    circuitName: circuit?.circuitName ?? null,
+    locality: circuit?.Location?.locality ?? null,
+    country: circuit?.Location?.country ?? null,
+  };
+}
+
+export interface RaceResultRow {
+  position: string;
+  driverName: string;
+  driverCode: string;
+  constructorName: string;
+  grid: string | null;
+  laps: string | null;
+  /** Finishing time for the leader / gap for the rest, or the status (+1 Lap, DNF…). */
+  timeOrStatus: string;
+  points: string;
+  fastestLap: boolean;
+}
+
+interface RawSessionResult {
+  position?: string;
+  grid?: string;
+  laps?: string;
+  points?: string;
+  status?: string;
+  Time?: { time?: string };
+  FastestLap?: { rank?: string; Time?: { time?: string } };
+  Driver?: { givenName?: string; familyName?: string; code?: string };
+  Constructor?: { name?: string };
+}
+
+function toResultRow(r: RawSessionResult): RaceResultRow {
+  const given = r.Driver?.givenName ?? '';
+  const family = r.Driver?.familyName ?? '';
+  return {
+    position: r.position ?? '—',
+    driverName: `${given} ${family}`.trim() || '—',
+    driverCode: (r.Driver?.code ?? '').toLowerCase(),
+    constructorName: r.Constructor?.name ?? '—',
+    grid: r.grid ?? null,
+    laps: r.laps ?? null,
+    timeOrStatus: r.Time?.time ?? r.status ?? '—',
+    points: r.points ?? '0',
+    fastestLap: r.FastestLap?.rank === '1',
+  };
+}
+
+/** Full race classification from a round `results` snapshot. */
+export function getRaceResultRows(data: MrData | null): RaceResultRow[] {
+  const race = firstRace(data);
+  const results = (race?.Results as RawSessionResult[] | undefined) ?? [];
+  return results.map(toResultRow);
+}
+
+/** Full sprint classification from a round `sprint` snapshot. */
+export function getSprintResultRows(data: MrData | null): RaceResultRow[] {
+  const race = firstRace(data);
+  const results = (race?.SprintResults as RawSessionResult[] | undefined) ?? [];
+  return results.map(toResultRow);
+}
+
+export interface QualifyingRow {
+  position: string;
+  driverName: string;
+  driverCode: string;
+  constructorName: string;
+  q1: string | null;
+  q2: string | null;
+  q3: string | null;
+}
+
+/** Full qualifying classification from a round `qualifying` snapshot. */
+export function getQualifyingRows(data: MrData | null): QualifyingRow[] {
+  const race = firstRace(data);
+  const results =
+    (race?.QualifyingResults as
+      | Array<{
+          position?: string;
+          Q1?: string;
+          Q2?: string;
+          Q3?: string;
+          Driver?: { givenName?: string; familyName?: string; code?: string };
+          Constructor?: { name?: string };
+        }>
+      | undefined) ?? [];
+  return results.map((r) => {
+    const given = r.Driver?.givenName ?? '';
+    const family = r.Driver?.familyName ?? '';
+    return {
+      position: r.position ?? '—',
+      driverName: `${given} ${family}`.trim() || '—',
+      driverCode: (r.Driver?.code ?? '').toLowerCase(),
+      constructorName: r.Constructor?.name ?? '—',
+      q1: r.Q1 ?? null,
+      q2: r.Q2 ?? null,
+      q3: r.Q3 ?? null,
+    };
+  });
+}
+
 /** Collect unique circuit IDs from a calendar race list. */
 export function getCircuitIdsFromRaces(races: CalendarRace[]): string[] {
   const seen = new Set<string>();
