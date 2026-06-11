@@ -433,7 +433,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               <div>
                 <p
                   className="font-mono text-[10px] uppercase tracking-[0.2em]"
-                  style={{ color: 'rgba(255,24,1,0.7)' }}
+                  style={{ color: 'var(--accent)' }}
                 >
                   Round {recap.round}
                 </p>
@@ -535,6 +535,16 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                 </span>
               ) : null}
             </div>
+
+            {Number(recap.round) > 0 ? (
+              <Link
+                href={`/season/${year}/round/${Number(recap.round)}`}
+                className="mt-5 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
+                style={{ color: 'var(--accent)' }}
+              >
+                Full Results →
+              </Link>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -563,7 +573,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                       >
                         <p
                           className="font-mono text-[10px] uppercase tracking-[0.15em]"
-                          style={{ color: 'rgba(255,24,1,0.7)' }}
+                          style={{ color: 'var(--accent)' }}
                         >
                           {record.label}
                         </p>
@@ -607,7 +617,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                       >
                         <p
                           className="font-mono text-[10px] uppercase tracking-[0.15em]"
-                          style={{ color: 'rgba(255,24,1,0.7)' }}
+                          style={{ color: 'var(--accent)' }}
                         >
                           {record.label}
                         </p>
@@ -662,7 +672,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                   <div className="flex items-center justify-between">
                     <span
                       className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                      style={{ color: 'rgba(255,24,1,0.7)' }}
+                      style={{ color: 'var(--accent)' }}
                     >
                       Round {race.round ?? '—'}
                     </span>
@@ -690,10 +700,19 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               const key = String(race.round ?? race.raceName);
               const isNearest = key === nearestRaceKey;
 
+              // Finished rounds open the round result page; upcoming ones the circuit.
+              const roundNum = Number(race.round);
+              const href =
+                done && Number.isFinite(roundNum) && roundNum > 0
+                  ? `/season/${year}/round/${roundNum}`
+                  : circuitId
+                    ? `/circuits/${circuitId}`
+                    : undefined;
+
               return (
                 <TiltCard
                   key={key}
-                  href={circuitId ? `/circuits/${circuitId}` : undefined}
+                  href={href}
                   data-nearest={isNearest ? 'true' : undefined}
                   className={cardClass}
                 >
