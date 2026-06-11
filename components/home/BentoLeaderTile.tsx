@@ -32,6 +32,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
             src={driverSrc}
             alt=""
             fill
+            priority
             className="object-cover opacity-30 mix-blend-luminosity grayscale"
             sizes="(max-width: 1024px) 100vw, 66vw"
           />
