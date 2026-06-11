@@ -56,7 +56,7 @@ export function BentoTyreTile() {
           </span>
           <p
             className="mt-1 font-mono text-[8px] uppercase tracking-[0.15em] lg:text-[9px]"
-            style={{ color: 'rgba(255,24,1,0.7)' }}
+            style={{ color: 'var(--accent)' }}
           >
             Weekend · Dry slicks
           </p>

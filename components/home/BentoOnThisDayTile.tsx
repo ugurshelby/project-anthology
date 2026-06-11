@@ -12,7 +12,7 @@ export function BentoOnThisDayTile({ entries }: BentoOnThisDayTileProps) {
       <div className="bento-panel flex h-full flex-col gap-4 p-4 lg:p-6">
         <p
           className="font-mono text-[9px] uppercase tracking-[0.2em] lg:text-[10px]"
-          style={{ color: 'rgba(255,24,1,0.7)' }}
+          style={{ color: 'var(--accent)' }}
         >
           On This Day
         </p>

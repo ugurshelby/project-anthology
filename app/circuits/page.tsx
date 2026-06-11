@@ -89,7 +89,7 @@ export default async function CircuitsPage() {
                     <div className="flex items-center justify-between gap-2">
                       <span
                         className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                        style={{ color: 'rgba(255,24,1,0.7)' }}
+                        style={{ color: 'var(--accent)' }}
                       >
                         Round {card.round}
                       </span>

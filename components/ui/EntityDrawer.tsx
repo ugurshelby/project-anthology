@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { usePrefersReducedMotion } from '@/components/ui/usePrefersReducedMotion';
 
 export type DriverEntityDetail = {
   kind: 'driver';
@@ -53,24 +54,6 @@ function subscribeNoop() {
 
 function useIsClient(): boolean {
   return useSyncExternalStore(subscribeNoop, () => true, () => false);
-}
-
-function subscribeReducedMotion(onStoreChange: () => void) {
-  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-  mq.addEventListener('change', onStoreChange);
-  return () => mq.removeEventListener('change', onStoreChange);
-}
-
-function getReducedMotionSnapshot(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-function usePrefersReducedMotion(): boolean {
-  return useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    () => false,
-  );
 }
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
@@ -202,7 +185,7 @@ export function EntityDrawer({ entity, onClose }: EntityDrawerProps) {
           <div className="min-w-0 flex-1">
             <p
               className="font-mono text-[10px] uppercase tracking-[0.2em]"
-              style={{ color: 'rgba(255,24,1,0.7)' }}
+              style={{ color: 'var(--accent)' }}
             >
               {entity.seasonYear} Season
             </p>
