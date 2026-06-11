@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getCircuitIdsForSitemap } from '@/lib/data/circuits';
-import { getStorySlugs } from '@/lib/data/stories';
+import { getStorySitemapEntries } from '@/lib/data/stories';
 import { siteUrl } from '@/lib/seo';
 
 /**
@@ -21,14 +21,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/tech-glossary`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
   ];
 
-  const slugs = await getStorySlugs();
+  const stories = await getStorySitemapEntries();
   const circuitIds = await getCircuitIdsForSitemap();
-  const storyRoutes: MetadataRoute.Sitemap = slugs.map((slug) => ({
-    url: `${base}/anthology/${slug}`,
-    lastModified: now,
-    changeFrequency: 'yearly',
-    priority: 0.7,
-  }));
+  const storyRoutes: MetadataRoute.Sitemap = stories.map((story) => {
+    const updated = Date.parse(story.updatedAt);
+    return {
+      url: `${base}/anthology/${story.slug}`,
+      // Real row timestamp tells crawlers when the story actually changed.
+      lastModified: Number.isFinite(updated) ? new Date(updated) : now,
+      changeFrequency: 'yearly',
+      priority: 0.7,
+    };
+  });
 
   const circuitRoutes: MetadataRoute.Sitemap = circuitIds.map((id) => ({
     url: `${base}/circuits/${id}`,

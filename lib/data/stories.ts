@@ -21,6 +21,9 @@ export interface Story {
   heroImage: string;
   blocks: StoryBlock[];
   sortOrder: number;
+  /** Row timestamps (ISO) — feed Article JSON-LD datePublished/dateModified and RSS. */
+  createdAt: string;
+  updatedAt: string;
 }
 
 function parseContent(row: StoryRow): Story {
@@ -34,6 +37,8 @@ function parseContent(row: StoryRow): Story {
     heroImage: typeof c.heroImage === 'string' ? c.heroImage : '/placeholder.svg',
     blocks: Array.isArray(c.blocks) ? (c.blocks as StoryBlock[]) : [],
     sortOrder: row.sort_order,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -86,6 +91,28 @@ export async function getStorySlugs(): Promise<string[]> {
     );
     if (result.error || !result.data?.length) return [];
     return (result.data as Array<{ slug: string }>).map((r) => r.slug);
+  } catch {
+    return [];
+  }
+}
+
+export interface StorySitemapEntry {
+  slug: string;
+  updatedAt: string;
+}
+
+/** Published slugs with real updated_at — sitemap lastModified source. */
+export async function getStorySitemapEntries(): Promise<StorySitemapEntry[]> {
+  try {
+    const supabase = getSupabaseClient();
+    const { result } = await timed(async () =>
+      supabase.from('stories').select('slug, updated_at').eq('published', true),
+    );
+    if (result.error || !result.data?.length) return [];
+    return (result.data as Array<{ slug: string; updated_at: string }>).map((r) => ({
+      slug: r.slug,
+      updatedAt: r.updated_at,
+    }));
   } catch {
     return [];
   }

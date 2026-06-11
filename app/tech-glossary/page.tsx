@@ -10,10 +10,17 @@ export const metadata: Metadata = {
   title: 'Tech Glossary',
   description:
     'A reference glossary of Formula 1 technical terms: aerodynamics, power units, tyres, chassis, strategy and regulations.',
+  alternates: { canonical: '/tech-glossary' },
   openGraph: {
     title: 'Tech Glossary — F1 Terms',
     description: 'Reference definitions for Formula 1 technical vocabulary.',
+    url: '/tech-glossary',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tech Glossary — F1 Terms',
+    description: 'Reference definitions for Formula 1 technical vocabulary.',
   },
 };
 
@@ -81,7 +88,7 @@ export default function TechGlossaryPage() {
                 <div className="min-w-0">
                   <p
                     className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                    style={{ color: 'rgba(255,24,1,0.7)' }}
+                    style={{ color: 'var(--accent)' }}
                   >
                     {tyre.kicker}
                   </p>

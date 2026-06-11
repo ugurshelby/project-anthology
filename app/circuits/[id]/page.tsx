@@ -32,6 +32,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `/circuits/${id}`,
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${circuit.circuitName} — F1 Circuit`,
+      description,
+    },
   };
 }
 
@@ -72,7 +77,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
       <header className="mt-6">
         <p
           className="font-mono text-[9px] uppercase tracking-[0.15em]"
-          style={{ color: 'rgba(255,24,1,0.7)' }}
+          style={{ color: 'var(--accent)' }}
         >
           Round {circuit.round} · {circuit.date}
         </p>
@@ -125,7 +130,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
           <div>
             <p
               className="font-mono text-[9px] uppercase tracking-[0.15em]"
-              style={{ color: 'rgba(255,24,1,0.7)' }}
+              style={{ color: 'var(--accent)' }}
             >
               Trackside Now · {weather.isDay ? 'Day' : 'Night'}
             </p>
@@ -188,7 +193,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               <div key={c.label} className="anthology-card p-5">
                 <dt
                   className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                  style={{ color: 'rgba(255,24,1,0.7)' }}
+                  style={{ color: 'var(--accent)' }}
                 >
                   {c.label}
                 </dt>
@@ -220,7 +225,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                 <div>
                   <span
                     className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                    style={{ color: 'rgba(255,24,1,0.7)' }}
+                    style={{ color: 'var(--accent)' }}
                   >
                     {entry.season}
                   </span>
