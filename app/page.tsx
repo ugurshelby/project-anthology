@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import { CompactBentoDashboard } from '@/components/home/CompactBentoDashboard';
 import type { BentoRacePanel } from '@/components/home/types';
+import { SITE_NAME, SITE_TAGLINE } from '@/lib/seo';
 import { fetchSeasonSnapshotTyped, fetchRoundSnapshot, getOnThisDay } from '@/lib/data/f1';
 import { aggregate } from '@/lib/news/aggregate';
 import {
@@ -14,6 +16,25 @@ import {
 import { CURRENT_SEASON, getF1Context, getLastFinishedRace } from '@/lib/f1Calendar';
 
 export const revalidate = 0;
+
+const HOME_TITLE = `${SITE_NAME} — F1 Archive`;
+
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: SITE_TAGLINE,
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: HOME_TITLE,
+    description: SITE_TAGLINE,
+    url: '/',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: HOME_TITLE,
+    description: SITE_TAGLINE,
+  },
+};
 
 export default async function HomePage() {
   const [calendarData, standingsData, constructorData, news, onThisDay] = await Promise.all([

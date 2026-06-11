@@ -46,6 +46,12 @@ export function articleJsonLd(input: {
   imageUrl?: string;
   year?: string;
   category?: string;
+  /** ISO timestamp the story row was created (→ datePublished). */
+  publishedAt?: string;
+  /** ISO timestamp the story row was last updated (→ dateModified). */
+  modifiedAt?: string;
+  /** Defaults to the site Organization when stories carry no per-author byline. */
+  authorName?: string;
 }): Record<string, unknown> {
   const url = absoluteUrl(`/anthology/${input.slug}`);
   return {
@@ -57,6 +63,13 @@ export function articleJsonLd(input: {
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     image: input.imageUrl ? [absoluteUrl(input.imageUrl)] : undefined,
     articleSection: input.category || undefined,
+    datePublished: input.publishedAt || undefined,
+    dateModified: input.modifiedAt || input.publishedAt || undefined,
+    author: {
+      '@type': 'Organization',
+      name: input.authorName || SITE_NAME,
+      url: siteUrl(),
+    },
     isPartOf: {
       '@type': 'WebSite',
       name: SITE_NAME,

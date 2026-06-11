@@ -102,6 +102,8 @@ export default async function StoryDetailPage({ params }: PageProps) {
     imageUrl: story.heroImage,
     year: story.year,
     category: story.category,
+    publishedAt: story.createdAt,
+    modifiedAt: story.updatedAt,
   });
 
   return (
@@ -132,7 +134,7 @@ export default async function StoryDetailPage({ params }: PageProps) {
         <div className="content-wrap absolute inset-x-0 bottom-0">
           <p
             className="font-mono text-[10px] uppercase tracking-wider"
-            style={{ color: 'rgba(255,24,1,0.8)' }}
+            style={{ color: 'var(--accent)' }}
           >
             {story.category} · {story.year}
           </p>
