@@ -11,12 +11,24 @@ export const dynamic = 'force-dynamic';
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 30;
+// Per-instance counter — best-effort on serverless (instances don't share it).
+// A distributed store (Upstash Redis) is the planned upgrade; until then this
+// still bounds per-instance abuse and the endpoint only serves cached news.
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 function getClientIP(req: NextRequest): string {
+  // Vercel's proxy sets x-real-ip from the actual connection; unlike the first
+  // x-forwarded-for entry it cannot be spoofed by the client (Council B-1).
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+  // Outside Vercel (local dev), the rightmost XFF entry is the nearest hop —
+  // infrastructure-appended, not client-supplied.
   const forwardedFor = req.headers.get('x-forwarded-for');
-  if (forwardedFor) return forwardedFor.split(',')[0]?.trim() || 'unknown';
-  return req.headers.get('x-real-ip') || 'unknown';
+  if (forwardedFor) {
+    const parts = forwardedFor.split(',');
+    return parts[parts.length - 1]?.trim() || 'unknown';
+  }
+  return 'unknown';
 }
 
 function checkRateLimit(clientIP: string): boolean {
