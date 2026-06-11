@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePrefersReducedMotion } from '@/components/ui/usePrefersReducedMotion';
 import type { GlossaryTerm } from '@/data/glossary/terms';
 
 /**
@@ -12,13 +13,8 @@ import type { GlossaryTerm } from '@/data/glossary/terms';
  */
 export function GlossaryCard({ term }: { term: GlossaryTerm }) {
   const [open, setOpen] = useState(false);
-  // Lazy, SSR-safe: defaults to false on the server and the first client render,
-  // so hydration markup matches; only the transition style depends on it.
-  const [reduceMotion] = useState(() =>
-    typeof window !== 'undefined'
-      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      : false,
-  );
+  // Shared hook (useSyncExternalStore): SSR-safe and tracks live preference changes.
+  const reduceMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     // Auto-expand if this card is the hash target (arriving from a glossary link).
@@ -47,7 +43,7 @@ export function GlossaryCard({ term }: { term: GlossaryTerm }) {
           {term.aliases?.length ? (
             <span
               className="mt-1 block font-mono text-[9px] uppercase tracking-wider"
-              style={{ color: 'rgba(255,24,1,0.7)' }}
+              style={{ color: 'var(--accent)' }}
             >
               {term.aliases.join(' · ')}
             </span>
@@ -55,11 +51,13 @@ export function GlossaryCard({ term }: { term: GlossaryTerm }) {
         </span>
         <span
           aria-hidden
-          className="mt-1 shrink-0 font-display text-xl leading-none transition-transform duration-300"
+          className="mt-1 shrink-0 font-display text-xl leading-none"
           style={{
             color: 'var(--accent)',
             transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
-            transitionTimingFunction: 'cubic-bezier(0.77,0,0.18,1)',
+            transition: reduceMotion
+              ? 'none'
+              : 'transform 300ms cubic-bezier(0.77,0,0.18,1)',
           }}
         >
           +

@@ -41,7 +41,7 @@ function Panel({ panel }: { panel: RaceHeroPanel }) {
     >
       <span
         className="font-mono text-[9px] uppercase tracking-[0.2em]"
-        style={{ color: 'rgba(255,24,1,0.7)' }}
+        style={{ color: 'var(--accent)' }}
       >
         {role}
       </span>

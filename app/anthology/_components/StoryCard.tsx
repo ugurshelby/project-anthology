@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { usePrefersReducedMotion } from '@/components/ui/usePrefersReducedMotion';
 import type { Story } from '@/lib/data/stories';
 
 /**
@@ -13,6 +14,7 @@ import type { Story } from '@/lib/data/stories';
  */
 export function StoryCard({ story, featured = false }: { story: Story; featured?: boolean }) {
   const [open, setOpen] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
 
   return (
     <article className="anthology-card flex h-full flex-col overflow-hidden">
@@ -46,7 +48,7 @@ export function StoryCard({ story, featured = false }: { story: Story; featured?
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p
               className="font-mono text-[9px] uppercase tracking-wider"
-              style={{ color: 'rgba(255,24,1,0.7)' }}
+              style={{ color: 'var(--accent)' }}
             >
               {story.category} · {story.year}
             </p>
@@ -60,12 +62,14 @@ export function StoryCard({ story, featured = false }: { story: Story; featured?
         </div>
       </button>
 
-      {/* in-place expand */}
+      {/* in-place expand — instant for reduced-motion users */}
       <div
-        className="overflow-hidden transition-[max-height] duration-300"
+        className="overflow-hidden"
         style={{
           maxHeight: open ? 240 : 0,
-          transitionTimingFunction: 'cubic-bezier(0.77,0,0.18,1)',
+          transition: reduceMotion
+            ? 'none'
+            : 'max-height 300ms cubic-bezier(0.77,0,0.18,1)',
         }}
       >
         <div className="px-4 pb-4 pt-3">

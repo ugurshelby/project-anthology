@@ -6,6 +6,7 @@ import {
   Inter,
 } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SiteNav } from '@/components/ui/SiteNav';
 import { PageTransition } from '@/components/providers/PageTransition';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
@@ -49,7 +50,10 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   // Absolute canonical from the single URL source (siteUrl()), so it tracks the
   // real production origin instead of a hardcoded string.
-  alternates: { canonical: siteUrl() },
+  alternates: {
+    canonical: siteUrl(),
+    types: { 'application/rss+xml': '/feed.xml' },
+  },
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
@@ -80,11 +84,17 @@ export default function RootLayout({
           // Static, server-rendered site schema — safe stringified JSON.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
         />
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <SiteNav />
         <PageTransition>
-          <main className="site-main flex flex-1 flex-col">{children}</main>
+          <main id="main-content" className="site-main flex flex-1 flex-col">
+            {children}
+          </main>
         </PageTransition>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
