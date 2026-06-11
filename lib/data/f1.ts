@@ -124,13 +124,42 @@ async function fetchCalendarRacesFromDb(season: number): Promise<CalendarRace[]>
   return getRacesFromCalendar(row.data as MrData);
 }
 
+/**
+ * Short-lived memo for staleness-check calendars. A single page render calls
+ * fetchSeasonSnapshotTyped/fetchRoundSnapshot several times (standings, recap,
+ * per-round results) and each used to re-query the calendar; sharing one
+ * in-flight promise per season collapses that fan-out. The TTL only caches the
+ * race schedule (dates), which is safe to hold for a minute.
+ */
+const STALENESS_RACES_TTL_MS = 60_000;
+const stalenessRacesCache = new Map<
+  number,
+  { promise: Promise<CalendarRace[]>; expiresAt: number }
+>();
+
 /** Races for staleness checks: DB calendar → live proxy. */
 async function getRacesForStaleness(season: number): Promise<CalendarRace[]> {
-  const fromDb = await fetchCalendarRacesFromDb(season);
-  if (fromDb.length > 0) return fromDb;
+  const now = Date.now();
+  const cached = stalenessRacesCache.get(season);
+  if (cached && cached.expiresAt > now) return cached.promise;
 
-  const proxied = await fetchSiteJson<MrData>(`/api/f1-season?path=${season}`);
-  return getRacesFromCalendar(proxied);
+  const promise = (async () => {
+    const fromDb = await fetchCalendarRacesFromDb(season);
+    if (fromDb.length > 0) return fromDb;
+
+    const proxied = await fetchSiteJson<MrData>(`/api/f1-season?path=${season}`);
+    return getRacesFromCalendar(proxied);
+  })();
+
+  stalenessRacesCache.set(season, { promise, expiresAt: now + STALENESS_RACES_TTL_MS });
+  // An empty result (DB cold + proxy down) shouldn't be pinned for the full TTL.
+  promise.then(
+    (races) => {
+      if (races.length === 0) stalenessRacesCache.delete(season);
+    },
+    () => stalenessRacesCache.delete(season),
+  );
+  return promise;
 }
 
 function isSeasonSnapshotStale(
