@@ -2,7 +2,7 @@
  * Cron: sync-news (Masterplan Karar B)
  *
  * Aggregates F1 RSS feeds → upserts into news_cache.
- * - Auth: Authorization: Bearer ${CRON_SECRET_KEY}
+ * - Auth: Authorization: Bearer ${CRON_SECRET} (legacy CRON_SECRET_KEY also accepted)
  * - onConflict('url'): updates title/description/image/published_at on re-fetch
  * - 30-day retention: deletes rows where cached_at < now - 30d
  *
@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { aggregate } from '@/lib/news/aggregate';
+import { isCronAuthorized } from '@/lib/cronAuth';
 import { getSupabaseAdmin } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
@@ -21,14 +22,8 @@ function authError(): NextResponse {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
-function isAuthorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET_KEY;
-  if (!secret) return false;
-  return req.headers.get('authorization') === `Bearer ${secret}`;
-}
-
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isAuthorized(req)) return authError();
+  if (!isCronAuthorized(req)) return authError();
 
   const startedAt = Date.now();
   const errors: string[] = [];
@@ -81,9 +76,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       durationMs: Date.now() - startedAt,
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    // Generic client-facing message; full detail goes to logs/Sentry (B-7).
+    console.error('[cron sync-news] failed:', err);
     return NextResponse.json(
-      { error: msg, upserted, deleted, errors, durationMs: Date.now() - startedAt },
+      { error: 'Sync failed', upserted, deleted, errors, durationMs: Date.now() - startedAt },
       { status: 500 },
     );
   }

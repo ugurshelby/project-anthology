@@ -2,7 +2,7 @@
  * Cron: sync-f1 (Masterplan Karar B + E)
  *
  * Syncs current-season F1 data from Jolpica into f1_snapshots.
- * - Auth: Authorization: Bearer ${CRON_SECRET_KEY}
+ * - Auth: Authorization: Bearer ${CRON_SECRET} (legacy CRON_SECRET_KEY also accepted)
  * - scope=live   → race-calendar windows (quali / sprint / results) for active rounds
  * - scope=season → full season backfill (all rounds past results sync window)
  *
@@ -10,6 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { isCronAuthorized } from '@/lib/cronAuth';
 import { CURRENT_SEASON, isRaceWeekend, type CalendarRace } from '@/lib/f1Calendar';
 import {
   fetchCalendar,
@@ -47,15 +48,8 @@ function authError(): NextResponse {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
-function isAuthorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET_KEY;
-  if (!secret) return false;
-  const header = req.headers.get('authorization') ?? '';
-  return header === `Bearer ${secret}`;
-}
-
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isAuthorized(req)) return authError();
+  if (!isCronAuthorized(req)) return authError();
 
   const startedAt = Date.now();
   const stats: IngestStats = { upserted: 0, skipped: 0, errors: [] };
@@ -150,10 +144,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       durationMs: Date.now() - startedAt,
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    // Generic client-facing message; full detail goes to logs/Sentry (B-7).
+    console.error('[cron sync-f1] failed:', err);
     return NextResponse.json(
       {
-        error: msg,
+        error: 'Sync failed',
         upserted: stats.upserted,
         skipped: stats.skipped,
         errors: stats.errors,

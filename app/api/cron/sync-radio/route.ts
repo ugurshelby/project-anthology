@@ -8,7 +8,7 @@
  * The openf1.ts adapter already enforces a 350 ms inter-request floor,
  * so we process sessions sequentially (not in parallel) to stay within budget.
  *
- * Auth: Authorization: Bearer ${CRON_SECRET_KEY}
+ * Auth: Authorization: Bearer ${CRON_SECRET} (legacy CRON_SECRET_KEY also accepted)
  *
  * Response shape: { upserted, skipped, errors, sessions, durationMs }
  */
@@ -22,6 +22,7 @@ import {
   type OpenF1TeamRadio,
   type OpenF1Driver,
 } from '@/lib/f1/sources/openf1';
+import { isCronAuthorized } from '@/lib/cronAuth';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { RadioMomentInsert } from '@/types/database';
 
@@ -33,18 +34,12 @@ function authError(): NextResponse {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
-function isAuthorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET_KEY;
-  if (!secret) return false;
-  return req.headers.get('authorization') === `Bearer ${secret}`;
-}
-
 function makeSlug(driver: string, sessionKey: number, idx: number): string {
   return `${driver.toLowerCase().replace(/[^a-z0-9]/g, '-')}-s${sessionKey}-${idx}`;
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isAuthorized(req)) return authError();
+  if (!isCronAuthorized(req)) return authError();
 
   const startedAt = Date.now();
   const errors: string[] = [];
@@ -139,9 +134,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       durationMs: Date.now() - startedAt,
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    // Generic client-facing message; full detail goes to logs/Sentry (B-7).
+    console.error('[cron sync-radio] failed:', err);
     return NextResponse.json(
-      { error: msg, upserted, skipped, errors, durationMs: Date.now() - startedAt },
+      { error: 'Sync failed', upserted, skipped, errors, durationMs: Date.now() - startedAt },
       { status: 500 },
     );
   }
