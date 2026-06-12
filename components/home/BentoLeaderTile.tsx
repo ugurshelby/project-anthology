@@ -50,7 +50,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
         <div>
           <span
             className="mb-2 flex items-center gap-2 font-condensed text-[10px] uppercase tracking-[0.2em] lg:mb-2 lg:text-[11px]"
-            style={{ color: 'var(--accent)' }}
+            style={{ color: 'var(--muted)' }}
           >
             <span
               className="h-1.5 w-1.5 animate-pulse rounded-full"
@@ -59,7 +59,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
             Championship Leader
           </span>
           <h1
-            className="font-display leading-[0.9] tracking-[0.04em] text-[clamp(2rem,10vw,6.25rem)] lg:text-[100px]"
+            className="font-display text-[clamp(3rem,12vw,8rem)] leading-[0.88] tracking-[0.04em]"
             style={{ color: 'var(--paper)' }}
           >
             <span className="lg:hidden">{leader.driverName.toUpperCase()}</span>
@@ -70,7 +70,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
             </span>
           </h1>
           <div className="mt-3 flex items-center gap-3 lg:mt-4 lg:gap-4">
-            <div className="h-1 w-8 lg:w-12" style={{ backgroundColor: 'var(--accent)' }} />
+            <div className="h-1 w-8 lg:w-12" style={{ backgroundColor: 'var(--border)' }} />
             {teamSrc ? (
               <SafeImage
                 src={teamSrc}
@@ -81,7 +81,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
               />
             ) : null}
             <span
-              className="font-condensed text-[10px] uppercase tracking-[0.12em] lg:text-xl lg:tracking-[0.2em]"
+              className="font-condensed text-sm uppercase tracking-[0.12em] lg:text-base lg:tracking-[0.2em]"
               style={{ color: 'var(--paper)' }}
             >
               {leader.constructorName}
@@ -92,7 +92,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
         <div className="text-left lg:text-right">
           <span
             className="font-mono text-[10px] uppercase tracking-wider lg:text-sm"
-            style={{ color: 'var(--accent)' }}
+            style={{ color: 'var(--muted)' }}
           >
             Points Total
           </span>

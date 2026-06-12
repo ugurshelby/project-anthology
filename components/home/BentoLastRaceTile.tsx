@@ -15,7 +15,7 @@ function driverShort(name: string): string {
 export function BentoLastRaceTile({ recap }: BentoLastRaceTileProps) {
   if (!recap) {
     return (
-      <div className="bento-panel bento-tile-fill justify-center p-3 lg:p-6">
+      <div className="bento-panel bento-tile-fill justify-center p-6">
         <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
           No recent race results yet.
         </p>
@@ -26,7 +26,7 @@ export function BentoLastRaceTile({ recap }: BentoLastRaceTileProps) {
   const winner = recap.podium[0];
 
   return (
-    <Link href="/season" className="bento-panel bento-tile-fill justify-between p-3 lg:p-5">
+    <Link href="/season" className="bento-panel bento-tile-fill justify-between p-6">
       <div>
         <p
           className="mb-1 font-condensed text-[9px] uppercase tracking-[0.2em] lg:mb-4 lg:text-[11px]"
@@ -38,7 +38,7 @@ export function BentoLastRaceTile({ recap }: BentoLastRaceTileProps) {
           <div className="hidden items-end gap-3 lg:flex">
             <span
               className="shrink-0 font-display text-5xl leading-none"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--paper)' }}
             >
               P{winner.position}
             </span>
@@ -71,11 +71,11 @@ export function BentoLastRaceTile({ recap }: BentoLastRaceTileProps) {
               }`}
               style={{ borderColor: 'var(--border)' }}
             >
-              <span style={{ color: isWinner ? 'var(--accent)' : 'var(--muted)' }}>
+              <span style={{ color: 'var(--muted)' }}>
                 P{row.position}
               </span>
               <span
-                className="min-w-0 flex-1 truncate px-2 font-condensed uppercase tracking-wider lg:font-display lg:text-base lg:tracking-[0.04em]"
+                className="min-w-0 flex-1 truncate px-2 font-condensed text-sm uppercase tracking-wider lg:text-base"
                 style={{ color: 'var(--paper)' }}
               >
                 <span className="lg:hidden">{driverShort(row.driverName)}</span>

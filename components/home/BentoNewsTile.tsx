@@ -10,7 +10,7 @@ function newsHref(id: string): string {
   return `/news#${encodeURIComponent(id)}`;
 }
 
-function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boolean }) {
+function NewsCard({ item }: { item: NewsItem }) {
   return (
     <Link
       href={newsHref(item.id)}
@@ -35,12 +35,12 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
       <div className="relative z-10">
         <span
           className="mb-2 block font-mono text-[8px] uppercase lg:text-[10px]"
-          style={{ color: featured ? 'var(--accent)' : 'var(--muted)' }}
+          style={{ color: 'var(--muted)' }}
         >
           {item.sourceName} · {item.dateLabel}
         </span>
         <h4
-          className="line-clamp-2 font-display text-base leading-tight tracking-[0.04em] transition-colors group-hover:text-[var(--accent)] lg:text-xl"
+          className="line-clamp-2 font-display text-base leading-tight tracking-[0.04em] transition-colors group-hover:text-[var(--paper)] lg:text-xl"
           style={{ color: 'var(--paper)' }}
         >
           {item.title}
@@ -53,7 +53,7 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
         </p>
         <span
           className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
-          style={{ color: 'var(--accent)' }}
+          style={{ color: 'var(--muted)' }}
         >
           Read on news →
         </span>
@@ -77,26 +77,29 @@ export function BentoNewsTile({ news }: BentoNewsTileProps) {
 
   return (
     <section className="col-span-2 lg:col-span-full">
-      <div className="mb-4 flex items-center gap-4 lg:mb-6">
-        <h3
-          className="font-display text-xl tracking-[0.04em] lg:text-2xl lg:tracking-[0.12em]"
-          style={{ color: 'var(--paper)' }}
-        >
-          Latest Intel
-        </h3>
+      <div className="mb-4 flex items-end gap-4 lg:mb-6">
+        <div className="shrink-0">
+          <h3
+            className="font-display text-xl tracking-[0.04em] lg:text-2xl"
+            style={{ color: 'var(--paper)' }}
+          >
+            Latest Intel
+          </h3>
+          <div className="section-divider-bar mt-2" />
+        </div>
         <div className="hidden h-px flex-grow lg:block" style={{ backgroundColor: 'var(--border)' }} />
         <Link
           href="/news"
           className="font-condensed text-[10px] uppercase tracking-[0.12em] hover:underline lg:text-[11px]"
-          style={{ color: 'var(--accent)' }}
+          style={{ color: 'var(--muted)' }}
         >
           View all →
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-        {desktopItems.map((item, index) => (
-          <NewsCard key={item.id} item={item} featured={index === 0} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {desktopItems.map((item) => (
+          <NewsCard key={item.id} item={item} />
         ))}
       </div>
     </section>
