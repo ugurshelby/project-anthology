@@ -10,10 +10,10 @@
 | Boyut | Durum | Not |
 |---|---|---|
 | Güvenlik | ✅ 9/10 | Kritik açık yok; CSP nonce backlog |
-| SEO | ✅ 9/10 | Tüm metadata tamamlandı |
+| SEO | ⚠️ 7/10 | noindex header preview URL'e sızıyor — production'da doğrula; metadata tamam |
 | Mimari | ✅ 9/10 | DB-first snapshot, fallback testli |
 | Test | ✅ 8.5/10 | 43 test geçiyor |
-| Performans | ⚠️ 8/10 | Lighthouse prod ölçümü yapılmadı |
+| Performans | ⚠️ 7/10 | Lighthouse ölçüldü: Perf 65-70, SEO 69 (noindex bug), Best Pract 92, A11y 96-100 |
 | Tasarım bütünlüğü | ⚠️ 8.5/10 | Mobil nav backlog'da |
 | Ürün değeri | ⚠️ 7.5/10 | Profil sayfaları ve arama yok |
 
@@ -26,23 +26,31 @@ YOL_HARITASI.md → bu dosya yerini aldı
 
 ---
 
-## 1. Acil Manuel Aksiyonlar (Senden Beklenen)
+## 1. Acil Manuel Aksiyonlar — TAMAMLANDI ✅
 
-Bu adımlar yapılmadan hiçbir sprint başlatılmaz.
+| # | İş | Durum | Not |
+|---|---|---|---|
+| M1 | `git push origin main` | ✅ | `ded3824` — origin/main ile senkron |
+| M2 | Vercel → `CRON_SECRET` env ekle → Redeploy | ✅ | All Environments, updated 2026-06-12 |
+| M3 | Cron sync-f1 manuel tetik → 200 | ✅ | 18 upsert, 0 hata, 20.6s |
+| M4 | Lighthouse Mobile ölçümü | ✅ | Sonuçlar `logs/lighthouse/` klasöründe |
+| M5 | Domain alma | ⏳ | Ertelendi — şimdilik Vercel subdomain yeterli |
+| M6 | Haber görsel kararı | ✅ | Mevcut strateji korunuyor: RSS kaynaklarından gelen görsel URL'leri aynen kullanılır |
 
-| # | İş | Nerede |
-|---|---|---|
-| M1 | `git push origin main` | Terminal |
-| M2 | Vercel → Env → `CRON_SECRET` ekle (değer = mevcut `CRON_SECRET_KEY`) → Redeploy | vercel.com |
-| M3 | Deploy sonrası: `curl.exe -H "Authorization: Bearer VALUE" ".../api/cron/sync-f1?scope=season"` → 200 dönmeli | Terminal |
-| M4 | Chrome → Lighthouse → Mobile → `/` ve `/season` → skoru kaydet | Tarayıcı |
-| M5 | `apex.racing` veya benzeri domain al → Vercel bağla → `PROD_SITE_URL` güncelle | Domain kayıt |
-| M6 | **Haber görsel kararı ver** (aşağıdaki seçeneklerden biri): | — |
+### M4 Lighthouse Baseline (2026-06-12, Mobile, Preview URL)
 
-**Haber görsel seçeneği:**
-- **A** — Sadece BBC (ichef.bbci.co.uk) → diğerleri görsel
-- **B** — Hiç dış görsel yok → tipografik fallback kart
-- **C** — Takım rengi + harf placeholder (önerilen — telif riski sıfır)
+| Sayfa | Perf | A11y | Best Pract. | SEO | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|---|
+| `/` | 65 | 100 | 92 | 69 | 3.2 s | 1,300 ms | 0 |
+| `/season` | 70 | 96 | 92 | 69 | 2.3 s | 1,770 ms | 0 |
+| `/news` | 65 | 100 | 92 | 69 | 3.7 s | 1,190 ms | 0 |
+
+**Tespit edilen sorunlar (öncelik sırasıyla):**
+
+1. **SEO 69 — `x-robots-tag: noindex`** → Preview URL'de middleware noindex header gönderiyor. Production URL'de (`project-anthology-five.vercel.app`) doğrulanması gerekiyor. Faz 0'da fix.
+2. **Perf 65-70 — TBT yüksek (1,190–1,770 ms)** → `_next/static/chunks/2gauvx3zirkbg.js` chunk'ı her sayfada 1,000-1,300ms JS evaluation + 114-117KB unused JS. Büyük ihtimalle Framer Motion veya benzeri büyük library lazy load edilmiyor. Faz 5 sonrası ele alınacak.
+3. **Best Practices 92 — `data:` URI CSP violation** → `next.config.ts` CSP'de `data:` izni yok. Faz 0'da fix.
+4. **Best Practices 92 — Source maps yok** → Production için normal, dokunulmayacak.
 
 ---
 
