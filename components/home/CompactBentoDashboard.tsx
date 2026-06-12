@@ -1,3 +1,4 @@
+import { HomeAtmosphere } from '@/components/home/HomeAtmosphere';
 import { BentoConstructorsTile } from '@/components/home/BentoConstructorsTile';
 import { BentoLastRaceTile } from '@/components/home/BentoLastRaceTile';
 import { BentoLeaderTile } from '@/components/home/BentoLeaderTile';
@@ -53,7 +54,9 @@ export function CompactBentoDashboard({
   currentRound,
 }: CompactBentoDashboardProps) {
   return (
-    <div className="bento-dashboard content-wrap">
+    <div className="bento-dashboard content-wrap relative overflow-hidden">
+      <HomeAtmosphere />
+      <div className="relative z-10">
       {/* Mobile + tablet */}
       <div className="mx-auto max-w-[480px] md:max-w-[768px] lg:hidden">
         <div className="grid grid-cols-2 gap-4">
@@ -109,6 +112,7 @@ export function CompactBentoDashboard({
         <BentoNeonDivider />
         {onThisDay.length > 0 ? <BentoOnThisDayTile entries={onThisDay} /> : null}
         <BentoNewsTile news={news} />
+      </div>
       </div>
     </div>
   );
