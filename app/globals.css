@@ -475,6 +475,121 @@ body {
   margin-top: 0.5rem;
 }
 
+/* ── Home atmosphere (hero band — homepage) ───────────────────────────── */
+.home-atmosphere {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* Stacked hero tiles below lg: two rows + 16px gap */
+  height: calc(220px * 2 + 1rem);
+}
+
+@media (min-width: 768px) {
+  .home-atmosphere {
+    height: calc(360px * 2 + 1rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-atmosphere {
+    height: 500px;
+  }
+}
+
+.home-atmosphere-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.home-atmosphere-spotlight-left {
+  background: radial-gradient(
+    ellipse at 15% 40%,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 60%
+  );
+}
+
+.home-atmosphere-spotlight-right {
+  background: radial-gradient(
+    ellipse at 85% 20%,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 55%
+  );
+}
+
+.home-atmosphere-red-glow {
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(255, 24, 1, 0.08) 0%,
+    transparent 50%
+  );
+}
+
+.home-atmosphere-grain {
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+}
+
+.home-atmosphere-streak,
+.home-atmosphere-streak-2,
+.home-atmosphere-streak-3 {
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 1px;
+  opacity: 0.06;
+  filter: blur(8px);
+  animation: hero-streak ease-in-out infinite;
+}
+
+.home-atmosphere-streak {
+  top: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 24, 1, 0.3),
+    transparent
+  );
+  animation-duration: 8s;
+}
+
+.home-atmosphere-streak-2 {
+  top: calc(55% + 10px);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  animation-duration: 11s;
+  animation-delay: 2s;
+}
+
+.home-atmosphere-streak-3 {
+  top: calc(55% + 20px);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation-duration: 14s;
+  animation-delay: 5s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-atmosphere-streak,
+  .home-atmosphere-streak-2,
+  .home-atmosphere-streak-3 {
+    animation: none;
+  }
+}
+
 /* ── Cards ─────────────────────────────────────────────────────────────── */
 /* ── Bento dashboard (homepage) ───────────────────────────────────────── */
 .bento-panel {
