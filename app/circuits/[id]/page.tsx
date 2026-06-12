@@ -2,9 +2,13 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BackButton } from '@/components/ui/BackButton';
 import { CircuitLapLine } from '@/components/ui/CircuitLapLine';
+import { RaceCountdown } from '@/components/ui/RaceCountdown';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getCircuitDetail, getCircuitIdsForSitemap, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
+import { fetchSeasonSnapshotTyped } from '@/lib/data/f1';
+import { findRaceByCircuitId, getRacesFromCalendar } from '@/lib/f1/mrdata';
+import { CURRENT_SEASON, isRaceDone, raceStartMs } from '@/lib/f1Calendar';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -46,6 +50,14 @@ export default async function CircuitDetailPage({ params }: PageProps) {
   if (!circuit) notFound();
 
   const facts = getCircuitFacts(id);
+
+  const calendarData = await fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
+  const races = getRacesFromCalendar(calendarData);
+  const circuitRace = findRaceByCircuitId(races, id);
+  const upcomingRace =
+    circuitRace && !isRaceDone(circuitRace) ? circuitRace : null;
+  const upcomingRaceStartMs =
+    upcomingRace != null ? raceStartMs(upcomingRace) : null;
 
   // Live local weather (Open-Meteo, server-side). Null → panel hidden.
   const weather = await getCircuitWeather(facts?.lat, facts?.lon);
@@ -206,6 +218,16 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </div>
             ))}
           </dl>
+        </section>
+      ) : null}
+
+      {upcomingRace != null && upcomingRaceStartMs != null ? (
+        <section className="mt-section-gap" aria-label="Countdown to race">
+          <RaceCountdown
+            targetDate={new Date(upcomingRaceStartMs)}
+            raceName={upcomingRace.raceName ?? circuit.raceName}
+            variant="circuit"
+          />
         </section>
       ) : null}
 

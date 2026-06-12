@@ -117,6 +117,46 @@ export function isRaceWeekend(
   return races.some((r) => isRoundWeekend(r, now));
 }
 
+/** Duration after race start during which the UI treats the race as "live". */
+export const RACE_LIVE_WINDOW_MS = 4 * 60 * 60 * 1000;
+
+export type RaceCountdownPhase = 'countdown' | 'live' | 'completed';
+
+/** Countdown UI phase relative to race start and the live window. */
+export function getRaceCountdownPhase(
+  targetMs: number,
+  nowMs: number,
+): RaceCountdownPhase {
+  if (!Number.isFinite(targetMs)) return 'completed';
+  if (nowMs < targetMs) return 'countdown';
+  if (nowMs < targetMs + RACE_LIVE_WINDOW_MS) return 'live';
+  return 'completed';
+}
+
+/** Race currently in the live window, if any (latest by round). */
+export function getLiveRace(
+  races: CalendarRace[] | null | undefined,
+  now: Date = new Date(),
+): CalendarRace | null {
+  if (!races?.length) return null;
+  const nowMs = now.getTime();
+  const live = races
+    .filter((r) => {
+      const start = raceStartMs(r);
+      return start != null && getRaceCountdownPhase(start, nowMs) === 'live';
+    })
+    .sort((a, b) => Number(b.round ?? 0) - Number(a.round ?? 0));
+  return live[0] ?? null;
+}
+
+/** Live race when in the post-start window; otherwise the next upcoming race. */
+export function getLiveOrNextRace(
+  races: CalendarRace[] | null | undefined,
+  now: Date = new Date(),
+): CalendarRace | null {
+  return getLiveRace(races, now) ?? getNextRace(races, now);
+}
+
 /** Next not-yet-finished race (earliest by round) from a calendar. */
 export function getNextRace(
   races: CalendarRace[] | null | undefined,
