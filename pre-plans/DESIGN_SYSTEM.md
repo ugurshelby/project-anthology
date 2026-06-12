@@ -93,12 +93,21 @@ Order bottom->top:
 
 ## Mobile Bottom Nav
 
-- Fixed bottom, `64px` height, background `#0a0a0a`
+- Fixed bottom, `64px` height (`--mobile-nav-height`), background `#0a0a0a`
 - Border-top: `0.5px solid rgba(255,255,255,0.08)`
-- 5 items: Home / Season / Circuits / Radio / More
-- Active: red dot above icon + text `#ff1801`
-- More: popup above bar (Timeline + About)
-- Hidden on desktop (`lg+`)
+- Touch targets: minimum `44px` per item
+- 5 items: Home (`/`) / Season (`/season`) / Circuits (`/circuits`) / Anthology (`/anthology`) / More
+- Active: `4px` red dot above icon + label `#ff1801`
+- More: popup drawer above bar — News (`/news`), Glossary (`/tech-glossary`)
+- Hidden on desktop (`lg+`, `min-width: 1024px`)
+- Main content: `padding-bottom: var(--mobile-nav-height)` on viewports where the bar is visible
+- `prefers-reduced-motion`: drawer open/close without slide animation (instant swap)
+
+## Mobile Top Nav (paired with bottom nav)
+
+- Below `lg`: inline desktop links hidden; brand centered; hamburger left (`44px` touch target)
+- Hamburger menu: same secondary routes as More drawer (News, Glossary)
+- Desktop (`lg+`): full inline link row flanking centered brand; no hamburger; no bottom nav
 
 ## Implementation Notes
 

@@ -2,11 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '@/components/ui/usePrefersReducedMotion';
 
-// The brand in the center links Home, so the nav is split into two flanks
-// around it: this gives the "logo centered, pages either side" layout that
-// holds on both desktop and mobile (no hamburger, all routes always visible).
 const leftLinks = [
   { href: '/anthology', label: 'Anthology' },
   { href: '/news', label: 'News' },
@@ -18,6 +16,11 @@ const rightLinks = [
   { href: '/tech-glossary', label: 'Glossary' },
 ];
 
+const MOBILE_MENU_LINKS = [
+  { href: '/news', label: 'News' },
+  { href: '/tech-glossary', label: 'Glossary' },
+] as const;
+
 function isActive(pathname: string, href: string): boolean {
   if (href === '/') return pathname === '/';
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -25,7 +28,13 @@ function isActive(pathname: string, href: string): boolean {
 
 export function SiteNav() {
   const pathname = usePathname() ?? '/';
+  const reducedMotion = usePrefersReducedMotion();
+  const menuId = useId();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
     const onScroll = (): void => setScrolled(window.scrollY > 8);
@@ -34,9 +43,72 @@ export function SiteNav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    closeMenu();
+  }, [pathname, closeMenu]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        closeMenu();
+      }
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeMenu();
+    };
+
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('touchstart', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('touchstart', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [menuOpen, closeMenu]);
+
   return (
     <header className={`site-nav ${scrolled ? 'scrolled' : ''}`}>
       <div className="site-nav-inner">
+        <div className="site-nav-mobile-menu" ref={menuRef}>
+          <button
+            type="button"
+            className="site-nav-menu-toggle"
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            aria-controls={menuId}
+            aria-label="Open menu"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span aria-hidden />
+            <span aria-hidden />
+            <span aria-hidden />
+          </button>
+
+          {menuOpen ? (
+            <div
+              id={menuId}
+              role="menu"
+              className={`site-nav-mobile-dropdown${reducedMotion ? ' instant' : ''}`}
+            >
+              {MOBILE_MENU_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  role="menuitem"
+                  className={`site-nav-mobile-dropdown-link${isActive(pathname, link.href) ? ' active' : ''}`}
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
         <nav className="nav-links nav-links-left" aria-label="Primary">
           {leftLinks.map((link) => (
             <Link
@@ -88,6 +160,8 @@ export function SiteNav() {
             </Link>
           ))}
         </nav>
+
+        <span className="site-nav-mobile-spacer" aria-hidden />
       </div>
     </header>
   );

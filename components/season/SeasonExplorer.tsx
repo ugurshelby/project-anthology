@@ -188,7 +188,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
           </p>
         ) : (
           <>
-            <ul className="space-y-2 md:hidden">
+            <ul className="space-y-2 lg:hidden">
               {standings.map((row, i) => {
                 const teamColor = resolveTeamUiColor(null, row.constructorName);
                 const isLeader = i === 0;
@@ -201,7 +201,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                     tabIndex={0}
                     aria-haspopup="dialog"
                     aria-label={`${row.driverName}, ${row.constructorName}, ${row.points} points — open details`}
-                    className="flex cursor-pointer items-center gap-3 border border-border px-3 py-3 transition-colors hover:bg-[rgba(255,255,255,0.03)]"
+                    className="anthology-card flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-[rgba(255,255,255,0.03)]"
                     style={{
                       borderLeft: `3px solid ${teamColor}`,
                       backgroundColor: isLeader ? 'rgba(255,24,1,0.06)' : undefined,
@@ -266,7 +266,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               })}
             </ul>
 
-            <div className="hidden overflow-x-auto border border-border md:block">
+            <div className="hidden overflow-x-auto border border-border lg:block">
               <table className="w-full min-w-[480px] text-left font-mono text-xs tracking-wider">
                 <thead className="bg-surface" style={{ color: 'var(--muted)' }}>
                   <tr>
