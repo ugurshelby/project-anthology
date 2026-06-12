@@ -60,10 +60,26 @@ Güncellenen: `app/layout.tsx`, `app/globals.css`, `next.config.ts`,
   hashed chunk cache'i bozuldu → `Remove-Item .next` + temiz rebuild.
 - `RaceCountdown` duplicate `className` → tek koşullu ifadeye birleştirildi.
 
+## Ek (2026-06-12, aynı gün) — Upstash rate limit (2.3) TAMAMLANDI
+Kullanıcı env'leri `.env.local`'e ekledi (`UPSTASH_REDIS_REST_URL`,
+`UPSTASH_REDIS_REST_TOKEN`, `REDIS_URL`) → 2.3 implement edildi:
+- `@upstash/ratelimit` + `@upstash/redis` kuruldu.
+- `lib/rateLimit.ts`: sliding-window dağıtık limiter. Env varsa Upstash
+  (instance'lar arası paylaşılan limit); env yoksa VEYA Upstash erişilemezse
+  per-instance in-memory pencereye düşer (fail-open, route 500 olmaz).
+- `app/api/news/route.ts`: yerel Map limiter kaldırıldı, `rateLimit()`
+  helper'ına geçti (prefix 'news', 30 req/60s). Retry-After gerçek reset'ten.
+- `tests/rateLimit.test.ts`: 3 test (in-memory fallback — limit aşımı,
+  identifier izolasyonu, pencere reset). `npm test` → 7 dosya / 52 test yeşil.
+- `npm run build` ✅, değişen dosyalarda lint temiz.
+- NOT: `UPSTASH_REDIS_REST_TOKEN` doğru isim; kullanıcının bahsettiği
+  `UPSTASH_REDIS_REST_UR` (eksik harf) .env.local'de YOK, doğru isimler mevcut.
+- ⚠️ MANUEL: Bu üç env'i Vercel dashboard'a da ekle (Production) — yoksa
+  prod'da in-memory fallback'e düşer (çalışır ama dağıtık değil).
+
 ## ⚠️ Manuel aksiyon (ertelendi — kullanıcı yapacak)
-- **Upstash rate limit (2.3):** `app/api/news` dağıtık rate limit için
-  `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` env gerekir. Env
-  sağlanmadan kod yazılmadı.
+- **Upstash env'leri Vercel'e ekle:** `.env.local`'de var, Vercel dashboard'da
+  da `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` tanımlanmalı.
 - **Production noindex doğrulaması:** Deploy sonrası production URL'de
   `curl -I` ile `x-robots-tag` header'ının OLMADIĞINI doğrula (preview'da
   OLMALI). SEO skorunun 69→90+ çıkması beklenir.
