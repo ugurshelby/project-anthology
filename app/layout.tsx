@@ -8,6 +8,7 @@ import {
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SiteNav } from '@/components/ui/SiteNav';
+import { SiteFooter } from '@/components/ui/SiteFooter';
 import { PageTransition } from '@/components/providers/PageTransition';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
 import './globals.css';
@@ -93,6 +94,7 @@ export default function RootLayout({
             {children}
           </main>
         </PageTransition>
+        <SiteFooter />
         <Analytics />
         <SpeedInsights />
       </body>
