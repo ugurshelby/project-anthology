@@ -7,6 +7,7 @@ import {
 } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { MobileBottomNav } from '@/components/ui/MobileBottomNav';
 import { SiteNav } from '@/components/ui/SiteNav';
 import { SiteFooter } from '@/components/ui/SiteFooter';
 import { PageTransition } from '@/components/providers/PageTransition';
@@ -95,6 +96,7 @@ export default function RootLayout({
           </main>
         </PageTransition>
         <SiteFooter />
+        <MobileBottomNav />
         <Analytics />
         <SpeedInsights />
       </body>
