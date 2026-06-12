@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { isRaceDone, type CalendarRace } from '@/lib/f1Calendar';
+import {
+  getLiveOrNextRace,
+  getRaceCountdownPhase,
+  isRaceDone,
+  RACE_LIVE_WINDOW_MS,
+  type CalendarRace,
+} from '@/lib/f1Calendar';
+import { raceStartMs } from '@/lib/f1/mrdata';
 import { roundSuffixToSnapshotType } from '@/lib/f1Ingest';
 
 const NOW = new Date('2026-06-09T12:00:00Z');
@@ -19,6 +26,44 @@ describe('isRaceDone', () => {
 
   it('returns false when the date is unusable', () => {
     expect(isRaceDone({ round: '1' }, NOW)).toBe(false);
+  });
+});
+
+describe('getRaceCountdownPhase', () => {
+  const startMs = Date.parse('2026-06-15T13:00:00Z');
+
+  it('returns countdown before race start', () => {
+    expect(getRaceCountdownPhase(startMs, startMs - 1000)).toBe('countdown');
+  });
+
+  it('returns live within 4 hours after start', () => {
+    expect(getRaceCountdownPhase(startMs, startMs + 2 * 60 * 60 * 1000)).toBe('live');
+  });
+
+  it('returns completed after live window', () => {
+    expect(getRaceCountdownPhase(startMs, startMs + RACE_LIVE_WINDOW_MS + 1)).toBe('completed');
+  });
+
+  it('returns completed for invalid target', () => {
+    expect(getRaceCountdownPhase(NaN, startMs)).toBe('completed');
+  });
+});
+
+describe('getLiveOrNextRace', () => {
+  const races: CalendarRace[] = [
+    { round: '1', date: '2026-01-01', time: '12:00:00Z', raceName: 'Past GP' },
+    { round: '2', date: '2026-06-15', time: '13:00:00Z', raceName: 'Live GP' },
+    { round: '3', date: '2026-12-01', time: '12:00:00Z', raceName: 'Future GP' },
+  ];
+
+  it('returns the live race when within the post-start window', () => {
+    const liveStart = raceStartMs(races[1]!);
+    const now = new Date(liveStart! + 60 * 60 * 1000);
+    expect(getLiveOrNextRace(races, now)?.raceName).toBe('Live GP');
+  });
+
+  it('returns the next upcoming race when none are live', () => {
+    expect(getLiveOrNextRace(races, NOW)?.raceName).toBe('Live GP');
   });
 });
 

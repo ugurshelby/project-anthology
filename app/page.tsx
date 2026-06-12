@@ -13,7 +13,7 @@ import {
   nowMs,
   raceStartMs,
 } from '@/lib/f1/mrdata';
-import { CURRENT_SEASON, getF1Context, getLastFinishedRace } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, getLastFinishedRace, getLiveOrNextRace } from '@/lib/f1Calendar';
 
 export const revalidate = 0;
 
@@ -48,13 +48,12 @@ export default async function HomePage() {
   const renderNowMs = nowMs();
 
   const races = getRacesFromCalendar(calendarData);
-  const ctx = getF1Context(races);
   const standings = getDriverStandings(standingsData, 10);
   const constructors = getConstructorStandings(constructorData, 3);
   const leader = standings[0] ?? null;
 
   const previousRace = getLastFinishedRace(races);
-  const nextRace = ctx.nextRace;
+  const nextRace = getLiveOrNextRace(races, new Date(renderNowMs));
 
   const previousRound =
     previousRace?.round != null ? Number(previousRace.round) : null;

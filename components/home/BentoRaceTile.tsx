@@ -32,7 +32,7 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
       >
         <div>
           <div className="mb-1 flex items-center gap-2">
-            <span className="h-2 w-2 animate-pulse rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
+            <span className="h-2 w-2 animate-pulse rounded-full" style={{ backgroundColor: 'var(--muted)' }} />
             <span
               className="font-condensed text-[11px] uppercase tracking-[0.2em]"
               style={{ color: 'var(--accent)' }}
@@ -69,9 +69,20 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
         ) : null}
 
         {countdownTargetMs != null ? (
-          <BentoCountdown targetMs={countdownTargetMs} initialNowMs={renderNowMs} />
+          <BentoCountdown
+            targetMs={countdownTargetMs}
+            raceName={raceLabel}
+            initialNowMs={renderNowMs}
+            fallback={
+              countdown || detail ? (
+                <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
+                  {countdown ?? detail}
+                </p>
+              ) : null
+            }
+          />
         ) : countdown ? (
-          <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--accent)' }}>
+          <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
             {countdown}
           </p>
         ) : null}
@@ -108,8 +119,16 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
             </p>
             <BentoCountdown
               targetMs={countdownTargetMs}
+              raceName={raceLabel}
               initialNowMs={renderNowMs}
               variant="compact"
+              fallback={
+                detail || countdown ? (
+                  <p className="font-mono text-[10px]" style={{ color: 'var(--muted)' }}>
+                    {detail ?? countdown}
+                  </p>
+                ) : null
+              }
             />
           </>
         ) : (
