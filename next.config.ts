@@ -13,7 +13,10 @@ const CSP = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "frame-src 'self' https://vercel.live",
-  "connect-src 'self' https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
+  // `data:` is permitted here because Vercel Analytics/Speed Insights and some
+  // client beacons issue data-URI requests; without it the browser reports a
+  // connect-src CSP violation (Lighthouse Best Practices).
+  "connect-src 'self' data: https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
