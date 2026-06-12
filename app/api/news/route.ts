@@ -5,16 +5,13 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { aggregate } from '@/lib/news/aggregate';
+import { rateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 30;
-// Per-instance counter — best-effort on serverless (instances don't share it).
-// A distributed store (Upstash Redis) is the planned upgrade; until then this
-// still bounds per-instance abuse and the endpoint only serves cached news.
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 function getClientIP(req: NextRequest): string {
   // Vercel's proxy sets x-real-ip from the actual connection; unlike the first
@@ -31,34 +28,24 @@ function getClientIP(req: NextRequest): string {
   return 'unknown';
 }
 
-function checkRateLimit(clientIP: string): boolean {
-  if (clientIP === 'unknown') return true;
-  const now = Date.now();
-  const record = rateLimitStore.get(clientIP);
-  if (rateLimitStore.size > 1000) {
-    for (const [ip, data] of rateLimitStore.entries()) {
-      if (now > data.resetTime) rateLimitStore.delete(ip);
-    }
-  }
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) return false;
-  record.count++;
-  return true;
-}
-
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if ([...req.nextUrl.searchParams.keys()].length > 0) {
     return NextResponse.json({ error: 'Invalid request parameters' }, { status: 400 });
   }
 
-  if (!checkRateLimit(getClientIP(req))) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429, headers: { 'Retry-After': '60' } },
-    );
+  const clientIP = getClientIP(req);
+  if (clientIP !== 'unknown') {
+    const { success, retryAfter } = await rateLimit(clientIP, {
+      prefix: 'news',
+      max: RATE_LIMIT_MAX_REQUESTS,
+      windowMs: RATE_LIMIT_WINDOW_MS,
+    });
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+      );
+    }
   }
 
   try {
