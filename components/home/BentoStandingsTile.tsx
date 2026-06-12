@@ -132,7 +132,7 @@ export function BentoStandingsTile({
       <Link
         href="/season"
         className="shrink-0 border-t px-3 py-2 text-center font-condensed text-[9px] uppercase tracking-[0.12em] lg:py-2.5 lg:text-[10px]"
-        style={{ borderColor: 'var(--border)', color: 'var(--accent)' }}
+        style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
       >
         Full season →
       </Link>

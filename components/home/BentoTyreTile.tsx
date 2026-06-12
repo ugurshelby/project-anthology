@@ -45,7 +45,7 @@ export function BentoTyreTile() {
   const totalSets = rows.reduce((sum, row) => sum + row.sets, 0);
 
   return (
-    <div className="bento-panel bento-panel-accent bento-tile-fill p-3 lg:p-5">
+    <div className="bento-panel bento-tile-fill p-6">
       <div className="mb-3 flex shrink-0 items-start justify-between gap-2 lg:mb-4">
         <div>
           <span
@@ -56,7 +56,7 @@ export function BentoTyreTile() {
           </span>
           <p
             className="mt-1 font-mono text-[8px] uppercase tracking-[0.15em] lg:text-[9px]"
-            style={{ color: 'var(--accent)' }}
+            style={{ color: 'var(--muted)' }}
           >
             Weekend · Dry slicks
           </p>
@@ -147,7 +147,7 @@ export function BentoTyreTile() {
       <Link
         href="/tech-glossary"
         className="mt-3 border-t pt-2 font-condensed text-[9px] uppercase tracking-[0.12em] lg:mt-4 lg:text-[10px]"
-        style={{ borderColor: 'var(--border)', color: 'var(--accent)' }}
+        style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
       >
         Compound guide →
       </Link>

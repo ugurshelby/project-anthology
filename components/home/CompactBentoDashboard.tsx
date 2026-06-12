@@ -25,7 +25,7 @@ function MidRowPanels({
   season: number;
 }) {
   return (
-    <div className="bento-mid-row col-span-2 w-full lg:col-span-12">
+    <div className="bento-mid-row col-span-2 mt-[48px] w-full lg:col-span-12 lg:mt-[80px]">
       <BentoLastRaceTile recap={lastRaceRecap} />
       <BentoConstructorsTile constructors={constructors} season={season} />
       <BentoTyreTile />
@@ -53,10 +53,10 @@ export function CompactBentoDashboard({
   currentRound,
 }: CompactBentoDashboardProps) {
   return (
-    <div className="bento-dashboard content-wrap px-3 py-6 lg:px-8 lg:py-8">
+    <div className="bento-dashboard content-wrap">
       {/* Mobile + tablet */}
       <div className="mx-auto max-w-[480px] md:max-w-[768px] lg:hidden">
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="bento-hero-tile col-span-2">
             <BentoLeaderTile leader={leader} season={season} />
           </div>
@@ -80,7 +80,7 @@ export function CompactBentoDashboard({
       </div>
 
       {/* Desktop: hero row (Leader + Next Race), then full-width 4-panel row */}
-      <div className="hidden lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-8">
+      <div className="hidden lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-4">
         <div className="bento-hero-tile col-span-8">
           <BentoLeaderTile leader={leader} season={season} />
         </div>

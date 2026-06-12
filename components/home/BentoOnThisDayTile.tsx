@@ -9,10 +9,10 @@ export function BentoOnThisDayTile({ entries }: BentoOnThisDayTileProps) {
 
   return (
     <section className="col-span-2 lg:col-span-4">
-      <div className="bento-panel flex h-full flex-col gap-4 p-4 lg:p-6">
+      <div className="bento-panel flex h-full flex-col gap-4 p-6">
         <p
           className="font-mono text-[9px] uppercase tracking-[0.2em] lg:text-[10px]"
-          style={{ color: 'var(--accent)' }}
+          style={{ color: 'var(--muted)' }}
         >
           On This Day
         </p>
@@ -23,7 +23,7 @@ export function BentoOnThisDayTile({ entries }: BentoOnThisDayTileProps) {
                 className="font-display text-lg leading-tight tracking-[0.04em] lg:text-xl"
                 style={{ color: 'var(--paper)' }}
               >
-                <span style={{ color: 'var(--accent)' }}>{entry.season}</span>
+                <span style={{ color: 'var(--muted)' }}>{entry.season}</span>
                 {' · '}
                 {entry.raceName}
               </p>
@@ -32,7 +32,7 @@ export function BentoOnThisDayTile({ entries }: BentoOnThisDayTileProps) {
                 style={{ color: 'var(--muted)' }}
               >
                 Won by{' '}
-                <span style={{ color: 'var(--accent)' }}>{entry.winnerName}</span>
+                <span style={{ color: 'var(--paper)' }}>{entry.winnerName}</span>
                 {entry.winnerConstructor ? ` · ${entry.winnerConstructor}` : ''}
               </p>
             </li>
