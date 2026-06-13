@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- APEX maskable app icon: brand chevron centered with safe-zone padding so
+       it survives circular/squircle masking. Background #0a0a0a, accent #ff1801,
+       secondary chevron white @ 35% (DESIGN_SYSTEM brand mark).
+       Source mark is viewBox 0 0 14 18; scaled ×16 → 224×288 drawn region,
+       translated to center it (x: (512-224)/2=144, y: (512-288)/2=112). -->
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <g
+    fill="none"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    transform="translate(144 112) scale(16)"
+  >
+    <path d="M6,16 L14,9 L6,2" stroke="#ffffff" stroke-opacity="0.35"/>
+    <path d="M0,16 L8,9 L0,2" stroke="#ff1801"/>
+  </g>
+</svg>
