@@ -15,7 +15,7 @@
 | Test | ✅ 8.5/10 | 43 test geçiyor |
 | Performans | ⚠️ 7/10 | Lighthouse ölçüldü: Perf 65-70, SEO 69 (noindex bug), Best Pract 92, A11y 96-100 |
 | Tasarım bütünlüğü | ✅ 9/10 | Mobil bottom nav + responsive season table (`f442c8a`) |
-| Ürün değeri | ✅ 8/10 | Pilot/takım profil sayfaları + grid (`bd1028c`) |
+| Ürün değeri | ✅ 8/10 | Pilot/takım profil sayfaları + grid (`0d4b41c`) |
 
 **Eski plan dosyaları silinecek:**
 ```
@@ -135,7 +135,7 @@ Commit: "feat: PWA manifest and service worker"
 
 ## 5. Faz 3 — Pilot & Takım Profil Sayfaları ✅
 
-**Commit:** `bd1028c` — `feat: driver and team profile pages + EntityDrawer navigation refactor`
+**Commit:** `0d4b41c` — `feat: driver and team profile pages + EntityDrawer navigation refactor`
 
 **Bu fazın önceliği yüksek — YOL_HARITASI'ndaki değer 9/10.**
 

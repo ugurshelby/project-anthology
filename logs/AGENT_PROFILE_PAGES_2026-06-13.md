@@ -36,7 +36,7 @@ Kaynak: `docs/APEX_MASTER_PLAN.md` §5. Kapsam: Faz 3 Aşama 1–5 (MVP dikey di
 - `components/home/BentoLeaderTile.tsx`: şampiyona lideri profil `Link`.
 
 ## Commit
-- `bd1028c` — `feat: driver and team profile pages + EntityDrawer navigation refactor`
+- `0d4b41c` — `feat: driver and team profile pages + EntityDrawer navigation refactor`
 
 ## Çalıştırılan komutlar
 - `npm test` → ✅ 7 dosya / 52 test yeşil.

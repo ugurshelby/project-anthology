@@ -11,8 +11,8 @@
 - ✅ Aşama 2 — takım profil sayfası (`app/teams/[constructorId]/page.tsx`)
 - ✅ Aşama 3 — pilot profil sayfası (`app/drivers/[driverId]/page.tsx`)
 - ✅ Aşama 4 — grid sayfaları + navbar + sitemap
-- 🔄 Aşama 5 — SeasonExplorer → sayfa nav: TAMAMLANDI (`bd1028c`).
-- ✅ Doğrulama: build/test/tsc yeşil · Faz 3 commit `bd1028c` · log yazıldı.
+- 🔄 Aşama 5 — SeasonExplorer → sayfa nav: TAMAMLANDI (`0d4b41c`).
+- ✅ Doğrulama: build/test/tsc yeşil · Faz 3 commit `0d4b41c` · log yazıldı.
 
 ### Önceki fazlar (bağlam)
 - ✅ Faz 0 (commit `492eb56`/`ee128a1`/`d68cd0f`), ✅ Faz 2 PWA (commit `f140758`).
