@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import {
   Bebas_Neue,
   Barlow_Condensed,
@@ -11,6 +11,7 @@ import { MobileBottomNav } from '@/components/ui/MobileBottomNav';
 import { SiteNav } from '@/components/ui/SiteNav';
 import { SiteFooter } from '@/components/ui/SiteFooter';
 import { PageTransition } from '@/components/providers/PageTransition';
+import { ServiceWorkerRegister } from '@/components/providers/ServiceWorkerRegister';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
 import './globals.css';
 
@@ -50,6 +51,21 @@ export const metadata: Metadata = {
   },
   description: SITE_TAGLINE,
   applicationName: SITE_NAME,
+  // PWA: installable app metadata. The manifest is served by app/manifest.ts;
+  // Next links it automatically. Icons generated from assets/icons/app-icon.svg.
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: 'black-translucent',
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
   // Absolute canonical from the single URL source (siteUrl()), so it tracks the
   // real production origin instead of a hardcoded string.
   alternates: {
@@ -68,6 +84,11 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: SITE_TAGLINE,
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#ff1801',
+  colorScheme: 'dark',
 };
 
 export default function RootLayout({
@@ -97,6 +118,7 @@ export default function RootLayout({
         </PageTransition>
         <SiteFooter />
         <MobileBottomNav />
+        <ServiceWorkerRegister />
         <Analytics />
         <SpeedInsights />
       </body>
