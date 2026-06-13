@@ -17,7 +17,10 @@ const CSP = [
   // client beacons issue data-URI requests; without it the browser reports a
   // connect-src CSP violation (Lighthouse Best Practices).
   "connect-src 'self' data: https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
-  "frame-ancestors 'self'",
+  // Allow the personal portfolio site to embed this app in an <iframe> for a
+  // live preview. Includes the canonical host plus Vercel preview subdomains
+  // (*.vercel.app), which rotate per deployment.
+  "frame-ancestors 'self' https://portfolio-orcin-chi-ad77scl275.vercel.app https://*.vercel.app",
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
