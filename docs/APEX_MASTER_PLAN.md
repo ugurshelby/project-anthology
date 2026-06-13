@@ -14,8 +14,8 @@
 | Mimari | ✅ 9/10 | DB-first snapshot, fallback testli |
 | Test | ✅ 8.5/10 | 43 test geçiyor |
 | Performans | ⚠️ 7/10 | Lighthouse ölçüldü: Perf 65-70, SEO 69 (noindex bug), Best Pract 92, A11y 96-100 |
-| Tasarım bütünlüğü | ⚠️ 8.5/10 | Mobil nav backlog'da |
-| Ürün değeri | ⚠️ 7.5/10 | Profil sayfaları ve arama yok |
+| Tasarım bütünlüğü | ✅ 9/10 | Mobil bottom nav + responsive season table (`f442c8a`) |
+| Ürün değeri | ✅ 8/10 | Pilot/takım profil sayfaları + grid (`bd1028c`) |
 
 **Eski plan dosyaları silinecek:**
 ```
@@ -85,9 +85,9 @@ News kartlarında dış görsel hotlink stratejisini M6 kararına göre uygula.
 
 ---
 
-## 3. Faz 1 — Mobil Web (Cursor — M)
+## 3. Faz 1 — Mobil Web (Cursor — M) ✅
 
-**Karar gereken:** DESIGN_SYSTEM spec (Home/Season/Circuits/Radio/More) vs gerçek IA (Anthology/News/Circuits/Season/Glossary). **Öneri: Spec'i gerçek IA'ya güncelle, sonra kodla.**
+**Karar:** DESIGN_SYSTEM spec gerçek IA'ya güncellendi (Home / Season / Circuits / Anthology / More → News, Glossary). **Commit:** `f442c8a`.
 
 ### Cursor prompt:
 ```
@@ -102,11 +102,20 @@ Commit: "feat: mobile bottom nav + responsive season table"
 ```
 
 ### Mobil checklist:
-- [ ] Touch target min 44px
-- [ ] Bottom nav spec ile IA uyumlu
-- [ ] Sezon tablosu mobilde okunabilir
-- [ ] `--mobile-nav-height` token kullanılıyor
-- [ ] Tüm animasyonlar reduced-motion uyumlu
+- [x] Touch target min 44px
+- [x] Bottom nav spec ile IA uyumlu
+- [x] Sezon tablosu mobilde okunabilir
+- [x] `--mobile-nav-height` token kullanılıyor
+- [x] Tüm animasyonlar reduced-motion uyumlu
+
+### Odometer countdown (Cursor — S) ✅
+
+Home BentoCountdown + circuit detay sayacı — mekanik dikey kaydırma (`OdometerDigit`), üç durumlu `RaceCountdown` (countdown / live 4h / completed), `getLiveOrNextRace`. **Commit:** `feat: odometer countdown — mechanical scroll digit animation, circuit page integration`.
+
+- [x] Home tile embedded countdown
+- [x] Circuit sayfası yaklaşan yarış koşullu sayaç
+- [x] `prefers-reduced-motion` anında swap
+- [x] Kilit flash kaldırıldı (mekanik his)
 
 ---
 
@@ -124,7 +133,9 @@ Commit: "feat: PWA manifest and service worker"
 
 ---
 
-## 5. Faz 3 — Pilot & Takım Profil Sayfaları ★ YENİ
+## 5. Faz 3 — Pilot & Takım Profil Sayfaları ✅
+
+**Commit:** `bd1028c` — `feat: driver and team profile pages + EntityDrawer navigation refactor`
 
 **Bu fazın önceliği yüksek — YOL_HARITASI'ndaki değer 9/10.**
 
@@ -289,7 +300,7 @@ APEX pilot ve takım profil sayfaları sprintı.
 Önce oku: pre-plans/DESIGN_SYSTEM.md, docs/ASSETS.md,
 config/team-colors.ts, lib/assets/f1-icons.ts
 
-## Aşama 1 — Sezon bazlı renk paleti altyapısı
+## Aşama 1 — Sezon bazlı renk paleti altyapısı ✅
 config/team-colors.ts'e SeasonPalette interface'i ekle.
 Mevcut 2026 renkleri primary/secondary/accent olarak yeniden yapılandır.
 Seçilmiş 5 takım için tarihsel palette ekle (en az 3 farklı dönem):
@@ -297,7 +308,7 @@ McLaren, Ferrari, Mercedes, Red Bull, Williams.
 CSS custom property sistemi: --team-primary, --team-secondary, --team-accent
 Commit: "feat: season-aware team color palette system"
 
-## Aşama 2 — Takım profil sayfası
+## Aşama 2 — Takım profil sayfası ✅
 app/teams/[constructorId]/page.tsx oluştur (RSC).
 Hero: 60-30-10 renk kuralı (design-anayasa.md oku), lüks atmospheric hero.
 İçerik: sezon seçici, standings, o sezon pilotlar, istatistikler, haberler (3 kart).
@@ -306,7 +317,7 @@ motion narrative: sezon değişince CSS variables 800ms geçiş; reduced-motion 
 generateMetadata: canonical, OG, twitter.
 Commit: "feat: team profile page with season-aware colors"
 
-## Aşama 3 — Pilot profil sayfası
+## Aşama 3 — Pilot profil sayfası ✅
 app/drivers/[driverId]/page.tsx oluştur (RSC).
 Hero: büyük pilot numarası glassmorphism + gradient (--team-secondary → --team-accent).
 Numara opacity 0.15 arka plan + üstte tam renk versiyon.
@@ -315,7 +326,7 @@ Sezon değişince numara + renkler motion narrative ile güncellenir.
 İçerik: sezon seçici, o sezon stats, kariyer özeti, takım geçmişi, haberler (3 kart).
 Commit: "feat: driver profile page with dynamic team colors"
 
-## Aşama 4 — Grid sayfaları
+## Aşama 4 — Grid sayfaları ✅
 app/drivers/page.tsx — 22 pilot grid, güncel sezon.
 app/teams/page.tsx — 11 takım grid, güncel sezon.
 Her kart hover'da takım rengi border-left glow.
@@ -323,7 +334,7 @@ Navbar'a "Drivers" ve "Teams" linkleri ekle veya mevcut Season altına dropdown.
 DESIGN_SYSTEM.md güncelle: yeni sayfalar ve renk sistemi belgelensin.
 Commit: "feat: drivers and teams grid pages + navbar update"
 
-## Aşama 5 — Mevcut season/EntityDrawer entegrasyonu
+## Aşama 5 — Mevcut season/EntityDrawer entegrasyonu ✅
 SeasonExplorer'daki pilot/takım satırları /drivers/[id] ve /teams/[id]'ye link olsun.
 EntityDrawer yerine sayfa açılsın (yeni sekme değil, normal navigasyon).
 Home bento'daki standings pill'leri de aynı link mantığı.
@@ -473,7 +484,7 @@ Commit: "feat: lights-out countdown animation"
 | Motion narrative | Sezon değişince takım rengi 800ms CSS variable geçişi |
 | Glassmorphism 2.0 | Pilot numarası hero: backdrop-blur + gradient overlay |
 | Tabular nums | `font-variant-numeric: tabular-nums` — tüm sayaç ve tablo |
-| Mikro etkileşimler | FlipDigit, AnimatedBar, TiltCard, CalendarScroller |
+| Mikro etkileşimler | OdometerDigit + RaceCountdown ✅, AnimatedBar, TiltCard, CalendarScroller |
 | Hiç stok fotoğraf | Kasklı büst SVG; soyut amblem; pist SVG — hepsi özgün üretim |
 | Performans = tasarım | will-change disiplini; LCP priority; ISR/dynamic dengesi |
 
@@ -529,15 +540,15 @@ Commit: "chore: archive completed council plan files"
 Hafta 1:
   M1-M6 Manuel aksiyonlar                              [sen]
   Faz 0: Disclaimer + haber görsel                     [Claude Code, S]
-  Faz 1: Mobil nav + responsive                        [Cursor, M]
+  Faz 1: Mobil nav + responsive ✅                     [Cursor, M]
 
 Hafta 2:
-  Faz 2: PWA                                           [Claude Code, S]
-  Faz 3, Aşama 1-2: Renk paleti + takım sayfası        [Claude Code, M]
+  Faz 2: PWA ✅ (`f140758`)                                   [Claude Code, S]
+  Faz 3, Aşama 1-2: Renk paleti + takım sayfası ✅            [Claude Code, M]
 
 Hafta 3:
-  Faz 3, Aşama 3-4: Pilot sayfası + grid'ler           [Claude Code, M]
-  Faz 3, Aşama 5: EntityDrawer → sayfa nav             [Claude Code, S]
+  Faz 3, Aşama 3-4: Pilot sayfası + grid'ler ✅               [Claude Code, M]
+  Faz 3, Aşama 5: EntityDrawer → sayfa nav ✅                 [Claude Code, S]
 
 Hafta 4:
   Faz 4: Pilot büst + amblem + pist animasyon           [Cursor, M]

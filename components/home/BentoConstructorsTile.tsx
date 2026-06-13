@@ -36,23 +36,24 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
   }
 
   return (
-    <Link href="/season" className="bento-panel bento-tile-fill p-3 lg:p-5">
+    <div className="bento-panel bento-tile-fill flex flex-col">
       <span
-        className="mb-3 block shrink-0 font-condensed text-[9px] uppercase tracking-[0.2em] lg:mb-4 lg:text-[11px]"
+        className="mb-3 block shrink-0 px-3 pt-3 font-condensed text-[9px] uppercase tracking-[0.2em] lg:mb-4 lg:px-5 lg:pt-5 lg:text-[11px]"
         style={{ color: 'var(--muted)' }}
       >
         Constructors Ranking
       </span>
 
-      <AnimatedBarGroup className="flex min-h-0 flex-1 flex-col">
+      <AnimatedBarGroup className="flex min-h-0 flex-1 flex-col px-3 lg:px-5">
       {/* Mobile / tablet: horizontal bars with team logos */}
       <div className="flex flex-1 flex-col justify-center gap-3 lg:hidden">
         {top.map((row, index) => {
           const color = resolveTeamUiColor(null, row.constructorName);
           const pct = maxPts > 0 ? (Number(row.points) / maxPts) * 100 : 0;
           const logoSrc = teamIconSrc(row.constructorName, season);
-          return (
-            <div key={row.constructorName} className="flex items-center gap-2">
+          const rowClass = 'flex items-center gap-2 transition-opacity hover:opacity-90';
+          const rowInner = (
+            <>
               <span className="w-3 font-mono text-[10px]" style={{ color: 'var(--muted)' }}>
                 {row.position}
               </span>
@@ -91,6 +92,25 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
                   axis="horizontal"
                 />
               </div>
+            </>
+          );
+
+          if (row.constructorId) {
+            return (
+              <Link
+                key={row.constructorName}
+                href={`/teams/${row.constructorId}?season=${season}`}
+                className={rowClass}
+                aria-label={`${row.constructorName}, ${row.points} points — view profile`}
+              >
+                {rowInner}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={row.constructorName} className={rowClass}>
+              {rowInner}
             </div>
           );
         })}
@@ -104,11 +124,10 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
           const barPx =
             maxPts > 0 ? Math.max(16, Math.round((pts / maxPts) * 72)) : 16;
           const logoSrc = teamIconSrc(row.constructorName, season);
-          return (
-            <div
-              key={row.constructorName}
-              className="relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
-            >
+          const colClass =
+            'relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5 transition-opacity hover:opacity-90';
+          const colInner = (
+            <>
               {logoSrc ? (
                 <SafeImage
                   src={logoSrc}
@@ -143,11 +162,38 @@ export function BentoConstructorsTile({ constructors, season }: BentoConstructor
                   {teamAbbr(row.constructorName)}
                 </span>
               )}
+            </>
+          );
+
+          if (row.constructorId) {
+            return (
+              <Link
+                key={row.constructorName}
+                href={`/teams/${row.constructorId}?season=${season}`}
+                className={colClass}
+                aria-label={`${row.constructorName}, ${row.points} points — view profile`}
+              >
+                {colInner}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={row.constructorName} className={colClass}>
+              {colInner}
             </div>
           );
         })}
       </div>
       </AnimatedBarGroup>
-    </Link>
+
+      <Link
+        href="/season"
+        className="shrink-0 border-t px-3 py-2 text-center font-condensed text-[9px] uppercase tracking-[0.12em] lg:px-5 lg:py-2.5 lg:text-[10px]"
+        style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
+      >
+        Full season →
+      </Link>
+    </div>
   );
 }

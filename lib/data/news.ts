@@ -104,6 +104,31 @@ export async function getFeaturedNews(): Promise<NewsItem | null> {
 }
 
 /**
+ * News items mentioning an entity (driver surname or team name), for profile
+ * pages (Faz 3). MVP: filter the already-fetched latest-news set in memory
+ * (case-insensitive substring on title/summary), so no extra DB round trip and
+ * the same DB → API → static fallback chain is reused. Only meaningful for the
+ * current season; callers gate on that.
+ */
+export async function getNewsForEntity(
+  entityName: string,
+  maxItems = 3,
+): Promise<NewsItem[]> {
+  const name = entityName.trim().toLowerCase();
+  if (!name) return [];
+  // A driver's surname / a team's short name is the useful match token.
+  const tokens = name.split(/\s+/).filter((t) => t.length >= 3);
+  if (tokens.length === 0) return [];
+
+  const items = await getLatestNews(60);
+  const matched = items.filter((item) => {
+    const haystack = `${item.title} ${item.summary}`.toLowerCase();
+    return tokens.some((t) => haystack.includes(t));
+  });
+  return matched.slice(0, maxItems);
+}
+
+/**
  * Latest news. DB (news_cache) → /api/news → static fallback.
  */
 export async function getLatestNews(limit = 20): Promise<NewsItem[]> {

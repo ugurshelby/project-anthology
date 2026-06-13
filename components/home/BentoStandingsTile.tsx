@@ -63,15 +63,14 @@ export function BentoStandingsTile({
             const driverSrc = driverIconSrc(row.driverCode, row.driverName, season);
             const teamSrc = teamIconSrc(row.constructorName, season);
 
-            return (
-              <div
-                key={row.position + row.driverName}
-                className="flex h-9 items-center gap-1.5 px-1.5 lg:h-10 lg:gap-2 lg:px-2"
-                style={{
-                  borderLeft: `3px solid ${color}`,
-                  backgroundColor: 'rgba(255,255,255,0.02)',
-                }}
-              >
+            const rowClass =
+              'flex h-9 items-center gap-1.5 px-1.5 transition-colors hover:bg-[rgba(255,255,255,0.04)] lg:h-10 lg:gap-2 lg:px-2';
+            const rowStyle = {
+              borderLeft: `3px solid ${color}`,
+              backgroundColor: 'rgba(255,255,255,0.02)',
+            };
+            const rowInner = (
+              <>
                 <span
                   className="w-5 font-mono text-[9px] lg:w-6 lg:text-[10px]"
                   style={{ color: 'var(--muted)' }}
@@ -123,6 +122,26 @@ export function BentoStandingsTile({
                     <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color }} />
                   </div>
                 </div>
+              </>
+            );
+
+            if (row.driverId) {
+              return (
+                <Link
+                  key={row.position + row.driverName}
+                  href={`/drivers/${row.driverId}?season=${season}`}
+                  className={rowClass}
+                  style={rowStyle}
+                  aria-label={`${row.driverName}, ${row.constructorName}, ${row.points} points — view profile`}
+                >
+                  {rowInner}
+                </Link>
+              );
+            }
+
+            return (
+              <div key={row.position + row.driverName} className={rowClass} style={rowStyle}>
+                {rowInner}
               </div>
             );
           })}

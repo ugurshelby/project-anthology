@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
@@ -24,7 +25,11 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') || leader.driverName.toUpperCase();
 
-  return (
+  const leaderHref = leader.driverId
+    ? `/drivers/${leader.driverId}?season=${season}`
+    : null;
+
+  const content = (
     <section className="bento-panel bento-panel-accent relative flex h-full min-h-0 items-end overflow-hidden">
       {driverSrc ? (
         <div className="absolute inset-0 z-0">
@@ -106,4 +111,14 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
       </div>
     </section>
   );
+
+  if (leaderHref) {
+    return (
+      <Link href={leaderHref} className="block h-full" aria-label={`${leader.driverName} — view profile`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }
