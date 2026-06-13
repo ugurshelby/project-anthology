@@ -7,16 +7,18 @@ import { usePrefersReducedMotion } from '@/components/ui/usePrefersReducedMotion
 
 const leftLinks = [
   { href: '/anthology', label: 'Anthology' },
-  { href: '/news', label: 'News' },
-  { href: '/circuits', label: 'Circuits' },
+  { href: '/drivers', label: 'Drivers' },
+  { href: '/teams', label: 'Teams' },
 ];
 
 const rightLinks = [
   { href: '/season', label: 'Season' },
-  { href: '/tech-glossary', label: 'Glossary' },
+  { href: '/circuits', label: 'Circuits' },
 ];
 
 const MOBILE_MENU_LINKS = [
+  { href: '/drivers', label: 'Drivers' },
+  { href: '/teams', label: 'Teams' },
   { href: '/news', label: 'News' },
   { href: '/tech-glossary', label: 'Glossary' },
 ] as const;

@@ -13,6 +13,10 @@ export interface DriverStandingRow {
   driverName: string;
   constructorName: string;
   driverCode: string;
+  /** Jolpica/Ergast stable driverId (e.g. 'max_verstappen') — profile URL slug. */
+  driverId: string;
+  /** Jolpica/Ergast stable constructorId (e.g. 'red_bull'). */
+  constructorId: string;
 }
 
 export function getDriverStandings(data: MrData | null, limit = 22): DriverStandingRow[] {
@@ -23,8 +27,8 @@ export function getDriverStandings(data: MrData | null, limit = 22): DriverStand
           DriverStandings?: Array<{
             position?: string;
             points?: string;
-            Driver?: { givenName?: string; familyName?: string; code?: string };
-            Constructors?: Array<{ name?: string }>;
+            Driver?: { driverId?: string; givenName?: string; familyName?: string; code?: string };
+            Constructors?: Array<{ constructorId?: string; name?: string }>;
           }>;
         }>;
       };
@@ -41,7 +45,9 @@ export function getDriverStandings(data: MrData | null, limit = 22): DriverStand
       points: row.points ?? '0',
       driverName: `${given} ${family}`.trim() || '—',
       driverCode: (row.Driver?.code ?? '').toLowerCase(),
+      driverId: (row.Driver?.driverId ?? '').toLowerCase(),
       constructorName: row.Constructors?.[0]?.name ?? '—',
+      constructorId: (row.Constructors?.[0]?.constructorId ?? '').toLowerCase(),
     };
   });
 }
@@ -51,6 +57,8 @@ export interface ConstructorStandingRow {
   points: string;
   constructorName: string;
   wins: string;
+  /** Jolpica/Ergast stable constructorId (e.g. 'red_bull') — profile URL slug. */
+  constructorId: string;
 }
 
 export function getConstructorStandings(
@@ -65,7 +73,7 @@ export function getConstructorStandings(
             position?: string;
             points?: string;
             wins?: string;
-            Constructor?: { name?: string };
+            Constructor?: { constructorId?: string; name?: string };
           }>;
         }>;
       };
@@ -79,6 +87,7 @@ export function getConstructorStandings(
     points: row.points ?? '0',
     wins: row.wins ?? '0',
     constructorName: row.Constructor?.name ?? '—',
+    constructorId: (row.Constructor?.constructorId ?? '').toLowerCase(),
   }));
 }
 
