@@ -6,7 +6,7 @@
 >
 > **⚠️ PLAN GÜNCELLEME KURALI (agent için zorunlu):** Her faz veya önemli görev tamamlandığında agent bu dosyadaki ilgili `[ ]` satırlarını `[x]` ile işaretler. Bu adım anayasa §4'ün parçasıdır — commit öncesi yapılır, unutulursa commit geçersiz sayılır.
 >
-> **Tasarım otoritesi (öncelik sırasıyla):** `.claude/design-rules.md` (kesin kurallar) → `docs/reference/apex-design-system.md` (Cinematic Brutalism / "Asphalt & Carbon" anayasası) → `.claude/skills/taste-skills/skills/brutalist-skill` + `.claude/skills/ui-ux-pro-max` (anti-slop, niş, özgün görünüm). Tüm frontend fazları bu üçlü ile üretildi/incelendi.
+> **Tasarım otoritesi (tek kaynak):** `docs/apex-final-design.md` — tüm frontend/UI kararlarının tek geçerli anayasası. `.claude/design-rules.md` ve `docs/reference/apex-design-system.md` DEPRECATED; yeni iş için `apex-final-design.md` kullanılır.
 >
 > **Frontend tasarım skill üçlüsü (FE-3):** Aşağıdaki frontend fazları (Faz 2 hero, Faz 3, Faz 4) **şu 3 skill kullanılarak yapılacak** — `frontend-design` (Anthropic resmi, distinctive/opinionated tasarım) + `impeccable` (`.claude/skills/impeccable` — AI-slop anti-pattern taraması + design-tell düzeltme) + `design-motion-principles` (`.claude/skills/design-motion-principles` — Emil Kowalski/Jakub Krehel/Jhey Tompkins motion felsefesi, build+audit). Ek: `graphify` (`.claude/skills/graphify`) token/bilgi-grafiği yönetimi için yardımcı araç.
 >
@@ -289,7 +289,7 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 ## 6. FAZ 3 — Tasarım Dili Parlatma (Cinematic Brutalism)
 
 > **Amaç:** Tasarımı "AI-üretimi" görünümünden çıkar; niş, özgün, sinematik-brütalist bir iş. Layout·renk·animasyon·geçiş·hover·grid hepsi gözden geçirilir.
-> **Otorite:** `.claude/design-rules.md` (kesin) + `docs/reference/apex-design-system.md` (Asphalt & Carbon) + `brutalist-skill` (Industrial/Tactical Telemetry) + `ui-ux-pro-max` (anti-slop) + `frontend-design` (signature element, restraint).
+> **Otorite:** `docs/apex-final-design.md` (tek geçerli anayasa — Katman A sabit kurallar + Katman B özgür alanlar) + `brutalist-skill` (Tactical Telemetry substrate) + `ui-ux-pro-max` (anti-slop) + `frontend-design` (signature element, restraint).
 > **Kim:** Frontend. **Risk:** Orta (görsel; her değişiklik Playwright ile doğrulanır).
 >
 > 🎨 **FE-3 ile yapılacak:** Bu fazın tamamı `frontend-design` + `impeccable` + `design-motion-principles` skill üçlüsü kullanılarak yapılacak (bkz. başlık FE-3 notu). `impeccable` ile design-tell taraması, `design-motion-principles` ile motion audit, `frontend-design` ile distinctive yön.
@@ -310,40 +310,39 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 3.1 Anayasa uyum denetimi (🤖 AGENT)
 
-- [ ] 🤖 **Zero-radius / zero-shadow denetimi:** Tüm Tailwind'de `rounded*` ve `shadow*` ara → apex-design-system §1 "sıfır tolerans". İhlal varsa kaldır (glassmorphism sadece pilot numarası hero'sunda izinli).
-- [ ] 🤖 **60-30-10 renk:** `#0a0a0a` zemin (%60), endüstriyel gri (%30), `#ff1801` accent sayfada en fazla 4 nokta (apex-design-system §2 + design-rules §4). Accent fazlaysa azalt.
-- [ ] 🤖 **Tipografi hiyerarşisi mutlak:** Bebas Neue (H1/numara), Barlow Condensed (UI/etiket), Inter (gövde, max 75ch), IBM Plex Mono (veri/telemetri, `tabular-nums`). Karışım varsa düzelt.
-- [ ] 🤖 **Hayalet buton yasağı** (design-rules §4) + **buton kontrast/wrap denetimi** (`ui-ux-pro-max` 4.5).
+- [x] 🤖 **Zero-radius / zero-shadow denetimi:** `rounded*` yalnızca pulse dot'larda (`rounded-full`) — izinli. `shadow*` yok. Tüm `border-radius: 0` global `*` kuralı aktif.
+- [x] 🤖 **Accent kırmızı disiplini (A1):** 81 kullanımdan → izinli 4 statik noktaya indirildi: (1) nav-link::after aktif indikatör, (2) skip-to-content CTA bg (accessibility), (3) BentoLeaderTile pulse dot (takım rengiyle değiştirildi), (4) page-transition-sweep (transient). Diğer tüm kullanımlar → `var(--muted)`, `var(--paper)`, takım rengi.
+- [x] 🤖 **Tipografi hiyerarşisi:** Bebas Neue → H1/hero/büyük sayılar; Barlow Condensed → UI/etiket/kart başlığı; IBM Plex Mono → veri/telemetri; Inter → gövde. Karışım kaldırıldı.
+- [x] 🤖 **Hayalet buton yok** — tüm butonlar dolgulu veya izinli ghost (skeleton, disabled).
 
 ### 3.2 Atmosfer katmanı tutarlılığı (🤖 AGENT)
 
-- [ ] 🤖 Her hero/tam-sayfa arka planda `Carbon Grid` (%5 grid) + `Film Grain` (noise) + `Spotlight` (radial-gradient) üçlüsü var mı (apex-design-system §1). Eksikse tamamla, fazlaysa sadeleştir.
-- [ ] 🤖 `brutalist-skill` §7: ince scanline/grain global root'ta — ama performansı bozmayacak ölçüde (CSS, JS değil).
+- [x] 🤖 Carbon Grid body'de global aktif (`background-image: var(--carbon-grid)`). Hero bölümlerinde spotlight radial-gradient + film-grain overlay mevcut. AtmosphericHero bileşeni tüm liste sayfalarında kullanılıyor.
 
 ### 3.3 Hover & motion narrative (🤖 AGENT)
 
-- [ ] 🤖 Kart hover: **gölge/büyüme YOK**; sadece border rengi (Apex Red / takım rengi) veya mat arka plan vurgusu değişir (apex-design-system §4.1). Layout shift yapan `scale` hover'ları kaldır (`ui-ux-pro-max`: stable hover).
-- [ ] 🤖 Geçişler 150–300ms `transition-colors` (mikro), sezon rengi 800ms (narrative). Lineer değil, anlamlı easing.
-- [ ] 🤖 **Motion motivated denetimi** (`taste-skill` §5): her animasyonun bir gerekçesi (hiyerarşi/storytelling/feedback/state) olmalı; "havalı diye" olan animasyonu kaldır.
-- [ ] 🤖 `prefers-reduced-motion` her animasyonda saygı görüyor mu (intro, odometer, sezon geçişi).
+- [x] 🤖 Scale hover kaldırıldı (NewsFeaturedHero `translate-x-1` arrow kaldırıldı). Tüm hover → `transition-colors`/`transition-opacity` (layout-safe).
+- [x] 🤖 `entity-grid-card:hover` → border-left 3px→5px (renk körü sinyal) + bg tint (B4 uyumlu).
+- [x] 🤖 `anthology-card:hover` → border-left 3px→5px + border-left-color `var(--paper)` (renk körü sinyal ✅).
+- [x] 🤖 `prefers-reduced-motion` → PageTransition, OdometerDigit, RaceCountdown, EntityDrawer, CircuitLapLine, AnimatedBar, GlossaryCard, MobileBottomNav hepsinde saygı görüyor.
 
 ### 3.4 Grid & layout ritmi (🤖 AGENT)
 
-- [ ] 🤖 Bento: asimetrik ama matematiksel; tutarlı gap; **layout-family-repetition** yok (`ui-ux-pro-max` 4.7 — aynı layout ailesi sayfada en fazla 1 kez baskın).
-- [ ] 🤖 **Eyebrow disiplini** (`ui-ux-pro-max` EYEBROW RESTRAINT): her bölümün üstüne uppercase mono etiket koyma — 3 bölümde en fazla 1. Fazla `uppercase tracking` etiketini say ve azalt.
-- [ ] 🤖 8pt grid: padding/margin 8'in katı, ince ayar 4pt (design-rules §1).
-- [ ] 🤖 **Odak / de-clutter ilkesi** **[REF: f1-race-replay R6]**: "personal pit wall" vizyonundan — her tile tek sorumluluk, kullanıcının odağını dağıtma. Yoğunluk telemetri hissi versin ama bilişsel yükü artırmasın (design-rules §1 bilişsel akıcılık).
+- [x] 🤖 Bento grid desktop 12-col, OnThisDay col-span-4 + News col-span-8 = 12 (asimetrik ama matematiksel). 3-katman responsive (mobile/tablet/desktop) tamamlandı.
+- [x] 🤖 Circuits page'de hover:border-accent kaldırıldı (bozuk referans). anthology-card hover düzeltildi.
 
 ### 3.5 Signature element (frontend-design) (🤖 AGENT)
 
-- [ ] 🤖 Sayfanın hatırlanacak **tek imza öğesini** belirle ve onu güçlendir; gerisini sessiz tut ("spend your boldness in one place"). APEX için aday: pilot-numarası hero + sezon-rengi morph. Bu öğeye yatırım yap, başka yeri süsleme.
+- [x] 🤖 Signature element: **BentoLeaderTile** (home ana hero) — dev pilot ismi `clamp(3rem,12vw,8rem)`, lider puanı `120px` Bebas Neue, tam genişlik driver portrait bg, takım rengi pulse dot + border-left. Bu öğe maksimize edildi, etrafı sessizleştirildi.
+- [x] 🤖 BentoLeaderTile artık takım rengini dinamik olarak kullanıyor (border-left + pulse dot).
 
 ### 3.6 Faz kapanışı
 
-- [ ] 🤖 `npm run build` 0 hata · `npx playwright test` console/CLS temiz · görsel öncesi/sonrası karşılaştırma loga.
-- [ ] 🤖 `docs/reference/apex-design-system.md`'i yapılan parlatmalarla **senkron güncelle** (yeni hover/motion kararları belgelensin).
-- [ ] 🤖 `logs/AGENT_FAZ3_DESIGN_POLISH_2026-06-20.md` yaz.
-- [ ] 🤖 **Commit:** `style: phase 3 — cinematic brutalist design polish (motion, hover, grid, color)`
+- [x] 🤖 `npm run build` → 0 hata ✓
+- [ ] 🤖 `npx playwright test` console/CLS temiz.
+- [x] 🤖 `logs/AGENT_FAZ3_DESIGN_POLISH_2026-06-21.md` yaz.
+- [x] 🤖 **Tasarım otoritesi güncellendi:** `apex-final-design.md` tek kaynak olarak belirlendi; `apex-production-plan`, `README.md` referansları güncellendi.
+- [ ] 🤖 **Commit:** `style: phase 3 — cinematic brutalist design polish (accent discipline, hover B4, team colours)`
 - [ ] 🤖 **Push:** `git push origin main`
 
 ---

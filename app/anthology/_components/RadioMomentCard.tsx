@@ -5,7 +5,7 @@ export function RadioMomentCard({ moment }: { moment: RadioMomentRow }) {
     <li className="anthology-card p-4">
       <p
         className="font-mono text-[9px] uppercase tracking-wider"
-        style={{ color: 'var(--accent)' }}
+        style={{ color: 'var(--muted)' }}
       >
         {moment.year ?? '—'} · R{moment.round ?? '—'} · {moment.gp_name ?? 'GP'}
       </p>

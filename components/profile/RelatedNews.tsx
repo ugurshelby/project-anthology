@@ -36,7 +36,7 @@ export async function RelatedNews({ entityName }: { entityName: string }) {
             </h3>
             <span
               className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--paper)' }}
             >
               Read story →
             </span>

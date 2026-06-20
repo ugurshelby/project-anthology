@@ -7,7 +7,7 @@ Bu klasör proje dokümantasyonunun tek giriş noktasıdır. Agent ve geliştiri
 | Ne yapıyorsun? | Oku |
 |---|---|
 | Projede dosya arıyorsun / yeni kod yazıyorsun | [`reference/proje-dizini.md`](reference/proje-dizini.md) |
-| Frontend / UI | [`reference/apex-design-system.md`](reference/apex-design-system.md) + `.cursor/rules/design-rules.md` |
+| Frontend / UI | [`apex-final-design.md`](apex-final-design.md) ← tek geçerli tasarım anayasası |
 | Asset pipeline, sezon görseli ekleme | [`reference/ASSETS.md`](reference/ASSETS.md) |
 | Geçmiş hatalar, tuzaklar | [`reference/PROJECT_LESSONS_AND_ROADMAP.md`](reference/PROJECT_LESSONS_AND_ROADMAP.md) |
 | Aktif yol haritası, fazlar | [`plans/APEX_MASTER_PLAN.md`](plans/APEX_MASTER_PLAN.md) |
@@ -31,7 +31,7 @@ docs/
 ## `reference/` — Aktif referanslar
 
 - **proje-dizini.md** — Kök dizin haritası ve mimari katmanlar
-- **apex-design-system.md** — UI token'ları, tipografi, bileşen kuralları
+- **apex-design-system.md** — ⚠️ DEPRECATED — bkz. [`../apex-final-design.md`](../apex-final-design.md)
 - **ASSETS.md** — Görsel pipeline, public layout, entity asset ekleme
 - **PROJECT_LESSONS_AND_ROADMAP.md** — Tekrarlanmaması gereken hatalar ve mimari kararlar
 

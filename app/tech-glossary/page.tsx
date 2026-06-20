@@ -88,7 +88,7 @@ export default function TechGlossaryPage() {
                 <div className="min-w-0">
                   <p
                     className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                    style={{ color: 'var(--accent)' }}
+                    style={{ color: 'var(--muted)' }}
                   >
                     {tyre.kicker}
                   </p>

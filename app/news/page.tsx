@@ -108,7 +108,7 @@ export default async function NewsPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
-                    style={{ color: 'var(--accent)' }}
+                    style={{ color: 'var(--paper)' }}
                   >
                     Read story →
                   </a>

@@ -134,7 +134,7 @@ export default async function StoryDetailPage({ params }: PageProps) {
         <div className="content-wrap absolute inset-x-0 bottom-0">
           <p
             className="font-mono text-[10px] uppercase tracking-wider"
-            style={{ color: 'var(--accent)' }}
+            style={{ color: 'var(--muted)' }}
           >
             {story.category} · {story.year}
           </p>
