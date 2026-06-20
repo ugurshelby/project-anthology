@@ -8,8 +8,10 @@ import { RelatedNews } from '@/components/profile/RelatedNews';
 import {
   getTeamProfile,
   getTeamSeasons,
+  getTeamCareer,
   PROFILE_MIN_SEASON,
 } from '@/lib/data/entities';
+import { getTeamLore } from '@/data/teams';
 import { teamIconSrc, driverIconSrc } from '@/lib/assets/f1-icons';
 import { getSeasonPalette, teamPaletteCssVars } from '@/config/team-colors';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
@@ -48,19 +50,38 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   };
 }
 
+function StatCell({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="border border-border px-3 py-3" style={{ backgroundColor: 'var(--surface)' }}>
+      <dt className="font-condensed text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+        {label}
+      </dt>
+      <dd
+        className="mt-1 font-mono text-lg tracking-[0.05em]"
+        style={{ color: accent ? 'var(--team-secondary)' : 'var(--paper)' }}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
 export default async function TeamProfilePage({ params, searchParams }: PageProps) {
   const { constructorId } = await params;
   const season = parseSeason((await searchParams).season);
 
-  const [profile, seasons] = await Promise.all([
+  const [profile, seasons, career] = await Promise.all([
     getTeamProfile(constructorId, season),
     getTeamSeasons(constructorId),
+    getTeamCareer(constructorId),
   ]);
 
   if (!profile) notFound();
 
+  const lore = getTeamLore(constructorId);
   const palette = getSeasonPalette(profile.constructorId || profile.constructorName, season);
   const emblem = teamIconSrc(profile.constructorName, season);
+  const carSrc = `/cars/${profile.constructorId}/${season}.webp`;
   const seasonOptions = seasons.length > 0 ? seasons : [season];
 
   return (
@@ -94,7 +115,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         </div>
       </header>
 
-      <div className="content-wrap flex flex-col gap-[var(--section-gap)] py-10">
+      <div className="content-wrap flex flex-col gap-(--section-gap) py-10">
         {/* Season selector */}
         <section>
           <SectionDivider title="Season" />
@@ -130,6 +151,105 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
                   </Link>
                 );
               })}
+            </div>
+          </section>
+        ) : null}
+
+        {/* Car visual slot */}
+        <section>
+          <SectionDivider title={`${season} Car`} />
+          <div
+            className="relative flex items-center justify-center border border-border py-8"
+            style={{ backgroundColor: 'var(--surface)', minHeight: 160 }}
+          >
+            <SafeImage
+              src={carSrc}
+              alt={`${profile.constructorName} ${season} car`}
+              width={640}
+              height={200}
+              className="max-h-40 w-full object-contain"
+              fallbackNode={
+                <div className="flex flex-col items-center gap-2 py-6">
+                  <span
+                    className="font-display text-[clamp(2rem,6vw,4rem)] leading-none"
+                    style={{ color: 'color-mix(in srgb, var(--team-secondary) 30%, transparent)' }}
+                  >
+                    {profile.constructorName}
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                    {season} · Car image unavailable
+                  </span>
+                </div>
+              }
+            />
+          </div>
+        </section>
+
+        {/* Career aggregate — only show when there are multiple seasons of data */}
+        {career.seasons > 1 ? (
+          <section>
+            <SectionDivider title="Team Record" />
+            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatCell label="Seasons (archive)" value={String(career.seasons)} />
+              <StatCell
+                label="Championships"
+                value={String(career.championships)}
+                accent={career.championships > 0}
+              />
+              <StatCell label="Wins" value={String(career.wins)} />
+              <StatCell
+                label="Best Position"
+                value={career.bestPosition !== null ? `P${career.bestPosition}` : '—'}
+                accent={career.bestPosition === 1}
+              />
+            </dl>
+            <p className="mt-2 font-mono text-[10px]" style={{ color: 'var(--muted)' }}>
+              Based on {PROFILE_MIN_SEASON}–{CURRENT_SEASON} archive data
+            </p>
+          </section>
+        ) : null}
+
+        {/* HQ map placeholder + biography */}
+        {lore ? (
+          <section>
+            <SectionDivider title="Team" />
+
+            {/* HQ info */}
+            <div className="mb-4 flex items-center gap-3 border border-border px-4 py-3" style={{ backgroundColor: 'var(--surface)' }}>
+              <span className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--team-secondary)' }}>
+                HQ
+              </span>
+              <span className="font-condensed text-sm" style={{ color: 'var(--paper)' }}>
+                {lore.hq.label}
+              </span>
+              <span className="ml-auto font-mono text-[10px]" style={{ color: 'var(--muted)' }}>
+                {lore.hq.lat.toFixed(4)}°, {lore.hq.lng.toFixed(4)}°
+              </span>
+            </div>
+
+            <div className="max-w-2xl space-y-4">
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                {lore.bio}
+              </p>
+
+              {lore.milestones.length > 0 ? (
+                <ul className="mt-4 space-y-2 border-l-2 pl-4" style={{ borderColor: 'var(--team-secondary)' }}>
+                  {lore.milestones.map((m) => (
+                    <li key={m} className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
+                      {m}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
+              <div className="border border-border p-4" style={{ backgroundColor: 'var(--surface)' }}>
+                <p className="mb-1 font-condensed text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--team-secondary)' }}>
+                  Technical Note
+                </p>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                  {lore.lore}
+                </p>
+              </div>
             </div>
           </section>
         ) : null}

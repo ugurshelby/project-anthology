@@ -1,12 +1,3 @@
-/**
- * Driver & team profile data layer (Faz 3 — MVP, season-data only).
- *
- * All data is derived from getSeasonData() (DB-first Jolpica snapshots), so no
- * new external source or cache is introduced. Career aggregates (total wins,
- * championships) are intentionally out of scope for the MVP — see
- * docs/plans/completed/PLAN_FAZ3_PROFILE_PAGES_2026-06-13.md.
- */
-
 import { getSeasonData, type SeasonData } from '@/lib/data/f1';
 import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
@@ -168,4 +159,118 @@ export async function getCurrentTeams(): Promise<{
 }> {
   const data = await getSeasonData(CURRENT_SEASON);
   return { season: CURRENT_SEASON, rows: data.constructors, data };
+}
+
+// ── Career aggregate ─────────────────────────────────────────────────────────
+
+export interface DriverCareer {
+  seasons: number;
+  championships: number;
+  wins: number;
+  podiums: number;
+  points: number;
+  /** Chronological list: { season, constructorId, constructorName } */
+  teams: Array<{ season: number; constructorId: string; constructorName: string }>;
+  /** Best finishing position across all seasons (1 = champion). */
+  bestPosition: number | null;
+}
+
+export interface TeamCareer {
+  seasons: number;
+  championships: number;
+  wins: number;
+  bestPosition: number | null;
+}
+
+/**
+ * Career aggregate for a driver across the full profile archive.
+ * Derived entirely from existing DB snapshots — no new API calls.
+ */
+export async function getDriverCareer(driverId: string): Promise<DriverCareer> {
+  const years = profileSeasons();
+  const results = await Promise.all(
+    years.map(async (y) => {
+      const data = await getSeasonData(y);
+      const row = matchDriver(data.standings, driverId);
+      if (!row) return null;
+      const stats = data.driverStats?.[row.driverName] ?? { wins: 0, podiums: 0 };
+      return { season: y, row, stats };
+    }),
+  );
+
+  let championships = 0;
+  let wins = 0;
+  let podiums = 0;
+  let points = 0;
+  let bestPosition: number | null = null;
+  const teams: DriverCareer['teams'] = [];
+
+  for (const entry of results) {
+    if (!entry) continue;
+    const { season, row, stats } = entry;
+    const pos = Number(row.position);
+
+    if (pos === 1) championships++;
+    wins += stats.wins;
+    podiums += stats.podiums;
+    points += Number(row.points) || 0;
+
+    if (Number.isFinite(pos) && (bestPosition === null || pos < bestPosition)) {
+      bestPosition = pos;
+    }
+
+    if (row.constructorId) {
+      teams.push({ season, constructorId: row.constructorId, constructorName: row.constructorName });
+    }
+  }
+
+  return {
+    seasons: results.filter(Boolean).length,
+    championships,
+    wins,
+    podiums,
+    points: Math.round(points),
+    teams: teams.sort((a, b) => a.season - b.season),
+    bestPosition,
+  };
+}
+
+/**
+ * Career aggregate for a constructor across the full profile archive.
+ * Derived entirely from existing DB snapshots — no new API calls.
+ */
+export async function getTeamCareer(constructorId: string): Promise<TeamCareer> {
+  const years = profileSeasons();
+  const results = await Promise.all(
+    years.map(async (y) => {
+      const data = await getSeasonData(y);
+      const row = matchConstructor(data.constructors, constructorId);
+      if (!row) return null;
+      return { season: y, row };
+    }),
+  );
+
+  let championships = 0;
+  let wins = 0;
+  let bestPosition: number | null = null;
+
+  for (const entry of results) {
+    if (!entry) continue;
+    const { row } = entry;
+    const pos = Number(row.position);
+
+    if (pos === 1) championships++;
+    wins += Number(row.wins) || 0;
+
+    if (Number.isFinite(pos) && (bestPosition === null || pos < bestPosition)) {
+      bestPosition = pos;
+    }
+  }
+
+  return {
+    seasons: results.filter(Boolean).length,
+    championships,
+    wins,
+    bestPosition,
+  };
 }
