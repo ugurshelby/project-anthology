@@ -651,10 +651,15 @@ body {
 }
 
 .section-divider-bar {
-  width: 40px;
-  height: 2px;
-  background: var(--accent);
+  width: 32px;
+  height: 1px;
+  background: var(--border-hover);
   margin-top: 0.5rem;
+}
+
+/* Profile pages: divider bar inherits team colour */
+.profile-root .section-divider-bar {
+  background: color-mix(in srgb, var(--team-secondary) 60%, transparent);
 }
 
 /* ── Home atmosphere (hero band — homepage) ───────────────────────────── */
@@ -1006,13 +1011,13 @@ body {
 .site-footer-link {
   color: var(--paper);
   text-decoration: none;
-  border-bottom: 1px dotted rgba(255, 24, 1, 0.6);
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
   transition: color 150ms ease, border-color 150ms ease;
 }
 
 .site-footer-link:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  color: var(--paper);
+  border-bottom-color: rgba(255, 255, 255, 0.55);
 }
 
 .site-footer-copy {
@@ -1232,36 +1237,37 @@ body {
 }
 
 /* Grid cards (drivers / teams index) */
+/* border-left colour is set inline via style={{ borderLeftColor: teamColor }} */
 .entity-grid-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px;
-  min-height: 44px;
+  padding: 16px 18px;
+  min-height: 56px;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid transparent;
   background: var(--card);
   text-decoration: none;
   cursor: pointer;
-  transition: border-left-width 150ms ease, background-color 150ms ease;
+  transition: border-left-width 150ms ease, background-color 200ms ease;
 }
 
 .entity-grid-card:hover {
-  border-left-width: 6px;
-  background: var(--surface);
+  border-left-width: 5px;
+  background: color-mix(in srgb, var(--entity-color, rgba(255,255,255,0.05)) 10%, var(--card));
 }
 
 /* ── Glossary internal link ────────────────────────────────────────────── */
 .glossary-link {
   color: var(--paper);
   text-decoration: none;
-  border-bottom: 1px dotted rgba(255, 24, 1, 0.6);
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.25);
   transition: color 150ms ease, border-color 150ms ease;
 }
 
 .glossary-link:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  color: var(--paper);
+  border-bottom-color: rgba(255, 255, 255, 0.6);
 }
 
 /* ── Story prose (anthology detail) ────────────────────────────────────── */

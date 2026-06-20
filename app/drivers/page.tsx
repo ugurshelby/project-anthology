@@ -52,23 +52,35 @@ export default async function DriversGridPage() {
                   key={row.driverId || row.driverName}
                   href={row.driverId ? `/drivers/${row.driverId}` : '#'}
                   className="entity-grid-card"
-                  style={{ borderLeftColor: color }}
+                  style={{
+                    borderLeftColor: color,
+                    backgroundColor: `color-mix(in srgb, ${color} 10%, var(--card))`,
+                  }}
                 >
-                  <span className="w-7 shrink-0 font-mono text-sm" style={{ color: 'var(--muted)' }}>
-                    {row.position}
+                  <span
+                    className="w-6 shrink-0 font-mono text-[11px] tabular-nums"
+                    style={{ color: 'var(--muted)' }}
+                  >
+                    {row.position.padStart(2, '0')}
                   </span>
                   {src ? (
                     <SafeImage src={src} alt="" width={44} height={44} className="h-11 w-11 shrink-0 object-contain" />
                   ) : null}
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-display text-[1.3rem] tracking-[0.04em]" style={{ color: 'var(--paper)' }}>
+                    <span
+                      className="block truncate font-condensed text-base font-semibold uppercase tracking-[0.06em]"
+                      style={{ color: 'var(--paper)' }}
+                    >
                       {row.driverName}
                     </span>
-                    <span className="block truncate font-condensed text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                    <span
+                      className="block truncate font-mono text-[9px] uppercase tracking-[0.12em]"
+                      style={{ color: 'var(--muted)' }}
+                    >
                       {row.constructorName}
                     </span>
                   </span>
-                  <span className="shrink-0 font-mono text-xs" style={{ color: 'var(--accent)' }}>
+                  <span className="shrink-0 font-mono text-sm tabular-nums" style={{ color }}>
                     {row.points}
                   </span>
                 </Link>
