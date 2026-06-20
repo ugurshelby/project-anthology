@@ -68,7 +68,7 @@ export default async function CircuitsPage() {
                 <Link
                   key={card.circuitId}
                   href={`/circuits/${card.circuitId}`}
-                  className={`anthology-card group flex flex-col justify-between gap-3 p-4 transition-colors hover:border-accent/40 ${circuitGridSpan(index)}`}
+                  className={`anthology-card group flex flex-col justify-between gap-3 p-4 ${circuitGridSpan(index)}`}
                 >
                   {card.svgSrc ? (
                     <SafeImage
@@ -89,7 +89,7 @@ export default async function CircuitsPage() {
                     <div className="flex items-center justify-between gap-2">
                       <span
                         className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                        style={{ color: 'var(--accent)' }}
+                        style={{ color: 'var(--muted)' }}
                       >
                         Round {card.round}
                       </span>

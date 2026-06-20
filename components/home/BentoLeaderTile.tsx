@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
+import { resolveTeamUiColor } from '@/config/team-colors';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
 
 interface BentoLeaderTileProps {
@@ -11,7 +12,7 @@ interface BentoLeaderTileProps {
 export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
   if (!leader) {
     return (
-      <section className="bento-panel bento-panel-accent bento-tile-fill justify-center p-4 lg:p-12">
+      <section className="bento-panel bento-tile-fill justify-center p-4 lg:p-12" style={{ borderLeft: '3px solid var(--border-hover)' }}>
         <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
           Standings sync pending — check back after the next cron run.
         </p>
@@ -21,6 +22,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
 
   const driverSrc = driverIconSrc(leader.driverCode, leader.driverName, season);
   const teamSrc = teamIconSrc(leader.constructorName, season);
+  const teamColor = resolveTeamUiColor(null, leader.constructorName);
   const nameParts = leader.driverName.toUpperCase().split(' ');
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') || leader.driverName.toUpperCase();
@@ -30,7 +32,10 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
     : null;
 
   const content = (
-    <section className="bento-panel bento-panel-accent relative flex h-full min-h-0 items-end overflow-hidden">
+    <section
+      className="bento-panel relative flex h-full min-h-0 items-end overflow-hidden"
+      style={{ borderLeft: `3px solid ${teamColor}` }}
+    >
       {driverSrc ? (
         <div className="absolute inset-0 z-0">
           <SafeImage
@@ -59,7 +64,7 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
           >
             <span
               className="h-1.5 w-1.5 animate-pulse rounded-full"
-              style={{ backgroundColor: 'var(--accent)' }}
+              style={{ backgroundColor: teamColor }}
             />
             Championship Leader
           </span>

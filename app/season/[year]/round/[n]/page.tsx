@@ -85,7 +85,7 @@ function ResultsTable({ rows, showGrid }: { rows: RaceResultRow[]; showGrid: boo
             return (
               <tr
                 key={`${row.position}-${row.driverName}`}
-                style={podium ? { backgroundColor: 'rgba(255,24,1,0.06)' } : undefined}
+                style={podium ? { backgroundColor: `color-mix(in srgb, ${teamColor} 6%, transparent)` } : undefined}
               >
                 <td
                   className="px-4 py-3"
@@ -101,10 +101,10 @@ function ResultsTable({ rows, showGrid }: { rows: RaceResultRow[]; showGrid: boo
                   {row.fastestLap ? (
                     <span
                       className="ml-2 text-[9px] uppercase"
-                      style={{ color: 'var(--accent)' }}
+                      style={{ color: 'var(--muted)' }}
                       title="Fastest lap"
                     >
-                      FL
+                      FL ⬦
                     </span>
                   ) : null}
                 </td>
@@ -154,7 +154,7 @@ function QualifyingTable({ rows }: { rows: QualifyingRow[] }) {
             return (
               <tr
                 key={`${row.position}-${row.driverName}`}
-                style={row.position === '1' ? { backgroundColor: 'rgba(255,24,1,0.06)' } : undefined}
+                style={row.position === '1' ? { backgroundColor: `color-mix(in srgb, ${teamColor} 8%, transparent)` } : undefined}
               >
                 <td
                   className="px-4 py-3"

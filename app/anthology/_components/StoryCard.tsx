@@ -48,7 +48,7 @@ export function StoryCard({ story, featured = false }: { story: Story; featured?
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p
               className="font-mono text-[9px] uppercase tracking-wider"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--muted)' }}
             >
               {story.category} · {story.year}
             </p>
@@ -82,7 +82,7 @@ export function StoryCard({ story, featured = false }: { story: Story; featured?
           <Link
             href={`/anthology/${story.slug}`}
             className="mt-3 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
-            style={{ color: 'var(--accent)' }}
+            style={{ color: 'var(--paper)' }}
           >
             Read Story →
           </Link>

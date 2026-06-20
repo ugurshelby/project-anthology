@@ -89,7 +89,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
       <header className="mt-6">
         <p
           className="font-mono text-[9px] uppercase tracking-[0.15em]"
-          style={{ color: 'var(--accent)' }}
+          style={{ color: 'var(--muted)' }}
         >
           Round {circuit.round} · {circuit.date}
         </p>
@@ -142,7 +142,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
           <div>
             <p
               className="font-mono text-[9px] uppercase tracking-[0.15em]"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--muted)' }}
             >
               Trackside Now · {weather.isDay ? 'Day' : 'Night'}
             </p>
@@ -205,7 +205,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               <div key={c.label} className="anthology-card p-5">
                 <dt
                   className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                  style={{ color: 'var(--accent)' }}
+                  style={{ color: 'var(--muted)' }}
                 >
                   {c.label}
                 </dt>
@@ -247,7 +247,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                 <div>
                   <span
                     className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                    style={{ color: 'var(--accent)' }}
+                    style={{ color: 'var(--muted)' }}
                   >
                     {entry.season}
                   </span>

@@ -5,6 +5,7 @@ import { SeasonExplorer } from '@/components/season/SeasonExplorer';
 import { getSeasonData } from '@/lib/data/f1';
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
+import { resolveTeamUiColor } from '@/config/team-colors';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -35,6 +36,7 @@ export default async function SeasonPage() {
     ? driverIconSrc(leader.driverCode, leader.driverName, CURRENT_SEASON)
     : null;
   const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName, CURRENT_SEASON) : null;
+  const leaderColor = leader ? resolveTeamUiColor(null, leader.constructorName) : 'var(--paper)';
 
   return (
     <>
@@ -78,7 +80,7 @@ export default async function SeasonPage() {
                 className="h-7 w-7 object-contain opacity-90"
               />
             ) : null}
-            <span className="font-mono text-xs" style={{ color: 'var(--accent)' }}>
+            <span className="font-mono text-xs" style={{ color: leaderColor }}>
               {leader.points} PTS
             </span>
           </p>

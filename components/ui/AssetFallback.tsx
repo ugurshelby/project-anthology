@@ -37,7 +37,7 @@ export function AssetFallback({ label, size = 32, className = '' }: AssetFallbac
     width: size,
     height: size,
     backgroundColor: 'var(--surface)',
-    borderLeft: '2px solid var(--accent)',
+    borderLeft: '2px solid var(--border-hover)',
     fontFamily: 'var(--font-mono)',
     fontSize: Math.max(8, Math.round(size * 0.3)),
     letterSpacing: '0.05em',

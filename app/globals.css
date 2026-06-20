@@ -276,7 +276,7 @@ body {
 
 .site-nav-mobile-dropdown-link:hover,
 .site-nav-mobile-dropdown-link.active {
-  color: var(--accent);
+  color: var(--paper);
 }
 
 @media (max-width: 1023px) {
@@ -366,7 +366,7 @@ body {
 
 .mobile-bottom-nav-item.active,
 .mobile-bottom-nav-more-btn.active {
-  color: var(--accent);
+  color: var(--paper);
 }
 
 .mobile-bottom-nav-dot {
@@ -415,7 +415,7 @@ body {
 
 .mobile-bottom-nav-drawer-link:hover,
 .mobile-bottom-nav-drawer-link.active {
-  color: var(--accent);
+  color: var(--paper);
 }
 
 @keyframes mobile-nav-drawer-in {
@@ -787,7 +787,7 @@ body {
 }
 
 .bento-panel-accent {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--border-hover);
 }
 
 .bento-panel:hover {
@@ -943,12 +943,16 @@ body {
 
 .anthology-card {
   background: var(--card);
-  border-left: 3px solid var(--accent);
-  transition: border-width 200ms ease;
+  border-left: 3px solid var(--border-hover);
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transition: border-left-color 200ms ease, border-left-width 200ms ease;
 }
 
 .anthology-card:hover {
-  border-left-width: 6px;
+  border-left-width: 5px;
+  border-left-color: var(--paper);
 }
 
 /* ── Main content offset ───────────────────────────────────────────────── */
@@ -1294,7 +1298,7 @@ body {
 }
 
 .story-prose blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid rgba(244, 241, 234, 0.3);
   padding-left: 1.25rem;
   margin: 2rem 0;
 }

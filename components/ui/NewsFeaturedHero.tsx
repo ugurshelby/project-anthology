@@ -96,13 +96,10 @@ export function NewsFeaturedHero({ item }: NewsFeaturedHeroProps) {
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="group mt-6 inline-flex items-center gap-2 font-condensed text-[11px] uppercase tracking-[0.15em] transition-colors"
-          style={{ color: 'var(--accent)' }}
+          className="mt-6 inline-flex items-center gap-2 font-condensed text-[11px] uppercase tracking-[0.15em]"
+          style={{ color: 'var(--paper)' }}
         >
-          Read story
-          <span className="transition-transform group-hover:translate-x-1" aria-hidden>
-            →
-          </span>
+          Read story →
         </a>
       </div>
     </section>
