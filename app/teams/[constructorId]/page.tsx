@@ -86,29 +86,95 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
       style={teamPaletteCssVars(palette) as React.CSSProperties}
     >
       {/* Hero */}
-      <header className="profile-hero">
+      <header className="profile-hero" style={{ minHeight: 380, overflow: 'hidden', position: 'relative' }}>
         <div className="profile-hero-glow" aria-hidden />
         <div className="profile-hero-grain" aria-hidden />
-        <div className="content-wrap relative">
+
+        {/* Takım adı — devasa dekoratif arka plan yazısı */}
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            right: '-0.02em',
+            bottom: '-0.22em',
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(8rem, 22vw, 16rem)',
+            lineHeight: 1,
+            letterSpacing: '0.02em',
+            color: 'transparent',
+            WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 18%, transparent)',
+            userSelect: 'none',
+            zIndex: 0,
+            pointerEvents: 'none',
+            textTransform: 'uppercase',
+          }}
+        >
+          {profile.constructorName.split(' ')[0]}
+        </span>
+
+        <div className="content-wrap relative" style={{ zIndex: 1, paddingBottom: '2.5rem' }}>
           <p className="profile-eyebrow">Constructor · {season}</p>
-          <div className="mt-3 flex items-center gap-5">
+
+          {/* Logo + Title row */}
+          <div className="mt-4 flex items-center gap-6">
             {emblem ? (
-              <SafeImage
-                src={emblem}
-                alt=""
-                width={72}
-                height={72}
-                className="h-16 w-16 shrink-0 object-contain sm:h-[72px] sm:w-[72px]"
-              />
+              <div
+                style={{
+                  width: 'clamp(64px, 10vw, 108px)',
+                  height: 'clamp(64px, 10vw, 108px)',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid color-mix(in srgb, var(--team-secondary) 30%, transparent)',
+                  padding: '0.75rem',
+                  background: 'color-mix(in srgb, var(--team-primary) 12%, transparent)',
+                }}
+              >
+                <SafeImage
+                  src={emblem}
+                  alt={profile.constructorName}
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
             ) : null}
             <h1 className="profile-title">{profile.constructorName}</h1>
           </div>
+
           <div className="mt-5 flex flex-wrap gap-2">
             <span className="profile-chip">P{profile.position}</span>
             <span className="profile-chip">{profile.points} PTS</span>
             <span className="profile-chip">{profile.wins} WINS</span>
           </div>
         </div>
+
+        {/* Araç — hero içinde altta tam genişlik, hafif saydam */}
+        {car ? (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              width: '62%',
+              maxWidth: 700,
+              pointerEvents: 'none',
+              zIndex: 1,
+            }}
+            aria-hidden
+          >
+            <SafeImage
+              src={car}
+              alt=""
+              width={700}
+              height={220}
+              className="w-full object-contain object-right-bottom opacity-80"
+              priority
+            />
+          </div>
+        ) : null}
       </header>
 
       <div className="content-wrap flex flex-col gap-(--section-gap) py-10">
@@ -151,35 +217,6 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
           </section>
         ) : null}
 
-        {/* Car visual slot */}
-        <section>
-          <SectionDivider title={`${season} Car`} />
-          <div
-            className="relative flex items-center justify-center border border-border py-8"
-            style={{ backgroundColor: 'var(--surface)', minHeight: 160 }}
-          >
-            <SafeImage
-              src={car ?? ''}
-              alt={`${profile.constructorName} ${season} car`}
-              width={640}
-              height={200}
-              className="max-h-40 w-full object-contain"
-              fallbackNode={
-                <div className="flex flex-col items-center gap-2 py-6">
-                  <span
-                    className="font-display text-[clamp(2rem,6vw,4rem)] leading-none"
-                    style={{ color: 'color-mix(in srgb, var(--team-secondary) 30%, transparent)' }}
-                  >
-                    {profile.constructorName}
-                  </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                    {season} · Car image unavailable
-                  </span>
-                </div>
-              }
-            />
-          </div>
-        </section>
 
         {/* Career aggregate — only show when there are multiple seasons of data */}
         {career.seasons > 1 ? (

@@ -14,6 +14,7 @@ const leftLinks = [
 const rightLinks = [
   { href: '/season', label: 'Season' },
   { href: '/circuits', label: 'Circuits' },
+  { href: '/tech-glossary', label: 'Glossary' },
 ];
 
 const MOBILE_MENU_LINKS = [
