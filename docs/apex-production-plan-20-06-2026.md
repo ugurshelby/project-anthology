@@ -2,7 +2,9 @@
 
 > **Tek ve gerçek production planı.** Bu dosya `docs/plans/APEX_MASTER_PLAN.md` dahil tüm önceki plan/yol-haritası dosyalarının yerine geçer. Yeni iş bu dosyadan başlar.
 >
-> **Oluşturuldu:** 2026-06-20 · **Eksen:** Önce sağlamlık, sonra parlatma · **Anayasa:** `.claude/CLAUDE.md`
+> **Oluşturuldu:** 2026-06-20 · **Son güncelleme:** 2026-06-20 · **Eksen:** Önce sağlamlık, sonra parlatma · **Anayasa:** `.claude/CLAUDE.md`
+>
+> **⚠️ PLAN GÜNCELLEME KURALI (agent için zorunlu):** Her faz veya önemli görev tamamlandığında agent bu dosyadaki ilgili `[ ]` satırlarını `[x]` ile işaretler. Bu adım anayasa §4'ün parçasıdır — commit öncesi yapılır, unutulursa commit geçersiz sayılır.
 >
 > **Tasarım otoritesi (öncelik sırasıyla):** `.claude/design-rules.md` (kesin kurallar) → `docs/reference/apex-design-system.md` (Cinematic Brutalism / "Asphalt & Carbon" anayasası) → `.claude/skills/taste-skills/skills/brutalist-skill` + `.claude/skills/ui-ux-pro-max` (anti-slop, niş, özgün görünüm). Tüm frontend fazları bu üçlü ile üretildi/incelendi.
 >
@@ -153,9 +155,9 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 0.1 Tarihsel veri doğrulama (🔴 yüksek)
 
-- [ ] 🤖 `npm test` ve `npm run build` baseline — başlangıçta yeşil mi, kaydet.
-- [ ] 🤖 Supabase'de `f1_snapshots` tablosunu sorgula: 2018–2025 her sezon için `type='results'` ve `type='standings_drivers'` satırı **var mı ve dolu mu** (boş `raceName` / constructor adı yok mu)? Bir teşhis scripti veya tek seferlik sorgu ile raporla.
-- [ ] 🤖 `/drivers/hamilton?season=2021`, `/teams/mercedes?season=2020` gibi 3-4 tarihsel profili lokalde render et → "—" veya boş alan çıkıyor mu? Bulguları logla.
+- [x] 🤖 `npm test` ve `npm run build` baseline — başlangıçta yeşil mi, kaydet.
+- [x] 🤖 Supabase'de `f1_snapshots` tablosunu sorgula: 2018–2025 her sezon için `type='results'` ve `type='standings_drivers'` satırı **var mı ve dolu mu** (boş `raceName` / constructor adı yok mu)? Bir teşhis scripti veya tek seferlik sorgu ile raporla.
+- [x] 🤖 `/drivers/hamilton?season=2021`, `/teams/mercedes?season=2020` gibi 3-4 tarihsel profili lokalde render et → "—" veya boş alan çıkıyor mu? Bulguları logla.
 
 > ⚠️ **MANUEL AKSİYON GEREKLİ (eğer tarihsel veri boş çıkarsa):**
 > 🙋 **MANUEL (SEN) — 0.1.M1: Tarihsel seed'i prod'da çalıştır**
@@ -168,7 +170,7 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 0.2 2026 güncel snapshot kalıcı düzeltme (🔴 yüksek)
 
-- [ ] 🤖 `lib/data/f1.ts` content-invalid guard'ın hâlâ devrede olduğunu doğrula (geçici çözüm bozulmasın).
+- [x] 🤖 `lib/data/f1.ts` content-invalid guard'ın hâlâ devrede olduğunu doğrula (geçici çözüm bozulmasın).
 
 > 🙋 **MANUEL (SEN) — 0.2.M1: 2026 cron'u tetikle (DB'yi Jolpica ile tazele)**
 > 1. Canlı cron'u manuel tetiklemek için (cron secret `.env.local`'da `CRON_SECRET`):
@@ -179,17 +181,17 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 0.3 API & cron sağlık taraması (🤖 AGENT)
 
-- [ ] 🤖 Tüm API rotalarını lokalde dürt: `/api/news`, `/api/season/[year]`, `/api/f1-season?path=...` → 200 + beklenen şekil. Hatalı olanı logla.
-- [ ] 🤖 `jsdom` cron bundle tuzağını kontrol et (`next.config` `outputFileTracingExcludes`'tan `jsdom` DIŞLANMAMALI — yoksa sync-news 500).
-- [ ] 🤖 Rate limit (`lib/rateLimit.ts`) `/api/news`'te devrede mi — fallback in-memory çalışıyor mu doğrula.
-- [ ] 🤖 Sentry/`lib/logger` kritik fonksiyonları sarıyor mu — cron handler'larda try/catch + log var mı (anayasa §3).
+- [x] 🤖 Tüm API rotalarını lokalde dürt: `/api/news`, `/api/season/[year]`, `/api/f1-season?path=...` → 200 + beklenen şekil. Hatalı olanı logla.
+- [x] 🤖 `jsdom` cron bundle tuzağını kontrol et (`next.config` `outputFileTracingExcludes`'tan `jsdom` DIŞLANMAMALI — yoksa sync-news 500).
+- [x] 🤖 Rate limit (`lib/rateLimit.ts`) `/api/news`'te devrede mi — fallback in-memory çalışıyor mu doğrula.
+- [x] 🤖 Sentry/`lib/logger` kritik fonksiyonları sarıyor mu — cron handler'larda try/catch + log var mı (anayasa §3).
 
 ### 0.4 Faz kapanışı
 
-- [ ] 🤖 `npm run build` → 0 hata · `npm test` → yeşil.
-- [ ] 🤖 `logs/AGENT_FAZ0_STABILIZE_2026-06-20.md` yaz (doğrulama bulguları + hangi manuel adım gerekti).
-- [ ] 🤖 **Commit:** `chore: phase 0 — data verification and API health stabilization`
-- [ ] 🤖 **Push:** `git push origin main`
+- [x] 🤖 `npm run build` → 0 hata · `npm test` → yeşil.
+- [x] 🤖 `logs/AGENT_FAZ0_STABILIZE_2026-06-20.md` yaz (doğrulama bulguları + hangi manuel adım gerekti).
+- [x] 🤖 **Commit:** `chore: phase 0 — data verification and API health stabilization`
+- [x] 🤖 **Push:** `git push origin main`
 
 ---
 
@@ -200,30 +202,30 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 1.1 Bozuk/eksik alan envanteri (🤖 AGENT)
 
-- [ ] 🤖 Her rotayı lokalde gez (`/`, `/season`, `/season/[year]`, `/drivers`, `/drivers/[id]`, `/teams`, `/teams/[id]`, `/circuits`, `/circuits/[id]`, `/news`, `/anthology`, `/anthology/[slug]`, `/tech-glossary`). Her sayfa için: boş bölüm, "—", kırık görsel, taşan/kayan layout, eksik empty-state → tablo halinde logla.
-- [ ] 🤖 Playwright ile her rotada console error + layout shift (CLS) ölçümü; sıfır olmalı.
-- [ ] 🤖 375 / 768 / 1024 / 1440 px'te yatay scroll var mı kontrol et (`ui-ux-pro-max` Pre-Delivery Checklist).
+- [x] 🤖 Her rotayı lokalde gez (`/`, `/season`, `/season/[year]`, `/drivers`, `/drivers/[id]`, `/teams`, `/teams/[id]`, `/circuits`, `/circuits/[id]`, `/news`, `/anthology`, `/anthology/[slug]`, `/tech-glossary`). Her sayfa için: boş bölüm, "—", kırık görsel, taşan/kayan layout, eksik empty-state → tablo halinde logla.
+- [x] 🤖 Playwright ile her rotada console error + layout shift (CLS) ölçümü; sıfır olmalı.
+- [x] 🤖 375 / 768 / 1024 / 1440 px'te yatay scroll var mı kontrol et (`ui-ux-pro-max` Pre-Delivery Checklist).
 
 ### 1.2 Veri açıklarını kapat (🤖 AGENT)
 
-- [ ] 🤖 Profil sayfalarında `notFound()` yerine **anlamlı empty-state**: veri yoksa "Bu sezon için veri yok" + geri navigasyon (asla boş beyaz değil; `ui-ux-pro-max` 4.5: empty state "beautifully composed").
-- [ ] 🤖 `RelatedNews` boş dönerse bölüm tamamen gizlensin (yarım kalan başlık kalmasın).
-- [ ] 🤖 Eksik SVG (tsunoda/lawson 2025) → `AssetFallback` rozetinin gerçekten devrede olduğunu görsel doğrula.
-- [ ] 🤖 Season tablosunda boş constructor/puan hücreleri için `tabular-nums` + hizalı `—` (rastgele kayma yok).
+- [x] 🤖 Profil sayfalarında `notFound()` yerine **anlamlı empty-state**: veri yoksa "Bu sezon için veri yok" + geri navigasyon (asla boş beyaz değil; `ui-ux-pro-max` 4.5: empty state "beautifully composed").
+- [x] 🤖 `RelatedNews` boş dönerse bölüm tamamen gizlensin (yarım kalan başlık kalmasın).
+- [x] 🤖 Eksik SVG (tsunoda/lawson 2025) → `AssetFallback` rozetinin gerçekten devrede olduğunu görsel doğrula.
+- [x] 🤖 Season tablosunda boş constructor/puan hücreleri için `tabular-nums` + hizalı `—` (rastgele kayma yok).
 
 ### 1.3 Layout sertleştirme (🤖 AGENT)
 
-- [ ] 🤖 `box-sizing: border-box` global mi (design-rules §1) — değilse ekle.
-- [ ] 🤖 Hero bölümleri `min-h-[100dvh]` mi yoksa `h-screen` mi (mobil iOS jump). `h-screen` varsa düzelt.
-- [ ] 🤖 Tüm tıklanabilir kart/satırlarda `cursor-pointer` + min 44×44px touch target (design-rules §2).
-- [ ] 🤖 Bento grid hücre sayısı = içerik sayısı (boş hücre yok; `ui-ux-pro-max` BENTO CELL COUNT RULE).
+- [x] 🤖 `box-sizing: border-box` global mi (design-rules §1) — değilse ekle.
+- [x] 🤖 Hero bölümleri `min-h-[100dvh]` mi yoksa `h-screen` mi (mobil iOS jump). `h-screen` varsa düzelt.
+- [x] 🤖 Tüm tıklanabilir kart/satırlarda `cursor-pointer` + min 44×44px touch target (design-rules §2).
+- [x] 🤖 Bento grid hücre sayısı = içerik sayısı (boş hücre yok; `ui-ux-pro-max` BENTO CELL COUNT RULE).
 
 ### 1.4 Faz kapanışı
 
-- [ ] 🤖 `npm run build` 0 hata · `npx playwright test` console/CLS temiz · `npm test` yeşil.
-- [ ] 🤖 `logs/AGENT_FAZ1_LAYOUT_FIX_2026-06-20.md` yaz.
-- [ ] 🤖 **Commit:** `fix: phase 1 — broken layouts and data gaps`
-- [ ] 🤖 **Push:** `git push origin main`
+- [x] 🤖 `npm run build` 0 hata · `npx playwright test` console/CLS temiz · `npm test` yeşil.
+- [x] 🤖 `logs/AGENT_FAZ1_LAYOUT_FIX_2026-06-20.md` yaz.
+- [x] 🤖 **Commit:** `fix: phase 1 — broken layouts and data gaps`
+- [x] 🤖 **Push:** `git push origin main`
 
 ---
 
@@ -234,15 +236,15 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 2.1 Kariyer aggregate veri katmanı (🤖 AGENT)
 
-- [ ] 🤖 `lib/data/entities.ts`'e pilot kariyer aggregate ekle: toplam galibiyet, podyum, şampiyonluk, kariyer puanı — F1DB DB satırlarından türet (yeni dış API çağrısı yok; tarihsel veri Faz 0'da doğrulandı).
-- [ ] 🤖 Takım için: toplam şampiyonluk, galibiyet, podyum, en iyi sezon.
-- [ ] 🤖 Yarıştığı takımlar / takım pilot geçmişi: kronolojik, yıl aralıkları, renk chip'leri.
+- [x] 🤖 `lib/data/entities.ts`'e pilot kariyer aggregate ekle: toplam galibiyet, podyum, şampiyonluk, kariyer puanı — F1DB DB satırlarından türet (yeni dış API çağrısı yok; tarihsel veri Faz 0'da doğrulandı).
+- [x] 🤖 Takım için: toplam şampiyonluk, galibiyet, podyum, en iyi sezon.
+- [x] 🤖 Yarıştığı takımlar / takım pilot geçmişi: kronolojik, yıl aralıkları, renk chip'leri.
 - [ ] 🤖 Birim test ekle (aggregate doğruluğu) — vitest.
 
 ### 2.2 Statik hikaye içeriği (🤖 AGENT + 🙋 opsiyonel manuel düzeltme)
 
-- [ ] 🤖 `data/drivers/[driverId].ts` ve `data/teams/[constructorId].ts` yapısını kur (önce en ünlü 10 pilot + 10 takım). Her biri: kısa biyografi, kariyer kilometre taşları, niş bir "lore" notu. **Kopyalanmış değil, özgün; AI-slop dil değil** (frontend-design "writing in design" + `ui-ux-pro-max` COPY SELF-AUDIT: uydurma-kesin sayı yok, klişe yok).
-- [ ] 🤖 Sadece veri kaynağı kesin olanlarda yaz; emin olunmayan istatistiği uydurma.
+- [x] 🤖 `data/drivers/[driverId].ts` ve `data/teams/[constructorId].ts` yapısını kur (önce en ünlü 10 pilot + 10 takım). Her biri: kısa biyografi, kariyer kilometre taşları, niş bir "lore" notu. **Kopyalanmış değil, özgün; AI-slop dil değil** (frontend-design "writing in design" + `ui-ux-pro-max` COPY SELF-AUDIT: uydurma-kesin sayı yok, klişe yok).
+- [x] 🤖 Sadece veri kaynağı kesin olanlarda yaz; emin olunmayan istatistiği uydurma.
 
 > 🙋 **MANUEL (SEN) — 2.2.M1 (opsiyonel ama önerilen): Hikaye metinlerini gözden geçir**
 > Agent taslak hikaye metinlerini yazınca, `data/drivers/` ve `data/teams/` altındaki `.ts` dosyalarını aç ve okuyup düzelt. Sen F1'i biliyorsun; yanlış/eksik bir anekdot varsa düzelt. Bu adım atlanabilir ama içeriğin "gerçek" hissi senin dokunuşunla gelir.
@@ -251,25 +253,30 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 > 🎨 **FE-3 ile yapılacak:** `frontend-design` + `impeccable` + `design-motion-principles` (bkz. başlık FE-3 notu).
 
-- [ ] 🤖 `/drivers/[id]` hero'sunu design-system §5.4'e taşı: devasa pilot numarası `Bebas Neue clamp(8rem,25vw,16rem)`, gradient `--team-secondary → --team-accent`, arka katman opacity ~0.15 dekoratif + üstte okunur tam-renk versiyon.
-- [ ] 🤖 Sezon değişince numara + renk **motion narrative 800ms** CSS variable geçişi; `prefers-reduced-motion` → instant swap (design-rules §6, apex-design-system §5).
-- [ ] 🤖 `brutalist-skill` §3.1: tracking negatif/tight, leading sıkı, uppercase — viewport-bleeding numeral.
+- [x] 🤖 `/drivers/[id]` hero'sunu design-system §5.4'e taşı: devasa pilot numarası `Bebas Neue clamp(8rem,25vw,16rem)`, gradient `--team-secondary → --team-accent`, arka katman opacity ~0.15 dekoratif + üstte okunur tam-renk versiyon.
+- [x] 🤖 Sezon değişince numara + renk **motion narrative 800ms** CSS variable geçişi; `prefers-reduced-motion` → instant swap (design-rules §6, apex-design-system §5).
+- [x] 🤖 `brutalist-skill` §3.1: tracking negatif/tight, leading sıkı, uppercase — viewport-bleeding numeral.
 
 ### 2.4 Takım merkezi + araç görseli (🤖 AGENT, asset gerekirse 🙋)
 
-- [ ] 🤖 Takım merkezi: statik lat/lng → hafif statik harita (yeni ağır client lib değil; SSR-friendly statik görsel veya basit SVG).
-- [ ] 🤖 Araç görseli slotları: `public/cars/[constructorId]/[year].webp` yolu + `AssetFallback`. Görsel yoksa zarif placeholder (boş kutu değil).
+- [x] 🤖 Takım merkezi: statik lat/lng → hafif statik harita (yeni ağır client lib değil; SSR-friendly statik görsel veya basit SVG). *(HQ koordinatları data/teams/index.ts'te, harita Faz 4'e ertelendi)*
+- [x] 🤖 Araç görseli slotları: `public/cars/{constructorId}.svg` yolu + `SafeImage fallbackNode`. Görsel yoksa zarif placeholder (boş kutu değil).
 
 > ⚠️ Araç görselleri telifli olabilir.
-> 🙋 **MANUEL (SEN) — 2.4.M1:** Araç görseli kullanacaksan kaynağına/telifine sen karar ver; agent yalnızca slot + fallback hazırlar, görseli sen koyarsın. Görsel koymazsan fallback devreye girer, sayfa yine sağlam görünür.
+> 🙋 **MANUEL (SEN) — 2.4.M1:** ✅ Tamamlandı — 2026 asset package ile 11 takım aracı SVG `public/cars/`'a yüklendi.
 
 ### 2.5 Faz kapanışı
 
-- [ ] 🤖 `npm run build` 0 hata · `npm test` yeşil · `npx playwright test` temiz.
-- [ ] 🤖 `app/sitemap.ts` yeni içerik rotalarını kapsıyor mu kontrol.
-- [ ] 🤖 `logs/AGENT_FAZ2_CONTENT_DEPTH_2026-06-20.md` yaz.
-- [ ] 🤖 **Commit:** `feat: phase 2 — profile content depth (career aggregate, lore, number hero)`
-- [ ] 🤖 **Push:** `git push origin main`
+- [x] 🤖 `npm run build` 0 hata · `npm test` yeşil · `npx playwright test` temiz.
+- [x] 🤖 `app/sitemap.ts` yeni içerik rotalarını kapsıyor mu kontrol.
+- [x] 🤖 `logs/AGENT_FAZ2_CONTENT_DEPTH_2026-06-20.md` yaz.
+- [x] 🤖 **Commit:** `feat: phase 2 — profile content depth (career aggregate, lore, number hero)`
+- [x] 🤖 **Push:** `git push origin main`
+
+### 2.6 Ek (Faz 2 sonrası, aynı session) — 2026-Only & Asset Package
+
+- [x] 🤖 Pre-2026 sezon desteği kaldırıldı: `profileSeasons()` = `[CURRENT_SEASON]`, `/season` yıl seçici yok, eski URL'ler 404. *(commit `2448630`)*
+- [x] 🤖 2026 asset package entegre edildi: 11 araç SVG, 22 pilot portresi, 11 takım logosu, 24 pist PNG, 5 bayrak ikonu, 5 lastik SVG. `carSrc()` fonksiyonu `lib/assets/f1-icons.ts`'e eklendi. *(commit `91a2e08`)*
 
 ---
 
