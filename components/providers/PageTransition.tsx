@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -17,20 +17,22 @@ export function PageTransition({ children }: PageTransitionProps) {
   }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div key={pathname} className="relative flex flex-1 flex-col">
-        {children}
-        <motion.div
-          className="page-transition-sweep"
-          initial={{ x: '-100%' }}
-          animate={{ x: ['-100%', '0%', '100%'] }}
-          transition={{
-            duration: 0.5,
-            times: [0, 0.5, 1],
-            ease: ['easeIn', 'easeOut'],
-          }}
-        />
-      </motion.div>
-    </AnimatePresence>
+    <LazyMotion features={domAnimation} strict>
+      <AnimatePresence mode="wait">
+        <m.div key={pathname} className="relative flex flex-1 flex-col">
+          {children}
+          <m.div
+            className="page-transition-sweep"
+            initial={{ x: '-100%' }}
+            animate={{ x: ['-100%', '0%', '100%'] }}
+            transition={{
+              duration: 0.5,
+              times: [0, 0.5, 1],
+              ease: ['easeIn', 'easeOut'],
+            }}
+          />
+        </m.div>
+      </AnimatePresence>
+    </LazyMotion>
   );
 }

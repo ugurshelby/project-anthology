@@ -42,12 +42,24 @@ const SECURITY_HEADERS = [
   },
 ];
 
+// On Vercel preview deployments, add noindex so search engines don't index staging.
+// Production (VERCEL_ENV=production) never gets noindex.
+const isPreview = process.env.VERCEL_ENV === 'preview';
+const ROBOTS_HEADERS = isPreview
+  ? [{ key: 'X-Robots-Tag', value: 'noindex' }]
+  : [];
+
 const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: '/radio', destination: '/anthology', permanent: true }];
   },
   async headers() {
-    return [{ source: '/:path*', headers: SECURITY_HEADERS }];
+    return [
+      {
+        source: '/:path*',
+        headers: [...SECURITY_HEADERS, ...ROBOTS_HEADERS],
+      },
+    ];
   },
   images: {
     remotePatterns: [
