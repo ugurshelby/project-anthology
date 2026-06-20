@@ -26,7 +26,7 @@ export function AtmosphericHero({ children, className = '' }: AtmosphericHeroPro
       <div className="hero-layer hero-light-streak" aria-hidden />
       <div className="hero-layer hero-light-streak-2" aria-hidden />
       <div className="hero-layer hero-light-streak-3" aria-hidden />
-      <div className="hero-content content-wrap flex min-h-screen flex-col items-center justify-center px-6 py-28 text-center">
+      <div className="hero-content content-wrap flex min-h-dvh flex-col items-center justify-center px-6 py-28 text-center">
         {children}
       </div>
     </section>

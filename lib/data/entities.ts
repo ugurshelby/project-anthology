@@ -4,7 +4,7 @@
  * All data is derived from getSeasonData() (DB-first Jolpica snapshots), so no
  * new external source or cache is introduced. Career aggregates (total wins,
  * championships) are intentionally out of scope for the MVP — see
- * docs/plans/PLAN_FAZ3_PROFILE_PAGES_2026-06-13.md.
+ * docs/plans/completed/PLAN_FAZ3_PROFILE_PAGES_2026-06-13.md.
  */
 
 import { getSeasonData, type SeasonData } from '@/lib/data/f1';
@@ -52,7 +52,15 @@ export interface TeamProfile {
 
 function matchDriver(rows: DriverStandingRow[], driverId: string): DriverStandingRow | undefined {
   const id = driverId.toLowerCase();
-  return rows.find((r) => r.driverId === id);
+  // Exact match first (e.g. "hamilton" → "hamilton" in 2026+)
+  const exact = rows.find((r) => r.driverId === id);
+  if (exact) return exact;
+  // Ergast uses hyphenated full-name IDs (e.g. "lewis-hamilton"). Match when the
+  // URL slug equals the last hyphen-segment of the stored ID, or is a full prefix.
+  return rows.find((r) => {
+    const parts = r.driverId.split('-');
+    return parts[parts.length - 1] === id || r.driverId.endsWith('-' + id) || r.driverId.startsWith(id + '-');
+  });
 }
 
 function matchConstructor(
