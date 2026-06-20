@@ -9,10 +9,9 @@ import {
   getDriverProfile,
   getDriverSeasons,
   getDriverCareer,
-  PROFILE_MIN_SEASON,
 } from '@/lib/data/entities';
 import { getDriverLore } from '@/data/drivers';
-import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
+import { driverIconSrc, teamIconSrc, carSrc } from '@/lib/assets/f1-icons';
 import { getSeasonPalette, teamPaletteCssVars } from '@/config/team-colors';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { SITE_NAME } from '@/lib/seo';
@@ -78,24 +77,51 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   const palette = getSeasonPalette(profile.constructorId || profile.constructorName, season);
   const bust = driverIconSrc(profile.driverCode, profile.driverId || profile.driverName, season);
   const teamSrc = teamIconSrc(profile.constructorName, season);
+  const car = carSrc(profile.constructorId, profile.constructorName);
   const seasonOptions = seasons.length > 0 ? seasons : [season];
   const driverNumber = lore?.number ?? null;
 
   return (
     <div className="profile-root" style={teamPaletteCssVars(palette) as React.CSSProperties}>
       {/* Hero */}
-      <header className="profile-hero">
+      <header className="profile-hero" style={{ minHeight: 340, overflow: 'hidden', position: 'relative' }}>
         <div className="profile-hero-glow" aria-hidden />
         <div className="profile-hero-grain" aria-hidden />
 
-        {/* Viewport-bleeding driver number — decorative background */}
+        {/* Devasa neon sürücü numarası — viewport dışına taşan, sinematik */}
         {driverNumber !== null ? (
-          <span className="profile-driver-number-accent" aria-hidden>
+          <span
+            aria-hidden
+            style={{
+              position: 'absolute',
+              right: '-0.05em',
+              bottom: '-0.18em',
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(14rem, 38vw, 26rem)',
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
+              color: 'transparent',
+              WebkitTextStroke: '1.5px color-mix(in srgb, var(--team-secondary) 45%, transparent)',
+              userSelect: 'none',
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+          >
             {driverNumber}
           </span>
         ) : null}
 
-        <div className="profile-hero-content content-wrap relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" style={{ zIndex: 1 }}>
+        <div
+          className="profile-hero-content content-wrap relative"
+          style={{
+            zIndex: 1,
+            display: 'grid',
+            gridTemplateColumns: '1fr auto',
+            alignItems: 'flex-end',
+            gap: '1.5rem',
+            paddingBottom: '2.5rem',
+          }}
+        >
           <div>
             <p className="profile-eyebrow">
               Driver{profile.constructorName && profile.constructorName !== '—' ? ` · ${profile.constructorName}` : ''} · {season}
@@ -105,7 +131,10 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
               <span className="profile-chip">P{profile.position}</span>
               <span className="profile-chip">{profile.points} PTS</span>
               {driverNumber !== null ? (
-                <span className="profile-chip font-display text-base" style={{ color: 'var(--team-secondary)' }}>
+                <span
+                  className="profile-chip font-display text-lg"
+                  style={{ color: 'var(--team-secondary)', borderColor: 'var(--team-secondary)' }}
+                >
                   #{driverNumber}
                 </span>
               ) : null}
@@ -114,13 +143,62 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
               ) : null}
             </div>
           </div>
+
+          {/* Pilot portresi — hero sağı, alt hizalı, ekrandan taşan */}
           {bust ? (
-            <div className="profile-bust-wrap" aria-hidden>
-              <SafeImage src={bust} alt="" width={180} height={180} className="profile-bust" priority />
+            <div
+              aria-hidden
+              style={{
+                position: 'relative',
+                width: 'clamp(160px, 22vw, 280px)',
+                height: 'clamp(200px, 28vw, 340px)',
+                flexShrink: 0,
+                marginBottom: '-2.5rem',
+              }}
+            >
+              <SafeImage
+                src={bust}
+                alt=""
+                fill
+                sizes="(max-width:768px) 160px, 280px"
+                className="object-contain object-bottom"
+                priority
+              />
             </div>
           ) : null}
         </div>
       </header>
+
+      {/* Araç görseli — hero hemen altı, tam genişlik, sinematik bant */}
+      {car ? (
+        <div
+          style={{
+            background: 'linear-gradient(180deg, color-mix(in srgb, var(--team-primary) 12%, #0a0a0a) 0%, #0a0a0a 100%)',
+            borderBottom: '1px solid var(--border)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            className="content-wrap"
+            style={{ paddingTop: '2rem', paddingBottom: '2rem', position: 'relative' }}
+          >
+            <p
+              className="font-condensed text-[10px] uppercase tracking-[0.18em] mb-3"
+              style={{ color: 'var(--muted)' }}
+            >
+              {season} Car · {profile.constructorName}
+            </p>
+            <SafeImage
+              src={car}
+              alt={`${profile.constructorName} ${season} car`}
+              width={900}
+              height={280}
+              className="w-full max-h-44 object-contain object-left"
+              priority
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="content-wrap flex flex-col gap-(--section-gap) py-10">
         {/* Season selector */}

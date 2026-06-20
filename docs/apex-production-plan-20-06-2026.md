@@ -278,6 +278,12 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 - [x] 🤖 Pre-2026 sezon desteği kaldırıldı: `profileSeasons()` = `[CURRENT_SEASON]`, `/season` yıl seçici yok, eski URL'ler 404. *(commit `2448630`)*
 - [x] 🤖 2026 asset package entegre edildi: 11 araç SVG, 22 pilot portresi, 11 takım logosu, 24 pist PNG, 5 bayrak ikonu, 5 lastik SVG. `carSrc()` fonksiyonu `lib/assets/f1-icons.ts`'e eklendi. *(commit `91a2e08`)*
 
+### 2.7 Ek — Profil Hero & Navbar İyileştirmeleri
+
+- [x] 🤖 Navbar'a `tech-glossary` linki eklendi (desktop sağ grup + mobile dropdown). `components/ui/SiteNav.tsx`
+- [x] 🤖 Driver profil hero yeniden tasarlandı: pilot numarası devasa neon `WebkitTextStroke` outline olarak viewport dışına taşıyor; pilot portresi hero sağ-alt hizalı `fill` layout; araç görseli hero hemen altında `team-primary→#0a0a0a` gradient bant içinde tam genişlikte. `app/drivers/[driverId]/page.tsx`
+- [x] 🤖 Team profil hero yeniden tasarlandı: takım adının ilk kelimesi devasa yarı-saydam arka plan tipografisi; logo framed (border + team rengi bg); araç `position:absolute` hero içinde sağ-alt köşeye yerleştirildi, `%80 opacity`; ayrı "2026 Car" section kaldırıldı. `app/teams/[constructorId]/page.tsx`
+
 ---
 
 ## 6. FAZ 3 — Tasarım Dili Parlatma (Cinematic Brutalism)
