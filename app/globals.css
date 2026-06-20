@@ -1076,6 +1076,58 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Viewport-bleeding driver number — decorative background layer in hero. */
+.profile-driver-number {
+  position: absolute;
+  right: -4vw;
+  bottom: -0.15em;
+  font-family: var(--font-bebas-neue), sans-serif;
+  font-size: clamp(8rem, 25vw, 16rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+  /* two-layer: faint background tint + vivid foreground colour */
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--team-secondary) 12%, transparent) 0%,
+    color-mix(in srgb, var(--team-accent) 8%, transparent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background 800ms ease;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-driver-number {
+    transition: none;
+  }
+}
+
+/* Visible accent version layered on top for contrast. */
+.profile-driver-number-accent {
+  position: absolute;
+  right: -4vw;
+  bottom: -0.15em;
+  font-family: var(--font-bebas-neue), sans-serif;
+  font-size: clamp(8rem, 25vw, 16rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+  color: color-mix(in srgb, var(--team-secondary) 22%, transparent);
+  transition: color 800ms ease;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-driver-number-accent {
+    transition: none;
+  }
+}
+
 .profile-eyebrow {
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 10px;
