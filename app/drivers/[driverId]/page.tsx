@@ -84,24 +84,31 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   return (
     <div className="profile-root" style={teamPaletteCssVars(palette) as React.CSSProperties}>
       {/* Hero */}
-      <header className="profile-hero" style={{ minHeight: 340, overflow: 'hidden', position: 'relative' }}>
+      <header
+        className="profile-hero"
+        style={{
+          minHeight: 'clamp(340px, 52vw, 540px)',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      >
         <div className="profile-hero-glow" aria-hidden />
         <div className="profile-hero-grain" aria-hidden />
 
-        {/* Devasa neon sürücü numarası — viewport dışına taşan, sinematik */}
+        {/* Devasa neon numara — pilot portresinin tam arkası */}
         {driverNumber !== null ? (
           <span
             aria-hidden
             style={{
               position: 'absolute',
-              right: '-0.05em',
-              bottom: '-0.18em',
+              right: '-0.04em',
+              bottom: '-0.15em',
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(14rem, 38vw, 26rem)',
+              fontSize: 'clamp(16rem, 42vw, 30rem)',
               lineHeight: 1,
               letterSpacing: '-0.02em',
               color: 'transparent',
-              WebkitTextStroke: '1.5px color-mix(in srgb, var(--team-secondary) 45%, transparent)',
+              WebkitTextStroke: '2px color-mix(in srgb, var(--team-secondary) 50%, transparent)',
               userSelect: 'none',
               zIndex: 0,
               pointerEvents: 'none',
@@ -118,8 +125,8 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             display: 'grid',
             gridTemplateColumns: '1fr auto',
             alignItems: 'flex-end',
-            gap: '1.5rem',
-            paddingBottom: '2.5rem',
+            gap: '2rem',
+            paddingBottom: '3rem',
           }}
         >
           <div>
@@ -144,23 +151,26 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             </div>
           </div>
 
-          {/* Pilot portresi — hero sağı, alt hizalı, ekrandan taşan */}
+          {/* Pilot portresi — sağ köşe, alt hizalı, fade ile kesiyor */}
           {bust ? (
             <div
               aria-hidden
               style={{
                 position: 'relative',
-                width: 'clamp(160px, 22vw, 280px)',
-                height: 'clamp(200px, 28vw, 340px)',
+                width: 'clamp(180px, 26vw, 320px)',
+                height: 'clamp(240px, 34vw, 420px)',
                 flexShrink: 0,
-                marginBottom: '-2.5rem',
+                marginBottom: '-3rem',
+                /* Altta #0a0a0a'ya fade — görsel kesim çizgisini hero alt çizgisiyle hizalar */
+                maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
               }}
             >
               <SafeImage
                 src={bust}
                 alt=""
                 fill
-                sizes="(max-width:768px) 160px, 280px"
+                sizes="(max-width:768px) 180px, 320px"
                 className="object-contain object-bottom"
                 priority
               />

@@ -8,7 +8,7 @@ export function BentoOnThisDayTile({ entries }: BentoOnThisDayTileProps) {
   if (entries.length === 0) return null;
 
   return (
-    <section className="col-span-2 lg:col-span-4">
+    <section className="h-full">
       <div className="bento-panel flex h-full flex-col gap-4 p-6">
         <p
           className="font-mono text-[9px] uppercase tracking-[0.2em] lg:text-[10px]"

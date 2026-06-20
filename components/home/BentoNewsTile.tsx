@@ -65,7 +65,7 @@ function NewsCard({ item }: { item: NewsItem }) {
 export function BentoNewsTile({ news }: BentoNewsTileProps) {
   if (news.length === 0) {
     return (
-      <section className="col-span-2 lg:col-span-full">
+      <section className="w-full">
         <p className="text-sm" style={{ color: 'var(--muted)' }}>
           No cached headlines yet.
         </p>
@@ -76,7 +76,7 @@ export function BentoNewsTile({ news }: BentoNewsTileProps) {
   const desktopItems = news.slice(0, 3);
 
   return (
-    <section className="col-span-2 lg:col-span-full">
+    <section className="w-full">
       <div className="mb-4 flex items-end gap-4 lg:mb-6">
         <div className="shrink-0">
           <h3
