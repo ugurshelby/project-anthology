@@ -6,6 +6,8 @@
 >
 > **Tasarım otoritesi (öncelik sırasıyla):** `.claude/design-rules.md` (kesin kurallar) → `docs/reference/apex-design-system.md` (Cinematic Brutalism / "Asphalt & Carbon" anayasası) → `.claude/skills/taste-skills/skills/brutalist-skill` + `.claude/skills/ui-ux-pro-max` (anti-slop, niş, özgün görünüm). Tüm frontend fazları bu üçlü ile üretildi/incelendi.
 >
+> **Frontend tasarım skill üçlüsü (FE-3):** Aşağıdaki frontend fazları (Faz 2 hero, Faz 3, Faz 4) **şu 3 skill kullanılarak yapılacak** — `frontend-design` (Anthropic resmi, distinctive/opinionated tasarım) + `impeccable` (`.claude/skills/impeccable` — AI-slop anti-pattern taraması + design-tell düzeltme) + `design-motion-principles` (`.claude/skills/design-motion-principles` — Emil Kowalski/Jakub Krehel/Jhey Tompkins motion felsefesi, build+audit). Ek: `graphify` (`.claude/skills/graphify`) token/bilgi-grafiği yönetimi için yardımcı araç.
+>
 > **Fikir/sistem referansı (harici repo, context):** `docs/additional-projects-ideas/F1 Race Replay/f1-race-replay-main/` — Tom Shaw'ın MIT-lisanslı F1 Race Replay (Python/FastF1) projesi. Kod taşınmaz (farklı stack); **veri modeli, analitik sistem ve UX fikirleri** referanstır. Hangi fikrin nereye uygulandığı §1.5'te eşlenir; ilgili adımlarda `[REF: f1-race-replay]` etiketiyle işaretlidir.
 
 ---
@@ -247,6 +249,8 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 2.3 Pilot numarası hero (Cinematic Brutalism) (🤖 AGENT)
 
+> 🎨 **FE-3 ile yapılacak:** `frontend-design` + `impeccable` + `design-motion-principles` (bkz. başlık FE-3 notu).
+
 - [ ] 🤖 `/drivers/[id]` hero'sunu design-system §5.4'e taşı: devasa pilot numarası `Bebas Neue clamp(8rem,25vw,16rem)`, gradient `--team-secondary → --team-accent`, arka katman opacity ~0.15 dekoratif + üstte okunur tam-renk versiyon.
 - [ ] 🤖 Sezon değişince numara + renk **motion narrative 800ms** CSS variable geçişi; `prefers-reduced-motion` → instant swap (design-rules §6, apex-design-system §5).
 - [ ] 🤖 `brutalist-skill` §3.1: tracking negatif/tight, leading sıkı, uppercase — viewport-bleeding numeral.
@@ -274,6 +278,8 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 > **Amaç:** Tasarımı "AI-üretimi" görünümünden çıkar; niş, özgün, sinematik-brütalist bir iş. Layout·renk·animasyon·geçiş·hover·grid hepsi gözden geçirilir.
 > **Otorite:** `.claude/design-rules.md` (kesin) + `docs/reference/apex-design-system.md` (Asphalt & Carbon) + `brutalist-skill` (Industrial/Tactical Telemetry) + `ui-ux-pro-max` (anti-slop) + `frontend-design` (signature element, restraint).
 > **Kim:** Frontend. **Risk:** Orta (görsel; her değişiklik Playwright ile doğrulanır).
+>
+> 🎨 **FE-3 ile yapılacak:** Bu fazın tamamı `frontend-design` + `impeccable` + `design-motion-principles` skill üçlüsü kullanılarak yapılacak (bkz. başlık FE-3 notu). `impeccable` ile design-tell taraması, `design-motion-principles` ile motion audit, `frontend-design` ile distinctive yön.
 
 ### 3.0 Tasarım okuması (frontend-design "Design Read") (🤖 AGENT)
 
@@ -324,6 +330,8 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 > **Amaç:** Veriyi sinematik biçimde görselleştir — ama her animasyon motive. (`APEX_MASTER_PLAN` Faz 5'in özü, ama Faz 3 parlatmasının üstüne.)
 > **Kim:** Frontend. **Risk:** Orta. **Kural:** `prefers-reduced-motion` → statik render her zaman.
+>
+> 🎨 **FE-3 ile yapılacak:** `frontend-design` + `impeccable` + `design-motion-principles` (bkz. başlık FE-3 notu). Özellikle animasyonlar `design-motion-principles` audit modundan geçecek (janky → kasıtlı).
 
 - [ ] 🤖 **Gap-to-leader viz** (`/season`): lidere puan farkı yatay bar, takım rengi, IntersectionObserver ile soldan dolar, `IBM Plex Mono` sağa hizalı. Reduced-motion → statik.
 - [ ] 🤖 **Puan evrimi grafiği** (`/season`): round-bazlı kümülatif puan, top-5 pilot, Recharts (mevcut dependency). Veri için gerekiyorsa `standings_history` snapshot türet. Reduced-motion → statik.
@@ -455,6 +463,7 @@ Her faz sonunda agent şu formatta rapor verir:
 | Frontend kesin kurallar | `.claude/design-rules.md` |
 | Tasarım anayasası (Asphalt & Carbon) | `docs/reference/apex-design-system.md` |
 | Anti-slop / niş görünüm skill | `.claude/skills/taste-skills/skills/brutalist-skill`, `.claude/skills/ui-ux-pro-max` |
+| Frontend skill üçlüsü (FE-3) | `frontend-design` (resmi) + `.claude/skills/impeccable` + `.claude/skills/design-motion-principles`; yardımcı: `.claude/skills/graphify` |
 | Geçmiş hatalar & mimari kararlar | `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` |
 | Proje dizin haritası | `docs/reference/proje-dizini.md` |
 | F1 temporal tek kaynak | `lib/f1Calendar.ts` (`getF1Context()`) |
