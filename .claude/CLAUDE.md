@@ -2,7 +2,7 @@
 /graphify skill'ini kullanarak token tasarrufu ve kalite dengesini sağla.
 ## 1. Başlamadan Önce
 - `docs/reference/proje-dizini.md` oku.
-- Frontend işiyse: `docs/reference/apex-design-system.md` ve `.cursor/rules/design-rules.md` oku.
+- Frontend işiyse:`docs/apex-final-design.md` oku.
 - Sezon/yıl/takım/pilot belirsizse: `lib/f1Calendar` → `getF1Context()`.
 
 ## 2. Sırayla Çalış
