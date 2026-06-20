@@ -14,7 +14,7 @@ import {
   type RaceResultRow,
 } from '@/lib/f1/mrdata';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
-import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { resolveTeamUiColor } from '@/config/team-colors';
 
 // Same dynamic posture as /season: current-season rounds must pass the
@@ -22,7 +22,6 @@ import { resolveTeamUiColor } from '@/config/team-colors';
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
-const ARCHIVE_MIN = Math.max(F1_SEASON_MIN, 2018);
 const MAX_ROUNDS = 30;
 
 interface PageProps {
@@ -32,7 +31,7 @@ interface PageProps {
 function parseParams(raw: { year: string; n: string }): { year: number; round: number } | null {
   const year = Number(raw.year);
   const round = Number(raw.n);
-  if (!Number.isInteger(year) || year < ARCHIVE_MIN || year > CURRENT_SEASON) return null;
+  if (!Number.isInteger(year) || year !== CURRENT_SEASON) return null;
   if (!Number.isInteger(round) || round < 1 || round > MAX_ROUNDS) return null;
   return { year, round };
 }

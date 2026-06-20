@@ -1,56 +1,40 @@
-# Cursor — Çalışma Anayasası
+# Çalışma Anayasası
 
-## Temel Prensipler
-- Backend ve mimari her zaman önce gelir. Frontend ikincildir.
-- Read `pre-plans/DESIGN_SYSTEM.md` before any frontend work.
-- Büyük değişiklikler için önce plan: docs/plans/PLAN_{KONU}_{TARIH}.md
-- Soru sorma, tahmin yürütme: belirsizlik varsa en makul varsayımı
-  seç ve devam et, sonunda söyle.
-- Minimum token: gereksiz açıklama, monolog, uzun düşünme süreci yok.
+## 1. Başlamadan Önce
+- `docs/reference/proje-dizini.md` oku.
+- Frontend işiyse: `docs/reference/apex-design-system.md` ve `.cursor/rules/design-rules.md` oku.
+- Sezon/yıl/takım/pilot belirsizse: `lib/f1Calendar` → `getF1Context()`.
 
-## Loglama
-Her önemli işlem sonrası logs/ klasörüne yaz:
-logs/CURSOR_{KONU}_{TARIH}.md
-İçerik: ne yapıldı, hangi dosyalar değişti, hatalar, sonraki adım.
+## 2. Sırayla Çalış
+- Backend ve mimari önce, frontend sonra.
+- Değiştirmeden önce ilgili dosyayı oku.
+- Silmeden önce yedekle veya uyar.
 
-## Manuel Aksiyon
-Kullanıcının manuel yapması gereken şeyler için:
-⚠️ MANUEL AKSİYON GEREKLİ: [açıklama]
-Sonra devam et.
+## 3. Sabit Kurallar
+- Sezon/takım/pilot hardcode yok — tek kaynak `lib/f1Calendar`.
+- Dış API çağrıları server-side; client'a API key sızmaz.
+- Supabase: server-side service role, client-side anon.
+- Env var: hem `.env.local` hem Vercel dashboard'da.
+- Kritik fonksiyonlar Sentry / `lib/logger` ile sarılı.
+- Yorum değil kod; gereksiz açıklama yazma.
 
-## Multi-Agent Koordinasyonu
-Bu projede hem Cursor hem Claude Code kullanılıyor.
-- Cursor: planlama, büyük mimari kararlar, çok dosyalı refactor
-- Claude Code: terminal komutları, build/test, hızlı tek dosya değişimleri
-Görev çakışmasını önlemek için hangi aracın ne yaptığını
-logs/ dosyalarından takip et.
+## 4. Her Değişiklik Sonrası (sırayla)
+1. `npm run build` → sıfır hata.
+2. Görsel/fonksiyonel değişiklikse: `npx playwright test` → console error / layout shift yok.
+3. `logs/AGENT_{KONU}_{TARIH}.md` yaz.
+4. Commit (açıklayıcı mesaj; büyük adım = ayrı commit).
 
-## F1 Temporal Context
-- F1 sezon, yarış takvimi, takım ve pilot listesi için tek kaynak: `@/lib/f1Calendar`
-- Sezon yılı, takım listesi veya pilot listesini başka dosyalarda hardcode etme
-- Belirsizlikte `getF1Context()` kullan
+## 5. Engelle, Sorma
+Manuel aksiyon gerekiyorsa (Supabase dashboard, Vercel env, API key vb.):
+```
+⚠️ MANUEL AKSİYON GEREKLİ: [ne yapılmalı]
+```
+yaz, sonra devam et.
 
-## F1 Takım Renkleri
-- Kaynak: `config/team-colors.ts` (2026 grid, 11 takım)
-- **Her sezon başında güncelle** (Ocak–Şubat): FIA entry list, livery lansmanları,
-  yeni takım/rebrand kontrolü. Eski düz metin `Colors` dosyası kaldırıldı.
-- Canlı API rengi yoksa `resolveTeamUiColor()` bu dosyadan fallback kullanır.
-
-## Kod Kalitesi
-- TypeScript strict mode, sıfır any
-- Her component için prop types zorunlu
-- Build geçmeden commit yok
-- Her PR'da en az bir test
-
-## Next.js Kuralları
-- Veri çekme: Server Components varsayılan, Client Component istisnai
-- API routes: app/api/ altında, her biri tek sorumluluk
-- Image: next/image her zaman, asla img tag
-- Font: next/font, asla CDN import
-
-## Raporlama
-Görev sonunda Türkçe özet:
+## 6. Görev Sonu Raporu (Türkçe)
+```
 ✅ Tamamlananlar
-⚠️ Manuel aksiyon gerekenler  
-❌ Tamamlanamayan varsa neden
-📁 Değiştirilen dosyalar
+⚠️ Manuel aksiyon gerekenler
+❌ Tamamlanamayan + neden
+📁 Değişen dosyalar
+```

@@ -1,57 +1,40 @@
-# Claude Code — Çalışma Anayasası
+# Çalışma Anayasası
+/graphify skill'ini kullanarak token tasarrufu ve kalite dengesini sağla.
+## 1. Başlamadan Önce
+- `docs/reference/proje-dizini.md` oku.
+- Frontend işiyse: `docs/reference/apex-design-system.md` ve `.cursor/rules/design-rules.md` oku.
+- Sezon/yıl/takım/pilot belirsizse: `lib/f1Calendar` → `getF1Context()`.
 
-## Temel Prensipler
-- Backend ve mimari her zaman önce gelir. Frontend ikincildir.
-- Read `pre-plans/DESIGN_SYSTEM.md` before any frontend work.
-- Her büyük değişiklik için önce bir plan dosyası oluştur:
-  docs/plans/PLAN_{KONU}_{TARIH}.md
-  Planı oluştur, sonra uygula.
-- Minimum token, maksimum etkinlik: gereksiz açıklama yapma,
-  direkt işe giriş. Kod > yorum.
+## 2. Sırayla Çalış
+- Backend ve mimari önce, frontend sonra.
+- Değiştirmeden önce ilgili dosyayı oku.
+- Silmeden önce yedekle veya uyar.
 
-## Loglama Zorunluluğu
-Her işlemden sonra logs/ klasörüne log yaz:
-logs/AGENT_{KONU}_{TARIH}.md formatında.
-Log içeriği:
-- Ne yapıldı (maddeler halinde)
-- Hangi dosyalar değişti
-- Hangi komutlar çalıştırıldı
-- Karşılaşılan hatalar ve çözümleri
-- Sonraki adım nedir
+## 3. Sabit Kurallar
+- Sezon/takım/pilot hardcode yok — tek kaynak `lib/f1Calendar`.
+- Dış API çağrıları server-side; client'a API key sızmaz.
+- Supabase: server-side service role, client-side anon.
+- Env var: hem `.env.local` hem Vercel dashboard'da.
+- Kritik fonksiyonlar Sentry / `lib/logger` ile sarılı.
+- Yorum değil kod; gereksiz açıklama yazma.
 
-## Manuel Aksiyon Uyarısı
-Eğer görev sırasında kullanıcının manuel yapması gereken bir şey varsa
-(Supabase dashboard, Vercel env var, API key alma gibi) işi durdurup
-şunu yaz:
-⚠️ MANUEL AKSİYON GEREKLİ: [Ne yapılması gerektiği]
-Sonra devam et.
+## 4. Her Değişiklik Sonrası (sırayla)
+1. `npm run build` → sıfır hata.
+2. Görsel/fonksiyonel değişiklikse: `npx playwright test` → console error / layout shift yok.
+3. `logs/AGENT_{KONU}_{TARIH}.md` yaz.
+4. Commit (açıklayıcı mesaj; büyük adım = ayrı commit).
 
-## Dosya Yapısı Kuralları
-- Her değişiklikten önce ilgili dosyaları oku
-- Silmeden önce yedekle veya uyar
-- Build her adımda geçmeli: npm run build başarısız olursa dur ve düzelt
-- TypeScript hataları sıfır olmalı
+## 5. Engelle, Sorma
+Manuel aksiyon gerekiyorsa (Supabase dashboard, Vercel env, API key vb.):
+```
+⚠️ MANUEL AKSİYON GEREKLİ: [ne yapılmalı]
+```
+yaz, sonra devam et.
 
-## F1 Temporal Context
-- F1 sezon, yarış takvimi, takım ve pilot listesi için tek kaynak: `@/lib/f1Calendar`
-- Sezon yılı, takım listesi veya pilot listesini başka dosyalarda hardcode etme
-- Belirsizlikte `getF1Context()` kullan
-
-## Entegrasyon Kuralları
-- Supabase: her zaman service role key server-side, anon key client-side
-- Vercel: env var'lar hem .env.local hem Vercel dashboard'da olmalı
-- GitHub: her büyük adım ayrı commit, açıklayıcı mesaj
-- Cloudinary: URL'ler her zaman .env'den, asla hardcode
-
-## API Güvenliği
-- Tüm external API çağrıları server-side (API routes veya Server Components)
-- Client'a asla API key expose etme
-- Her API route'ta error handling ve logging zorunlu
-- Rate limiting kritik endpoint'lerde olmalı
-
-## Raporlama
-Her görev sonunda Türkçe özet:
+## 6. Görev Sonu Raporu (Türkçe)
+```
 ✅ Tamamlananlar
 ⚠️ Manuel aksiyon gerekenler
-❌ Tamamlanamayan varsa neden
-📁 Değiştirilen dosyalar
+❌ Tamamlanamayan + neden
+📁 Değişen dosyalar
+```

@@ -1,15 +1,11 @@
 import { getSeasonData, type SeasonData } from '@/lib/data/f1';
-import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
-/** Profile season range — mirrors the season archive (2018 → current). */
-export const PROFILE_MIN_SEASON = Math.max(F1_SEASON_MIN, 2018);
+export const PROFILE_MIN_SEASON = CURRENT_SEASON;
 
-/** Inclusive [PROFILE_MIN_SEASON, CURRENT_SEASON], newest first. */
 export function profileSeasons(): number[] {
-  const out: number[] = [];
-  for (let y = CURRENT_SEASON; y >= PROFILE_MIN_SEASON; y--) out.push(y);
-  return out;
+  return [CURRENT_SEASON];
 }
 
 export interface DriverProfile {
