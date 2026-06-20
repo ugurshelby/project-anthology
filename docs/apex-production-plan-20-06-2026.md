@@ -296,8 +296,17 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ### 3.0 Tasarım okuması (frontend-design "Design Read") (🤖 AGENT)
 
-- [ ] 🤖 Tek cümle tasarım okuması yaz ve loga koy: *"APEX'i okuyorum: F1 meraklısı/teknik izleyici için sinematik-brütalist arşiv platformu, 'F1 telemetri ekranı' dili, Tactical Telemetry (dark) substrate + tek accent Apex Red."*
-- [ ] 🤖 Üç dial sabitle (`taste-skill` §1): `DESIGN_VARIANCE ~7` (premium/sinematik), `MOTION_INTENSITY ~6` (motivated motion), `VISUAL_DENSITY ~4-5` (telemetri yoğunluğu). Loga yaz.
+- [x] 🤖 Tek cümle tasarım okuması yaz ve loga koy: *"APEX'i okuyorum: F1 meraklısı/teknik izleyici için sinematik-brütalist arşiv platformu, 'F1 telemetri ekranı' dili, Tactical Telemetry (dark) substrate + tek accent Apex Red."*
+- [x] 🤖 Üç dial sabitle (`taste-skill` §1): `DESIGN_VARIANCE ~7` (premium/sinematik), `MOTION_INTENSITY ~6` (motivated motion), `VISUAL_DENSITY ~4-5` (telemetri yoğunluğu). Loga yaz.
+
+### 3.0.5 Ek — Radikal Layout Yeniden Yapılandırması (2026-06-20) (🤖 AGENT)
+
+- [x] 🤖 **Home bento grid düzeltildi:** Desktop'ta `OnThisDay col-span-4 + News col-span-8 = 12` (asimetrik son satır giderildi). Mobile için `sm:hidden` / `sm:grid` ayrı layout katmanları eklendi — artık zoom gerektirmiyor. `CompactBentoDashboard.tsx`
+- [x] 🤖 **BentoNeonDivider** `col-span-*` mantığı parent wrapper'a taşındı. `BentoNeonDivider.tsx`
+- [x] 🤖 **BentoOnThisDayTile + BentoNewsTile** kendi `col-span-*` class'larından arındırıldı; layout kontrolü tek merkezde (`CompactBentoDashboard`). 
+- [x] 🤖 **Mobile layout (< 640px):** Single-column stack; hero minHeight 320px; mid paneller 2×2 grid (minHeight 260px); yazılar zoom yapmadan okunuyor.
+- [x] 🤖 **Tablet layout (640–1023px):** 2-col grid; hero tam genişlik 400px; 4 mid panel 2×2; bottom row OnThisDay + News yan yana.
+- [x] 🤖 **Driver hero yeniden tasarlandı:** Portrait `maskImage linear-gradient(to bottom, black 55%, transparent)` ile bottom-fade; görsel kesim çizgisi hero alt sınırıyla hizalanıyor. Numara `clamp(16rem,42vw,30rem)` daha dramatik. `app/drivers/[driverId]/page.tsx`
 
 ### 3.1 Anayasa uyum denetimi (🤖 AGENT)
 
