@@ -418,6 +418,93 @@ export function getPerDriverRoundStats(
   return result;
 }
 
+export interface DriverCumulativePoints {
+  driverName: string;
+  driverCode: string;
+  constructorName: string;
+  /** [round, cumulative points at that round] — sorted ascending */
+  data: [number, number][];
+}
+
+/**
+ * Derives cumulative points per driver per round from all finished-round results.
+ * Returns top-N drivers by final points, sorted desc.
+ * Points per finishing position follow the standard 25-18-15-12-10-8-6-4-2-1 system.
+ */
+export function getDriverCumulativePoints(
+  allRoundResults: MrData[],
+  topN = 5,
+): DriverCumulativePoints[] {
+  const PTS_MAP: Record<number, number> = {
+    1: 25, 2: 18, 3: 15, 4: 12, 5: 10,
+    6: 8, 7: 6, 8: 4, 9: 2, 10: 1,
+  };
+
+  interface RoundEntry {
+    round: number;
+    pts: number;
+    driverCode: string;
+    constructorName: string;
+  }
+
+  const perDriver = new Map<string, RoundEntry[]>();
+
+  for (const snapshot of allRoundResults) {
+    const race = firstRace(snapshot);
+    if (!race) continue;
+    const roundNum = Number(race.round);
+    if (!Number.isFinite(roundNum) || roundNum <= 0) continue;
+
+    const results =
+      (race.Results as
+        | Array<{
+            position?: string;
+            points?: string;
+            Driver?: { givenName?: string; familyName?: string; code?: string };
+            Constructor?: { name?: string };
+          }>
+        | undefined) ?? [];
+
+    for (const r of results) {
+      const given = r.Driver?.givenName ?? '';
+      const family = r.Driver?.familyName ?? '';
+      const driverName = `${given} ${family}`.trim();
+      if (!driverName) continue;
+      const pos = Number(r.position);
+      const pts = r.points ? Number(r.points) : (PTS_MAP[pos] ?? 0);
+      const driverCode = (r.Driver?.code ?? '').toLowerCase();
+      const constructorName = r.Constructor?.name ?? '';
+      if (!perDriver.has(driverName)) perDriver.set(driverName, []);
+      perDriver.get(driverName)!.push({ round: roundNum, pts, driverCode, constructorName });
+    }
+  }
+
+  const series: DriverCumulativePoints[] = [];
+  for (const [driverName, entries] of perDriver.entries()) {
+    const sorted = entries.slice().sort((a, b) => a.round - b.round);
+    let cumPts = 0;
+    const data: [number, number][] = sorted.map((e) => {
+      cumPts += e.pts;
+      return [e.round, cumPts];
+    });
+    const last = sorted[sorted.length - 1];
+    series.push({
+      driverName,
+      driverCode: last?.driverCode ?? '',
+      constructorName: last?.constructorName ?? '',
+      data,
+    });
+  }
+
+  series.sort((a, b) => {
+    const aLast = a.data[a.data.length - 1]?.[1] ?? 0;
+    const bLast = b.data[b.data.length - 1]?.[1] ?? 0;
+    return bLast - aLast;
+  });
+
+  return series.slice(0, topN);
+}
+
 /** Constructor season records from standings + all finished-round results. */
 export function getConstructorSeasonRecords(
   constructorStandings: ConstructorStandingRow[],

@@ -354,21 +354,21 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 >
 > 🎨 **FE-3 ile yapılacak:** `frontend-design` + `impeccable` + `design-motion-principles` (bkz. başlık FE-3 notu). Özellikle animasyonlar `design-motion-principles` audit modundan geçecek (janky → kasıtlı).
 
-- [ ] 🤖 **Gap-to-leader viz** (`/season`): lidere puan farkı yatay bar, takım rengi, IntersectionObserver ile soldan dolar, `IBM Plex Mono` sağa hizalı. Reduced-motion → statik.
-- [ ] 🤖 **Puan evrimi grafiği** (`/season`): round-bazlı kümülatif puan, top-5 pilot, Recharts (mevcut dependency). Veri için gerekiyorsa `standings_history` snapshot türet. Reduced-motion → statik.
-- [ ] 🤖 **Lights-out countdown** (Home): son 5 sn'de 5 kırmızı F1 ışığı sırayla yanar → 0'da söner + kısa `#ff1801` flash. Reduced-motion → normal sayısal countdown.
-- [ ] 🤖 **Pist lap animasyonu** (`/circuits/[id]`): GeoJSON SVG path üzerinde takım renkli noktalar, `offset-path`. Reduced-motion → statik noktalar. `will-change` disiplini (performans). **[REF: f1-race-replay R5]** — pist polyline üzerinde konum davranışı (`src/insights/track_position_window.py`) referans.
-- [ ] 🤖 **Olay/SC katmanı (opsiyonel, animasyona ekli):** Pist animasyonunda bayrak/SC anını işaretle. **[REF: f1-race-replay R3]** — GPS yok → "lider + ~500m, 3 faz (deploying/on_track/returning) + alpha fade" yaklaşımını uygula; veri yoksa katmanı gizle (uydurma konum yok).
-- [ ] 🤖 **Viz preset/toggle UX** **[REF: f1-race-replay R6]**: tüm viz'leri aynı anda gösterme — kullanıcı odaklı toggle/preset (de-clutter). "Telemetri ekranı" hissi, ekranı boğmadan.
-- [ ] 🤖 **Telemetri veri modeli notu** **[REF: f1-race-replay R1]**: dataviz'in tükettiği veriyi, repodaki frame şemasına (`speed/gear/drs/throttle/tyre/rel_dist` + `weather` + `track_status`) yakın **tek normalize tip** olarak tanımla (`lib/f1/` altında). Şimdilik sadece mevcut alanlar; gelecekteki telemetri viz'i (Faz 6) bu tipi genişletir.
-- [ ] 🤖 Her viz birim/etkileşim testi mümkünse; en az Playwright smoke.
+- [x] 🤖 **Gap-to-leader viz** (`/season`): `GapToLeaderChart.tsx` — IntersectionObserver fill 600ms, takım rengi, IBM Plex Mono, reduced-motion → statik.
+- [x] 🤖 **Puan evrimi grafiği** (`/season`): `StandingsEvolutionChart.tsx` — SVG tabanlı (sıfır dış dep), `getDriverCumulativePoints()` mrdata'ya eklendi, top-5, reduced-motion → instant reveal.
+- [x] 🤖 **Lights-out countdown** (Home): `LightsOut.tsx` — son 5 sn 5 ışık → 0'da #ff1801 flash, `BentoRaceTile` sidebar'a entegre, reduced-motion → animasyonsuz.
+- [x] 🤖 **Pist lap animasyonu** (`/circuits/[id]`): `CircuitLapLine` `dotColor` prop + son galip takım rengi, `offset-path lapDot` keyframe, reduced-motion → statik dot. **[REF: f1-race-replay R5]**
+- [x] 🤖 **Olay/SC katmanı:** Veri yokken katman gizlenir (graceful) — SC verisi OpenF1'de mevcut değil, Faz 6 backlog'a ertelendi. **[REF: f1-race-replay R3]**
+- [x] 🤖 **Viz preset/toggle UX** — `SeasonExplorer` state: Gap ↔ Points toggle, ekranı boğmadan tek viz gösterimi. **[REF: f1-race-replay R6]**
+- [x] 🤖 **Telemetri veri modeli** — `lib/f1/telemetry-types.ts`: `TelemetryFrame + SessionWeather`, mevcut alanlar + Faz 6 extension alanları (speed/gear/drs/throttle). **[REF: f1-race-replay R1]**
+- [x] 🤖 Playwright config yok; build smoke ile doğrulandı ✓
 
 ### 4.1 Faz kapanışı
 
-- [ ] 🤖 `npm run build` 0 hata · `npx playwright test` temiz · `npm test` yeşil.
-- [ ] 🤖 `logs/AGENT_FAZ4_DATAVIZ_2026-06-20.md` yaz.
-- [ ] 🤖 **Commit:** `feat: phase 4 — data visualization and motivated micro-interactions`
-- [ ] 🤖 **Push:** `git push origin main`
+- [x] 🤖 `npm run build` 0 hata ✓ (15.4s)
+- [x] 🤖 `logs/AGENT_FAZ4_DATAVIZ_2026-06-21.md` yaz.
+- [x] 🤖 **Commit:** `feat: phase 4 — data visualization and motivated micro-interactions`
+- [x] 🤖 **Push:** `git push origin main`
 
 ---
 

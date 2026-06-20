@@ -9,6 +9,8 @@ import { useWillChange } from '@/components/ui/useWillChange';
 interface CircuitLapLineProps {
   svgSrc: string;
   alt: string;
+  /** Optional accent colour for the moving dot — defaults to #ff1801 */
+  dotColor?: string;
 }
 
 interface ParsedSvg {
@@ -29,7 +31,7 @@ function parseCircuitSvg(svgText: string): ParsedSvg | null {
   };
 }
 
-export function CircuitLapLine({ svgSrc, alt }: CircuitLapLineProps) {
+export function CircuitLapLine({ svgSrc, alt, dotColor = '#ff1801' }: CircuitLapLineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const lapPathRef = useRef<SVGPathElement>(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -121,17 +123,20 @@ export function CircuitLapLine({ svgSrc, alt }: CircuitLapLineProps) {
         role="img"
         aria-label={alt}
       >
+        {/* Ghost track */}
         <path
           d={parsed.pathD}
           fill="none"
-          stroke="#ff1801"
+          stroke={dotColor}
           strokeWidth={2}
+          opacity={0.12}
         />
+        {/* Animated draw-on stroke */}
         <path
           ref={lapPathRef}
           d={parsed.pathD}
           fill="none"
-          stroke="#ff1801"
+          stroke={dotColor}
           strokeWidth={2}
           className={animate && !reducedMotion ? 'circuit-lap-line-animate' : undefined}
           style={{
@@ -141,6 +146,30 @@ export function CircuitLapLine({ svgSrc, alt }: CircuitLapLineProps) {
           }}
           onAnimationEnd={handleAnimationEnd}
         />
+        {/* Moving dot along the path — uses CSS offset-path; reduced-motion: static at start */}
+        {parsed && !reducedMotion && animate ? (
+          <circle
+            r={5}
+            fill={dotColor}
+            style={{
+              offsetPath: `path('${parsed.pathD}')`,
+              offsetDistance: '0%',
+              animation: 'lapDot 3s ease-in-out forwards',
+              willChange: 'offset-distance',
+            } as React.CSSProperties}
+          />
+        ) : null}
+        {/* Reduced-motion: static dot at start position */}
+        {parsed && reducedMotion ? (
+          <circle
+            r={4}
+            fill={dotColor}
+            style={{
+              offsetPath: `path('${parsed.pathD}')`,
+              offsetDistance: '0%',
+            } as React.CSSProperties}
+          />
+        ) : null}
       </svg>
     </div>
   );

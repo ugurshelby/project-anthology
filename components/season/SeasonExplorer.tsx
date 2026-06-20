@@ -19,6 +19,8 @@ import { circuitIconSrc, driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icon
 import { CURRENT_SEASON, isRaceDone } from '@/lib/f1Calendar';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import type { ConstructorStandingRow, DriverStandingRow } from '@/lib/f1/mrdata';
+import { GapToLeaderChart } from '@/components/season/GapToLeaderChart';
+import { StandingsEvolutionChart } from '@/components/season/StandingsEvolutionChart';
 
 interface SeasonExplorerProps {
   initialData: SeasonData;
@@ -76,6 +78,8 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<EntityDetail | null>(null);
+  type VizMode = 'gap' | 'evolution' | 'none';
+  const [vizMode, setVizMode] = useState<VizMode>('gap');
 
   const openEntity = useCallback((entity: EntityDetail) => {
     setSelectedEntity(entity);
@@ -137,6 +141,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
     driverRecords,
     constructorRecords,
     nearestRaceKey,
+    evolutionSeries,
   } = data;
 
   const poleDriverSrc = pole ? driverIconSrc(pole.driverCode, pole.driverName, year) : null;
@@ -385,6 +390,48 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
           </>
         )}
       </section>
+
+      {/* Viz toggle + charts */}
+      {(standings.length > 1 || evolutionSeries.length >= 2) ? (
+        <section>
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <SectionDivider title={vizMode === 'gap' ? 'Gap to Leader' : vizMode === 'evolution' ? 'Points Evolution' : 'Analysis'} />
+            <div className="flex shrink-0 gap-1">
+              {(['gap', 'evolution'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setVizMode(mode)}
+                  className="px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest border transition-colors"
+                  style={{
+                    color: vizMode === mode ? 'var(--paper)' : 'var(--muted)',
+                    borderColor: vizMode === mode ? 'var(--border-hover)' : 'var(--border)',
+                    backgroundColor: vizMode === mode ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  }}
+                >
+                  {mode === 'gap' ? 'Gap' : 'Points'}
+                </button>
+              ))}
+            </div>
+          </div>
+          {vizMode === 'gap' && standings.length > 1 ? (
+            <GapToLeaderChart standings={standings} maxRows={10} />
+          ) : null}
+          {vizMode === 'evolution' && evolutionSeries.length >= 2 ? (
+            <>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+                Top 5 · cumulative points per round
+              </p>
+              <StandingsEvolutionChart series={evolutionSeries} />
+            </>
+          ) : null}
+          {vizMode === 'evolution' && evolutionSeries.length < 2 ? (
+            <p className="font-mono text-[10px]" style={{ color: 'var(--muted)' }}>
+              Points evolution available after 2+ rounds.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       {/* Constructor Standings */}
       {constructors.length > 0 ? (

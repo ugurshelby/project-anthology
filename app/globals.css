@@ -602,8 +602,32 @@ body {
   }
 }
 
+@keyframes lapDot {
+  0%   { offset-distance: 0%; }
+  100% { offset-distance: 100%; }
+}
+
 .circuit-lap-line-animate {
   animation: lapLine 3s ease-in-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes lapDot {
+    0%, 100% { offset-distance: 0%; }
+  }
+}
+
+/* ── Lights-out flash ───────────────────────────────────────────────── */
+@keyframes lightsout-flash {
+  0%   { opacity: 0.35; }
+  30%  { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes lightsout-flash {
+    0%, 100% { opacity: 0; }
+  }
 }
 
 /* ── Constructor standings bar sweep ─────────────────────────────────── */

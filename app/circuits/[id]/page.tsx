@@ -7,8 +7,10 @@ import { SectionDivider } from '@/components/ui/SectionDivider';
 import { getCircuitDetail, getCircuitIdsForSitemap, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { fetchSeasonSnapshotTyped } from '@/lib/data/f1';
-import { findRaceByCircuitId, getRacesFromCalendar } from '@/lib/f1/mrdata';
+import { findRaceByCircuitId, getRaceWinner, getRacesFromCalendar } from '@/lib/f1/mrdata';
 import { CURRENT_SEASON, isRaceDone, raceStartMs } from '@/lib/f1Calendar';
+import { resolveTeamUiColor } from '@/config/team-colors';
+import { fetchRoundSnapshot } from '@/lib/data/f1';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -58,6 +60,19 @@ export default async function CircuitDetailPage({ params }: PageProps) {
     circuitRace && !isRaceDone(circuitRace) ? circuitRace : null;
   const upcomingRaceStartMs =
     upcomingRace != null ? raceStartMs(upcomingRace) : null;
+
+  // Last race winner's team colour for the lap dot
+  let lapDotColor = 'var(--accent)';
+  if (circuitRace && isRaceDone(circuitRace) && circuitRace.round) {
+    const roundNum = Number(circuitRace.round);
+    if (Number.isFinite(roundNum) && roundNum > 0) {
+      const resultsData = await fetchRoundSnapshot(CURRENT_SEASON, roundNum, 'results');
+      const winner = getRaceWinner(resultsData);
+      if (winner?.constructorName) {
+        lapDotColor = resolveTeamUiColor(null, winner.constructorName);
+      }
+    }
+  }
 
   // Live local weather (Open-Meteo, server-side). Null → panel hidden.
   const weather = await getCircuitWeather(facts?.lat, facts?.lon);
@@ -110,7 +125,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
       <div className="anthology-card mt-8 flex items-center justify-center p-8">
         {circuit.svgSrc ? (
-          <CircuitLapLine svgSrc={circuit.svgSrc} alt={circuit.circuitName} />
+          <CircuitLapLine svgSrc={circuit.svgSrc} alt={circuit.circuitName} dotColor={lapDotColor} />
         ) : (
           <div className="h-64 w-full max-w-2xl" style={{ backgroundColor: 'var(--surface)' }} aria-hidden />
         )}

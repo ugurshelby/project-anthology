@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BentoCountdown } from '@/components/home/BentoCountdown';
+import { LightsOut } from '@/components/ui/LightsOut';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
 import type { BentoRacePanel } from '@/components/home/types';
@@ -69,18 +70,21 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
         ) : null}
 
         {countdownTargetMs != null ? (
-          <BentoCountdown
-            targetMs={countdownTargetMs}
-            raceName={raceLabel}
-            initialNowMs={renderNowMs}
-            fallback={
-              countdown || detail ? (
-                <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
-                  {countdown ?? detail}
-                </p>
-              ) : null
-            }
-          />
+          <>
+            <LightsOut raceStartMs={countdownTargetMs} initialNowMs={renderNowMs} />
+            <BentoCountdown
+              targetMs={countdownTargetMs}
+              raceName={raceLabel}
+              initialNowMs={renderNowMs}
+              fallback={
+                countdown || detail ? (
+                  <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
+                    {countdown ?? detail}
+                  </p>
+                ) : null
+              }
+            />
+          </>
         ) : countdown ? (
           <p className="font-mono text-sm tracking-wider" style={{ color: 'var(--muted)' }}>
             {countdown}
