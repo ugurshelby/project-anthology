@@ -4,17 +4,13 @@ import { SafeImage } from '@/components/ui/SafeImage';
 import { SeasonExplorer } from '@/components/season/SeasonExplorer';
 import { getSeasonData } from '@/lib/data/f1';
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
-import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
-// Fully dynamic: re-run the staleness→live path on every request so /season
-// matches the homepage (both bypass a stale DB snapshot to live Jolpica).
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
-const ARCHIVE_MIN = Math.max(F1_SEASON_MIN, 2018);
-
 const TITLE = 'Season';
-const DESCRIPTION = `Formula 1 season archive: driver and constructor standings, race calendar, and race recaps from ${ARCHIVE_MIN} to ${CURRENT_SEASON}.`;
+const DESCRIPTION = `Formula 1 ${CURRENT_SEASON} season: driver and constructor standings, race calendar, and race recaps.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -29,33 +25,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/season' },
 };
 
-function parseYearParam(raw: string | undefined): number {
-  const parsed = raw ? Number(raw) : NaN;
-  if (Number.isFinite(parsed) && parsed >= ARCHIVE_MIN && parsed <= CURRENT_SEASON) {
-    return parsed;
-  }
-  return CURRENT_SEASON;
-}
+const SEASONS = [CURRENT_SEASON];
 
-const SEASONS = Array.from(
-  { length: CURRENT_SEASON - ARCHIVE_MIN + 1 },
-  (_, i) => ARCHIVE_MIN + i,
-);
-
-type PageProps = {
-  searchParams: Promise<{ year?: string }>;
-};
-
-export default async function SeasonPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const initialYear = parseYearParam(params.year);
-  const seasonData = await getSeasonData(initialYear);
+export default async function SeasonPage() {
+  const seasonData = await getSeasonData(CURRENT_SEASON);
 
   const leader = seasonData.standings[0] ?? null;
   const leaderDriverSrc = leader
-    ? driverIconSrc(leader.driverCode, leader.driverName, initialYear)
+    ? driverIconSrc(leader.driverCode, leader.driverName, CURRENT_SEASON)
     : null;
-  const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName, initialYear) : null;
+  const leaderTeamSrc = leader ? teamIconSrc(leader.constructorName, CURRENT_SEASON) : null;
 
   return (
     <>
@@ -64,7 +43,7 @@ export default async function SeasonPage({ searchParams }: PageProps) {
           className="font-condensed text-[11px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--muted)' }}
         >
-          {initialYear} World Championship
+          {CURRENT_SEASON} World Championship
         </p>
         <h1
           className="mt-2 font-display text-[clamp(5rem,16vw,12rem)] leading-[0.88] tracking-[0.04em]"

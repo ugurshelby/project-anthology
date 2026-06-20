@@ -24,11 +24,7 @@ type PageProps = {
   searchParams: Promise<{ season?: string }>;
 };
 
-function parseSeason(raw: string | undefined): number {
-  const n = Number(raw);
-  if (Number.isFinite(n) && n >= PROFILE_MIN_SEASON && n <= CURRENT_SEASON) {
-    return Math.trunc(n);
-  }
+function parseSeason(_raw: string | undefined): number {
   return CURRENT_SEASON;
 }
 

@@ -12,7 +12,6 @@ const SIZE_HEIGHT: Record<'sm' | 'md' | 'lg', string> = {
 };
 
 const ODOMETER_EASING = 'cubic-bezier(0.15, 0.85, 0.35, 1.1)';
-const FLASH_MS = 80;
 
 export interface OdometerDigitProps {
   value: number;
@@ -34,11 +33,9 @@ function OdometerDigitInner({
 }: OdometerDigitProps) {
   const reducedMotion = usePrefersReducedMotion();
   const mounted = useRef(false);
-  const flashTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const digit = clampDigit(value);
   const [displayDigit, setDisplayDigit] = useState(digit);
-  const [flashing, setFlashing] = useState(false);
   const [skipTransition, setSkipTransition] = useState(true);
 
   const height = SIZE_HEIGHT[size];
@@ -62,23 +59,6 @@ function OdometerDigitInner({
     setDisplayDigit(digit);
   }, [digit, displayDigit, reducedMotion]);
 
-  useEffect(() => {
-    return () => {
-      if (flashTimeout.current) clearTimeout(flashTimeout.current);
-    };
-  }, []);
-
-  const handleTransitionEnd = () => {
-    if (reducedMotion || skipTransition) return;
-
-    setFlashing(true);
-    if (flashTimeout.current) clearTimeout(flashTimeout.current);
-    flashTimeout.current = setTimeout(() => {
-      setFlashing(false);
-      flashTimeout.current = null;
-    }, FLASH_MS);
-  };
-
   const transition = reducedMotion || skipTransition
     ? 'none'
     : `transform 180ms ${ODOMETER_EASING}`;
@@ -92,7 +72,7 @@ function OdometerDigitInner({
         border: '1px solid var(--border)',
         borderRadius: 0,
         backgroundColor: bgColor,
-        color: flashing ? 'var(--accent)' : 'var(--paper)',
+        color: 'var(--paper)',
         fontVariantNumeric: 'tabular-nums',
       }}
       aria-live={ariaLive}
@@ -106,7 +86,6 @@ function OdometerDigitInner({
           transition,
           transform: `translateY(-${displayDigit * 10}%)`,
         }}
-        onTransitionEnd={handleTransitionEnd}
       >
         {DIGITS.map((d) => (
           <span
