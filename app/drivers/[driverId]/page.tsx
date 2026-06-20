@@ -89,7 +89,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
         <div className="content-wrap relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="profile-eyebrow">
-              Driver · {profile.constructorName} · {season}
+              Driver{profile.constructorName && profile.constructorName !== '—' ? ` · ${profile.constructorName}` : ''} · {season}
             </p>
             <h1 className="profile-title mt-3">{profile.driverName}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-2">

@@ -15,7 +15,7 @@ export function NewsFeaturedHero({ item }: NewsFeaturedHeroProps) {
   const metaLabel = [item.sourceName, item.dateLabel].filter(Boolean).join(' · ');
 
   return (
-    <section className="relative isolate min-h-screen w-full overflow-hidden bg-background">
+    <section className="relative isolate min-h-dvh w-full overflow-hidden bg-background">
       {/* Full-bleed background photo */}
       <SafeImage
         src={item.image}
