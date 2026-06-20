@@ -34,7 +34,9 @@ import {
   getDriverSeasonRecords,
   getDriverStandings,
   getPerDriverRoundStats,
+  getDriverCumulativePoints,
   type DriverRoundStats,
+  type DriverCumulativePoints,
   getLastRaceResult,
   getQualifyingPole,
   getRaceWinner,
@@ -396,6 +398,8 @@ export interface SeasonData {
   nearestRaceKey: string | null;
   /** Per-driver wins/podiums from finished rounds (keyed by driver name). */
   driverStats: Record<string, DriverRoundStats>;
+  /** Top-5 drivers' cumulative points per round — for evolution chart. */
+  evolutionSeries: DriverCumulativePoints[];
 }
 
 function nearestRaceKeyFromCalendar(races: CalendarRace[], nowMs: number): string | null {
@@ -453,6 +457,7 @@ export async function getSeasonData(year: number): Promise<SeasonData> {
     constructorRecords: getConstructorSeasonRecords(constructors, roundData),
     nearestRaceKey: nearestRaceKeyFromCalendar(races, Date.now()),
     driverStats: getPerDriverRoundStats(roundData),
+    evolutionSeries: getDriverCumulativePoints(roundData, 5),
   };
 }
 
