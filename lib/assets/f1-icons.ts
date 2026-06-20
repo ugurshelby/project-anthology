@@ -296,3 +296,14 @@ export function circuitIconSrc(circuitId: string | undefined | null): string | n
   const file = CIRCUIT_ID_TO_SVG[id];
   return file ? `/circuits/${file}` : null;
 }
+
+/** Resolve a team car SVG path. constructorId is used as-is (underscore preserved). */
+export function carSrc(
+  constructorId: string | undefined | null,
+  teamName?: string | null,
+): string | null {
+  const id = (constructorId ?? '').trim().toLowerCase();
+  if (id) return `/cars/${id}.svg`;
+  const slug = teamSlugFromName((teamName ?? '').trim());
+  return slug ? `/cars/${slug.replace(/-/g, '_')}.svg` : null;
+}

@@ -12,7 +12,7 @@ import {
   PROFILE_MIN_SEASON,
 } from '@/lib/data/entities';
 import { getTeamLore } from '@/data/teams';
-import { teamIconSrc, driverIconSrc } from '@/lib/assets/f1-icons';
+import { teamIconSrc, driverIconSrc, carSrc } from '@/lib/assets/f1-icons';
 import { getSeasonPalette, teamPaletteCssVars } from '@/config/team-colors';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { SITE_NAME } from '@/lib/seo';
@@ -81,7 +81,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   const lore = getTeamLore(constructorId);
   const palette = getSeasonPalette(profile.constructorId || profile.constructorName, season);
   const emblem = teamIconSrc(profile.constructorName, season);
-  const carSrc = `/cars/${profile.constructorId}/${season}.webp`;
+  const car = carSrc(profile.constructorId, profile.constructorName);
   const seasonOptions = seasons.length > 0 ? seasons : [season];
 
   return (
@@ -163,7 +163,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
             style={{ backgroundColor: 'var(--surface)', minHeight: 160 }}
           >
             <SafeImage
-              src={carSrc}
+              src={car ?? ''}
               alt={`${profile.constructorName} ${season} car`}
               width={640}
               height={200}
