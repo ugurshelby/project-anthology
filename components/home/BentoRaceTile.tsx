@@ -35,7 +35,7 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
             <span className="h-2 w-2 animate-pulse rounded-full" style={{ backgroundColor: 'var(--muted)' }} />
             <span
               className="font-condensed text-[11px] uppercase tracking-[0.2em]"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--muted)' }}
             >
               {role}
             </span>

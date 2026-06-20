@@ -64,10 +64,10 @@ export function BentoStandingsTile({
             const teamSrc = teamIconSrc(row.constructorName, season);
 
             const rowClass =
-              'flex h-9 items-center gap-1.5 px-1.5 transition-colors hover:bg-[rgba(255,255,255,0.04)] lg:h-10 lg:gap-2 lg:px-2';
+              'flex h-10 items-center gap-1.5 px-1.5 transition-colors lg:h-11 lg:gap-2 lg:px-2';
             const rowStyle = {
               borderLeft: `3px solid ${color}`,
-              backgroundColor: 'rgba(255,255,255,0.02)',
+              backgroundColor: `color-mix(in srgb, ${color} 8%, #0e0e0e)`,
             };
             const rowInner = (
               <>

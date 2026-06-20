@@ -172,13 +172,13 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                 className="border border-border px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
                 style={{
                   color: active ? 'var(--paper)' : 'var(--muted)',
-                  backgroundColor: active ? 'rgba(255,24,1,0.12)' : 'transparent',
-                  borderColor: active ? 'var(--accent)' : undefined,
+                  backgroundColor: active ? 'rgba(255,255,255,0.07)' : 'transparent',
+                  borderColor: active ? 'var(--border-hover)' : undefined,
                 }}
               >
                 {s}
                 {s === CURRENT_SEASON ? (
-                  <span className="ml-1.5" style={{ color: 'var(--accent)' }}>
+                  <span className="ml-1.5" style={{ color: 'var(--border-hover)' }}>
                     ●
                   </span>
                 ) : null}
@@ -192,7 +192,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
           </p>
         ) : null}
         {fetchError ? (
-          <p className="mt-3 font-mono text-xs" style={{ color: 'var(--accent)' }}>
+          <p className="mt-3 font-mono text-xs" style={{ color: 'var(--muted)' }}>
             {fetchError}
           </p>
         ) : null}
@@ -229,7 +229,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                     className="anthology-card flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-[rgba(255,255,255,0.03)]"
                     style={{
                       borderLeft: `3px solid ${teamColor}`,
-                      backgroundColor: isLeader ? 'rgba(255,24,1,0.06)' : undefined,
+                      backgroundColor: isLeader ? `color-mix(in srgb, ${teamColor} 10%, transparent)` : undefined,
                     }}
                     onClick={() => openDriver(row)}
                     onKeyDown={(e) => {
@@ -241,7 +241,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                   >
                     <span
                       className="w-6 shrink-0 font-mono text-sm"
-                      style={{ color: isLeader ? 'var(--accent)' : 'var(--paper)' }}
+                      style={{ color: isLeader ? teamColor : 'var(--muted)' }}
                     >
                       {row.position}
                     </span>
@@ -318,7 +318,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                             : `${row.driverName}, ${row.constructorName}, ${row.points} points — open details`
                         }
                         className="cursor-pointer transition-colors hover:bg-[rgba(255,255,255,0.03)]"
-                        style={isLeader ? { backgroundColor: 'rgba(255,24,1,0.06)' } : undefined}
+                        style={isLeader ? { backgroundColor: `color-mix(in srgb, ${teamColor} 10%, transparent)` } : undefined}
                         onClick={(e) => {
                           e.currentTarget.focus();
                           openDriver(row);
@@ -333,7 +333,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         <td
                           className="px-4 py-3"
                           style={{
-                            color: isLeader ? 'var(--accent)' : 'var(--paper)',
+                            color: isLeader ? teamColor : 'var(--muted)',
                             borderLeft: `3px solid ${teamColor}`,
                           }}
                         >
@@ -467,7 +467,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               <div>
                 <p
                   className="font-mono text-[10px] uppercase tracking-[0.2em]"
-                  style={{ color: 'var(--accent)' }}
+                  style={{ color: 'var(--muted)' }}
                 >
                   Round {recap.round}
                 </p>
@@ -500,7 +500,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                     className="flex items-center gap-3 border border-border px-4 py-3"
                     style={{ borderLeft: `3px solid ${color}` }}
                   >
-                    <span className="font-display text-2xl" style={{ color: 'var(--accent)' }}>
+                    <span className="font-display text-2xl" style={{ color }}>
                       P{p.position}
                     </span>
                     {driverSrc ? (
@@ -574,7 +574,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
               <Link
                 href={`/season/${year}/round/${Number(recap.round)}`}
                 className="mt-5 inline-block font-condensed text-[10px] uppercase tracking-[0.12em]"
-                style={{ color: 'var(--accent)' }}
+                style={{ color: 'var(--muted)' }}
               >
                 Full Results →
               </Link>
@@ -607,7 +607,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                       >
                         <p
                           className="font-mono text-[10px] uppercase tracking-[0.15em]"
-                          style={{ color: 'var(--accent)' }}
+                          style={{ color: 'var(--muted)' }}
                         >
                           {record.label}
                         </p>
@@ -617,7 +617,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         >
                           {record.holderName}
                         </p>
-                        <p className="mt-0.5 font-mono text-sm" style={{ color: 'var(--accent)' }}>
+                        <p className="mt-0.5 font-mono text-sm" style={{ color: teamColor }}>
                           {record.value}
                           {record.teamName ? (
                             <span className="ml-2 text-xs" style={{ color: 'var(--muted)' }}>
@@ -651,7 +651,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                       >
                         <p
                           className="font-mono text-[10px] uppercase tracking-[0.15em]"
-                          style={{ color: 'var(--accent)' }}
+                          style={{ color: 'var(--muted)' }}
                         >
                           {record.label}
                         </p>
@@ -661,7 +661,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         >
                           {record.holderName}
                         </p>
-                        <p className="mt-0.5 font-mono text-sm" style={{ color: 'var(--accent)' }}>
+                        <p className="mt-0.5 font-mono text-sm" style={{ color: teamColor }}>
                           {record.value}
                         </p>
                       </li>
@@ -706,13 +706,13 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                   <div className="flex items-center justify-between">
                     <span
                       className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                      style={{ color: 'var(--accent)' }}
+                      style={{ color: 'var(--muted)' }}
                     >
                       Round {race.round ?? '—'}
                     </span>
                     <span
                       className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                      style={{ color: done ? 'var(--muted)' : 'var(--accent)' }}
+                      style={{ color: done ? 'var(--border-hover)' : 'var(--paper)' }}
                     >
                       {done ? 'Done' : 'Upcoming'}
                     </span>
