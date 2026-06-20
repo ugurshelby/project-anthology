@@ -22,7 +22,8 @@
 1. `npm run build` → sıfır hata.
 2. Görsel/fonksiyonel değişiklikse: `npx playwright test` → console error / layout shift yok.
 3. `logs/AGENT_{KONU}_{TARIH}.md` yaz.
-4. Commit (açıklayıcı mesaj; büyük adım = ayrı commit).
+4. **`docs/apex-production-plan-20-06-2026.md` güncelle** — tamamlanan görevlerin `[ ]`'ini `[x]` yap. Commit öncesi yapılır, atlanamaz.
+5. Commit (açıklayıcı mesaj; büyük adım = ayrı commit).
 
 ## 5. Engelle, Sorma
 Manuel aksiyon gerekiyorsa (Supabase dashboard, Vercel env, API key vb.):
