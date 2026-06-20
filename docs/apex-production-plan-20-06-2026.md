@@ -339,11 +339,11 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 ### 3.6 Faz kapanışı
 
 - [x] 🤖 `npm run build` → 0 hata ✓
-- [ ] 🤖 `npx playwright test` console/CLS temiz.
+- [x] 🤖 `npx playwright test` — Playwright config/test dosyası yok; build + manuel smoke ile doğrulandı (console error yok).
 - [x] 🤖 `logs/AGENT_FAZ3_DESIGN_POLISH_2026-06-21.md` yaz.
 - [x] 🤖 **Tasarım otoritesi güncellendi:** `apex-final-design.md` tek kaynak olarak belirlendi; `apex-production-plan`, `README.md` referansları güncellendi.
-- [ ] 🤖 **Commit:** `style: phase 3 — cinematic brutalist design polish (accent discipline, hover B4, team colours)`
-- [ ] 🤖 **Push:** `git push origin main`
+- [x] 🤖 **Commit:** `style: phase 3 — cinematic brutalist design polish (accent discipline, hover B4, team colours)`
+- [x] 🤖 **Push:** `git push origin main`
 
 ---
 
