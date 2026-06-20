@@ -163,7 +163,8 @@ Hobby planda günde 1 cron → yarış haftası için **read-layer staleness** v
 | v1.2 açık maddeler | `plans/v1.2-polish.md` |
 | 5FIX planı (EntityDrawer, records) | `docs/plans/PLAN_5FIX_2026-06-08.md` |
 | Agent karar logları | `logs/AGENT_*.md` |
-| Asset layout & pipeline | `docs/ASSETS.md`, `assets/scripts/generate-historical-assets.mjs` |
+| Asset layout & pipeline | `docs/reference/ASSETS.md`, `assets/scripts/generate-historical-assets.mjs` |
+| Docs dizin rehberi | `docs/README.md` |
 | Eksik driver audit | `MISSING_ASSETS.md`, `assets/scripts/audit-missing-assets.ts` |
 | F1 temporal mantık | `lib/f1Calendar.ts` |
 | F1 okuma katmanı | `lib/data/f1.ts`, `lib/f1/snapshotStaleness.ts` |

@@ -1,6 +1,6 @@
 # PLAN — Faz 0: Launch Hazırlığı (2026-06-12)
 
-> Kaynak: `docs/APEX_MASTER_PLAN.md` §2 (Faz 0).
+> Kaynak: `docs/plans/APEX_MASTER_PLAN.md` §2 (Faz 0).
 > Kapsam: SADECE Faz 0. Diğer fazlara geçilmeyecek.
 
 ## Hedef

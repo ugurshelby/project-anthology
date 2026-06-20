@@ -1,6 +1,6 @@
 # PLAN — Faz 3: Pilot & Takım Profil Sayfaları (MVP) — 2026-06-13
 
-> Kaynak: `docs/APEX_MASTER_PLAN.md` §5.
+> Kaynak: `docs/plans/APEX_MASTER_PLAN.md` §5.
 > Kapsam kararı (kullanıcı onayı): **MVP dikey dilim** + **sadece sezon verisi**.
 > Kariyer aggregate (F1DB live), public/cars görselleri, takım merkezi haritası,
 > data/teams + data/drivers statik hikaye metinleri → SONRAKİ dalga (backlog).
