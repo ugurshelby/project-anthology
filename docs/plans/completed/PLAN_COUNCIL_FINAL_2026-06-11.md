@@ -1,6 +1,6 @@
 # PLAN — Council Final Implementation (2026-06-11)
 
-> Kaynak: `docs/council/00-FINAL-PLAN.md` + 01-06 raporları.
+> Kaynak: `docs/archive/council/00-FINAL-PLAN.md` + 01-06 raporları.
 > Kapsam: Tüm KRİTİK maddeler + manuel aksiyon gerektirmeyen ÖNEMLİ/S-efor maddeleri.
 > Manuel işler (Vercel env, Upstash, prod doğrulama) kullanıcıya bırakıldı.
 

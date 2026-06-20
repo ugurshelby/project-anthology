@@ -10,12 +10,12 @@
 | Boyut | Durum | Not |
 |---|---|---|
 | Güvenlik | ✅ 9/10 | Kritik açık yok; CSP nonce backlog |
-| SEO | ⚠️ 7/10 | noindex header preview URL'e sızıyor — production'da doğrula; metadata tamam |
+| SEO | ✅ 9/10 | Tüm metadata tamamlandı |
 | Mimari | ✅ 9/10 | DB-first snapshot, fallback testli |
 | Test | ✅ 8.5/10 | 43 test geçiyor |
-| Performans | ⚠️ 7/10 | Lighthouse ölçüldü: Perf 65-70, SEO 69 (noindex bug), Best Pract 92, A11y 96-100 |
-| Tasarım bütünlüğü | ✅ 9/10 | Mobil bottom nav + responsive season table (`f442c8a`) |
-| Ürün değeri | ✅ 8/10 | Pilot/takım profil sayfaları + grid (`0d4b41c`) |
+| Performans | ⚠️ 8/10 | Lighthouse prod ölçümü yapılmadı |
+| Tasarım bütünlüğü | ⚠️ 8.5/10 | Mobil nav backlog'da |
+| Ürün değeri | ⚠️ 7.5/10 | Profil sayfaları ve arama yok |
 
 **Eski plan dosyaları silinecek:**
 ```
@@ -26,31 +26,23 @@ YOL_HARITASI.md → bu dosya yerini aldı
 
 ---
 
-## 1. Acil Manuel Aksiyonlar — TAMAMLANDI ✅
+## 1. Acil Manuel Aksiyonlar (Senden Beklenen)
 
-| # | İş | Durum | Not |
-|---|---|---|---|
-| M1 | `git push origin main` | ✅ | `ded3824` — origin/main ile senkron |
-| M2 | Vercel → `CRON_SECRET` env ekle → Redeploy | ✅ | All Environments, updated 2026-06-12 |
-| M3 | Cron sync-f1 manuel tetik → 200 | ✅ | 18 upsert, 0 hata, 20.6s |
-| M4 | Lighthouse Mobile ölçümü | ✅ | Sonuçlar `logs/lighthouse/` klasöründe |
-| M5 | Domain alma | ⏳ | Ertelendi — şimdilik Vercel subdomain yeterli |
-| M6 | Haber görsel kararı | ✅ | Mevcut strateji korunuyor: RSS kaynaklarından gelen görsel URL'leri aynen kullanılır |
+Bu adımlar yapılmadan hiçbir sprint başlatılmaz.
 
-### M4 Lighthouse Baseline (2026-06-12, Mobile, Preview URL)
+| # | İş | Nerede |
+|---|---|---|
+| M1 | `git push origin main` | Terminal |
+| M2 | Vercel → Env → `CRON_SECRET` ekle (değer = mevcut `CRON_SECRET_KEY`) → Redeploy | vercel.com |
+| M3 | Deploy sonrası: `curl.exe -H "Authorization: Bearer VALUE" ".../api/cron/sync-f1?scope=season"` → 200 dönmeli | Terminal |
+| M4 | Chrome → Lighthouse → Mobile → `/` ve `/season` → skoru kaydet | Tarayıcı |
+| M5 | `apex.racing` veya benzeri domain al → Vercel bağla → `PROD_SITE_URL` güncelle | Domain kayıt |
+| M6 | **Haber görsel kararı ver** (aşağıdaki seçeneklerden biri): | — |
 
-| Sayfa | Perf | A11y | Best Pract. | SEO | LCP | TBT | CLS |
-|---|---|---|---|---|---|---|---|
-| `/` | 65 | 100 | 92 | 69 | 3.2 s | 1,300 ms | 0 |
-| `/season` | 70 | 96 | 92 | 69 | 2.3 s | 1,770 ms | 0 |
-| `/news` | 65 | 100 | 92 | 69 | 3.7 s | 1,190 ms | 0 |
-
-**Tespit edilen sorunlar (öncelik sırasıyla):**
-
-1. **SEO 69 — `x-robots-tag: noindex`** → Preview URL'de middleware noindex header gönderiyor. Production URL'de (`project-anthology-five.vercel.app`) doğrulanması gerekiyor. Faz 0'da fix.
-2. **Perf 65-70 — TBT yüksek (1,190–1,770 ms)** → `_next/static/chunks/2gauvx3zirkbg.js` chunk'ı her sayfada 1,000-1,300ms JS evaluation + 114-117KB unused JS. Büyük ihtimalle Framer Motion veya benzeri büyük library lazy load edilmiyor. Faz 5 sonrası ele alınacak.
-3. **Best Practices 92 — `data:` URI CSP violation** → `next.config.ts` CSP'de `data:` izni yok. Faz 0'da fix.
-4. **Best Practices 92 — Source maps yok** → Production için normal, dokunulmayacak.
+**Haber görsel seçeneği:**
+- **A** — Sadece BBC (ichef.bbci.co.uk) → diğerleri görsel
+- **B** — Hiç dış görsel yok → tipografik fallback kart
+- **C** — Takım rengi + harf placeholder (önerilen — telif riski sıfır)
 
 ---
 
@@ -85,9 +77,9 @@ News kartlarında dış görsel hotlink stratejisini M6 kararına göre uygula.
 
 ---
 
-## 3. Faz 1 — Mobil Web (Cursor — M) ✅
+## 3. Faz 1 — Mobil Web (Cursor — M)
 
-**Karar:** DESIGN_SYSTEM spec gerçek IA'ya güncellendi (Home / Season / Circuits / Anthology / More → News, Glossary). **Commit:** `f442c8a`.
+**Karar gereken:** DESIGN_SYSTEM spec (Home/Season/Circuits/Radio/More) vs gerçek IA (Anthology/News/Circuits/Season/Glossary). **Öneri: Spec'i gerçek IA'ya güncelle, sonra kodla.**
 
 ### Cursor prompt:
 ```
@@ -102,20 +94,11 @@ Commit: "feat: mobile bottom nav + responsive season table"
 ```
 
 ### Mobil checklist:
-- [x] Touch target min 44px
-- [x] Bottom nav spec ile IA uyumlu
-- [x] Sezon tablosu mobilde okunabilir
-- [x] `--mobile-nav-height` token kullanılıyor
-- [x] Tüm animasyonlar reduced-motion uyumlu
-
-### Odometer countdown (Cursor — S) ✅
-
-Home BentoCountdown + circuit detay sayacı — mekanik dikey kaydırma (`OdometerDigit`), üç durumlu `RaceCountdown` (countdown / live 4h / completed), `getLiveOrNextRace`. **Commit:** `feat: odometer countdown — mechanical scroll digit animation, circuit page integration`.
-
-- [x] Home tile embedded countdown
-- [x] Circuit sayfası yaklaşan yarış koşullu sayaç
-- [x] `prefers-reduced-motion` anında swap
-- [x] Kilit flash kaldırıldı (mekanik his)
+- [ ] Touch target min 44px
+- [ ] Bottom nav spec ile IA uyumlu
+- [ ] Sezon tablosu mobilde okunabilir
+- [ ] `--mobile-nav-height` token kullanılıyor
+- [ ] Tüm animasyonlar reduced-motion uyumlu
 
 ---
 
@@ -133,9 +116,7 @@ Commit: "feat: PWA manifest and service worker"
 
 ---
 
-## 5. Faz 3 — Pilot & Takım Profil Sayfaları ✅
-
-**Commit:** `0d4b41c` — `feat: driver and team profile pages + EntityDrawer navigation refactor`
+## 5. Faz 3 — Pilot & Takım Profil Sayfaları ★ YENİ
 
 **Bu fazın önceliği yüksek — YOL_HARITASI'ndaki değer 9/10.**
 
@@ -300,7 +281,7 @@ APEX pilot ve takım profil sayfaları sprintı.
 Önce oku: pre-plans/DESIGN_SYSTEM.md, docs/ASSETS.md,
 config/team-colors.ts, lib/assets/f1-icons.ts
 
-## Aşama 1 — Sezon bazlı renk paleti altyapısı ✅
+## Aşama 1 — Sezon bazlı renk paleti altyapısı
 config/team-colors.ts'e SeasonPalette interface'i ekle.
 Mevcut 2026 renkleri primary/secondary/accent olarak yeniden yapılandır.
 Seçilmiş 5 takım için tarihsel palette ekle (en az 3 farklı dönem):
@@ -308,7 +289,7 @@ McLaren, Ferrari, Mercedes, Red Bull, Williams.
 CSS custom property sistemi: --team-primary, --team-secondary, --team-accent
 Commit: "feat: season-aware team color palette system"
 
-## Aşama 2 — Takım profil sayfası ✅
+## Aşama 2 — Takım profil sayfası
 app/teams/[constructorId]/page.tsx oluştur (RSC).
 Hero: 60-30-10 renk kuralı (design-anayasa.md oku), lüks atmospheric hero.
 İçerik: sezon seçici, standings, o sezon pilotlar, istatistikler, haberler (3 kart).
@@ -317,7 +298,7 @@ motion narrative: sezon değişince CSS variables 800ms geçiş; reduced-motion 
 generateMetadata: canonical, OG, twitter.
 Commit: "feat: team profile page with season-aware colors"
 
-## Aşama 3 — Pilot profil sayfası ✅
+## Aşama 3 — Pilot profil sayfası
 app/drivers/[driverId]/page.tsx oluştur (RSC).
 Hero: büyük pilot numarası glassmorphism + gradient (--team-secondary → --team-accent).
 Numara opacity 0.15 arka plan + üstte tam renk versiyon.
@@ -326,7 +307,7 @@ Sezon değişince numara + renkler motion narrative ile güncellenir.
 İçerik: sezon seçici, o sezon stats, kariyer özeti, takım geçmişi, haberler (3 kart).
 Commit: "feat: driver profile page with dynamic team colors"
 
-## Aşama 4 — Grid sayfaları ✅
+## Aşama 4 — Grid sayfaları
 app/drivers/page.tsx — 22 pilot grid, güncel sezon.
 app/teams/page.tsx — 11 takım grid, güncel sezon.
 Her kart hover'da takım rengi border-left glow.
@@ -334,7 +315,7 @@ Navbar'a "Drivers" ve "Teams" linkleri ekle veya mevcut Season altına dropdown.
 DESIGN_SYSTEM.md güncelle: yeni sayfalar ve renk sistemi belgelensin.
 Commit: "feat: drivers and teams grid pages + navbar update"
 
-## Aşama 5 — Mevcut season/EntityDrawer entegrasyonu ✅
+## Aşama 5 — Mevcut season/EntityDrawer entegrasyonu
 SeasonExplorer'daki pilot/takım satırları /drivers/[id] ve /teams/[id]'ye link olsun.
 EntityDrawer yerine sayfa açılsın (yeni sekme değil, normal navigasyon).
 Home bento'daki standings pill'leri de aynı link mantığı.
@@ -484,7 +465,7 @@ Commit: "feat: lights-out countdown animation"
 | Motion narrative | Sezon değişince takım rengi 800ms CSS variable geçişi |
 | Glassmorphism 2.0 | Pilot numarası hero: backdrop-blur + gradient overlay |
 | Tabular nums | `font-variant-numeric: tabular-nums` — tüm sayaç ve tablo |
-| Mikro etkileşimler | OdometerDigit + RaceCountdown ✅, AnimatedBar, TiltCard, CalendarScroller |
+| Mikro etkileşimler | FlipDigit, AnimatedBar, TiltCard, CalendarScroller |
 | Hiç stok fotoğraf | Kasklı büst SVG; soyut amblem; pist SVG — hepsi özgün üretim |
 | Performans = tasarım | will-change disiplini; LCP priority; ISR/dynamic dengesi |
 
@@ -540,15 +521,15 @@ Commit: "chore: archive completed council plan files"
 Hafta 1:
   M1-M6 Manuel aksiyonlar                              [sen]
   Faz 0: Disclaimer + haber görsel                     [Claude Code, S]
-  Faz 1: Mobil nav + responsive ✅                     [Cursor, M]
+  Faz 1: Mobil nav + responsive                        [Cursor, M]
 
 Hafta 2:
-  Faz 2: PWA ✅ (`f140758`)                                   [Claude Code, S]
-  Faz 3, Aşama 1-2: Renk paleti + takım sayfası ✅            [Claude Code, M]
+  Faz 2: PWA                                           [Claude Code, S]
+  Faz 3, Aşama 1-2: Renk paleti + takım sayfası        [Claude Code, M]
 
 Hafta 3:
-  Faz 3, Aşama 3-4: Pilot sayfası + grid'ler ✅               [Claude Code, M]
-  Faz 3, Aşama 5: EntityDrawer → sayfa nav ✅                 [Claude Code, S]
+  Faz 3, Aşama 3-4: Pilot sayfası + grid'ler           [Claude Code, M]
+  Faz 3, Aşama 5: EntityDrawer → sayfa nav             [Claude Code, S]
 
 Hafta 4:
   Faz 4: Pilot büst + amblem + pist animasyon           [Cursor, M]
