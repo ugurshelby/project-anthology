@@ -3,6 +3,15 @@ import { notFound } from 'next/navigation';
 import { getDriverProfile, getDriverSeasons, getDriverCareer } from '@/lib/data/entities';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { SITE_NAME } from '@/lib/seo';
+import { teamThemeVars } from '@/lib/theme';
+import { driverIconSrc } from '@/lib/assets/f1-icons';
+import { getDriverLore } from '@/data/drivers';
+import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
+import { BentoCard } from '@/components/bento/BentoCard';
+import { StatBlock } from '@/components/bento/StatBlock';
+import { StatTrio } from '@/components/bento/StatTrio';
+import { ProfileHero } from '@/components/profile/ProfileHero';
+import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,7 +53,71 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   ]);
 
   if (!profile) notFound();
-  void { profile, seasons, career };
+  void seasons;
 
-  return <main id="main-content">{profile.driverName}</main>;
+  const theme = teamThemeVars(profile.constructorId, season);
+  const lore = getDriverLore(profile.driverId);
+  const portrait = driverIconSrc(profile.driverCode, profile.driverId, season);
+
+  const dossier = [
+    { label: 'Number', value: lore?.number != null ? String(lore.number) : '—' },
+    { label: 'Team', value: profile.constructorName },
+    { label: 'GP Starts', value: career.seasons ? String(career.seasons) : '—' },
+    { label: 'Career Wins', value: String(career.wins) },
+    { label: 'Career Podiums', value: String(career.podiums) },
+    { label: 'Best Finish', value: career.bestPosition != null ? `P${career.bestPosition}` : '—' },
+  ];
+
+  return (
+    <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12">
+      <ProfileHero
+        kicker={`${profile.constructorName} · ${season}`}
+        title={profile.driverName}
+        meta={`P${profile.position} · ${profile.points} PTS`}
+        bigNumber={lore?.number != null ? String(lore.number) : null}
+        imageSrc={portrait}
+        imageAlt={profile.driverName}
+        imageKind="portrait"
+      />
+
+      <div className="mt-6">
+        <BentoGrid>
+          <BentoCard span={4}>
+            <StatTrio
+              items={[
+                { value: profile.wins, label: 'Wins' },
+                { value: profile.podiums, label: 'Podiums' },
+                { value: career.championships, label: 'Titles' },
+              ]}
+            />
+          </BentoCard>
+
+          <BentoCard span={4}>
+            <StatBlock value={`P${profile.position}`} label="Season Standing" sublabel={`${profile.points} PTS`} size="md" accent />
+          </BentoCard>
+
+          <BentoCard span={4}>
+            <StatBlock value={career.points} label="Career Points" size="md" />
+          </BentoCard>
+
+          <BentoCard span={6}>
+            <span className="label-caps mb-3 block text-text-mid">Technical Dossier</span>
+            <TechnicalDossier entries={dossier} />
+          </BentoCard>
+
+          <BentoCard span={6}>
+            <span className="label-caps mb-3 block text-text-mid">Career</span>
+            <TechnicalDossier
+              entries={[
+                { label: 'Seasons', value: String(career.seasons) },
+                { label: 'Championships', value: String(career.championships) },
+                { label: 'Wins', value: String(career.wins) },
+                { label: 'Podiums', value: String(career.podiums) },
+              ]}
+            />
+          </BentoCard>
+        </BentoGrid>
+      </div>
+    </main>
+  );
 }

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monaco's Shadow - Apex Anthology</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#930100",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-surface-variant": "#e9bcb5",
+                        "on-secondary-container": "#b4b5b5",
+                        "inverse-surface": "#e5e2e1",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "surface-bright": "#3a3939",
+                        "surface-variant": "#353534",
+                        "surface-tint": "#ffb4a8",
+                        "background": "#131313",
+                        "on-primary-fixed": "#410000",
+                        "tertiary-container": "#0060f9",
+                        "surface-container-high": "#2a2a2a",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-surface": "#e5e2e1",
+                        "on-primary-container": "#ffece9",
+                        "secondary-container": "#454747",
+                        "on-background": "#e5e2e1",
+                        "inverse-primary": "#c00000",
+                        "on-tertiary-fixed": "#00174b",
+                        "primary-fixed": "#ffdad4",
+                        "on-secondary-fixed-variant": "#454747",
+                        "outline": "#af8781",
+                        "tertiary-fixed": "#dbe1ff",
+                        "surface-container-low": "#1c1b1b",
+                        "on-tertiary-container": "#edefff",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#003ea7",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-secondary": "#2f3131",
+                        "on-primary": "#690000",
+                        "on-tertiary": "#002a77",
+                        "inverse-on-surface": "#313030",
+                        "secondary": "#c6c6c7",
+                        "surface-dim": "#131313",
+                        "outline-variant": "#5e3f3a",
+                        "surface-container": "#201f1f",
+                        "surface": "#131313",
+                        "primary-container": "#dc0000",
+                        "primary": "#ffb4a8",
+                        "secondary-fixed": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "container-max": "1440px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "data-tabular": ["JetBrains Mono"],
+                        "display-hero-mobile": ["Barlow Condensed"],
+                        "headline-lg": ["Barlow Condensed"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-hero": ["Barlow Condensed"],
+                        "headline-md": ["Barlow Condensed"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "display-hero-mobile": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-hero": ["120px", { "lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0a0a0a;
+            color: #e5e2e1;
+        }
+        .drop-cap::first-letter {
+            float: left;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 5rem;
+            line-height: 4rem;
+            padding-top: 0.5rem;
+            padding-right: 0.5rem;
+            font-weight: 700;
+            color: #e5e2e1;
+        }
+        .gradient-overlay {
+            background: linear-gradient(to top, rgba(10, 10, 10, 1) 0%, rgba(10, 10, 10, 0.4) 50%, rgba(10, 10, 10, 0) 100%);
+        }
+        .text-max-width {
+            max-width: 75ch;
+            margin-inline: auto;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .custom-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen pb-24 md:pb-0 custom-scrollbar">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/20 flex justify-between items-center px-margin-mobile h-16 w-full">
+<button class="text-on-surface hover:opacity-80 transition-opacity active:scale-95 transition-transform p-2 -ml-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-display-hero-mobile text-[24px] uppercase tracking-tighter text-on-surface">APEX</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden border border-outline-variant/20 hover:opacity-80 transition-opacity active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<article class="relative w-full h-[85vh] min-h-[600px] flex flex-col justify-end">
+<div class="absolute inset-0 z-0">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCA9YJwv1qYlCm0cRDqsH1bbv2Oyh_xquJmLsxDEKg_cifEqoDOtUveRixsCXIYQ1OgnSHlYKtfVi0F-Hf3y9wceQZ1BhCrr9_I-03F9t-SR0AFBr0sT94yjjbcPe2G4wJh_BfQNm1WJZDUXctVpaDxJpzdHkSPHjMCHGjKTKZ2t8EiojkhL_GNiHJG2htNvuleuv4czqK6zVViKOB07gKyfjVdFTiTDX_rPQ_lwcGM4ELdVnSFYMg_mwVWAMX5td5Y2BsX7VwkIha4"/>
+<div class="absolute inset-0 gradient-overlay"></div>
+</div>
+<div class="relative z-10 px-margin-mobile pb-12 w-full text-center">
+<span class="block font-label-caps text-label-caps text-primary-container mb-4 tracking-widest">THE ANTHOLOGY · VOL. 14</span>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-on-surface uppercase mb-6 leading-none">MONACO'S SHADOW</h1>
+<span class="block font-data-tabular text-data-tabular text-on-surface-variant opacity-80">BY ELIAS VANCE · 8 MIN READ</span>
+</div>
+</article>
+<!-- Body Content -->
+<section class="px-margin-mobile py-16 space-y-12 text-max-width">
+<!-- Opening Paragraph -->
+<p class="font-body-lg text-body-lg text-on-surface/90 drop-cap leading-relaxed">
+                The air in the principality doesn't circulate; it hangs. It's thick with the scent of unburnt fuel, salt spray from the harbor, and an unmistakable, palpable tension. Every driver knows the feeling. It starts at Sainte Devote, a tightening in the chest that doesn't release until the checkered flag waves. You don't drive Monaco; you survive it.
+            </p>
+<p class="font-body-md text-body-md text-on-surface/80 leading-relaxed">
+                For seventy-eight laps, the margin for error is effectively zero. A twitch of the steering wheel, a fraction of a millimeter too late on the brakes, and the unforgiving Armco barriers claim another victim. The glamour on the yachts is a stark contrast to the brutal reality inside the cockpit, where temperatures soar and the physical demands are relentless.
+            </p>
+<!-- Section Header -->
+<div class="pt-8 pb-4">
+<h2 class="font-headline-lg text-headline-lg text-on-surface uppercase tracking-tight">THE RAZOR'S EDGE</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface/80 leading-relaxed">
+                Qualifying is where the true narrative of the weekend is written. It's a frantic, desperate scramble for track position on a circuit where overtaking is a near-mythological feat. The sequence through the Swimming Pool chicane is a testament to trust—trust in aerodynamics, trust in reflexes, and a blind faith that the car will stick.
+            </p>
+<!-- Full-bleed Image with Caption -->
+<figure class="w-screen relative left-1/2 -translate-x-1/2 my-12">
+<img alt="" class="w-full h-auto object-cover max-h-[70vh]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqZmAIKbdAzlddkIXsdu2rlOmnYZvltV9q66z2wxf4JHOm-s8VXtHdu9DuCzbf4hK4CPjn2llFU5gZ-LzOvo3eQoTcC5W9X5qeFY8lRcW13Cl82PthI9I6-ucNCrpGlf-3uceJNosRZwWnEDCU549vaSl7M3Er6f2arNsVoiOEx2U89YVdvxKyCuc4ECjUYu3gUGQC9T9UpfINB5OwWysxm6lYCDFw50CC1VQ1LPul1ZpF4qyWGUCehBh1Ls7uuQPmwmsCsedxoQr8"/>
+<figcaption class="px-margin-mobile py-4 font-data-tabular text-data-tabular text-on-surface-variant/60 text-right tracking-wider">
+                    0.2 SECONDS FROM DISASTER.
+                </figcaption>
+</figure>
+<p class="font-body-md text-body-md text-on-surface/80 leading-relaxed">
+                It's in the final sector, plunging downhill through the darkness of the tunnel and erupting into the blinding Mediterranean sunlight, that the senses are truly assaulted. The speed delta is jarring. The braking zone for the Nouvelle Chicane is notoriously bumpy, requiring an unsettling amount of lock just to keep the car pointing straight before the turn-in.
+            </p>
+<!-- Pull Quote -->
+<blockquote class="my-16 pl-6 border-l-[3px] border-primary-container">
+<p class="font-headline-md text-headline-md text-on-surface uppercase leading-tight">
+                    IN MONACO, THE WALLS DON'T JUST CLOSE IN; THEY WHISPER.
+                </p>
+</blockquote>
+<p class="font-body-md text-body-md text-on-surface/80 leading-relaxed">
+                When you're pushing the absolute limit, shaving millimeters off the barriers, the feedback through the chassis becomes an entirely different language. It's no longer just telemetry; it's instinct. The shadow of the previous lap looms over the next, demanding perfection.
+            </p>
+<!-- Data Interlude -->
+<div class="my-12 py-8 flex justify-center items-center">
+<div class="border border-outline-variant/30 rounded-lg p-6 bg-surface-container-lowest/50 text-center">
+<span class="block font-label-caps text-label-caps text-on-surface-variant mb-2">SECTOR 2 DELTA</span>
+<span class="block font-data-tabular text-[24px] text-primary-container font-bold">+0.042</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface/80 leading-relaxed">
+                As the shadows lengthen across Casino Square, the grip levels change, the track evolves, and the psychological battle intensifies. Those remaining few tenths of a second aren't found in the car's setup; they are extracted from the driver's absolute refusal to yield to the concrete.
+            </p>
+<!-- End Mark -->
+<div class="flex justify-center items-center py-12">
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+</section>
+<!-- Next In Anthology -->
+<section class="px-margin-mobile pb-24 border-t border-outline-variant/10 pt-12">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-6 tracking-widest text-center">NEXT IN THE ANTHOLOGY</h3>
+<a class="block group relative overflow-hidden rounded-xl border border-outline-variant/20 aspect-[16/9] w-full" href="#">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A cinematic, low-angle shot of a rainy night race in Singapore. Glaring stadium lights reflecting off the wet, dark asphalt. A blurred race car speeding past, leaving a trail of water spray. High contrast, neon accents, immersive and gritty atmosphere." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC3JyxKCXuT0iiBaz261unMWhjBXpY_1tJUOXZrNqU2icqvFdOW1e5UtfAsFD8d13DcMpZe8kJa-x4Vg7JHPN8XuNy9gvBgEW7OgYZKgpPWwcB8Dm24aHjAL5BoP2UVB9NgGG8sRNLMkwHl7WlvnXZQWhC2Ss8DX_99kQDH_AVXYrk92TiNjqj3YkR0SDNHnUWlELzLS4gG0pA6t2xzGbLJgbYbsSlKREibpM__AFOKd_omJfnYjD9jyZAIldKo0sqTw9Vcmb2hDd__')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent"></div>
+<div class="absolute inset-0 p-6 flex flex-col justify-end">
+<span class="font-label-caps text-label-caps text-secondary-fixed mb-2">VOL. 15</span>
+<h4 class="font-headline-md text-[28px] text-on-surface uppercase leading-none group-hover:text-primary transition-colors">THE MARINA BAY DELUGE</h4>
+</div>
+</a>
+</section>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 backdrop-blur-lg border-t border-outline-variant/10 shadow-2xl flex justify-around items-center py-4 px-margin-mobile pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-on-surface transition-colors active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-caps text-label-caps text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-on-surface transition-colors active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 0;">leaderboard</span>
+<span class="font-label-caps text-label-caps text-[10px]">Season</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-on-surface transition-colors active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 0;">sports_motorsports</span>
+<span class="font-label-caps text-label-caps text-[10px]">Drivers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary fill-primary active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-caps text-label-caps text-[10px]">Anthology</span>
+</a>
+</nav>
+</body></html>

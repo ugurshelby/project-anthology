@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KIMI ANTONELLI | APEX FORMULA 1</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-primary-fixed": "#410000",
+                "tertiary-container": "#0060f9",
+                "surface": "#06100f",
+                "primary-fixed-dim": "#ffb4a8",
+                "error": "#ffb4ab",
+                "inverse-primary": "#c00000",
+                "surface-dim": "#06100f",
+                "surface-container-high": "#2a2a2a",
+                "on-secondary-container": "#b4b5b5",
+                "on-primary-container": "#ffece9",
+                "on-background": "#e5e2e1",
+                "on-primary-fixed-variant": "#930100",
+                "surface-container-lowest": "#0e0e0e",
+                "primary": "#00D2BE",
+                "surface-container-highest": "#353534",
+                "on-tertiary-fixed-variant": "#003ea7",
+                "tertiary-fixed": "#dbe1ff",
+                "inverse-on-surface": "#313030",
+                "secondary-fixed-dim": "#c6c6c7",
+                "tertiary": "#b4c5ff",
+                "surface-variant": "#353534",
+                "secondary": "#C0C0C0",
+                "on-primary": "#000000",
+                "inverse-surface": "#e5e2e1",
+                "primary-container": "#00D2BE",
+                "outline": "#af8781",
+                "on-tertiary": "#002a77",
+                "background": "#06100f",
+                "secondary-fixed": "#e2e2e2",
+                "outline-variant": "#5e3f3a",
+                "on-secondary-fixed-variant": "#454747",
+                "error-container": "#93000a",
+                "secondary-container": "#454747",
+                "surface-bright": "#3a3939",
+                "surface-container": "#141414",
+                "on-error": "#690005",
+                "surface-container-low": "#1c1b1b",
+                "on-tertiary-fixed": "#00174b",
+                "on-secondary-fixed": "#1a1c1c",
+                "tertiary-fixed-dim": "#b4c5ff",
+                "on-error-container": "#ffdad6",
+                "on-surface-variant": "#e9bcb5",
+                "on-surface": "#e5e2e1",
+                "on-tertiary-container": "#edefff",
+                "on-secondary": "#2f3131",
+                "surface-tint": "#00D2BE",
+                "primary-fixed": "#ffdad4"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "margin-mobile": "20px",
+                "container-max": "1440px",
+                "margin-desktop": "64px",
+                "unit": "4px",
+                "gutter": "24px"
+              },
+              "fontFamily": {
+                "label-caps": ["JetBrains Mono"],
+                "display-hero-mobile": ["Barlow Condensed"],
+                "headline-lg": ["Barlow Condensed"],
+                "data-tabular": ["JetBrains Mono"],
+                "body-lg": ["Inter"],
+                "display-hero": ["Barlow Condensed"],
+                "body-md": ["Inter"],
+                "headline-md": ["Barlow Condensed"]
+              },
+              "fontSize": {
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                "display-hero-mobile": ["64px", {"lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "headline-lg": ["48px", {"lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                "data-tabular": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "display-hero": ["120px", {"lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-md": ["32px", {"lineHeight": "36px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-card {
+            background-color: #141414;
+            border: 1px solid #262626;
+            border-radius: 16px;
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover {
+            border-color: #00D2BE;
+            background-color: #1a1a1a;
+        }
+        .teal-glow {
+            background: radial-gradient(circle at center, rgba(0, 210, 190, 0.1) 0%, transparent 70%);
+        }
+        .nav-blur {
+            background-color: rgba(19, 19, 19, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .line-chart-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s ease-in-out forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+        .condensed-tall {
+            font-family: 'Barlow Condensed', sans-serif;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full bg-surface/60 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/50 flex justify-between items-center px-margin-desktop py-4 z-50">
+<div class="font-display-hero text-headline-md tracking-tighter text-on-surface">APEX</div>
+<nav class="hidden md:flex gap-8">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" href="#">Season</a>
+<a class="font-body-md text-body-md text-primary font-bold border-b-2 border-primary pb-1 cursor-pointer" href="#">Drivers</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" href="#">Teams</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" href="#">Circuits</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" href="#">News</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" href="#">Anthology</a>
+</nav>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined cursor-pointer hover:bg-white/5 p-2 rounded-full transition-all">search</span>
+<span class="material-symbols-outlined cursor-pointer hover:bg-white/5 p-2 rounded-full transition-all">account_circle</span>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-desktop max-w-container-max mx-auto">
+<!-- Hero Section -->
+<section class="relative grid grid-cols-1 md:grid-cols-12 gap-gutter mb-12 items-end">
+<div class="md:col-span-7 pb-8 relative z-10">
+<div class="flex items-center gap-6 mb-6 font-data-tabular text-[13px] tracking-widest text-secondary/60">
+<span class="font-bold text-secondary">MERCEDES-AMG PETRONAS</span>
+<div class="flex items-center gap-3">
+<img class="w-5 h-3 object-cover rounded-sm grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABDre--3BQxvYGSsXMbpQUpHCAtenAQIkE8XxgL-hwZtiv6nWdgV3WHBZgFLe76fx8ajbns1D38Yo1xU5HJsqLBmR0Fhjh_PhRohRQgF515QEAws71VblhU50zI9dciKKnzIEAlA0EkGA9yMUswoGpZ1qEcJkgGppG_UIsKh2zWOEI4u02SWHO1-9rSppf0yGo_0dxCCKE48Uh7NJ8GNsVtHxOTA8HNBpM170TCeMMqH3Pc3AjArYDS7CiY0QXFF3QiLtEUXhKhd9j"/>
+<span>ITALY</span>
+</div>
+<span>AGE 19</span>
+</div>
+<h2 class="relative">
+<span class="block condensed-tall text-primary/10 text-[200px] leading-[0.7] -mb-4 -ml-2">12</span>
+<span class="block condensed-tall text-7xl md:text-[100px] text-white leading-[0.85] tracking-tighter">
+                    KIMI<br/>ANTONELLI
+                </span>
+</h2>
+<div class="h-1.5 w-24 bg-primary mt-10"></div>
+</div>
+<div class="md:col-span-5 relative flex justify-center items-end -mb-12">
+<div class="absolute inset-0 teal-glow -z-10 translate-y-20"></div>
+<img alt="Andrea Kimi Antonelli" class="w-full max-w-md md:max-w-xl object-contain drop-shadow-[0_20px_50px_rgba(0,210,190,0.2)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq1W_eZsz6KssL0aHp2W1R4TkjLuhd2BDm2nfMPjSNxP-azuXu3SEpUeujRe_ianH7WyaN0x7r8h8qQwOAx57mtMQu4Wwi_3HqbjWgCbBD9n7MYVmtjQjzPhVxIMTq9msWoQ_N0Qa1PZiG2l38dHxIIivUQB_0nwI3Uk5ONiKchXCGLpmEgRKkfcHTmKbPinDtTBv-91bRqFN4OurFuqI_jV2D8rypfDjiUs-02gfvZnWsUxbCvmuqhb_4u_NUSg-OmcwdTQMiHW02"/>
+</div>
+</section>
+<!-- Bento Grid Stats -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Trio Stats -->
+<div class="md:col-span-4 grid grid-cols-3 gap-gutter bento-card p-gutter">
+<div class="flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-on-secondary-container mb-2">WINS</span>
+<span class="condensed-tall text-5xl text-white">1</span>
+</div>
+<div class="flex flex-col items-center border-x border-white/5">
+<span class="font-label-caps text-label-caps text-on-secondary-container mb-2">PODIUMS</span>
+<span class="condensed-tall text-5xl text-white">6</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-on-secondary-container mb-2">POLES</span>
+<span class="condensed-tall text-5xl text-white">2</span>
+</div>
+</div>
+<!-- Season Standings -->
+<div class="md:col-span-4 bento-card p-gutter flex justify-between items-center relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div>
+<span class="font-label-caps text-label-caps text-on-secondary-container block mb-1 uppercase">Season Standing</span>
+<span class="condensed-tall text-5xl text-white">P6</span>
+</div>
+<div class="text-right">
+<span class="font-label-caps text-label-caps text-on-secondary-container block mb-1 uppercase">Points</span>
+<span class="condensed-tall text-5xl text-primary">97</span>
+</div>
+</div>
+<!-- Career Points Chart -->
+<div class="md:col-span-4 bento-card p-gutter flex flex-col">
+<span class="font-label-caps text-label-caps text-on-secondary-container mb-4 uppercase">Career Progression</span>
+<div class="flex-grow flex items-end gap-2 h-24">
+<svg class="w-full h-full overflow-visible" viewbox="0 0 200 60">
+<path class="line-chart-path" d="M0 55 L40 45 L80 48 L120 30 L160 25 L200 10" fill="none" stroke="#00D2BE" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="200" cy="10" fill="#00D2BE" r="4"></circle>
+</svg>
+</div>
+<div class="flex justify-between mt-2 font-data-tabular text-data-tabular text-on-secondary-container">
+<span>2021</span>
+<span>2022</span>
+<span>2023</span>
+<span>2024</span>
+<span>2025</span>
+<span class="text-primary font-bold">2026</span>
+</div>
+</div>
+<!-- Season Form Wide -->
+<div class="md:col-span-8 bento-card p-gutter">
+<span class="font-label-caps text-label-caps text-on-secondary-container mb-6 block uppercase">Season Form (Last 5)</span>
+<div class="grid grid-cols-5 gap-4">
+<!-- Form Item P1 -->
+<div class="bg-white/5 p-4 py-6 rounded-xl border border-white/5 flex flex-col items-center justify-between min-h-[140px] text-center">
+<span class="material-symbols-outlined text-primary text-xl">flag</span>
+<span class="condensed-tall text-4xl text-white leading-none">P1</span>
+<span class="font-label-caps text-[10px] text-on-secondary-container whitespace-nowrap">BRITISH GP</span>
+</div>
+<!-- Form Item P4 -->
+<div class="bg-white/5 p-4 py-6 rounded-xl border border-white/5 flex flex-col items-center justify-between min-h-[140px] text-center">
+<span class="material-symbols-outlined text-secondary text-xl">trending_flat</span>
+<span class="condensed-tall text-4xl text-white leading-none">P4</span>
+<span class="font-label-caps text-[10px] text-on-secondary-container whitespace-nowrap">SPANISH GP</span>
+</div>
+<!-- Form Item DNF -->
+<div class="bg-white/5 p-4 py-6 rounded-xl border border-white/10 flex flex-col items-center justify-between min-h-[140px] text-center">
+<span class="material-symbols-outlined text-secondary/30 text-xl">cancel</span>
+<span class="condensed-tall text-4xl text-secondary/40 leading-none">DNF</span>
+<span class="font-label-caps text-[10px] text-on-secondary-container whitespace-nowrap">MONACO GP</span>
+</div>
+<!-- Form Item P2 -->
+<div class="bg-white/5 p-4 py-6 rounded-xl border border-white/5 flex flex-col items-center justify-between min-h-[140px] text-center">
+<span class="material-symbols-outlined text-primary text-xl">emoji_events</span>
+<span class="condensed-tall text-4xl text-white leading-none">P2</span>
+<span class="font-label-caps text-[10px] text-on-secondary-container whitespace-nowrap">MIAMI GP</span>
+</div>
+<!-- Form Item P5 -->
+<div class="bg-white/5 p-4 py-6 rounded-xl border border-white/5 flex flex-col items-center justify-between min-h-[140px] text-center">
+<span class="material-symbols-outlined text-secondary text-xl">trending_down</span>
+<span class="condensed-tall text-4xl text-white leading-none">P5</span>
+<span class="font-label-caps text-[10px] text-on-secondary-container whitespace-nowrap">EMILIA GP</span>
+</div>
+</div>
+</div>
+<!-- Career Facts List -->
+<div class="md:col-span-4 bento-card p-gutter">
+<span class="font-label-caps text-label-caps text-on-secondary-container mb-6 block uppercase">Technical Dossier</span>
+<ul class="space-y-4 font-data-tabular text-data-tabular">
+<li class="flex justify-between border-b border-white/5 pb-2">
+<span class="text-on-secondary-container">HEIGHT</span>
+<span class="text-white">1.78 M</span>
+</li>
+<li class="flex justify-between border-b border-white/5 pb-2">
+<span class="text-on-secondary-container">WEIGHT</span>
+<span class="text-white">68 KG</span>
+</li>
+<li class="flex justify-between border-b border-white/5 pb-2">
+<span class="text-on-secondary-container">GP STARTS</span>
+<span class="text-white">24</span>
+</li>
+<li class="flex justify-between border-b border-white/5 pb-2">
+<span class="text-on-secondary-container">FASTEST LAPS</span>
+<span class="text-white">3</span>
+</li>
+<li class="flex justify-between">
+<span class="text-on-secondary-container">QUALY AVG</span>
+<span class="text-white">P4.2</span>
+</li>
+</ul>
+</div>
+<!-- Car Feature Section -->
+<div class="md:col-span-12 bento-card overflow-hidden group">
+<div class="grid md:grid-cols-12 items-center">
+<div class="md:col-span-5 p-gutter flex flex-col relative z-10">
+<img class="w-32 mb-10 grayscale brightness-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpvc2XHcFL8G_Ve2Dy061M_VJ6hxKAsscmPxd3tcO6BZ7Gjtv37oQ87Xpk_wZOqm1WGF9nazCboQ_PHW3RTJZYDIh6-adrUyXDCaxg_4iiBaX72ZKkp1CkBZ-ZjpYN7MXalCV0Hu0YFIP2pZzfEwtWFiT9mFfvIkqjVCqo6hwwI3MvMCu2GYMOqUI4ETfyArKlyIZss6VlhrsY4yzeQ6IE43QRZofoexO9op-FiMfePkEriW2ZjAMl5OF9w6Hbip1FdZcHYFOTrgK5"/>
+<span class="font-label-caps text-label-caps text-primary mb-2">DEVELOPMENT CORE</span>
+<h3 class="condensed-tall text-5xl md:text-6xl text-white mb-6">W17 E-PERFORMANCE</h3>
+<p class="font-body-md text-body-md text-on-secondary-container max-w-sm">
+                        The 2026 challenger represents a paradigm shift in aerodynamic efficiency and power unit integration. Engineered for the new regulation cycle, featuring active aero components.
+                    </p>
+<div class="mt-10 flex gap-10">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-secondary-container">CHASSIS</span>
+<span class="font-data-tabular text-white uppercase font-bold">Carbon Monocoque</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-secondary-container">POWER UNIT</span>
+<span class="font-data-tabular text-white uppercase font-bold">AMG HPP V6 Hybrid</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-7 relative h-80 md:h-[450px] flex items-center justify-end overflow-hidden p-8">
+<div class="absolute inset-0 bg-gradient-to-r from-[#141414] via-transparent to-transparent z-10"></div>
+<img alt="Mercedes W17 E-Performance Car" class="relative w-full h-auto object-contain transform scale-125 translate-x-12 group-hover:translate-x-4 transition-transform duration-1000 ease-out z-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp9rpE3lwOY_PTVa5nTIJxkNSfEREK12Ad-tnrTL_gX4lyhuuWk9xe34Znw7EZ5m1fAU0H-a34qGDv9YUUBDmpbCT78HFJMCrWsDK3Zu4_UeA5nTTaboy_ZpzS0E65FjROIlg8JW4KYPdwqF7KYMOChi4bpM2kOpGqO7VLePqurijIoGTxfxRTDyAndRYJwGbY7SH-bDu0b_dUEre9yIhCMirSWlnghYhNsLxq5Yf-QhUD5GckbQhsI42vt3_f5nCgsni9MiOrRhQN"/>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-16 bg-surface-container-lowest border-t border-white/5 flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-8">
+<div class="font-display-hero text-headline-md text-on-surface">APEX</div>
+<div class="flex gap-10">
+<a class="font-label-caps text-label-caps text-on-secondary-container hover:text-primary transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-secondary-container hover:text-primary transition-colors cursor-pointer" href="#">Terms</a>
+<a class="font-label-caps text-label-caps text-on-secondary-container hover:text-primary transition-colors cursor-pointer" href="#">Contact</a>
+</div>
+<div class="font-label-caps text-label-caps text-on-secondary-container/50">
+        © 2026 APEX FORMULA 1. ALL RIGHTS RESERVED.
+    </div>
+</footer>
+<script>
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const heroText = document.querySelector('h2');
+        if (heroText) {
+            heroText.style.transform = `translateY(${scrolled * 0.1}px)`;
+        }
+    });
+</script>
+</body></html>

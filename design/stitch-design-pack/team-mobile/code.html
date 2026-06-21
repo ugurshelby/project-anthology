@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Constructor Profile - Apex</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#e5e2e1",
+                        "tertiary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#06100f", /* Custom teal-tinted background from prompt */
+                        "surface": "#141414", /* Bento card bg */
+                        "secondary-fixed-dim": "#C0C0C0", /* Silver */
+                        "primary-container": "#00D2BE", /* Teal accent */
+                        "outline-variant": "#262626", /* Hairline border */
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-primary-container": "#ffece9",
+                        "inverse-primary": "#c00000",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "surface-container": "#201f1f",
+                        "on-background": "#e5e2e1",
+                        "inverse-on-surface": "#313030",
+                        "surface-bright": "#3a3939",
+                        "secondary": "#C0C0C0", /* Silver */
+                        "secondary-fixed": "#e2e2e2",
+                        "on-secondary": "#2f3131",
+                        "tertiary": "#b4c5ff",
+                        "tertiary-container": "#0060f9",
+                        "on-primary": "#000000",
+                        "on-primary-fixed": "#410000",
+                        "surface-container-low": "#1c1b1b",
+                        "on-tertiary-fixed-variant": "#003ea7",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#00174b",
+                        "on-secondary-fixed-variant": "#454747",
+                        "surface-tint": "#ffb4a8",
+                        "outline": "#262626",
+                        "on-tertiary-container": "#edefff",
+                        "surface-variant": "#1a1a1a", /* Darker glass */
+                        "on-tertiary": "#002a77",
+                        "background": "#06100f", /* Main bg */
+                        "on-secondary-container": "#b4b5b5",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#930100",
+                        "secondary-container": "#454747",
+                        "on-surface-variant": "#C0C0C0",
+                        "surface-dim": "#141414",
+                        "error-container": "#93000a",
+                        "primary": "#00D2BE", /* Accent Teal */
+                        "surface-container-highest": "#353534",
+                        "primary-fixed": "#ffdad4"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "16px", /* Forced 16px for bento */
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "unit": "4px",
+                        "margin-mobile": "20px"
+                    },
+                    fontFamily: {
+                        "body-md": ["Inter", "sans-serif"],
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "display-hero": ["Barlow Condensed", "sans-serif"],
+                        "data-tabular": ["JetBrains Mono", "monospace"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Barlow Condensed", "sans-serif"],
+                        "headline-lg": ["Barlow Condensed", "sans-serif"],
+                        "display-hero-mobile": ["Barlow Condensed", "sans-serif"]
+                    },
+                    fontSize: {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "display-hero": ["120px", { "lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "display-hero-mobile": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-card {
+            @apply bg-surface border border-outline-variant rounded-xl overflow-hidden relative;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-variant/60 backdrop-blur-xl border-b border-surface-variant/30 flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 transition-transform">menu</span>
+<span class="font-headline-lg text-headline-lg tracking-widest text-on-surface">APEX</span>
+</div>
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 transition-transform">search</span>
+</header>
+<main class="px-4 pt-24 pb-8 flex flex-col gap-4 max-w-lg mx-auto">
+<!-- Hero Card -->
+<article class="bento-card p-6 border-l-[4px] border-l-primary flex flex-col items-center text-center">
+<div class="w-20 h-20 mb-4 opacity-90 relative z-10">
+<img alt="Mercedes Logo" class="w-full h-full object-contain filter drop-shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjWlvkLzao_9wpeACMWG3hkl5_F__pwdsimVQP7HNNsqcXtHqd6VvHgvMDvJdINNjzG3B-IM-XvlYrIg4BWRLcvZInQyAtyCwRNU71aZkGza2LT8AtNr_rU98QGICQlO9YTEuFnyy1K3hoZMH0eSxL5sNtdU7hbeRpKfBrq-5g-AIyz4TUPtKnUARBUtj7yD0lxXScQaDcQ4qf0bpHONxWcC1ROOoK8fofLAGOfrhkPiQr9YJ2L9NPAALAgc7zg55pfn6ja3IEDJA4"/>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-on-surface leading-none mb-2">MERCEDES</h1>
+<p class="font-data-tabular text-data-tabular text-secondary mb-1 tracking-wider uppercase">AMG PETRONAS F1 TEAM</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-60 mb-8">BRACKLEY, UK · EST. 2010</p>
+<div class="w-full relative py-6">
+<!-- Soft teal glow background -->
+<div class="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-150 transform-gpu"></div>
+<img alt="Mercedes Car" class="w-[120%] -ml-[10%] object-cover relative z-10 scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzMRMemsJxhodPZnOkjnUxWiI_anE3O0BpTgFlvbMi7IqX-Zc8kNuI_9fjcACF6HdZcqTOHyKhDIgypwY-q6-t9FwLzYSRzhZRpFryvgSWb2UqzkskZfrzRjXiGop_O9FYjz33CxDiE2nSvYXMFYJDEYFqlD-Fdptylr-Grp2D0W7TieoMCEeigHm6KfARkBOs9nzK4MzuaBreEXV7YLcMZyaz_CKenAzUx16TggTy21oCTM5CVolhE-MfajoaDPaLahpm8Eo1cxz2"/>
+</div>
+</article>
+<!-- Constructor Standing -->
+<article class="bento-card p-6 flex flex-col gap-4">
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Constructor Standing</p>
+<div class="flex items-baseline justify-between">
+<div class="font-display-hero-mobile text-display-hero-mobile text-on-surface leading-none">P2</div>
+<div class="font-data-tabular text-data-tabular text-secondary">438 PTS</div>
+</div>
+<div class="w-full h-1 bg-surface-variant rounded-full mt-2 overflow-hidden">
+<div class="h-full bg-primary w-[80%] rounded-full"></div>
+</div>
+</article>
+<!-- Season Stats -->
+<article class="bento-card p-6">
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-6">Season Stats</p>
+<div class="grid grid-cols-3 gap-4 text-center">
+<div class="flex flex-col gap-1">
+<span class="font-headline-lg text-headline-lg text-on-surface leading-none">4</span>
+<span class="font-label-caps text-label-caps text-secondary">WINS</span>
+</div>
+<div class="flex flex-col gap-1 border-x border-outline-variant">
+<span class="font-headline-lg text-headline-lg text-on-surface leading-none">12</span>
+<span class="font-label-caps text-label-caps text-secondary">PODIUMS</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-headline-lg text-headline-lg text-on-surface leading-none">5</span>
+<span class="font-label-caps text-label-caps text-secondary">POLES</span>
+</div>
+</div>
+</article>
+<!-- Driver Line-up -->
+<article class="bento-card">
+<div class="p-4 border-b border-outline-variant">
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Driver Line-up</p>
+</div>
+<!-- Row 1 -->
+<div class="p-4 flex items-center justify-between border-b border-outline-variant hover:bg-surface-variant/30 transition-colors group relative cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full overflow-hidden border border-outline-variant bg-surface-container">
+<img alt="Kimi Antonelli" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUjJFFC_e4r5pXwIz0hEULpz-R0XTvKmk56w8NkJvtsZiTWC18NY9N4UoAoTqlTwczwCFGgX80pRt3AWscGLGolo_dK5KVYFV16bGkYyS5v3bTG_2KNPoJiRJjAPg3SowaX24Agwj-G63wmWLe3LLMG3V3mjv1OKn9BCvWlONQKVNzS7zrQmU65By2AhIGrkSbWoQtZYam056FzrEDGPzUBcLU_1RjO1r-DVAITypGSvxm55BFnUW_lZ75-xSZZguwVou114peZbM5"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface leading-tight uppercase">Antonelli</span>
+<span class="font-data-tabular text-data-tabular text-secondary">#12</span>
+</div>
+</div>
+<div class="font-data-tabular text-data-tabular text-on-surface text-right">
+                    182 PTS
+                </div>
+</div>
+<!-- Row 2 -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-variant/30 transition-colors group relative cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full overflow-hidden border border-outline-variant bg-surface-container">
+<img alt="George Russell" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOmyizXQb4kNGA2Qgiacli9a6YlK2l48-Rc-2sZC47PzHV9cgYJ3Bs3cn-Dc-HWE-XVIIIxKbPTweIiQwzAqaSRhGbDiWIHbrrXQcMVChTPudEQo2taHXKU_RhrW7uhrSyoMNqaY7fpnLQ1IrK14Zww2l3cZY-I6vWADWmxdBQuEDqKdxqJi8KOwRfQFWU7Do5b1X4rqH5qYiNY7Yn7MD9PVH5rETZBD6d2VShb002nmw_5XvLFQa3KZ5WH_DBgw037k2XXZLge52C"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface leading-tight uppercase">Russell</span>
+<span class="font-data-tabular text-data-tabular text-secondary">#63</span>
+</div>
+</div>
+<div class="font-data-tabular text-data-tabular text-on-surface text-right">
+                    256 PTS
+                </div>
+</div>
+</article>
+<!-- Head-to-Head -->
+<article class="bento-card p-6">
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-6 text-center">Head-to-Head</p>
+<div class="flex justify-between items-center mb-6 font-data-tabular text-data-tabular text-on-surface">
+<span>ANT</span>
+<span class="text-secondary text-[10px]">VS</span>
+<span>RUS</span>
+</div>
+<div class="flex flex-col gap-6">
+<!-- Quali -->
+<div class="relative">
+<p class="font-label-caps text-label-caps text-secondary text-center mb-2">Qualifying</p>
+<div class="flex items-center justify-center gap-4 relative">
+<div class="flex-1 flex justify-end">
+<span class="font-data-tabular text-data-tabular mr-2">8</span>
+<div class="h-2 bg-surface-variant w-1/2 flex justify-end"><div class="h-full bg-secondary w-full"></div></div>
+</div>
+<div class="w-[1px] h-6 bg-outline-variant"></div>
+<div class="flex-1 flex justify-start">
+<div class="h-2 bg-surface-variant w-full flex justify-start"><div class="h-full bg-primary w-full"></div></div>
+<span class="font-data-tabular text-data-tabular ml-2">14</span>
+</div>
+</div>
+</div>
+<!-- Race -->
+<div class="relative">
+<p class="font-label-caps text-label-caps text-secondary text-center mb-2">Race Finishes</p>
+<div class="flex items-center justify-center gap-4 relative">
+<div class="flex-1 flex justify-end">
+<span class="font-data-tabular text-data-tabular mr-2">10</span>
+<div class="h-2 bg-surface-variant w-3/4 flex justify-end"><div class="h-full bg-secondary w-full"></div></div>
+</div>
+<div class="w-[1px] h-6 bg-outline-variant"></div>
+<div class="flex-1 flex justify-start">
+<div class="h-2 bg-surface-variant w-full flex justify-start"><div class="h-full bg-primary w-full"></div></div>
+<span class="font-data-tabular text-data-tabular ml-2">12</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Technical Dossier -->
+<article class="bento-card p-6">
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-4">Technical Dossier</p>
+<ul class="flex flex-col gap-3 font-data-tabular text-data-tabular text-on-surface">
+<li class="flex justify-between border-b border-outline-variant pb-2">
+<span class="text-secondary">Chassis</span>
+<span>W17</span>
+</li>
+<li class="flex justify-between border-b border-outline-variant pb-2">
+<span class="text-secondary">Power Unit</span>
+<span>Mercedes-AMG HPP</span>
+</li>
+<li class="flex justify-between border-b border-outline-variant pb-2">
+<span class="text-secondary">Championships</span>
+<span>8</span>
+</li>
+<li class="flex justify-between pb-1">
+<span class="text-secondary">First Entry</span>
+<span>1954</span>
+</li>
+</ul>
+</article>
+<!-- Form -->
+<article class="bento-card p-6">
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-4">Recent Form</p>
+<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<div class="flex items-center gap-1 border border-outline-variant rounded-full px-3 py-1 bg-surface-container whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px] text-primary">sports_score</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P1</span>
+</div>
+<div class="flex items-center gap-1 border border-outline-variant rounded-full px-3 py-1 bg-surface-container whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px] text-secondary">arrow_drop_up</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P4</span>
+</div>
+<div class="flex items-center gap-1 border border-outline-variant rounded-full px-3 py-1 bg-surface-container whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px] text-error">close</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">DNF</span>
+</div>
+<div class="flex items-center gap-1 border border-outline-variant rounded-full px-3 py-1 bg-surface-container whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px] text-primary">sports_score</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P2</span>
+</div>
+<div class="flex items-center gap-1 border border-outline-variant rounded-full px-3 py-1 bg-surface-container whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px] text-secondary">remove</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P5</span>
+</div>
+</div>
+</article>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe bg-surface-variant/60 backdrop-blur-xl border-t border-surface-variant/30 md:hidden">
+<a class="flex flex-col items-center justify-center text-secondary-fixed-dim hover:text-on-surface transition-colors active:scale-90 transition-transform w-16" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed-dim hover:text-on-surface transition-colors active:scale-90 transition-transform w-16" href="#">
+<span class="material-symbols-outlined mb-1">calendar_today</span>
+<span class="font-label-caps text-label-caps">Season</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed-dim hover:text-on-surface transition-colors active:scale-90 transition-transform w-16" href="#">
+<span class="material-symbols-outlined mb-1">sports_score</span>
+<span class="font-label-caps text-label-caps">Drivers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed-dim hover:text-on-surface transition-colors active:scale-90 transition-transform w-16" href="#">
+<span class="material-symbols-outlined mb-1">auto_stories</span>
+<span class="font-label-caps text-label-caps">Anthology</span>
+</a>
+</nav>
+<style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</body></html>

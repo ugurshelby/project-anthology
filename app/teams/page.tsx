@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { getCurrentTeams } from '@/lib/data/entities';
+import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
+import { TeamCard } from '@/components/standings/GridCards';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,8 +16,19 @@ export const metadata: Metadata = {
 };
 
 export default async function TeamsGridPage() {
-  const { season, rows, data } = await getCurrentTeams();
-  void { season, rows, data };
+  const { season, rows } = await getCurrentTeams();
 
-  return <main id="main-content">Constructors</main>;
+  return (
+    <PageShell>
+      <header className="mb-8 flex flex-col gap-1">
+        <span className="label-caps text-text-mid">{season} Championship</span>
+        <h1 className="headline-lg uppercase text-text-hi">Constructors</h1>
+      </header>
+      <BentoGrid>
+        {rows.map((row) => (
+          <TeamCard key={row.constructorId} row={row} />
+        ))}
+      </BentoGrid>
+    </PageShell>
+  );
 }

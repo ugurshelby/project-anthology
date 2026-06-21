@@ -1,39 +1,30 @@
 import type { Metadata, Viewport } from 'next';
-import {
-  Bebas_Neue,
-  Barlow_Condensed,
-  IBM_Plex_Mono,
-  Inter,
-} from 'next/font/google';
+import { Barlow_Condensed, Inter, JetBrains_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
+import { SiteHeader } from '@/components/layout/SiteHeader';
+import { SiteFooter } from '@/components/layout/SiteFooter';
+import { MobileNav } from '@/components/layout/MobileNav';
 import './globals.css';
-
-const bebasNeue = Bebas_Neue({
-  variable: '--font-bebas-neue',
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 const barlowCondensed = Barlow_Condensed({
   variable: '--font-barlow-condensed',
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   display: 'swap',
 });
 
 const inter = Inter({
   variable: '--font-inter',
-  weight: ['300', '400', '500'],
+  weight: ['400', '500'],
   subsets: ['latin'],
   display: 'swap',
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: '--font-ibm-plex-mono',
-  weight: ['400', '500'],
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
+  weight: ['400', '500', '700'],
   subsets: ['latin'],
   display: 'swap',
 });
@@ -90,14 +81,23 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${barlowCondensed.variable} ${inter.variable} ${ibmPlexMono.variable} h-full antialiased`}
+      className={`${barlowCondensed.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-dvh flex-col">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
         />
+        <a
+          href="#main-content"
+          className="label-caps sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-chip)] focus:bg-surface focus:px-4 focus:py-2 focus:text-text-hi"
+        >
+          Skip to content
+        </a>
+        <SiteHeader />
         {children}
+        <SiteFooter />
+        <MobileNav />
         <Analytics />
         <SpeedInsights />
       </body>

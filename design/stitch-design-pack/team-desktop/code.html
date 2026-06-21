@@ -1,0 +1,306 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mercedes-AMG Petronas F1 Team - APEX</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#e2e2e2",
+                        "inverse-primary": "#c00000",
+                        "secondary": "#c6c6c7",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary-fixed": "#00174b",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "primary": "#ffb4a8",
+                        "surface-bright": "#3a3939",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-dim": "#131313",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-surface-variant": "#e9bcb5",
+                        "on-tertiary-container": "#edefff",
+                        "tertiary-container": "#0060f9",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-surface": "#e5e2e1",
+                        "surface-tint": "#ffb4a8",
+                        "on-primary-fixed": "#410000",
+                        "on-secondary-container": "#b4b5b5",
+                        "on-primary-fixed-variant": "#930100",
+                        "on-tertiary": "#002a77",
+                        "surface": "#131313",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "primary-fixed": "#ffdad4",
+                        "outline": "#af8781",
+                        "on-primary": "#690000",
+                        "background": "#06100f", /* Customized background per prompt */
+                        "on-secondary": "#2f3131",
+                        "on-tertiary-fixed-variant": "#003ea7",
+                        "secondary-container": "#454747",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "primary-container": "#00D2BE", /* Mercedes Teal override for accents */
+                        "on-background": "#e5e2e1",
+                        "on-error": "#690005",
+                        "tertiary-fixed": "#dbe1ff",
+                        "on-primary-container": "#06100f",
+                        "tertiary": "#b4c5ff",
+                        "outline-variant": "#5e3f3a",
+                        "surface-container": "#201f1f",
+                        "on-error-container": "#ffdad6",
+                        "mercedes-teal": "#00D2BE",
+                        "mercedes-silver": "#C0C0C0",
+                        "surface-bento": "#141414"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "bento": "16px"
+                    },
+                    spacing: {
+                        "container-max": "1440px",
+                        "margin-mobile": "20px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Barlow Condensed", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "display-hero": ["Barlow Condensed", "sans-serif"],
+                        "data-tabular": ["JetBrains Mono", "monospace"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "display-hero-mobile": ["Barlow Condensed", "sans-serif"],
+                        "headline-md": ["Barlow Condensed", "sans-serif"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "display-hero": ["120px", { "lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-hero-mobile": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        .bento-card {
+            background-color: #141414;
+            border: 1px solid #262626;
+            border-radius: 16px;
+        }
+        .teal-glow {
+            box-shadow: 0 0 100px 20px rgba(0, 210, 190, 0.15);
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #06100f; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #353534; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface/60 backdrop-blur-xl fixed top-0 w-full z-50 shadow-2xl border-b border-surface-variant flex justify-between items-center h-16 px-margin-desktop mx-auto">
+<div class="flex items-center gap-12">
+<span class="font-display-hero text-headline-md tracking-tighter text-on-surface">APEX</span>
+<div class="hidden md:flex gap-8">
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-surface-container-highest/50 px-2 py-1 rounded" href="#">Season</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-surface-container-highest/50 px-2 py-1 rounded" href="#">Drivers</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface font-bold border-b-2 border-primary-container pb-1" href="#">Teams</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-surface-container-highest/50 px-2 py-1 rounded" href="#">Circuits</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-surface-container-highest/50 px-2 py-1 rounded" href="#">News</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-surface-container-highest/50 px-2 py-1 rounded" href="#">Anthology</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined">search</span></button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow pt-24 px-margin-desktop pb-12 w-full max-w-container-max mx-auto space-y-12">
+<!-- HERO SECTION -->
+<section class="relative flex flex-col lg:flex-row items-center justify-between gap-12 w-full min-h-[500px]">
+<div class="absolute left-[-64px] top-0 bottom-0 w-2 bg-mercedes-teal rounded-r-lg shadow-[0_0_20px_#00D2BE]"></div>
+<div class="flex flex-col z-10 w-full lg:w-1/3">
+<img alt="Mercedes Logo" class="w-32 h-32 mb-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuQ1MLylgVXAU4Zn11b4gi0TxMb3Gc5fmJedlxIvefYgV9ByA0kbFappUp68ubhaP9YJHxKyMfHS1IIAfi7foH1fHIKlBtNCESjE96sLhw4xCg15LoacC5ZrlYPOFFWRh_pvSu4QUBl7Xm8Be95o4OxISa7bJr3V1jaUENteCVs4Js992g0jTJY32kvRhuA6v0VTbl3E1PoZ67qx3SUruQjHQlNOn1-fzCgVd_kUPy494qLoRujLrHUHZcXEf2tdMJH7o05qfIWA5F">
+<h1 class="font-display-hero text-display-hero text-on-surface mb-2 tracking-tighter">MERCEDES</h1>
+<h2 class="font-label-caps text-label-caps text-mercedes-silver mb-8">AMG PETRONAS F1 TEAM</h2>
+<div class="font-data-tabular text-data-tabular text-on-surface-variant border-t border-[#262626] pt-4">
+                    BASE: BRACKLEY, UK · PU: MERCEDES · EST. 2010
+                </div>
+</div>
+<div class="relative w-full lg:w-2/3 h-full min-h-[400px] flex items-center justify-center"><div class="absolute inset-0 bg-mercedes-teal/10 teal-glow rounded-full blur-3xl transform -skew-x-12 z-0 mx-auto"></div><img alt="Mercedes F1 Car Side Profile" class="relative z-10 w-full max-w-5xl object-contain drop-shadow-2xl mx-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPJu4zgtud_4QTeueb50xTnTfs04hFIB-TMtG4x21uX3NWY8Fynnvde1yzyflUTeRb5SKkpA2A2XaHeYFo3V3gqP_Kme8P6uS_IfYiatYzWx2bv-ByRTPd9Cwdk7CTE9Kf1CDKxsJcGDw8-PItUAsWRv3KXOrDPJiPh2HM-diqXfLS1qs6iL3s22EUFOg4kgT6Fk2ATBRA_M2zHWTqtVimMVwHx2I6fuXmX6kqd8b6pd9JnRHsqE2MyVteBaEaJ6CmJWyNjfAhIdyI"></div>
+</section>
+<!-- BENTO GRID -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter auto-rows-[minmax(200px,auto)]">
+<!-- 1. CONSTRUCTOR STANDING -->
+<div class="bento-card col-span-1 md:col-span-4 p-8 flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-mercedes-silver mb-4">CONSTRUCTORS' CHAMPIONSHIP</div>
+<div class="flex items-end gap-4 mb-6">
+<span class="font-headline-lg text-headline-lg text-on-surface">P2</span>
+<span class="font-headline-md text-headline-md text-on-surface-variant pb-1">438 PTS</span>
+</div>
+<div class="w-full bg-[#262626] h-2 rounded-full overflow-hidden">
+<div class="bg-mercedes-teal h-full w-[80%]"></div>
+</div>
+</div>
+<!-- 2. SEASON STATS -->
+<div class="bento-card col-span-1 md:col-span-8 p-8 flex flex-row items-center justify-around divide-x divide-[#262626]">
+<div class="flex flex-col items-center px-8 w-1/3">
+<span class="font-headline-lg text-headline-lg text-on-surface">4</span>
+<span class="font-label-caps text-label-caps text-mercedes-silver mt-2">WINS</span>
+</div>
+<div class="flex flex-col items-center px-8 w-1/3">
+<span class="font-headline-lg text-headline-lg text-on-surface">12</span>
+<span class="font-label-caps text-label-caps text-mercedes-silver mt-2">PODIUMS</span>
+</div>
+<div class="flex flex-col items-center px-8 w-1/3">
+<span class="font-headline-lg text-headline-lg text-on-surface">5</span>
+<span class="font-label-caps text-label-caps text-mercedes-silver mt-2">POLES</span>
+</div>
+</div>
+<!-- 3. DRIVER LINE-UP -->
+<div class="bento-card col-span-1 md:col-span-8 p-0 flex flex-row relative overflow-hidden">
+<div class="absolute top-0 bottom-0 left-1/2 w-px bg-mercedes-teal z-20 shadow-[0_0_10px_#00D2BE]"></div>
+<!-- Driver 1 -->
+<div class="w-1/2 p-8 flex items-center gap-6 relative group cursor-pointer hover:bg-[#1c1c1c] transition-colors">
+<img alt="Antonelli" class="w-32 h-32 object-cover rounded-full border-2 border-[#262626] group-hover:border-mercedes-teal transition-colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGzQH3SObZ-fWntU8pYNGRWiTup03tLuGyNebzXSmxeZRAatbP5wjh7RFIcyS1_HIiOE4EMiaVV6tPQG8YFvyh_qmIKFwH0n1FwIPWZCUE1-Spc6_yL9VMDCT39CgUqc7vYlR3GSUfVZ8IYOBqC7koZWyKD5vfB6yd46R7-OAp6ccnq5OUQULITdpnpGXlRnoDIAqiNH0ijOgZJl8fvxQMwsOHselCDUJkwJ4scIewrIaSg7qVa15jezBpQHsPUoefKTLQPqYpHmSK">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface">ANTONELLI</span>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-data-tabular text-data-tabular text-mercedes-teal border border-[#262626] px-2 py-0.5 rounded-full">12</span>
+<span class="font-label-caps text-label-caps text-mercedes-silver">142 PTS</span>
+</div>
+</div>
+</div>
+<!-- Driver 2 -->
+<div class="w-1/2 p-8 flex items-center gap-6 relative group cursor-pointer hover:bg-[#1c1c1c] transition-colors justify-end text-right">
+<div class="flex flex-col items-end">
+<span class="font-headline-md text-headline-md text-on-surface">RUSSELL</span>
+<div class="flex items-center gap-3 mt-1">
+<span class="font-label-caps text-label-caps text-mercedes-silver">296 PTS</span>
+<span class="font-data-tabular text-data-tabular text-mercedes-teal border border-[#262626] px-2 py-0.5 rounded-full">63</span>
+</div>
+</div>
+<img alt="Russell" class="w-32 h-32 object-cover rounded-full border-2 border-[#262626] group-hover:border-mercedes-teal transition-colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbULuXqxsg3srEygs2P-nLj05Gq9sR8uDNo7Gd1-6Ggr90c2emmSEm8qqw69Y4D9zJBuz7NtEbamr-RJtKKkSP1M_w1Rtzt8sW5yXazEm2sZqWkQ_X9WRPndMVCGX9TomZ-8fIfXCIKP30zCizF8iJQ-14VXOl16679I1Y5JcqA1YK7zDTiEMEtzUPqJ8Tx8S4WI9vdcpes-y2adkprh6LdWnyZzZhkMSmgrvrup0PAtRRZg1o-AHdq7dURgxv-g-XecOshGJWoSMg">
+</div>
+</div>
+<!-- 4. HEAD-TO-HEAD -->
+<div class="bento-card col-span-1 md:col-span-4 p-8 flex flex-col justify-center">
+<div class="font-label-caps text-label-caps text-mercedes-silver text-center mb-6">HEAD TO HEAD</div>
+<div class="space-y-6 w-full">
+<div class="flex flex-col w-full relative">
+<div class="flex justify-between font-data-tabular text-data-tabular text-on-surface mb-2 z-10">
+<span class="">8</span>
+<span class="text-mercedes-silver text-xs">QUALI</span>
+<span class="">14</span>
+</div>
+<div class="h-1.5 w-full bg-[#262626] rounded-full flex relative overflow-hidden">
+<div class="absolute top-0 bottom-0 left-1/2 w-px bg-on-surface z-10"></div>
+<div class="h-full bg-mercedes-teal w-[36%] ml-[14%]"></div>
+<div class="h-full bg-mercedes-silver w-[64%]"></div>
+</div>
+</div>
+<div class="flex flex-col w-full relative">
+<div class="flex justify-between font-data-tabular text-data-tabular text-on-surface mb-2 z-10">
+<span class="">9</span>
+<span class="text-mercedes-silver text-xs">RACE</span>
+<span class="">13</span>
+</div>
+<div class="h-1.5 w-full bg-[#262626] rounded-full flex relative overflow-hidden">
+<div class="absolute top-0 bottom-0 left-1/2 w-px bg-on-surface z-10"></div>
+<div class="h-full bg-mercedes-teal w-[41%] ml-[9%]"></div>
+<div class="h-full bg-mercedes-silver w-[59%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. TECHNICAL DOSSIER -->
+<div class="bento-card col-span-1 md:col-span-6 p-8 flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-mercedes-silver mb-6">TECHNICAL DOSSIER</div>
+<ul class="font-data-tabular text-data-tabular text-on-surface space-y-4">
+<li class="flex justify-between border-b border-[#262626] pb-2">
+<span class="text-on-surface-variant">CHASSIS</span>
+<span class="">W17</span>
+</li>
+<li class="flex justify-between border-b border-[#262626] pb-2">
+<span class="text-on-surface-variant">POWER UNIT</span>
+<span class="">MERCEDES-AMG HPP</span>
+</li>
+<li class="flex justify-between border-b border-[#262626] pb-2">
+<span class="text-on-surface-variant">CONSTRUCTORS TITLES</span>
+<span class="">8</span>
+</li>
+<li class="flex justify-between">
+<span class="text-on-surface-variant">DRIVERS TITLES</span>
+<span class="">9</span>
+</li>
+</ul>
+</div>
+<!-- 6. SEASON FORM -->
+<div class="bento-card col-span-1 md:col-span-6 p-8 flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-mercedes-silver mb-6">RECENT FORM</div>
+<div class="flex gap-4 items-center justify-between h-full">
+<div class="flex flex-col items-center gap-2 p-3 bg-[#1c1c1c] rounded-lg border border-[#262626] min-w-[80px]">
+<span class="material-symbols-outlined text-mercedes-silver">sports_score</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P1</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-3 bg-[#1c1c1c] rounded-lg border border-[#262626] min-w-[80px]">
+<span class="material-symbols-outlined text-mercedes-silver">flag</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P4</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-3 bg-[#1c1c1c] rounded-lg border border-error/50 min-w-[80px]">
+<span class="material-symbols-outlined text-error">close</span>
+<span class="font-data-tabular text-data-tabular text-error">DNF</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-3 bg-[#1c1c1c] rounded-lg border border-mercedes-teal/50 min-w-[80px]">
+<span class="material-symbols-outlined text-mercedes-teal">emoji_events</span>
+<span class="font-data-tabular text-data-tabular text-mercedes-teal">P2</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-3 bg-[#1c1c1c] rounded-lg border border-[#262626] min-w-[80px]">
+<span class="material-symbols-outlined text-mercedes-silver">flag</span>
+<span class="font-data-tabular text-data-tabular text-on-surface">P5</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest w-full py-12 px-margin-desktop border-t border-surface-variant flex flex-col md:flex-row justify-between items-center gap-gutter mt-12">
+<div class="font-display-hero text-body-lg text-on-surface">APEX</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">© 2024 APEX FORMULA 1 ARCHIVE. ALL RIGHTS RESERVED.</div>
+<div class="flex gap-6 font-label-caps text-label-caps">
+<a class="text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Cookie Settings</a>
+<a class="text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+</footer>
+
+
+</body></html>
