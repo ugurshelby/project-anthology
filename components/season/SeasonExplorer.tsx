@@ -664,7 +664,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         >
                           {record.holderName}
                         </p>
-                        <p className="mt-0.5 font-mono text-sm" style={{ color: teamColor }}>
+                        <p className="mt-0.5 font-mono text-sm" style={{ color: 'var(--paper)' }}>
                           {record.value}
                           {record.teamName ? (
                             <span className="ml-2 text-xs" style={{ color: 'var(--muted)' }}>
@@ -708,7 +708,7 @@ export function SeasonExplorer({ initialData, seasons }: SeasonExplorerProps) {
                         >
                           {record.holderName}
                         </p>
-                        <p className="mt-0.5 font-mono text-sm" style={{ color: teamColor }}>
+                        <p className="mt-0.5 font-mono text-sm" style={{ color: 'var(--paper)' }}>
                           {record.value}
                         </p>
                       </li>

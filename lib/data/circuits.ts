@@ -8,7 +8,7 @@ import {
   getRacesFromCalendar,
   type CircuitWinnerEntry,
 } from '@/lib/f1/mrdata';
-import { CURRENT_SEASON, type CalendarRace } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, isRaceDone, type CalendarRace } from '@/lib/f1Calendar';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json } from '@/types/database';
 
@@ -21,6 +21,7 @@ export interface CircuitCard {
   round: string;
   date: string;
   svgSrc: string | null;
+  done: boolean;
 }
 
 export interface CircuitEditorial {
@@ -160,6 +161,7 @@ export function raceToCircuitCard(race: CalendarRace): CircuitCard | null {
     round: String(race.round ?? '—'),
     date: race.date ?? '—',
     svgSrc: circuitIconSrc(circuitId),
+    done: isRaceDone(race),
   };
 }
 
@@ -284,10 +286,28 @@ export const CIRCUIT_GRID_SPANS = [
   'md:col-span-6',
 ] as const;
 
-export function circuitGridSpan(index: number): string {
-  return CIRCUIT_GRID_SPANS[index % CIRCUIT_GRID_SPANS.length];
+const FEATURED_SPAN = CIRCUIT_GRID_SPANS[0];
+
+/**
+ * Bento sizing is data-driven, not positional: the next upcoming race (first
+ * card with `done === false`) gets the large featured cell — that's the one a
+ * visitor cares about right now. Everything else flows through the repeating
+ * span rhythm. If the season is over, no card is featured and the rhythm starts
+ * from the top. This is what turns the asymmetry into "design" rather than
+ * "randomness" — the big tile always means something.
+ */
+export function nextCircuitIndex(cards: Pick<CircuitCard, 'done'>[]): number {
+  return cards.findIndex((c) => !c.done);
 }
 
-export function isFeaturedCircuitCard(index: number): boolean {
-  return index % CIRCUIT_GRID_SPANS.length === 0;
+export function circuitGridSpan(index: number, featuredIndex: number): string {
+  if (index === featuredIndex) return FEATURED_SPAN;
+  // Skip the featured slot in the rhythm so spans don't double up on row 1.
+  const rhythmIndex = featuredIndex >= 0 && index > featuredIndex ? index - 1 : index;
+  // Offset by 1 so the non-featured rhythm starts after the large cell.
+  return CIRCUIT_GRID_SPANS[(rhythmIndex % (CIRCUIT_GRID_SPANS.length - 1)) + 1];
+}
+
+export function isFeaturedCircuitCard(index: number, featuredIndex: number): boolean {
+  return index === featuredIndex;
 }

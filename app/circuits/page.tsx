@@ -7,6 +7,7 @@ import {
   circuitGridSpan,
   getCurrentSeasonCircuitCards,
   isFeaturedCircuitCard,
+  nextCircuitIndex,
 } from '@/lib/data/circuits';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
@@ -36,7 +37,7 @@ export default async function CircuitsPage() {
 
   return (
     <>
-      <AtmosphericHero>
+      <AtmosphericHero compact>
         <p
           className="font-condensed text-[11px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--muted)' }}
@@ -62,13 +63,15 @@ export default async function CircuitsPage() {
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[minmax(140px,auto)]">
-            {cards.map((card, index) => {
-              const featured = isFeaturedCircuitCard(index);
+            {(() => {
+              const featuredIndex = nextCircuitIndex(cards);
+              return cards.map((card, index) => {
+              const featured = isFeaturedCircuitCard(index, featuredIndex);
               return (
                 <Link
                   key={card.circuitId}
                   href={`/circuits/${card.circuitId}`}
-                  className={`anthology-card group flex flex-col justify-between gap-3 p-4 ${circuitGridSpan(index)}`}
+                  className={`anthology-card group flex flex-col justify-between gap-3 p-4 ${circuitGridSpan(index, featuredIndex)}`}
                 >
                   {card.svgSrc ? (
                     <SafeImage
@@ -88,14 +91,27 @@ export default async function CircuitsPage() {
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                        style={{ color: 'var(--muted)' }}
+                        className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em]"
+                        style={{ color: 'var(--paper)' }}
                       >
+                        {featured && !card.done ? (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.15em]"
+                            style={{ border: '1px solid var(--border-hover)', color: 'var(--border-hover)' }}
+                          >
+                            <span
+                              className="inline-block h-1.5 w-1.5 rounded-full"
+                              style={{ backgroundColor: 'var(--border-hover)' }}
+                              aria-hidden
+                            />
+                            NEXT
+                          </span>
+                        ) : null}
                         Round {card.round}
                       </span>
                       <span
-                        className="font-mono text-[9px] uppercase tracking-[0.15em]"
-                        style={{ color: 'var(--muted)' }}
+                        className="font-mono text-[10px] uppercase tracking-[0.15em]"
+                        style={{ color: 'var(--paper)' }}
                       >
                         {card.date}
                       </span>
@@ -115,7 +131,8 @@ export default async function CircuitsPage() {
                   </div>
                 </Link>
               );
-            })}
+            });
+            })()}
           </div>
         )}
       </div>

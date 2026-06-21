@@ -40,7 +40,7 @@ export default function TechGlossaryPage() {
 
   return (
     <>
-      <AtmosphericHero>
+      <AtmosphericHero compact>
         <p
           className="font-condensed text-[11px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--muted)' }}

@@ -38,7 +38,7 @@ export default async function AnthologyPage() {
 
   return (
     <>
-      <AtmosphericHero>
+      <AtmosphericHero compact>
         <p
           className="font-condensed text-[11px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--muted)' }}
@@ -65,7 +65,7 @@ export default async function AnthologyPage() {
           <SectionDivider title="Stories" />
           {stories.length === 0 ? (
             <p className="text-sm" style={{ color: 'var(--muted)' }}>
-              No published stories yet. Run <code>npm run seed:stories</code>.
+              Stories are being written. The first chapters land soon.
             </p>
           ) : (
             <div className="grid auto-rows-[minmax(180px,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -88,20 +88,16 @@ export default async function AnthologyPage() {
           )}
         </section>
 
-        <section>
-          <SectionDivider title="Radio Moments" />
-          {moments.length === 0 ? (
-            <p className="text-sm text-muted" style={{ color: 'var(--muted)' }}>
-              No published radio moments yet. Run sync-radio cron after seeding.
-            </p>
-          ) : (
+        {moments.length > 0 ? (
+          <section>
+            <SectionDivider title="Radio Moments" />
             <ul className="space-y-3">
               {moments.map((m) => (
                 <RadioMomentCard key={m.id} moment={m} />
               ))}
             </ul>
-          )}
-        </section>
+          </section>
+        ) : null}
       </div>
     </>
   );

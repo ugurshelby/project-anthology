@@ -43,7 +43,7 @@ export function GlossaryCard({ term }: { term: GlossaryTerm }) {
           {term.aliases?.length ? (
             <span
               className="mt-1 block font-mono text-[9px] uppercase tracking-wider"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--muted)' }}
             >
               {term.aliases.join(' · ')}
             </span>
@@ -53,7 +53,7 @@ export function GlossaryCard({ term }: { term: GlossaryTerm }) {
           aria-hidden
           className="mt-1 shrink-0 font-display text-xl leading-none"
           style={{
-            color: 'var(--accent)',
+            color: open ? 'var(--paper)' : 'var(--muted)',
             transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
             transition: reduceMotion
               ? 'none'

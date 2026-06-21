@@ -36,26 +36,16 @@ export function NewsFeaturedHero({ item }: NewsFeaturedHeroProps) {
         }}
       />
 
-      {/* Film grain overlay */}
-      <svg
-        className="absolute inset-0 h-full w-full"
-        aria-hidden
-        preserveAspectRatio="none"
-        style={{ opacity: 0.04, mixBlendMode: 'overlay', pointerEvents: 'none' }}
-      >
-        <filter id="featured-grain-filter">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#featured-grain-filter)" />
-      </svg>
-
-      {/* Bottom red glow ties the photo to the brand */}
+      {/* Bottom red glow ties the photo to the brand. A vertical linear ramp,
+          not radial-gradient(ellipse at bottom, …) — that radial form + the
+          `transparent` keyword mis-rasterise into a solid red rectangle on
+          mobile Chromium/WebKit (the news-hero "red block"). */}
       <div
-        className="absolute bottom-0 left-1/2 h-[20vh] w-4/5 -translate-x-1/2"
+        className="absolute bottom-0 left-0 h-[24vh] w-full"
         aria-hidden
         style={{
           background:
-            'radial-gradient(ellipse at bottom, rgba(255,24,1,0.4) 0%, transparent 70%)',
+            'linear-gradient(to top, rgba(255,24,1,0.3) 0%, rgba(255,24,1,0.08) 35%, rgba(255,24,1,0) 70%)',
           pointerEvents: 'none',
         }}
       />
