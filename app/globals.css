@@ -836,6 +836,30 @@ body {
   border-left-width: 3px;
 }
 
+/* Hero bento tiles (Championship Leader + Next Race): a neutral warm-charcoal
+   gradient base with a bottom-right corner glow. The glow + left border take
+   their hue from --hero-accent, which each tile sets to the relevant team
+   colour (falls back to the brand red if unset). Linear/radial here is safe:
+   the radial is a small corner accent, not a full-bleed hero layer. */
+.bento-hero {
+  --hero-accent: var(--accent);
+  position: relative;
+  background:
+    radial-gradient(
+      120% 90% at 100% 100%,
+      color-mix(in srgb, var(--hero-accent) 16%, transparent) 0%,
+      rgba(255, 24, 1, 0) 55%
+    ),
+    linear-gradient(135deg, #161413 0%, #141414 55%, #150e0d 100%);
+  border-left: 6px solid var(--hero-accent);
+}
+
+@media (max-width: 767px) {
+  .bento-hero {
+    border-left-width: 5px;
+  }
+}
+
 .bento-dashboard .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -859,51 +883,69 @@ body {
   background: #131313;
 }
 
-/* Hero row - Championship Leader + Next Race share height */
-.bento-hero-tile {
-  min-height: 220px;
-}
-
-@media (min-width: 768px) {
-  .bento-hero-tile {
-    min-height: 360px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .bento-hero-tile {
-    min-height: 500px;
-  }
-
-  /* Hero siblings in the same grid row share height */
-  .bento-hero-tile > * {
-    height: 100%;
-  }
-}
-
-/* Mid row - Last Race, Constructors, Tyre, Drivers (equal height) */
-.bento-mid-row {
+/* ── 6-card home bento ────────────────────────────────────────────────────
+   Three named-grid-template-area layouts, one per breakpoint. Widths are
+   fluid (1fr columns); only row heights are fixed via grid-template-rows, so
+   the px figures in the spec are reference viewports, not literal widths.
+   Cards are placed by grid-area name, never by nth-child, so the JSX order is
+   free and the layout stays readable. Gap is a constant 16px everywhere. */
+.home-bento {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  align-items: stretch;
+  width: 100%;
 }
 
+/* MOBILE (<768px) — "Paired Grid": two full-width heroes, then the four
+   standard cards in a 2-col paired grid. */
+.home-bento {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 240px 170px 160px 160px;
+  grid-template-areas:
+    'leader   leader'
+    'next     next'
+    'drivers  constructors'
+    'lastrace tyres';
+}
+
+/* TABLET (768–1023px / md) — "Twin Column": two equal heroes on top, then
+   the four standard cards 2×2 underneath. */
+@media (min-width: 768px) {
+  .home-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 280px 200px 200px;
+    grid-template-areas:
+      'leader   next'
+      'drivers  constructors'
+      'lastrace tyres';
+  }
+}
+
+/* DESKTOP (≥1024px / lg) — "Asymmetric L": the Championship Leader hero spans
+   the left two columns across the first two rows; Next Race sits top-right
+   across two columns; Drivers + Constructors fill the right of row 2; the
+   bottom row is two wide halves (Last Race + Tyres). */
 @media (min-width: 1024px) {
-  .bento-mid-row {
+  .home-bento {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: 240px 240px 200px;
+    grid-template-areas:
+      'leader leader next         next'
+      'leader leader drivers      constructors'
+      'lastrace lastrace tyres    tyres';
   }
 }
 
-.bento-mid-row > * {
-  min-height: 240px;
-  height: 100%;
-}
+.home-bento-leader { grid-area: leader; }
+.home-bento-next { grid-area: next; }
+.home-bento-drivers { grid-area: drivers; }
+.home-bento-constructors { grid-area: constructors; }
+.home-bento-lastrace { grid-area: lastrace; }
+.home-bento-tyres { grid-area: tyres; }
 
-@media (min-width: 1024px) {
-  .bento-mid-row > * {
-    min-height: 280px;
-  }
+/* Every grid child fills its cell so the card backgrounds reach the gap edges. */
+.home-bento > * {
+  min-width: 0;
+  min-height: 0;
 }
 
 .bento-tile-fill {
