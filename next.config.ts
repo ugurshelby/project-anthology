@@ -24,6 +24,13 @@ const CSP = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
+  // Service worker (public/sw.js) and the web manifest are same-origin only.
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  // Radio-moment audio + news imagery may load from https sources.
+  "media-src 'self' https:",
+  // Block legacy plugin/applet vectors and Flash-era mixed content.
+  "upgrade-insecure-requests",
 ].join('; ');
 
 const SECURITY_HEADERS = [
@@ -50,6 +57,8 @@ const ROBOTS_HEADERS = isPreview
   : [];
 
 const nextConfig: NextConfig = {
+  // Don't advertise the framework — small reverse-engineering surface reduction.
+  poweredByHeader: false,
   async redirects() {
     return [{ source: '/radio', destination: '/anthology', permanent: true }];
   },

@@ -10,15 +10,19 @@ import {
   nowMs,
 } from '@/lib/f1/mrdata';
 import { CURRENT_SEASON, getLastFinishedRace, getLiveOrNextRace, raceStartMs } from '@/lib/f1Calendar';
+import { getPublishedStories } from '@/lib/data/stories';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { StatBlock } from '@/components/bento/StatBlock';
 import { StandingsCard } from '@/components/standings/StandingsCard';
 import { NewsList } from '@/components/news/NewsList';
 import { PodiumViz } from '@/components/season/PodiumViz';
 import { Countdown } from '@/components/home/Countdown';
-import { circuitIconSrc } from '@/lib/assets/f1-icons';
+import { DriverAvatar } from '@/components/bento/DriverAvatar';
+import { StoryCard } from '@/components/anthology/StoryCard';
+import { circuitIconSrc, carSrc } from '@/lib/assets/f1-icons';
+import { resolveTeamUiColor } from '@/config/team-colors';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const revalidate = 0;
 
@@ -35,12 +39,13 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   // Data layer preserved — the frontend was reset and will be rebuilt on top of
   // these server-side reads.
-  const [calendarData, standingsData, constructorData, news, onThisDay] = await Promise.all([
+  const [calendarData, standingsData, constructorData, news, onThisDay, stories] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_constructors'),
     aggregate({ maxItems: 6 }),
     getOnThisDay(),
+    getPublishedStories(),
   ]);
 
   const renderNowMs = nowMs();
@@ -64,21 +69,32 @@ export default async function HomePage() {
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const circuitOutline = circuitIconSrc(nextRace?.Circuit?.circuitId);
   const championshipLeader = standings[0];
+  const leaderColor = resolveTeamUiColor(undefined, championshipLeader?.constructorName);
+  const leaderCar = carSrc(championshipLeader?.constructorId, championshipLeader?.constructorName);
+  const featuredStory = stories[0];
+  const gap = championshipLeader && standings[1]
+    ? Number(championshipLeader.points) - Number(standings[1].points)
+    : null;
 
   return (
     <PageShell>
       <BentoGrid>
-        {/* Hero — next race */}
-        <BentoCard span={8} className="flex min-h-72 flex-col justify-between">
+        {/* Hero — next race. Circuit outline reads as track-map atmosphere. */}
+        <BentoCard span={8} className="flex min-h-80 flex-col justify-between">
           {circuitOutline ? (
             <Image
               src={circuitOutline}
               alt=""
               fill
               sizes="(max-width: 1024px) 100vw, 66vw"
-              className="pointer-events-none object-contain object-right opacity-[0.06]"
+              className="pointer-events-none object-contain object-right p-10 opacity-[0.14]"
             />
           ) : null}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-20 blur-3xl"
+            style={{ backgroundColor: 'var(--accent)' }}
+          />
           <div className="relative z-10 flex flex-col gap-1">
             <span className="label-caps text-accent">
               Next Race{nextRace?.round ? ` · Round ${nextRace.round}` : ''}
@@ -98,22 +114,49 @@ export default async function HomePage() {
         {/* Standings — single card with Drivers/Teams toggle */}
         <StandingsCard drivers={standings} teams={constructors} season={CURRENT_SEASON} span={4} />
 
-        {/* Championship lead */}
-        <BentoCard span={4}>
-          {championshipLeader ? (
-            <StatBlock
-              value={championshipLeader.points}
-              label="Championship Lead · PTS"
-              sublabel={championshipLeader.driverName}
-              size="lg"
+        {/* Championship lead — leader portrait + car silhouette, no empty space */}
+        <BentoCard span={4} as="div" className="relative flex min-h-56 flex-col justify-between">
+          <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: leaderColor }} />
+          {leaderCar ? (
+            <Image
+              src={leaderCar}
+              alt=""
+              width={360}
+              height={120}
+              className="pointer-events-none absolute -bottom-2 right-0 w-3/4 object-contain opacity-25"
             />
+          ) : null}
+          <div className="relative z-10 flex items-start justify-between">
+            <span className="label-caps text-text-mid">Championship Leader</span>
+            {championshipLeader ? (
+              <DriverAvatar
+                driverName={championshipLeader.driverName}
+                driverCode={championshipLeader.driverCode}
+                driverId={championshipLeader.driverId}
+                constructorName={championshipLeader.constructorName}
+                season={CURRENT_SEASON}
+                size={56}
+              />
+            ) : null}
+          </div>
+          {championshipLeader ? (
+            <Link href={`/drivers/${championshipLeader.driverId}`} className="relative z-10 flex flex-col gap-1">
+              <span className="hero-number text-[clamp(48px,7vw,80px)] text-text-hi">{championshipLeader.points}</span>
+              <span className="font-condensed text-2xl font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                {championshipLeader.driverName}
+              </span>
+              <span className="data-tabular text-text-mid">
+                {championshipLeader.constructorName}
+                {gap != null && gap > 0 ? ` · +${gap} ahead` : ''}
+              </span>
+            </Link>
           ) : (
-            <StatBlock value="—" label="Championship Lead" size="lg" />
+            <span className="hero-number text-6xl text-text-low">—</span>
           )}
         </BentoCard>
 
         {/* Last race podium */}
-        <BentoCard span={4}>
+        <BentoCard span={4} className="flex flex-col justify-center">
           {lastRaceRecap ? (
             <PodiumViz
               raceLabel={`Last Race · ${lastRaceRecap.raceName}`}
@@ -128,8 +171,15 @@ export default async function HomePage() {
           )}
         </BentoCard>
 
+        {/* Featured story — cinematic imagery from the anthology */}
+        {featuredStory ? (
+          <div className="col-span-4 md:col-span-8 lg:col-span-4">
+            <StoryCard story={featuredStory} wide />
+          </div>
+        ) : null}
+
         {/* The Wire — news */}
-        <BentoCard span={4}>
+        <BentoCard span={featuredStory ? 8 : 12}>
           <NewsList items={news} />
         </BentoCard>
       </BentoGrid>

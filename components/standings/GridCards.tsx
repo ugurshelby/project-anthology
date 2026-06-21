@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { driverIconSrc, teamIconSrc, carSrc } from '@/lib/assets/f1-icons';
+import { teamIconSrc, carSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
+import { DriverAvatar } from '@/components/bento/DriverAvatar';
 import type { DriverGridRow, TeamDriverGroup } from '@/lib/data/entities';
 import type { ConstructorStandingRow } from '@/lib/f1/mrdata';
 
 /** Driver card for the /drivers grid. */
 export function DriverCard({ row, season }: { row: DriverGridRow; season: number }) {
-  const portrait = driverIconSrc(row.driverCode, row.driverId, season);
   const color = resolveTeamUiColor(undefined, row.constructorName);
   return (
     <Link
@@ -15,19 +15,30 @@ export function DriverCard({ row, season }: { row: DriverGridRow; season: number
       className="group relative col-span-2 flex flex-col gap-3 overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-5 transition-[transform,background-color] duration-150 hover:-translate-y-0.5 hover:bg-surface-raised md:col-span-2 lg:col-span-3"
     >
       <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: color }} />
-      <div className="flex items-start justify-between">
+      {/* faint team-colour wash bottom-right so the card never reads empty */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full opacity-[0.10] blur-2xl transition-opacity duration-150 group-hover:opacity-20"
+        style={{ backgroundColor: color }}
+      />
+      <div className="relative z-10 flex items-start justify-between">
         <span className="hero-number text-5xl text-text-hi/15">{row.carNumber ?? row.position}</span>
-        <span className="relative h-16 w-16 overflow-hidden rounded-full bg-surface-raised">
-          {portrait ? <Image src={portrait} alt="" fill sizes="64px" className="object-cover object-top" /> : null}
-        </span>
+        <DriverAvatar
+          driverName={row.driverName}
+          driverCode={row.driverCode}
+          driverId={row.driverId}
+          constructorName={row.constructorName}
+          season={season}
+          size={64}
+        />
       </div>
-      <div className="flex flex-col">
+      <div className="relative z-10 flex flex-col">
         <span className="font-condensed text-2xl font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
           {row.driverName}
         </span>
         <span className="data-tabular mt-1 text-text-mid">{row.constructorName}</span>
       </div>
-      <div className="data-tabular flex justify-between text-text-low">
+      <div className="relative z-10 data-tabular flex justify-between text-text-low">
         <span>P{row.position}</span>
         <span>{row.points} PTS</span>
       </div>

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
+import { rateLimit, getClientIP } from '@/lib/rateLimit';
 
 /**
  * SSRF-hardened Ergast/Jolpica proxy (App Router port of the legacy proxy).
@@ -45,7 +46,26 @@ function cacheControlFor(season: number | null): string {
   return 'public, s-maxage=300, stale-while-revalidate=600';
 }
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 60;
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  // Throttle the upstream proxy so it can't be used as a free scraping relay.
+  const clientIP = getClientIP(req.headers);
+  if (clientIP !== 'unknown') {
+    const { success, retryAfter } = await rateLimit(clientIP, {
+      prefix: 'f1-season',
+      max: RATE_LIMIT_MAX_REQUESTS,
+      windowMs: RATE_LIMIT_WINDOW_MS,
+    });
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+      );
+    }
+  }
+
   const raw = req.nextUrl.searchParams.get('path') ?? '';
   // Only one param allowed; reject anything unexpected to keep the cache clean.
   const path = raw.trim().replace(/^\/+/, '');
