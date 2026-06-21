@@ -29,7 +29,7 @@ export function BentoRaceTile({ panel, variant = 'compact', renderNowMs }: Bento
     return (
       <Link
         href={circuitHref(race)}
-        className="bento-panel bento-panel-accent bento-tile-fill gap-6 p-6 lg:p-8"
+        className="bento-panel bento-hero bento-tile-fill gap-6 p-6 lg:p-8"
       >
         <div>
           <div className="mb-1 flex items-center gap-2">

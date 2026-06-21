@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
@@ -33,8 +34,8 @@ export function BentoLeaderTile({ leader, season }: BentoLeaderTileProps) {
 
   const content = (
     <section
-      className="bento-panel relative flex h-full min-h-0 items-end overflow-hidden"
-      style={{ borderLeft: `3px solid ${teamColor}` }}
+      className="bento-panel bento-hero relative flex h-full min-h-0 items-end overflow-hidden"
+      style={{ '--hero-accent': teamColor } as CSSProperties}
     >
       {driverSrc ? (
         <div className="absolute inset-0 z-0">
