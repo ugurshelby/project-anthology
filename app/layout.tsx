@@ -7,11 +7,6 @@ import {
 } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { MobileBottomNav } from '@/components/ui/MobileBottomNav';
-import { SiteNav } from '@/components/ui/SiteNav';
-import { SiteFooter } from '@/components/ui/SiteFooter';
-import { PageTransition } from '@/components/providers/PageTransition';
-import { ServiceWorkerRegister } from '@/components/providers/ServiceWorkerRegister';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
 import './globals.css';
 
@@ -51,8 +46,6 @@ export const metadata: Metadata = {
   },
   description: SITE_TAGLINE,
   applicationName: SITE_NAME,
-  // PWA: installable app metadata. The manifest is served by app/manifest.ts;
-  // Next links it automatically. Icons generated from assets/icons/app-icon.svg.
   appleWebApp: {
     capable: true,
     title: SITE_NAME,
@@ -66,8 +59,6 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
   },
-  // Absolute canonical from the single URL source (siteUrl()), so it tracks the
-  // real production origin instead of a hardcoded string.
   alternates: {
     canonical: siteUrl(),
     types: { 'application/rss+xml': '/feed.xml' },
@@ -104,21 +95,9 @@ export default function RootLayout({
       <body className="flex min-h-dvh flex-col">
         <script
           type="application/ld+json"
-          // Static, server-rendered site schema — safe stringified JSON.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
         />
-        <a href="#main-content" className="skip-link">
-          Skip to content
-        </a>
-        <SiteNav />
-        <PageTransition>
-          <main id="main-content" className="site-main flex flex-1 flex-col">
-            {children}
-          </main>
-        </PageTransition>
-        <SiteFooter />
-        <MobileBottomNav />
-        <ServiceWorkerRegister />
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>
