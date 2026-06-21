@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apex F1 - Homepage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#00174b",
+                        "inverse-on-surface": "#313030",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#e5e2e1",
+                        "on-surface": "#e5e2e1",
+                        "background": "#131313",
+                        "tertiary-fixed": "#dbe1ff",
+                        "secondary-fixed": "#e2e2e2",
+                        "tertiary-container": "#0060f9",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-highest": "#353534",
+                        "on-primary-fixed": "#410000",
+                        "primary": "#ffb4a8",
+                        "on-secondary-container": "#b4b5b5",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#3a3939",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "surface-dim": "#131313",
+                        "on-background": "#e5e2e1",
+                        "on-tertiary-fixed-variant": "#003ea7",
+                        "primary-container": "#dc0000",
+                        "on-surface-variant": "#e9bcb5",
+                        "surface-container": "#201f1f",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-secondary": "#2f3131",
+                        "surface-variant": "#353534",
+                        "surface": "#131313",
+                        "outline": "#af8781",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "tertiary": "#b4c5ff",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#c00000",
+                        "surface-tint": "#ffb4a8",
+                        "surface-container-high": "#2a2a2a",
+                        "secondary-container": "#454747",
+                        "primary-fixed": "#ffdad4",
+                        "on-tertiary": "#002a77",
+                        "on-secondary-fixed-variant": "#454747",
+                        "outline-variant": "#5e3f3a",
+                        "on-primary-fixed-variant": "#930100",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#edefff",
+                        "secondary": "#c6c6c7",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-primary-container": "#ffece9",
+                        "on-primary": "#690000",
+                        "apex-bg": "#0a0a0a",
+                        "apex-card": "#141414",
+                        "apex-border": "#262626",
+                        "apex-red": "#DC0000",
+                        "team-rb": "#3671C6",
+                        "team-mc": "#FF8000",
+                        "team-fe": "#E8002D",
+                        "team-me": "#27F4D2",
+                        "team-am": "#229971"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "bento": "16px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "unit": "4px",
+                        "container-max": "1440px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Barlow Condensed", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "display-hero-mobile": ["Barlow Condensed", "sans-serif"],
+                        "headline-lg": ["Barlow Condensed", "sans-serif"],
+                        "display-hero": ["Barlow Condensed", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "data-tabular": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "display-hero-mobile": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "display-hero": ["120px", { "lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0a0a0a; color: #e5e2e1; }
+        .bento-card {
+            background-color: #141414;
+            border: 1px solid #262626;
+            border-radius: 16px;
+        }
+        .live-dot {
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(220, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 0, 0, 0); }
+        }
+        .frosted-glass {
+            background-color: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .driver-row:hover { background-color: #1c1c1c; }
+        .driver-row:hover .team-bar { background-color: #DC0000; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased min-h-screen flex flex-col pt-16 pb-24 md:hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-white/10 shadow-none flex items-center justify-between px-margin-mobile h-16 transition-opacity hover:opacity-80">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-150 text-on-surface">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<h1 class="font-display-hero-mobile text-[32px] font-bold tracking-tighter text-on-surface uppercase leading-none mt-1">APEX F1</h1>
+</div>
+<button class="active:scale-95 duration-150 text-on-surface">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow px-4 flex flex-col gap-4 mt-4 relative z-10">
+<!-- 1. HERO CARD -->
+<article class="bento-card frosted-glass p-6 relative overflow-hidden flex flex-col gap-2 justify-end min-h-[320px]">
+<div class="absolute inset-0 opacity-10 pointer-events-none" data-alt="A highly detailed technical vector blueprint map of the Marina Bay Street Circuit in Singapore. The lines are thin and crisp against a pitch-black background, creating a sleek, high-end technical aesthetic reminiscent of race engineer telemetry screens." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCgqO0rqLkX1RpZxDvjiUjUN73CXgpVfp3yio2AI5GATXIamfrAsq7A39vXiaR_D6NMPs_73_npU6YCVH8bSP6Xb_TiTtERwQwEMpnRsphQ93xEbeqxnwH7oF7rL86LgCDkbe9a_VGlftPgoOD2bVNNRHgMFNjQEDNFam9nnZTqX8uH7M8cbLZs7ZzCdC4RNYiZLQEjkMxMUpVThKyvhuvhhMSXBue5KKg7OaykVoCEj8RvgQ9cRlnuafwORfjYvq1tqcwTBEJz25BR'); background-size: cover; background-position: center;"></div>
+<div class="relative z-10 flex items-center gap-2 mb-auto">
+<div class="w-2 h-2 rounded-full bg-apex-red live-dot"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">NEXT RACE · ROUND 14</span>
+</div>
+<div class="relative z-10 mt-auto">
+<h2 class="font-display-hero-mobile text-display-hero-mobile text-on-surface uppercase leading-none">SINGAPORE</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 mb-4">Marina Bay Street Circuit</p>
+<div class="font-headline-lg text-[40px] font-bold text-on-surface tracking-wider">
+                    07 DAYS 16 HRS 50 MIN
+                </div>
+</div>
+</article>
+<!-- 2. GIANT-STAT CARD -->
+<article class="bento-card p-6 flex flex-col items-center justify-center py-10">
+<div class="font-display-hero text-[96px] font-bold text-on-surface leading-none tracking-tighter">13/24</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mt-2 border border-apex-border rounded-full px-4 py-1">ROUNDS COMPLETED</div>
+</article>
+<!-- 3. STANDINGS CARD -->
+<article class="bento-card p-0 overflow-hidden">
+<div class="p-4 border-b border-apex-border flex justify-between items-center bg-apex-card">
+<h3 class="font-headline-md text-[24px] font-bold text-on-surface uppercase">Standings</h3>
+<div class="flex gap-4 font-label-caps text-label-caps">
+<button class="text-on-surface border-b-2 border-on-surface pb-1">DRIVERS</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors pb-1">TEAMS</button>
+</div>
+</div>
+<div class="flex flex-col">
+<!-- Row 1 -->
+<div class="driver-row flex items-center px-4 py-3 border-b border-apex-border/50 transition-colors relative cursor-pointer group">
+<div class="team-bar absolute left-0 top-0 bottom-0 w-1 bg-team-rb transition-colors"></div>
+<span class="font-data-tabular text-data-tabular text-on-surface-variant w-8 pl-2">01</span>
+<span class="font-headline-md text-[20px] font-semibold text-on-surface uppercase flex-grow">M. VERSTAPPEN</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mr-4 hidden sm:block">RED BULL</span>
+<span class="font-data-tabular text-data-tabular text-on-surface font-bold">314</span>
+</div>
+<!-- Row 2 -->
+<div class="driver-row flex items-center px-4 py-3 border-b border-apex-border/50 transition-colors relative cursor-pointer group">
+<div class="team-bar absolute left-0 top-0 bottom-0 w-1 bg-team-mc transition-colors"></div>
+<span class="font-data-tabular text-data-tabular text-on-surface-variant w-8 pl-2">02</span>
+<span class="font-headline-md text-[20px] font-semibold text-on-surface uppercase flex-grow">L. NORRIS</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mr-4 hidden sm:block">MCLAREN</span>
+<span class="font-data-tabular text-data-tabular text-on-surface font-bold">225</span>
+</div>
+<!-- Row 3 -->
+<div class="driver-row flex items-center px-4 py-3 border-b border-apex-border/50 transition-colors relative cursor-pointer group">
+<div class="team-bar absolute left-0 top-0 bottom-0 w-1 bg-team-fe transition-colors"></div>
+<span class="font-data-tabular text-data-tabular text-on-surface-variant w-8 pl-2">03</span>
+<span class="font-headline-md text-[20px] font-semibold text-on-surface uppercase flex-grow">C. LECLERC</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mr-4 hidden sm:block">FERRARI</span>
+<span class="font-data-tabular text-data-tabular text-on-surface font-bold">192</span>
+</div>
+<!-- Row 4 -->
+<div class="driver-row flex items-center px-4 py-3 border-b border-apex-border/50 transition-colors relative cursor-pointer group">
+<div class="team-bar absolute left-0 top-0 bottom-0 w-1 bg-team-mc transition-colors"></div>
+<span class="font-data-tabular text-data-tabular text-on-surface-variant w-8 pl-2">04</span>
+<span class="font-headline-md text-[20px] font-semibold text-on-surface uppercase flex-grow">O. PIASTRI</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mr-4 hidden sm:block">MCLAREN</span>
+<span class="font-data-tabular text-data-tabular text-on-surface font-bold">179</span>
+</div>
+<!-- Row 5 -->
+<div class="driver-row flex items-center px-4 py-3 transition-colors relative cursor-pointer group">
+<div class="team-bar absolute left-0 top-0 bottom-0 w-1 bg-team-fe transition-colors"></div>
+<span class="font-data-tabular text-data-tabular text-on-surface-variant w-8 pl-2">05</span>
+<span class="font-headline-md text-[20px] font-semibold text-on-surface uppercase flex-grow">C. SAINZ</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mr-4 hidden sm:block">FERRARI</span>
+<span class="font-data-tabular text-data-tabular text-on-surface font-bold">172</span>
+</div>
+</div>
+<div class="p-3 border-t border-apex-border bg-apex-card text-center">
+<button class="font-label-caps text-[10px] text-on-surface hover:text-apex-red transition-colors flex items-center justify-center w-full gap-2">
+                    VIEW FULL STANDINGS <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- 4. STORY CARD -->
+<article class="bento-card overflow-hidden group cursor-pointer">
+<div class="h-48 w-full bg-surface-container-high relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A cinematic, high-contrast photograph of a Formula 1 car racing through the Singapore Marina Bay street circuit at night during a heavy downpour. Sparks fly from the underbelly, water sprays aggressively from the wet tyres. The scene is illuminated by glaring floodlights cutting through the dark, moody atmosphere, heavily leaning into a sophisticated dark mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR3BlaqVQqcm4GXDmoPTpWz26QfxtmkkIpUgcsfVE4F3JEjeaLipCCM4qW-SvyEyVIqsCl2vp_nk8xRHYUDzZNcky9wpjJNuQ1tCg1hhJYsqz8bRuntnYJL9-ls9_0rFbtsXA8o1IiEgBJvv1yWkmecTceVRXPFKxosgxFfNuUz8IbGg6syRNQTeUcgj6c0zf_3mo4vwPsbg3V93Kp7qKx9YNzJ4lGDuswFpTS7koOq01N7Kcfeks4oqv0SRwnCGniXfQClUHU2tJ-"/>
+<div class="absolute inset-0 bg-gradient-to-t from-apex-card to-transparent opacity-90"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<span class="font-label-caps text-[10px] text-on-surface-variant border border-apex-border px-2 py-1 rounded-sm bg-apex-bg/50 backdrop-blur-sm">EDITORIAL</span>
+<h3 class="font-headline-md text-[28px] font-bold text-on-surface uppercase mt-2 leading-none">THE MARINA BAY DELUGE</h3>
+</div>
+</div>
+<div class="p-4 bg-apex-card">
+<p class="font-body-md text-[14px] text-on-surface-variant line-clamp-2">How weather strategy and split-second tyre decisions turned a chaotic night race into a masterclass of defensive driving.</p>
+</div>
+</article>
+<!-- 5. LAST-PODIUM CARD -->
+<article class="bento-card p-4">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">history</span> LAST RACE PODIUM
+            </h3>
+<div class="grid grid-cols-3 gap-2">
+<div class="flex flex-col items-center p-3 bg-apex-bg rounded-lg border border-apex-border">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-1">P2</span>
+<div class="w-6 h-1 bg-team-mc mb-2 rounded-full"></div>
+<span class="font-headline-md text-[16px] font-bold text-on-surface uppercase">NOR</span>
+</div>
+<div class="flex flex-col items-center p-3 bg-apex-bg rounded-lg border border-apex-border transform -translate-y-2 border-on-surface/30">
+<span class="font-label-caps text-[10px] text-apex-red font-bold mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-[12px] fill">emoji_events</span> P1</span>
+<div class="w-6 h-1 bg-team-fe mb-2 rounded-full"></div>
+<span class="font-headline-md text-[18px] font-bold text-on-surface uppercase">LEC</span>
+</div>
+<div class="flex flex-col items-center p-3 bg-apex-bg rounded-lg border border-apex-border">
+<span class="font-label-caps text-[10px] text-on-surface-variant mb-1">P3</span>
+<div class="w-6 h-1 bg-team-mc mb-2 rounded-full"></div>
+<span class="font-headline-md text-[16px] font-bold text-on-surface uppercase">PIA</span>
+</div>
+</div>
+</article>
+<!-- 6. NEWS CARD -->
+<article class="bento-card p-4">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface uppercase mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">feed</span> THE WIRE
+            </h3>
+<ul class="flex flex-col gap-3">
+<li class="flex flex-col gap-1 border-b border-apex-border pb-3 last:border-0 last:pb-0">
+<div class="font-label-caps text-[10px] text-on-surface-variant">12 MINS AGO</div>
+<a class="font-body-md text-[14px] text-on-surface hover:text-apex-red transition-colors font-medium" href="#">Williams announces driver lineup extension through 2026 season.</a>
+</li>
+<li class="flex flex-col gap-1 border-b border-apex-border pb-3 last:border-0 last:pb-0">
+<div class="font-label-caps text-[10px] text-on-surface-variant">2 HRS AGO</div>
+<a class="font-body-md text-[14px] text-on-surface hover:text-apex-red transition-colors font-medium" href="#">FIA releases statement on track limit enforcement for upcoming GP.</a>
+</li>
+<li class="flex flex-col gap-1 border-b border-apex-border pb-3 last:border-0 last:pb-0">
+<div class="font-label-caps text-[10px] text-on-surface-variant">5 HRS AGO</div>
+<a class="font-body-md text-[14px] text-on-surface hover:text-apex-red transition-colors font-medium" href="#">Tech upgrade package details revealed for Aston Martin.</a>
+</li>
+</ul>
+</article>
+</main>
+<!-- Footer -->
+<footer class="mt-8 mb-4 text-center">
+<span class="font-label-caps text-[10px] text-on-surface-variant">© 2026 APEX F1</span>
+</footer>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-t border-white/10 shadow-none flex justify-around items-center px-4 h-[72px]">
+<button class="flex flex-col items-center justify-center text-primary border-t-2 border-primary pt-2 pb-4 active:scale-90 duration-200 transition-colors w-16">
+<span class="material-symbols-outlined text-[24px] fill" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-[10px] mt-1">home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary pt-2 pb-4 active:scale-90 duration-200 transition-colors w-16">
+<span class="material-symbols-outlined text-[24px]">calendar_today</span>
+<span class="font-label-caps text-[10px] mt-1">season</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary pt-2 pb-4 active:scale-90 duration-200 transition-colors w-16">
+<span class="material-symbols-outlined text-[24px]">sports_score</span>
+<span class="font-label-caps text-[10px] mt-1">drivers</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary pt-2 pb-4 active:scale-90 duration-200 transition-colors w-16">
+<span class="material-symbols-outlined text-[24px]">auto_stories</span>
+<span class="font-label-caps text-[10px] mt-1">anthology</span>
+</button>
+</nav>
+</body></html>

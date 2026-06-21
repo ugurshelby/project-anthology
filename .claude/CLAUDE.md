@@ -10,6 +10,10 @@
 - `docs/reference/proje-dizini.md` oku.
 - `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` — geçmiş hatalar + mimari kararlar.
 - Sezon/yıl/takım/pilot belirsizse: `lib/f1Calendar` → `getF1Context()`.
+- Frontend işlerinde TEK tasarım otoritesi: `design/design.md`.
+- ⚠️ `design/stitch-design-pack/DESIGN.md` BİZİM DEĞİL — Stitch'in otomatik ürettiği, eski
+  kırmızı-tonlu Material paletli bir taslaktır. ASLA referans alma, palet/karar çekme.
+  Yalnız `design/design.md` geçerlidir.
 
 ## 2. Sırayla Çalış
 - Backend ve mimari önce, frontend sonra.

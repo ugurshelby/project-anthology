@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MONACO'S SHADOW - APEX</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#690005",
+                        "surface-variant": "#353534",
+                        "on-primary-fixed-variant": "#930100",
+                        "tertiary-fixed": "#dbe1ff",
+                        "secondary-container": "#454747",
+                        "on-secondary": "#2f3131",
+                        "surface": "#131313",
+                        "secondary": "#c6c6c7",
+                        "on-tertiary-fixed-variant": "#003ea7",
+                        "on-surface": "#e5e2e1",
+                        "on-tertiary": "#002a77",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#b4c5ff",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-primary": "#690000",
+                        "inverse-primary": "#c00000",
+                        "primary-fixed": "#ffdad4",
+                        "primary-container": "#dc0000",
+                        "surface-dim": "#131313",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "inverse-surface": "#e5e2e1",
+                        "on-primary-container": "#ffece9",
+                        "error-container": "#93000a",
+                        "outline-variant": "#5e3f3a",
+                        "tertiary-container": "#0060f9",
+                        "error": "#ffb4ab",
+                        "surface-tint": "#ffb4a8",
+                        "on-secondary-fixed-variant": "#454747",
+                        "inverse-on-surface": "#313030",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-background": "#e5e2e1",
+                        "on-tertiary-fixed": "#00174b",
+                        "on-primary-fixed": "#410000",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary": "#ffb4a8",
+                        "outline": "#af8781",
+                        "background": "#131313",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-tertiary-container": "#edefff",
+                        "surface-container-high": "#2a2a2a",
+                        "on-surface-variant": "#e9bcb5",
+                        "surface-container-highest": "#353534",
+                        "surface-container-low": "#1c1b1b",
+                        "on-secondary-container": "#b4b5b5",
+                        "surface-bright": "#3a3939"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "container-max": "1440px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["Barlow Condensed"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["Barlow Condensed"],
+                        "display-hero-mobile": ["Barlow Condensed"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Barlow Condensed"],
+                        "data-tabular": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-hero": ["120px", { "lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "display-hero-mobile": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0a0a0a; color: #e5e2e1; }
+        .drop-cap::first-letter {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            float: left;
+            line-height: 0.8;
+            padding-right: 0.5rem;
+            padding-top: 0.5rem;
+            color: #e5e2e1;
+        }
+        .reading-width { max-width: 65ch; margin-inline: auto; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface antialiased overflow-x-hidden selection:bg-primary-container selection:text-white">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-surface-variant shadow-2xl transition-transform duration-300" id="topNav">
+<div class="flex justify-between items-center h-16 px-margin-desktop w-full mx-auto max-w-[1440px]">
+<a class="font-display-hero text-headline-md tracking-tighter text-on-surface" href="#">APEX</a>
+<div class="hidden md:flex gap-8">
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors" href="#">Season</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors" href="#">Drivers</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors" href="#">Teams</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors" href="#">Circuits</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface-variant font-medium hover:text-on-surface transition-colors" href="#">News</a>
+<a class="font-body-md text-body-md uppercase tracking-wider text-on-surface font-bold border-b-2 border-primary pb-1" href="#">Anthology</a>
+</div>
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative w-full h-[870px] min-h-[600px] flex items-end pb-24">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center" data-alt="A highly atmospheric, cinematic low-angle shot of a Formula 1 car navigating the tight, shadowed streets of Monaco at dusk. The lighting is moody, with harsh streetlights reflecting off the wet asphalt and the sleek, dark carbon fiber of the car. Deep blacks and grays dominate the palette, punctuated by the glowing red tail light of the car. The mood is tense, fast, and intensely focused, capturing the claustrophobic speed of the circuit." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAA65M0A69reEKx1lJNUi8ZdWnC4SHF55pdp0N5sxqk5CQgLW_gC2w5sfZTMAEmvhC5u2J8JsGxtlIC7wYaOLC8rpx8yPRFxZzGqXDptwjiTYzPlg9urJPNSXCHt9eX8LIehim5ceTk2nv5aK2llFrpP32TwF6qGJ8fYCmsWFcwW9LS7WoZfMVR2k_tP-g4XJ6PR7_0Yo4wdjAK32dfaZ2j1CB4LDGcmmgIDC4Ixhh_aHHYCX-PcxC_Wq_m9VlEj94thZ6u9GXe08eW')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
+</div>
+<div class="relative z-10 w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center md:text-left">
+<p class="font-label-caps text-label-caps text-primary-container mb-4">THE ANTHOLOGY · VOL. 14</p>
+<h1 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-on-surface mb-6 uppercase">MONACO'S SHADOW</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-8">The cost of perfection on the streets of the principality. Where a millimeter dictates the line between immortality and the barrier.</p>
+<p class="font-label-caps text-label-caps text-secondary">BY ELIAS VANCE · 8 MIN READ</p>
+</div>
+</header>
+<!-- Article Content -->
+<main class="py-24 px-margin-mobile md:px-margin-desktop bg-[#0a0a0a]">
+<article class="reading-width font-body-lg text-body-lg leading-relaxed text-on-surface-variant space-y-12">
+<p class="drop-cap text-on-surface">The air in Monte Carlo changes when the engines fire. It becomes thick, almost metallic. It is not merely noise; it is a physical pressure that displaces the Mediterranean breeze, vibrating through the superyachts and the ancient stone of the principality. To drive here is an exercise in threading a needle while falling.</p>
+<p>Every other circuit on the calendar offers a margin of error. Run-off areas painted in bright stripes, gravel traps designed to arrest momentum. Monaco offers nothing but Armco barriers. They are cold, uncompromising, and they wait with infinite patience for the inevitable lapse in concentration.</p>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mt-20 mb-8 uppercase tracking-wide">The Architecture of Anxiety</h2>
+<p>To understand the challenge, one must walk the track before dawn. The incline toward Casino Square is steeper than television broadcasts convey. The blind crest at Massenet requires a leap of faith executed at 260 km/h. But it is the swimming pool chicane where the illusion of control is most violently shattered.</p>
+</article>
+<!-- Full Bleed Image Break -->
+<figure class="my-24 w-full">
+<div class="w-full h-[614px] min-h-[400px] bg-cover bg-center" data-alt="A striking, wide-angle cinematic shot of the Monaco harbor section of the F1 circuit. The image is taken from a high vantage point, looking down at a lone race car attacking the swimming pool chicane. The scene is cast in deep twilight, with long shadows stretching across the tarmac. The water in the harbor is an inky black, contrasting with the stark white lines of the track and the aggressive, sharp silhouette of the car. The aesthetic is minimalist and high-contrast." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCRbQVvjLqjhCdNhTpDmTE3uMcmghQ7kOqb4ycKYq9PCgstn2l3vqgH8Bo553Cd91xA4BJ6TjZuvRRWEeL7-ZwOGkAAF5dLM5eoGsdDyH1o6WlXmExvqOoIKQbhjeIXTZoxE9_kgcvYahdtcjpgFmKddin7K5nFpipQsg31Va_UGKQz4SVBDsur2DnFV6k0qp9d5jd_auTJWrc35sRFRqbu6kDLg5sMoIhPe6RugFrixrZjhne_qwaeBPM0NE6fXkOO7sPAm09zA3Y2')"></div>
+<figcaption class="font-label-caps text-label-caps text-secondary mt-4 text-center reading-width mx-auto">FIG 1. THE SWIMMING POOL CHICANE, FP3. TELEMETRY INDICATES A 4G LATERAL LOAD.</figcaption>
+</figure>
+<article class="reading-width font-body-lg text-body-lg leading-relaxed text-on-surface-variant space-y-12">
+<!-- Pull Quote -->
+<blockquote class="my-16 pl-8 border-l-4 border-primary-container">
+<p class="font-headline-md text-headline-md text-on-surface italic leading-tight mb-4">"You don't race against the other drivers here. You race against the geometry of the city itself."</p>
+<footer class="font-label-caps text-label-caps text-secondary">— JEAN-CLAUDE VERNER, CHIEF RACE ENGINEER</footer>
+</blockquote>
+<p>This geometry dictates a setup unlike any other. Maximum downforce, the stiffest possible suspension, and a steering rack engineered for acute angles rather than high-speed stability. The car becomes a twitching, nervous entity, communicating every imperfection of the public road directly to the driver's spine.</p>
+<!-- Two Column Layout (Text + Image) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 my-20 items-center w-full max-w-5xl mx-auto -mx-[10%]">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6 uppercase">The Tunnel Entry</h3>
+<p class="mb-6">The transition from the glaring Riviera sun into the artificial sodium glow of the tunnel is brutal. The eye takes crucial milliseconds to adjust. In that darkness, the acoustic violence of the V6 turbo-hybrid echoing off the curved walls is deafening.</p>
+<p>Braking for the Nouvelle Chicane upon exit is perhaps the hardest deceleration event of the lap, dropping from 290 km/h to 60 km/h in less than two seconds.</p>
+</div>
+<div class="h-full min-h-[400px]">
+<div class="w-full h-full bg-cover bg-center rounded-lg border border-surface-variant" data-alt="A claustrophobic, intense portrait-oriented shot taken from inside the Monaco tunnel during an F1 race. The perspective is low, showing the rear of a race car disappearing into the darkness. The lighting is dominated by the stark, yellow-orange glow of the tunnel lights, creating a high-contrast, almost monochromatic environment. The sense of speed is conveyed through slight motion blur on the tunnel walls, emphasizing the dangerous, enclosed nature of this section of the track." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBsKMCQ7h6LT28xmTXYALTMrCkz5bGJMyH3wa-gz1BfQ4ZE2s4vwyJFoX_ykU5zv6TCEzGUDYrwwmyf65KWEzxqgKrYwHxlYT4ouibd2k0sERi2_w1n1zHT9xS0Ox51uX1V0yWcmia7_rEg5TlUbBC42YI2pyN5ZbuEhObeFbLSlTABcsuGo-itDDircA6quWxvkwtiy9uJpzubJTKv4G-wGfnMeEr9C2EyPURz5igoDXhy5CHiIarxo5Yxifr-Chs3K5GANnAcBONY')"></div>
+</div>
+</div>
+<!-- Data Interlude -->
+<div class="my-16 py-12 px-8 bg-surface-container-low border border-surface-variant rounded-lg">
+<p class="font-label-caps text-label-caps text-primary-container mb-6">TELEMETRY ANOMALIES: SECTOR 2</p>
+<div class="space-y-4 font-data-tabular text-data-tabular text-on-surface">
+<div class="flex justify-between border-b border-surface-variant/50 pb-2">
+<span>ENTRY SPEED (MIRABEAU)</span>
+<span class="text-secondary">112 KM/H</span>
+</div>
+<div class="flex justify-between border-b border-surface-variant/50 pb-2">
+<span>APEX PROXIMITY (HAIRPIN)</span>
+<span class="text-secondary">4.2 CM</span>
+</div>
+<div class="flex justify-between border-b border-surface-variant/50 pb-2">
+<span>THROTTLE APPLICATION (PORTIER)</span>
+<span class="text-primary">DELAYED 0.12s</span>
+</div>
+<div class="flex justify-between pt-2">
+<span>DELTA TO POLE</span>
+<span class="text-primary-container font-bold">+0.045s</span>
+</div>
+</div>
+</div>
+<p>It is in these margins that the mythos of Monaco is forged. It is not a test of top speed, but of psychological endurance. The winner is rarely the driver with the fastest car, but the one who can sustain the illusion of control the longest, dancing on the edge of the abyss without looking down.</p>
+<!-- Quiet Mark -->
+<div class="flex justify-center my-24">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+</div>
+</article>
+<!-- Next Article Card -->
+<div class="max-w-3xl mx-auto mt-24 pt-12 border-t border-surface-variant">
+<p class="font-label-caps text-label-caps text-secondary mb-8">NEXT IN THE ANTHOLOGY</p>
+<a class="group block border border-surface-variant rounded-xl overflow-hidden hover:bg-surface-container-highest/50 transition-all duration-300" href="#">
+<div class="flex flex-col sm:flex-row">
+<div class="w-full sm:w-1/3 aspect-video sm:aspect-square">
+<div class="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-700" data-alt="A close-up, abstract detail shot of a scarred, heavily used Pirelli wet weather tire in the pit lane. The rubber is blistered and textured, telling a story of intense friction and heat. The lighting is harsh and cool, highlighting the deep grooves of the tread. The background is completely blurred out in deep shadow, focusing entirely on the raw, mechanical reality of the tire. The image fits the dark, serious aesthetic of the editorial." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAgCr5tVuvgcENPBiLNSLdnpiktRW0zJZGSp09P_LZCrzTVXgyfvQesC-18VBZJFtU1Bnc3Y8bhcpBsDBGdFbuYS39ZB3Cdj3rnSfpG_hcmU0LbMBgL38GTM8chvxDn7Ts4NUZzzYHnidwMIe3gIso4F2ry4hMZvRiFgTFOBD57iSa2hs6tB5PyMyLK0_pRhpU2hKwjCQzG_cQRIu996oCUyc_lGUcOaI_5t5Lu9NR-qIylTdTvkAi3MZRFC8c-lY_jrqpWzZ2hLRZ9')"></div>
+</div>
+<div class="p-8 flex flex-col justify-center sm:w-2/3">
+<p class="font-label-caps text-label-caps text-primary-container mb-2">VOL. 15</p>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2 uppercase">THE RAIN AT SPA</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Navigating the Ardennes forest when visibility drops to zero.</p>
+</div>
+</div>
+</a>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-margin-desktop bg-surface-container-lowest border-t border-surface-variant flex flex-col md:flex-row justify-between items-center gap-gutter">
+<div class="font-display-hero text-body-lg text-on-surface">APEX</div>
+<div class="flex gap-8">
+<a class="font-label-caps text-label-caps text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Cookie Settings</a>
+<a class="font-label-caps text-label-caps text-on-secondary-fixed-variant hover:text-on-surface transition-colors hover:underline opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">
+            © 2024 APEX FORMULA 1 ARCHIVE. ALL RIGHTS RESERVED.
+        </div>
+</footer>
+<script>
+        // Simple script to hide/show top nav on scroll for better reading experience
+        let lastScrollY = window.scrollY;
+        const nav = document.getElementById('topNav');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                if (window.scrollY > lastScrollY) {
+                    nav.style.transform = 'translateY(-100%)';
+                } else {
+                    nav.style.transform = 'translateY(0)';
+                }
+            } else {
+                nav.style.transform = 'translateY(0)';
+            }
+            lastScrollY = window.scrollY;
+        });
+    </script>
+</body></html>

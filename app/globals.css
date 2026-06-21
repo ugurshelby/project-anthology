@@ -1,80 +1,169 @@
 @import "tailwindcss";
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Design tokens + base reset only.
-
-   The frontend (components, page layouts, all component CSS) was reset and will
-   be rebuilt. This file intentionally keeps just the foundation: colour tokens,
-   the font-family variables wired to next/font in app/layout.tsx, the Tailwind
-   @theme bridge, a box-sizing/zero-radius reset, and the page background. Add
-   component styles back as the new frontend is built.
+   Apex — Design tokens + base reset.  Tek tasarım otoritesi: design/design.md.
+   "Karanlık Sinematik Editöryel": nötr taban, sayı kahraman, ölçülü accent.
    ────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #f4f1ea;
-  --surface: #131313;
-  --card: #141414;
+  /* §1.2 Nötr taban (tonal katmanlar) — saf siyah kullanılmaz */
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-raised: #1c1c1c;
+  --hairline: #262626;
+  --text-hi: #ffffff;
+  --text: #e6e6e6;
+  --text-mid: #9a9a9a;
+  --text-low: #666666;
+
+  /* §1.3 Global accent — Apex Red (tek kaynak: config/team-colors.ts). */
   --accent: #ff1801;
-  --paper: #f4f1ea;
-  --muted: rgba(244, 241, 234, 0.5);
-  --border: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(255, 255, 255, 0.14);
-  --content-max: 1180px;
-  --radius: 0;
-  --font-display: var(--font-bebas-neue), system-ui, sans-serif;
+
+  /* Takım-temalı sayfalar bu değişkenleri kök <div style> ile ezer (§1.1). */
+  --team-primary: var(--bg);
+  --team-secondary: var(--accent);
+  --team-accent: var(--accent);
+
+  /* §4 Radius */
+  --radius-lg: 16px; /* kart / büyük container */
+  --radius: 8px; /* buton / çip */
+  --radius-pill: 9999px;
+
+  /* §3.2 Grid & ritim */
+  --container-max: 1440px;
+
+  /* Fontlar — next/font (app/layout.tsx) */
   --font-condensed: var(--font-barlow-condensed), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
-  --carbon-grid: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.018) 0 1px,
-    transparent 1px 9px
-  );
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 @theme inline {
-  --color-background: #0a0a0a;
-  --color-foreground: #f4f1ea;
-  --color-surface: #131313;
-  --color-card: #141414;
-  --color-accent: #ff1801;
-  --color-paper: #f4f1ea;
-  --color-muted: rgba(244, 241, 234, 0.5);
-  --color-border: rgba(255, 255, 255, 0.07);
-  --color-border-hover: rgba(255, 255, 255, 0.14);
-  --font-display: var(--font-bebas-neue), system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-hairline: var(--hairline);
+  --color-text-hi: var(--text-hi);
+  --color-text: var(--text);
+  --color-text-mid: var(--text-mid);
+  --color-text-low: var(--text-low);
+  --color-accent: var(--accent);
+  --color-team-primary: var(--team-primary);
+  --color-team-secondary: var(--team-secondary);
+  --color-team-accent: var(--team-accent);
+
   --font-condensed: var(--font-barlow-condensed), system-ui, sans-serif;
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
-  --radius-none: 0;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius-card: 16px;
+  --radius-chip: 8px;
+  --radius-pill: 9999px;
 }
 
+/* §4 Reset — box-sizing only (zero-radius reset KALDIRILDI; radius design.md'ye taşındı). */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  border-radius: 0;
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 html {
   overflow-x: hidden;
+  background-color: var(--bg);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-body);
-  font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.6;
   min-height: 100dvh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* §1.4 Focus beyaz (kırmızı değil) */
+:focus-visible {
+  outline: 2px solid var(--text-hi);
+  outline-offset: 2px;
+}
+
+/* ─── §2.1 Tip ölçeği yardımcı sınıfları ───────────────────────────────────── */
+
+.display-hero {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: clamp(64px, 9vw, 120px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.headline-lg {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.headline-md {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.1;
+}
+
+.body-lg {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.body-md {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.data-tabular {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.label-caps {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Kahraman sayı — büyük rakamda satır yüksekliği boyutla ters (§2.2) */
+.hero-number {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* §5 reduced-motion zorunlu */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

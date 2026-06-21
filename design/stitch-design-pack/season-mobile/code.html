@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apex F1 - Season</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#b4b5b5",
+                        "on-surface-variant": "#e9bcb5",
+                        "inverse-primary": "#c00000",
+                        "primary-fixed": "#ffdad4",
+                        "on-background": "#e5e2e1",
+                        "primary": "#ffb4a8",
+                        "primary-container": "#dc0000",
+                        "on-tertiary-fixed": "#00174b",
+                        "on-primary-container": "#ffece9",
+                        "on-primary-fixed": "#410000",
+                        "on-tertiary-container": "#edefff",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#131313",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-tertiary": "#002a77",
+                        "surface-tint": "#ffb4a8",
+                        "outline-variant": "#5e3f3a",
+                        "background": "#0a0a0a",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed-variant": "#003ea7",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#454747",
+                        "inverse-on-surface": "#313030",
+                        "on-primary": "#690000",
+                        "on-secondary": "#2f3131",
+                        "inverse-surface": "#e5e2e1",
+                        "outline": "#af8781",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "tertiary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#930100",
+                        "surface-variant": "#353534",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-dim": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container": "#141414",
+                        "surface-bright": "#3a3939",
+                        "tertiary-container": "#0060f9",
+                        "surface-container-highest": "#353534",
+                        "tertiary-fixed": "#dbe1ff",
+                        "tertiary-fixed-dim": "#b4c5ff",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-error": "#690005",
+                        "secondary": "#c6c6c7"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "20px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "container-max": "1440px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Barlow Condensed"],
+                        "display-hero": ["Barlow Condensed"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-tabular": ["JetBrains Mono"],
+                        "headline-md": ["Barlow Condensed"],
+                        "display-hero-mobile": ["Barlow Condensed"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "display-hero": ["120px", { "lineHeight": "110px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-md": ["32px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "display-hero-mobile": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .bento-card {
+            background-color: theme('colors.surface-container');
+            border: 1px solid #262626;
+            border-radius: theme('borderRadius.xl');
+            padding: 24px;
+        }
+        .data-chip {
+            border: 1px solid #333;
+            border-radius: 9999px;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: theme('colors.primary-container');
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(220, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 0, 0, 0); }
+        }
+        .list-row:hover {
+            background-color: #1c1c1c;
+        }
+        .list-row:hover .accent-bar {
+            opacity: 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased md:hidden pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface">menu</span>
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-on-surface">APEX</span>
+</div>
+<span class="material-symbols-outlined text-on-surface">search</span>
+</header>
+<main class="pt-24 px-4 space-y-6">
+<!-- Top Card: Year & Summary -->
+<div class="bento-card flex flex-col items-center justify-center py-8">
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-secondary hover:text-white cursor-pointer transition-colors">chevron_left</span>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-white">2026</h1>
+<span class="material-symbols-outlined text-secondary hover:text-white cursor-pointer transition-colors">chevron_right</span>
+</div>
+<div class="mt-4 data-chip font-data-tabular text-data-tabular text-secondary uppercase tracking-widest">
+                24 ROUNDS · 13 DONE
+            </div>
+</div>
+<!-- Card 1: Standings -->
+<div class="bento-card p-0 overflow-hidden">
+<div class="p-6 border-b border-[#262626] flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-white">STANDINGS</h2>
+<div class="flex gap-4">
+<button class="font-label-caps text-label-caps text-white border-b-2 border-primary-container pb-1">DRIVERS</button>
+<button class="font-label-caps text-label-caps text-secondary pb-1">TEAMS</button>
+</div>
+</div>
+<div class="flex flex-col">
+<!-- Driver Row -->
+<div class="list-row relative flex items-center justify-between p-4 px-6 border-b border-[#262626] transition-colors cursor-pointer">
+<div class="accent-bar absolute left-0 top-0 bottom-0 w-1 bg-primary-container opacity-0 transition-opacity"></div>
+<div class="flex items-center gap-4">
+<span class="font-data-tabular text-data-tabular text-secondary w-4">1</span>
+<div class="w-1 h-8 bg-blue-600 rounded-full"></div>
+<div class="flex flex-col">
+<span class="font-headline-md text-xl font-bold text-white uppercase tracking-wider leading-tight">M. VERSTAPPEN</span>
+<span class="font-label-caps text-[10px] text-secondary">RED BULL RACING</span>
+</div>
+</div>
+<span class="font-data-tabular text-data-tabular font-bold text-white">314</span>
+</div>
+<!-- Driver Row -->
+<div class="list-row relative flex items-center justify-between p-4 px-6 border-b border-[#262626] transition-colors cursor-pointer">
+<div class="accent-bar absolute left-0 top-0 bottom-0 w-1 bg-primary-container opacity-0 transition-opacity"></div>
+<div class="flex items-center gap-4">
+<span class="font-data-tabular text-data-tabular text-secondary w-4">2</span>
+<div class="w-1 h-8 bg-orange-500 rounded-full"></div>
+<div class="flex flex-col">
+<span class="font-headline-md text-xl font-bold text-white uppercase tracking-wider leading-tight">L. NORRIS</span>
+<span class="font-label-caps text-[10px] text-secondary">MCLAREN</span>
+</div>
+</div>
+<span class="font-data-tabular text-data-tabular font-bold text-white">256</span>
+</div>
+<!-- Driver Row -->
+<div class="list-row relative flex items-center justify-between p-4 px-6 transition-colors cursor-pointer">
+<div class="accent-bar absolute left-0 top-0 bottom-0 w-1 bg-primary-container opacity-0 transition-opacity"></div>
+<div class="flex items-center gap-4">
+<span class="font-data-tabular text-data-tabular text-secondary w-4">3</span>
+<div class="w-1 h-8 bg-red-600 rounded-full"></div>
+<div class="flex flex-col">
+<span class="font-headline-md text-xl font-bold text-white uppercase tracking-wider leading-tight">C. LECLERC</span>
+<span class="font-label-caps text-[10px] text-secondary">FERRARI</span>
+</div>
+</div>
+<span class="font-data-tabular text-data-tabular font-bold text-white">228</span>
+</div>
+</div>
+<div class="p-4 border-t border-[#262626] text-center">
+<button class="font-label-caps text-label-caps text-secondary hover:text-white transition-colors">VIEW FULL STANDINGS</button>
+</div>
+</div>
+<!-- Card 2: Race Calendar -->
+<div class="bento-card p-0 overflow-hidden">
+<div class="p-6 border-b border-[#262626]">
+<h2 class="font-headline-md text-headline-md text-white">CALENDAR</h2>
+</div>
+<div class="flex flex-col">
+<!-- Round DONE -->
+<div class="flex items-center gap-4 p-4 px-6 border-b border-[#262626] opacity-60">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-[#1c1c1c] rounded-lg">
+<span class="font-label-caps text-[10px] text-secondary">R12</span>
+</div>
+<div class="flex-1 flex flex-col">
+<span class="font-body-md text-white font-bold leading-tight">British Grand Prix</span>
+<span class="font-data-tabular text-[12px] text-secondary">JUL 05 - 07</span>
+</div>
+<div class="data-chip text-[10px] font-label-caps text-secondary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> DONE
+                    </div>
+</div>
+<!-- Round NEXT (Highlighted) -->
+<div class="relative flex items-center gap-4 p-4 px-6 border-b border-[#262626] bg-[#1a1a1a]">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-white text-black rounded-lg">
+<span class="font-label-caps text-[10px] font-bold">R13</span>
+</div>
+<div class="flex-1 flex flex-col">
+<span class="font-body-md text-white font-bold leading-tight">Hungarian Grand Prix</span>
+<span class="font-data-tabular text-[12px] text-secondary">JUL 19 - 21</span>
+</div>
+<div class="data-chip text-[10px] font-label-caps text-white border-white">
+<div class="live-dot"></div> NEXT
+                    </div>
+</div>
+<!-- Round UPCOMING -->
+<div class="flex items-center gap-4 p-4 px-6">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-[#1c1c1c] rounded-lg">
+<span class="font-label-caps text-[10px] text-secondary">R14</span>
+</div>
+<div class="flex-1 flex flex-col">
+<span class="font-body-md text-white font-bold leading-tight">Belgian Grand Prix</span>
+<span class="font-data-tabular text-[12px] text-secondary">JUL 26 - 28</span>
+</div>
+<div class="data-chip text-[10px] font-label-caps text-secondary">
+<span class="material-symbols-outlined text-[14px]">schedule</span> UPCOMING
+                    </div>
+</div>
+</div>
+</div>
+<!-- Grid for Cards 3 & 4 -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 3: Highlight -->
+<div class="bento-card relative overflow-hidden p-0 h-48 group cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity" data-alt="A striking portrait of an F1 driver in a dark, moody garage lit by bright volumetric spotlights. High contrast, cinematic editorial style. Monochromatic with a subtle red glow in the background. Focused intensity." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA0VgiIAeLENVjuHvooSGO51hWZbrgyG1ftMcYI2V67obrzHqm-P_Cy3M2gOnr6u006dA8CUxyvrNby6WnXVhevBaa0stmmhxI2otTQKeTBww9oSNYAA5krtYFzp7s47OUzFXxf-8BhHNWDbaFGfsSRfImV8AXMXp1D0yoWPfJ8cewmMzzInwAi6GlQP0bBA2nWymRTvToVf4iGHs9UqDJJMafYild4_MPFNA946gskc-P5PPpdtbrO5xg16_U40Q60XtxNrINm0QBJ')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+<div class="relative h-full p-4 flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-secondary">MOST WINS</span>
+<div>
+<span class="font-display-hero-mobile text-5xl font-bold text-white leading-none">8</span>
+<span class="block font-headline-md text-lg uppercase text-secondary leading-tight mt-1">VERSTAPPEN</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Last Race -->
+<div class="bento-card p-4 flex flex-col justify-between h-48">
+<span class="font-label-caps text-label-caps text-secondary">LAST RACE: GBR</span>
+<div class="flex items-end justify-center gap-2 h-24 pb-2">
+<!-- P2 -->
+<div class="flex flex-col items-center gap-1">
+<span class="font-data-tabular text-[10px] text-white">NOR</span>
+<div class="w-8 h-12 bg-orange-500 rounded-t-sm opacity-80"></div>
+</div>
+<!-- P1 -->
+<div class="flex flex-col items-center gap-1">
+<span class="font-data-tabular text-[10px] text-white font-bold">HAM</span>
+<div class="w-8 h-16 bg-teal-500 rounded-t-sm"></div>
+</div>
+<!-- P3 -->
+<div class="flex flex-col items-center gap-1">
+<span class="font-data-tabular text-[10px] text-white">VER</span>
+<div class="w-8 h-8 bg-blue-600 rounded-t-sm opacity-60"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-2xl border-t border-outline-variant/20 flex justify-around items-center h-20 px-4 pb-safe md:hidden">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-[10px] mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-bold active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-caps text-[10px] mt-1">Season</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">sports_score</span>
+<span class="font-label-caps text-[10px] mt-1">Drivers</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-caps text-[10px] mt-1">Anthology</span>
+</div>
+</nav>
+</body></html>

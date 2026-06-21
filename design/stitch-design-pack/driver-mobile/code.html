@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Driver Profile | Andrea Kimi Antonelli</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100..900&family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #06100f;
+            color: #e5e2e1;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(20, 20, 20, 0.6);
+        }
+        .teal-glow {
+            filter: drop-shadow(0 0 40px rgba(0, 210, 190, 0.3));
+        }
+        .bento-card {
+            background: #141414;
+            border: 1px solid #262626;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .accent-bar {
+            width: 4px;
+            background: #00D2BE;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #06100f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-background": "#e5e2e1",
+                        "surface-dim": "#131313",
+                        "primary": "#00D2BE", // Overridden for Mercedes Teal
+                        "on-secondary-container": "#b4b5b5",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-high": "#2a2a2a",
+                        "background": "#06100f",
+                        "on-surface": "#e5e2e1",
+                        "on-surface-variant": "#C0C0C0", // Silver accent
+                        "primary-container": "#00D2BE",
+                    },
+                    fontFamily: {
+                        "headline-md": ["Barlow Condensed"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "display-hero-mobile": ["Barlow Condensed"],
+                        "data-tabular": ["JetBrains Mono"],
+                    },
+                    fontSize: {
+                        "headline-md": ["32px", { lineHeight: "36px", fontWeight: "700" }],
+                        "display-hero-mobile": ["84px", { lineHeight: "76px", letterSpacing: "-0.04em", fontWeight: "800" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "700" }],
+                        "data-tabular": ["14px", { lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "500" }],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-body-md">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-white/10 flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface">menu</span>
+<h1 class="font-headline-md text-[24px] tracking-tighter text-on-surface uppercase">APEX</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface">search</span>
+</div>
+</header>
+<main class="pt-20 pb-32 px-margin-mobile flex flex-col gap-4">
+<!-- Hero Card -->
+<section class="bento-card relative min-h-[440px] flex flex-col justify-end p-6 group">
+<div class="absolute left-0 top-0 bottom-0 accent-bar"></div>
+<!-- Driver Image with Teal Glow -->
+<div class="absolute right-[-10%] top-0 w-full h-full pointer-events-none">
+<img alt="Andrea Kimi Antonelli Portrait" class="w-full h-full object-contain object-right-top teal-glow transform transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxtBZ9HkAAm-oG9Uar9ArUu8w4rmeamDy8ZnNGmNWWotQokXtSmwLQQXAHMALkXe-DNTUtFgb2dWnUb7IECfyUs00gmPyDfG4jZN91wZXMoqdjwNIfwms9XNZNkVCuhyIQz02Ez183NloWVgJkmWaJ7UwUBsMv9PDUEz3bYzGTNggZwPE2MXbrpj5t4RU-zQMU-NqKxY0RFUziI7zBE10ajImMtvI4zQnN7Q6IB4e2SJoqs5OW6tsn-0fZ72UhGDsR8OpUlzhX5VO5"/>
+</div>
+<div class="relative z-10 flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<img alt="Italy" class="w-6 h-auto rounded-sm opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgGSVRvnuid3ZmPdWa7isRUz60oe607nfrKrmDeaDxzEkix9vCqcfYGsiPPMGmHvVjrGjukTp-IklkI_NLbP07zfFtz1O2RWYYdHk3DFi_uJxxNRoTipkKj1mxxNy1NQcgSF9STkKBHE538QXrUDmnS-98-NTb02XI8L1_lB0pc955a2DHVK-ZLxuOoTVOh59bU8xGs4RWTBuOQD22mZcW8uQEK8cMYCBNfwxBataRG94nMVI7_BfSbP15NUIRZK86a-a-Ljm3q8DY"/>
+<span class="font-label-caps text-on-surface-variant">MERCEDES-AMG PETRONAS</span>
+</div>
+<h2 class="font-display-hero-mobile text-primary leading-none uppercase">KIMI<br/>ANTONELLI</h2>
+<div class="absolute top-0 left-6">
+<span class="font-display-hero-mobile opacity-10 text-on-surface text-[140px] pointer-events-none select-none">12</span>
+</div>
+</div>
+</section>
+<!-- Stat Trio Card -->
+<section class="bento-card p-6 flex justify-between items-center">
+<div class="flex flex-col items-center">
+<span class="font-display-hero-mobile text-[48px] text-on-surface leading-none">1</span>
+<span class="font-label-caps text-on-surface-variant text-[10px]">WINS</span>
+</div>
+<div class="h-12 w-[1px] bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="font-display-hero-mobile text-[48px] text-on-surface leading-none">6</span>
+<span class="font-label-caps text-on-surface-variant text-[10px]">PODIUMS</span>
+</div>
+<div class="h-12 w-[1px] bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="font-display-hero-mobile text-[48px] text-on-surface leading-none">2</span>
+<span class="font-label-caps text-on-surface-variant text-[10px]">POLES</span>
+</div>
+</section>
+<div class="grid grid-cols-2 gap-4">
+<!-- Season Standing Card -->
+<section class="bento-card p-6 flex flex-col justify-between aspect-square">
+<span class="font-label-caps text-on-surface-variant">SEASON RANK</span>
+<div class="flex items-baseline gap-1">
+<span class="font-display-hero-mobile text-[64px] text-primary">P6</span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%;"></div>
+</div>
+<span class="font-data-tabular text-on-surface">97 PTS</span>
+</div>
+</section>
+<!-- Season Form Card -->
+<section class="bento-card p-6 flex flex-col justify-between aspect-square">
+<span class="font-label-caps text-on-surface-variant">RECENT FORM</span>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-[10px]">MON</span>
+<div class="px-2 py-0.5 rounded bg-primary/20 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">emoji_events</span>
+<span class="font-label-caps text-primary text-[10px]">P1</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-[10px]">EMI</span>
+<div class="px-2 py-0.5 rounded bg-white/5 border border-white/10 flex items-center gap-1">
+<span class="font-label-caps text-on-surface text-[10px]">P4</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-[10px]">MIA</span>
+<div class="px-2 py-0.5 rounded bg-white/5 border border-white/10 flex items-center gap-1">
+<span class="font-label-caps text-on-surface-variant text-[10px]">DNF</span>
+</div>
+</div>
+</div>
+<span class="font-data-tabular text-[10px] text-on-surface-variant text-right">LAST 5 ROUNDS</span>
+</section>
+</div>
+<!-- 2026 Car Card -->
+<section class="bento-card p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<img alt="Mercedes AMG Petronas Logo" class="h-8 w-auto invert opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWcTQAEIApJkm4HFZtX0JnZ9tz9Htaf-RxDStJ3-YLDgkg2WIPNtHxGUok49JjxBNMUJErncrg1anmuxR3R0du78fmG1s6pSDiHM2iF5eDKmisWgyT5IN6gwK4sLVVGw14MtQVTvvd0MRJG2z4E2YnYobLfqRIDaxTg9eaog3VsNuPxR0gBI9YbbdN-za9fQ4iPPhtZJahR1kQf7wxzAn61rqkQ0sir6E1H6LJvxLU2B3vf9h_lMaHBCKGWAquRVN4WwRRvzWMM6Ff"/>
+<span class="font-label-caps text-on-surface-variant">W17 CHASSIS // 2026</span>
+</div>
+<div class="py-4">
+<img alt="Mercedes F1 Car Side View" class="w-full h-auto drop-shadow-2xl scale-110 transform translate-x-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3mi0LsrSfPGdced9D9Z5s7WqpKMucV2xNLCHqqkq9M7Gt1RKmHH8wzLkunPwNL7eYtTJbyO5pSi9aA7OXIUAPoWNzBCxQ6_J98lXLkbOKVG4mDRA1PtcDfOU83RSchX3CI5d5Gne8QNbGVZh-76g2h8Yr5Sk0YkT18Y7gWbXVPmFW3Ru0X4hXOBYquuX7ftOkEC2UbqYCJliOWVC3wXT-rCvUAZLYKtiKmFdWYGgO4aiK_op2IzlT-1SShGUtgUUbYRJD1ZwvgQ28"/>
+</div>
+<p class="font-data-tabular text-[12px] text-on-surface-variant leading-relaxed border-t border-white/5 pt-4">
+                THE NEXT GENERATION OF PERFORMANCE. PUSHING THE BOUNDARIES OF AERODYNAMIC EFFICIENCY AND HYBRID POWER DELIVERY.
+            </p>
+</section>
+<!-- Career Facts Card -->
+<section class="bento-card p-6 flex flex-col gap-4">
+<span class="font-label-caps text-on-surface-variant">BIOMETRICS & CAREER</span>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between border-b border-white/5 pb-2">
+<span class="font-label-caps text-[11px] text-on-surface-variant opacity-60 uppercase">Date of Birth</span>
+<span class="font-data-tabular text-on-surface text-[12px]">25 AUG 2006</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-2">
+<span class="font-label-caps text-[11px] text-on-surface-variant opacity-60 uppercase">Place of Birth</span>
+<span class="font-data-tabular text-on-surface text-[12px]">BOLOGNA, ITALY</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-2">
+<span class="font-label-caps text-[11px] text-on-surface-variant opacity-60 uppercase">GP Starts</span>
+<span class="font-data-tabular text-on-surface text-[12px]">24</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-2">
+<span class="font-label-caps text-[11px] text-on-surface-variant opacity-60 uppercase">Highest Finish</span>
+<span class="font-data-tabular text-on-surface text-[12px]">1st (x1)</span>
+</div>
+<div class="flex justify-between">
+<span class="font-label-caps text-[11px] text-on-surface-variant opacity-60 uppercase">F1 Debut</span>
+<span class="font-data-tabular text-on-surface text-[12px]">2025 AUSTRALIA</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 glass-panel border-t border-white/10 flex justify-around items-center h-20 px-4 pb-safe">
+<button class="flex flex-col items-center justify-center text-on-secondary-container p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-secondary-container p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">calendar_today</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary/20 text-primary rounded-xl p-3 active:scale-90 transition-transform shadow-[0_0_20px_rgba(0,210,190,0.2)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sports_score</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-secondary-container p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">auto_stories</span>
+</button>
+</nav>
+<script>
+        // Simple intersection observer for reveal animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-8');
+            observer.observe(card);
+        });
+
+        // Interactive micro-effects for the hero
+        const hero = document.querySelector('.group');
+        hero.addEventListener('mousemove', (e) => {
+            const rect = hero.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 25;
+            const rotateY = (centerX - x) / 25;
+            
+            hero.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        hero.addEventListener('mouseleave', () => {
+            hero.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
+</body></html>
