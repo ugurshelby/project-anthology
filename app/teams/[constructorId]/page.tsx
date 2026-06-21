@@ -90,7 +90,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
 
           <BentoCard span={8}>
             <span className="label-caps mb-3 block text-text-mid">Driver Line-up</span>
-            <DriverLineup drivers={profile.drivers} season={season} />
+            <DriverLineup drivers={profile.drivers} season={season} constructorName={profile.constructorName} />
           </BentoCard>
 
           {d1 && d2 ? (

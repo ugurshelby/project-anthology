@@ -1,12 +1,10 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
+import { DriverAvatar } from '@/components/bento/DriverAvatar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
 /** Driver standings row — position · portrait · name · team · color bar · points. */
 export function DriverRow({ row, season }: { row: DriverStandingRow; season: number }) {
-  const portrait = driverIconSrc(row.driverCode, row.driverId, season);
   const teamColor = resolveTeamUiColor(undefined, row.constructorName);
 
   return (
@@ -15,11 +13,14 @@ export function DriverRow({ row, season }: { row: DriverStandingRow; season: num
       className="group flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-2 transition-colors hover:bg-surface-raised"
     >
       <span className="data-tabular w-6 text-right text-text-mid">{row.position}</span>
-      <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-raised">
-        {portrait ? (
-          <Image src={portrait} alt="" fill sizes="32px" className="object-cover object-top" />
-        ) : null}
-      </span>
+      <DriverAvatar
+        driverName={row.driverName}
+        driverCode={row.driverCode}
+        driverId={row.driverId}
+        constructorName={row.constructorName}
+        season={season}
+        size={32}
+      />
       <span className="font-condensed flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
         {row.driverName}
       </span>

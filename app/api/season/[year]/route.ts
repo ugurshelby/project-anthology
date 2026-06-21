@@ -1,13 +1,32 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { getSeasonData } from '@/lib/data/f1';
 import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
+import { rateLimit, getClientIP } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 60;
+
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ year: string }> },
 ): Promise<NextResponse> {
+  const clientIP = getClientIP(req.headers);
+  if (clientIP !== 'unknown') {
+    const { success, retryAfter } = await rateLimit(clientIP, {
+      prefix: 'season',
+      max: RATE_LIMIT_MAX_REQUESTS,
+      windowMs: RATE_LIMIT_WINDOW_MS,
+    });
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+      );
+    }
+  }
+
   const { year: yearStr } = await params;
   const year = Number(yearStr);
 

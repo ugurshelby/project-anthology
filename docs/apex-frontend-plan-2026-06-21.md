@@ -247,3 +247,40 @@ Görsel/işlevsel:
 - A11y: `prefers-reduced-motion` animasyon kapatır; klavye focus beyaz; kontrast WCAG AA.
 - Responsive: 375/768/1024/1440 — yatay scroll yok, hero tek satır (`clamp`).
 - Asset 404: `/drivers/2026/*`, `/teams/2026/*`, `/cars/*`, `/circuits/*` (özellikle Audi/Cadillac/RB).
+
+---
+
+## Faz 2 — Estetik iyileştirme + asset kullanımı + güvenlik (2026-06-22 ✅)
+
+Kullanıcı görsel geri bildirimi: home + driver profili + drivers grid'de boş alanlar; `public/`
+asset'leri yeterince kullanılmıyor. `ui-ux-pro-max` ile gözden geçirildi (bento yoğunluk + boş-durum
+prensipleri; renk/font önerileri uygulanmadı — tasarım otoritesi `design.md` değişmez).
+
+### Frontend (estetik + imagery)
+- [x] **DriverAvatar** (`components/bento/DriverAvatar.tsx`) — portre SVG varsa onu, yoksa zarif
+  monogram (baş harf + takım rengi wash). Boş daire bitti. Grid/standings/lineup'a uygulandı.
+- [x] **Home redesign** (`app/page.tsx`):
+  - Hero circuit outline daha belirgin (opacity 0.06→0.14, padding) + accent glow → track-map atmosferi.
+  - **Championship Leader** kartı zenginleşti: lider portresi + büyük araç SVG silueti + puan farkı
+    ("+X ahead") + tıklanabilir. Dev boşluk bitti.
+  - **Featured Story** kartı eklendi (anthology hero foto → `public/stories/`). The Wire 8-span'a alındı.
+  - Kartlara `min-h` + `justify-center` → grid yükseklik dengesi.
+- [x] **Driver profili** (`app/drivers/[driverId]/page.tsx`):
+  - **"2026 CAR" kartı eklendi** (araç SVG — daha önce driver'da hiç kullanılmıyordu) + takım logosu
+    + radial team-glow. Stat kartlarına `min-h-40` → eşit yükseklik, boşluk dengesi.
+- [x] **Drivers grid** (`GridCards.tsx`): kartlara takım-rengi blur wash (boş alan dolgusu) + DriverAvatar.
+
+### Backend (güvenlik / SEO / reverse-eng / mimari)
+- [x] **Rate limiting yayıldı:** `/api/f1-season` (SSRF proxy, 60/dk) ve `/api/season/[year]` (60/dk)
+  artık rate-limited. Daha önce sadece `/api/news` korunuyordu.
+- [x] **`getClientIP` paylaşıldı** (`lib/rateLimit.ts`) — IP-spoofing korumalı (`x-real-ip` öncelik),
+  3 route'ta DRY kullanım.
+- [x] **CSP sertleştirildi** (`next.config.ts`): `worker-src 'self'` (sw.js), `manifest-src 'self'`,
+  `media-src 'self' https:` (radio audio), `upgrade-insecure-requests`.
+- [x] **`poweredByHeader: false`** — `X-Powered-By: Next.js` artık sızmıyor (reverse-eng yüzeyi azaldı).
+- **Zaten sağlamdı (dokunulmadı):** SSRF whitelist (`/api/f1-season`), robots `/api/` disallow, HSTS,
+  X-Frame-Options, Referrer-Policy, Permissions-Policy, preview noindex, cron Bearer auth.
+
+### Doğrulama
+- `tsc` ✓ · `npm test` 52/52 ✓ · `npm run build` ✓ (13 route).
+- Log: `logs/AGENT_APEX_FAZ2_POLISH_SECURITY_2026-06-22.md`.

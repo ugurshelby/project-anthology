@@ -18,6 +18,24 @@ export interface RateLimitResult {
   retryAfter: number;
 }
 
+/**
+ * Resolve a trustworthy client IP for rate-limiting. Prefers Vercel's `x-real-ip`
+ * (set from the real connection, not client-spoofable); off-Vercel it uses the
+ * rightmost x-forwarded-for hop (infrastructure-appended). Returns 'unknown' when
+ * neither is present — callers should skip limiting rather than bucket everyone
+ * together under one key.
+ */
+export function getClientIP(headers: Headers): string {
+  const realIp = headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+  const forwardedFor = headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    const parts = forwardedFor.split(',');
+    return parts[parts.length - 1]?.trim() || 'unknown';
+  }
+  return 'unknown';
+}
+
 interface RateLimitOptions {
   /** Logical bucket name, namespaces keys (e.g. 'news'). */
   prefix: string;

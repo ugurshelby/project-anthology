@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import { getDriverProfile, getDriverSeasons, getDriverCareer } from '@/lib/data/entities';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { SITE_NAME } from '@/lib/seo';
+import Image from 'next/image';
 import { teamThemeVars } from '@/lib/theme';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
+import { driverIconSrc, carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
@@ -58,6 +59,8 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   const theme = teamThemeVars(profile.constructorId, season);
   const lore = getDriverLore(profile.driverId);
   const portrait = driverIconSrc(profile.driverCode, profile.driverId, season);
+  const car = carSrc(profile.constructorId, profile.constructorName);
+  const teamLogo = teamIconSrc(profile.constructorName);
 
   const dossier = [
     { label: 'Number', value: lore?.number != null ? String(lore.number) : '—' },
@@ -82,7 +85,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
 
       <div className="mt-6">
         <BentoGrid>
-          <BentoCard span={4}>
+          <BentoCard span={4} className="flex min-h-40 flex-col justify-center">
             <StatTrio
               items={[
                 { value: profile.wins, label: 'Wins' },
@@ -92,11 +95,11 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             />
           </BentoCard>
 
-          <BentoCard span={4}>
+          <BentoCard span={4} className="flex min-h-40 flex-col justify-center">
             <StatBlock value={`P${profile.position}`} label="Season Standing" sublabel={`${profile.points} PTS`} size="md" accent />
           </BentoCard>
 
-          <BentoCard span={4}>
+          <BentoCard span={4} className="flex min-h-40 flex-col justify-center">
             <StatBlock value={career.points} label="Career Points" size="md" />
           </BentoCard>
 
@@ -116,6 +119,33 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
               ]}
             />
           </BentoCard>
+
+          {/* 2026 Car — the team machine, a full-width cinematic strip */}
+          {car ? (
+            <BentoCard span={12} as="div" className="relative flex min-h-48 items-center overflow-hidden">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-30"
+                style={{ background: 'radial-gradient(120% 120% at 80% 50%, var(--team-secondary), transparent 60%)' }}
+              />
+              <div className="relative z-10 flex flex-col gap-2">
+                {teamLogo ? (
+                  <Image src={teamLogo} alt={profile.constructorName} width={48} height={48} className="object-contain" />
+                ) : null}
+                <span className="label-caps text-text-mid">{season} Machinery</span>
+                <span className="font-condensed text-3xl font-700 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                  {profile.constructorName}
+                </span>
+              </div>
+              <Image
+                src={car}
+                alt={`${profile.constructorName} ${season} car`}
+                width={640}
+                height={220}
+                className="pointer-events-none absolute bottom-0 right-0 w-[58%] object-contain md:w-[55%]"
+              />
+            </BentoCard>
+          ) : null}
         </BentoGrid>
       </div>
     </main>
