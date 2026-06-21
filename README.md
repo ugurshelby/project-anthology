@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Apex (Project Anthology)
 
-## Getting Started
+Formula 1 odaklı arşiv ve canlı veri sitesi. Sezon takvimi, puan durumu, pilot/takım profilleri, pistler, haberler ve tarihsel hikâyeler tek bir arayüzde birleşir.
 
-First, run the development server:
+**Canlı:** [project-anthology-five.vercel.app](https://project-anthology-five.vercel.app)
+
+## Özellikler
+
+- **Ana panel** — Bento dashboard: geri sayım, puan durumu, son yarış, haber özeti, "on this day"
+- **Sezon** — Takvim, yarış detayları
+- **Pilotlar & takımlar** — Grid, profil sayfaları,takım-bazlı renk paleti
+- **Pistler** — Pist listesi ve detay sayfaları
+- **Anthology** — Tarihsel F1 hikâyeleri (Senna, Fangio, Brawn GP vb.)
+- **Haberler** — RSS kaynaklarından canlı aggregate
+- **Tech Glossary** — F1 terimleri sözlüğü
+- **PWA** — Manifest ve service worker desteği
+
+## Teknoloji
+
+| Katman | Araç |
+|---|---|
+| Framework | Next.js 16 (App Router), React 19 |
+| Stil | Tailwind CSS 4 |
+| Veritabanı | Supabase (PostgreSQL) |
+| Hosting | Vercel (+ Cron) |
+| Veri kaynakları | Jolpica/Ergast, F1DB, OpenF1, RSS |
+| İzleme | Sentry, Vercel Analytics & Speed Insights |
+| Test | Vitest, Playwright (devDependency) |
+
+## Kurulum
+
+```bash
+git clone <repo-url>
+cd anthology
+npm install
+cp .env.example .env.local
+```
+
+`.env.local` dosyasını doldurun (aşağıya bakın), ardından:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tarayıcıda [http://localhost:3000](http://localhost:3000) adresini açın.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Ortam değişkenleri
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Değişken | Zorunlu | Açıklama |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Evet | Supabase proje URL'si |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Evet | Client-side anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Evet | Server-side tam erişim (client'a sızdırılmaz) |
+| `CRON_SECRET_KEY` | Evet | Vercel Cron `Authorization: Bearer` doğrulaması |
+| `NEXT_PUBLIC_SITE_URL` | Önerilir | Mutlak site URL'si (RSC self-fetch için) |
+| `GEMINI_API_KEY` | Hayır | Haber özetleri için; yoksa özet atlanır |
 
-## Learn More
+Şablon: [`.env.example`](.env.example)
 
-To learn more about Next.js, take a look at the following resources:
+## Komutlar
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev          # Geliştirme sunucusu
+npm run build        # Production build
+npm run start        # Production sunucusu
+npm run lint         # ESLint
+npm test             # Vitest (bir kez)
+npm run test:watch   # Vitest (watch modu)
+npm run seed:f1db    # F1DB tarihsel veri seed
+npm run seed:stories # Anthology hikâye seed
+npm run gen:pwa-icons # PWA ikon üretimi
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Rotalar
 
-## Deploy on Vercel
+| Rota | Açıklama |
+|---|---|
+| `/` | Ana sayfa (bento dashboard) |
+| `/season` | Güncel sezon |
+| `/season/[year]/round/[n]` | Yarış detayı |
+| `/drivers`, `/drivers/[id]` | Pilotlar |
+| `/teams`, `/teams/[constructorId]` | Takımlar |
+| `/circuits`, `/circuits/[id]` | Pistler |
+| `/anthology`, `/anthology/[slug]` | Tarihsel hikâyeler |
+| `/news` | Haberler |
+| `/tech-glossary` | Terim sözlüğü |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Mimari (kısa)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+Dış API'ler (Jolpica, F1DB, OpenF1, RSS)
+        ↓  Vercel Cron (server-side)
+    Supabase (PostgreSQL)
+        ↓  lib/data/* (RSC)
+    Next.js sayfaları → UI
+```
+
+- **Temporal kaynak:** `lib/f1Calendar` — sezon, takım ve pilot bilgisi buradan okunur; hardcode yok.
+- **Geçmiş sezonlar:** F1DB seed ile DB'de saklanır.
+- **Güncel sezon:** DB snapshot + canlı Jolpica fallback (content-invalid guard ile).
+- **API anahtarları:** Yalnızca server-side; client'a sızmaz.
+
+Detaylı dizin haritası: [`docs/reference/proje-dizini.md`](docs/reference/proje-dizini.md)
+
+## Test
+
+```bash
+npm test                    # Birim testleri (Vitest)
+```
+
+> **Not (2026-06-21):** Frontend tamamen sıfırlandı, sıfırdan inşa edilecek. `components/` silindi; sayfalar veri çağrılarını koruyan iskelet placeholder. Backend/veri/mimari korundu.
+
+## Dokümantasyon
+
+| Dosya | İçerik |
+|---|---|
+| [`docs/reference/proje-dizini.md`](docs/reference/proje-dizini.md) | Dizin haritası ve mimari (güncel durum) |
+| [`docs/reference/PROJECT_LESSONS_AND_ROADMAP.md`](docs/reference/PROJECT_LESSONS_AND_ROADMAP.md) | Dikkat dökümanı ve yol haritası |
+| [`.claude/CLAUDE.md`](.claude/CLAUDE.md) | Agent çalışma anayasası (backend/mimari) |
+
+## Deploy
+
+Vercel üzerinde deploy edilir. Cron rotaları (`/api/cron/sync-f1`, `sync-news`, `sync-radio`) `CRON_SECRET_KEY` ile korunur.
+
+```bash
+npm run build   # Deploy öncesi sıfır hata doğrulaması
+```
+
+## Lisans
+
+Özel proje (`private: true`).

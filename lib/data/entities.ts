@@ -1,4 +1,5 @@
 import { getSeasonData, type SeasonData } from '@/lib/data/f1';
+import { getDriverLore } from '@/data/drivers';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
@@ -145,6 +146,87 @@ export async function getTeamSeasons(constructorId: string): Promise<number[]> {
 export async function getCurrentDrivers(): Promise<{ season: number; rows: DriverStandingRow[] }> {
   const data = await getSeasonData(CURRENT_SEASON);
   return { season: CURRENT_SEASON, rows: data.standings };
+}
+
+/** One driver row enriched with a permanent car number (from the lore dataset). */
+export interface DriverGridRow extends DriverStandingRow {
+  /** Permanent race number ("1", "44"). null when the lore dataset has none. */
+  carNumber: string | null;
+}
+
+/** A constructor with its driver lineup, for the team-strip drivers layout. */
+export interface TeamDriverGroup {
+  constructorId: string;
+  constructorName: string;
+  /** Constructor championship position (string, e.g. "2"). */
+  constructorPosition: string;
+  /** Drivers in this team, ordered by their driver-standings position. */
+  drivers: DriverGridRow[];
+}
+
+/** Resolve a driver's permanent car number from the lore dataset (no new API call). */
+function carNumberFor(row: DriverStandingRow): string | null {
+  const lore = getDriverLore(row.driverId);
+  return lore?.number != null ? String(lore.number) : null;
+}
+
+/**
+ * Current-season drivers grouped by constructor, for the /drivers team-strip
+ * layout. Groups are ordered by constructor-standings position; drivers inside
+ * a group keep their driver-standings order. Also returns the flat standings
+ * list (already enriched with car numbers) for the mobile single-column view.
+ * Derived entirely from the existing season snapshot — no new API calls.
+ */
+export async function getDriversByTeam(): Promise<{
+  season: number;
+  groups: TeamDriverGroup[];
+  flat: DriverGridRow[];
+}> {
+  const data = await getSeasonData(CURRENT_SEASON);
+
+  const flat: DriverGridRow[] = data.standings.map((row) => ({
+    ...row,
+    carNumber: carNumberFor(row),
+  }));
+
+  // Constructor order = constructor-standings position; fall back to first
+  // appearance in the driver standings for any team missing from that table.
+  const constructorOrder = new Map<string, number>();
+  data.constructors.forEach((c, i) => {
+    constructorOrder.set(c.constructorId || c.constructorName, i);
+  });
+
+  const byTeam = new Map<string, TeamDriverGroup>();
+  for (const row of flat) {
+    const key = row.constructorId || row.constructorName;
+    let group = byTeam.get(key);
+    if (!group) {
+      const constructorRow = data.constructors.find(
+        (c) => (c.constructorId || c.constructorName) === key,
+      );
+      group = {
+        constructorId: row.constructorId,
+        constructorName: row.constructorName,
+        constructorPosition: constructorRow?.position ?? '—',
+        drivers: [],
+      };
+      byTeam.set(key, group);
+    }
+    group.drivers.push(row);
+  }
+
+  const groups = [...byTeam.values()].sort((a, b) => {
+    const ai = constructorOrder.get(a.constructorId || a.constructorName) ?? Number.MAX_SAFE_INTEGER;
+    const bi = constructorOrder.get(b.constructorId || b.constructorName) ?? Number.MAX_SAFE_INTEGER;
+    return ai - bi;
+  });
+
+  // Drivers inside each team keep driver-standings order (flat is already sorted).
+  for (const group of groups) {
+    group.drivers.sort((a, b) => Number(a.position) - Number(b.position));
+  }
+
+  return { season: CURRENT_SEASON, groups, flat };
 }
 
 /** Current-season constructor grid (for /teams). */
