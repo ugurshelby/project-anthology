@@ -24,7 +24,7 @@ export default async function TeamsGridPage() {
 
   return (
     <>
-      <AtmosphericHero>
+      <AtmosphericHero compact>
         <p className="font-condensed text-[11px] uppercase tracking-[0.2em]" style={{ color: 'var(--muted)' }}>
           {season} Grid
         </p>
@@ -81,7 +81,10 @@ export default async function TeamsGridPage() {
                       {lineup.map((d) => d.driverName).join(' · ') || '—'}
                     </span>
                   </span>
-                  <span className="shrink-0 font-mono text-sm tabular-nums" style={{ color }}>
+                  <span
+                    className="shrink-0 font-mono text-sm tabular-nums"
+                    style={{ color: 'var(--paper)' }}
+                  >
                     {row.points}
                   </span>
                 </Link>

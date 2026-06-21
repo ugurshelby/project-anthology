@@ -403,6 +403,53 @@ Bu plan sıfırdan başlamıyor — sağlam bir temel var. Aşağıdakiler **bit
 
 ---
 
+## 8.5 FAZ 6 — Görsel QA & Mobil Sertleştirme (2026-06-21)
+
+> **Amaç:** Tam-kapsam görsel denetimden (12 rota × desktop + iPhone 14 Pro Max) çıkan kullanıcı bulgularını kapat. Eksen: önce render bug'ları (kritik), sonra hiyerarşi/disiplin, sonra parlatma.
+> **Kim:** Frontend. **Risk:** Orta (her değişiklik prod build + DPR=2/3 Playwright screenshot ile doğrulandı).
+> **Otorite:** `docs/apex-final-design.md` (A1 renk, A4 kontrast, B2 imza, B3 hiyerarşi).
+>
+> 🎨 **FE-3 ile yapıldı:** `frontend-design` (distinctive yön) + `impeccable` (audit/anti-pattern) + `ui-ux-pro-max` (a11y/touch). `design-sync` (claude.ai design-system senkronu) bu lokal CSS/layout işine uygun olmadığı için kullanılmadı — gerekçe loga yazıldı.
+
+### 6.1 Kritik render bug'ları (🔴)
+
+- [x] 🤖 **Mobil "kırmızı blok" bug'ı (KRİTİK):** `/season`, `/news` ve profil hero'larında sağ-üstte tam-ekran saf kırmızı blok. **Kök sebep:** `radial-gradient(circle|ellipse at <pos>, … transparent …)` formu mobil Chromium/WebKit'te DPR≥2'de solid renkli dikdörtgen olarak raster'lanıyor (GPU rasterizer bug'ı). **Çözüm:** tüm konumlandırılmış-radial atmosfer gradyanları dikey `linear-gradient`'e çevrildi; her stop rengini sıfır-alfada adlandırıyor (`transparent` keyword'ü kaldırıldı). Etkilenen: `AtmosphericHero` (spotlight L/R + red-glow → hero background stack'ine linear olarak katlandı), `NewsFeaturedHero`, `home-atmosphere-*`, `profile-hero-glow`. DPR=3 Playwright ile doğrulandı.
+- [x] 🤖 **Inline `feTurbulence` grain → CSS data-URI tile:** `AtmosphericHero`, `NewsFeaturedHero`, `HomeAtmosphere`'daki inline `<svg><feTurbulence>` grain katmanları (mobil filter-region bug'ı + ekstra DOM) sabit 160px tile'lı CSS background data-URI'ye taşındı.
+- [x] 🤖 **Global overflow-x:** `html` + `body` `overflow-x: hidden` zaten mevcuttu; kırmızı blok overflow değil rasterizer bug'ıydı — yukarıdaki fix kök çözüm.
+
+### 6.2 Anayasa disiplini (A1 / A4 / B3)
+
+- [x] 🤖 **A1 — puan renkleri:** `/drivers`, `/teams` grid puanları ve season "Records" değerleri takım rengindeydi (A1 "veri/puan rakamı renkli olamaz" ihlali). Hepsi `var(--paper)` off-white yapıldı; takım rengi sol-kenar şeridi + arka plan tint'te korundu.
+- [x] 🤖 **A1 — başıboş kırmızı:** GlossaryCard accordion `+` ikonu ve aliases `var(--accent)` (kırmızı) idi → `+` açıkken `--paper` / kapalıyken `--muted`, aliases `--muted`. NewsFeaturedHero `radial` red glow → linear (yukarıda).
+- [x] 🤖 **A4 — soluk meta-veri:** Circuits round/tarih (`--muted` → `--paper`, 9px → 10px), StoryCard kategori etiketi (MIRACLE·2011 vb. `--muted` → `--paper`, medium weight, tracking artışı), News kart meta tarih/kaynak kontrastı yükseltildi.
+
+### 6.3 Hiyerarşi & layout
+
+- [x] 🤖 **News kademe sistemi (en sert bulgu):** "duvar" + "ASSET" placeholder'ları kaldırıldı. Yeni yapı: 1 büyük featured hero + en fazla 6 görselli orta kart ("Latest") + gerisi görselsiz kompakt tek-satır liste ("More Headlines", tarih · başlık · kaynak). Görseli olmayan haber artık placeholder kutu yerine metin satırı. `hasRealImage` ile ayrılıyor.
+- [x] 🤖 **Circuits bento veriye bağlandı:** Bento "featured" hücresi artık `index % 6` değil — **yaklaşan ilk yarış** (`done === false`) büyük hücreyi alıyor (`nextCircuitIndex`), üstüne "NEXT" rozeti. Asimetri artık kurala dayalı. `CircuitCard.done` alanı eklendi.
+- [x] 🤖 **Hero boş alan israfı:** `AtmosphericHero`'ya `compact` prop'u eklendi (`min-h-dvh` → `46vh`). Liste sayfalarına (drivers/teams/circuits/season/anthology/glossary) uygulandı — kullanıcı artık içeriği görmek için bedava scroll yapmıyor. Driver-detail hero `minHeight` `clamp(340px,52vw,540px)` → `clamp(300px,44vw,460px)`.
+
+### 6.4 Empty-state & dil
+
+- [x] 🤖 **Anthology dev mesajları temizlendi:** "Run `npm run seed:stories`" ve "Run sync-radio cron after seeding" geliştirici mesajları kaldırıldı. Stories boşsa kullanıcı dostu empty-state; Radio Moments boşsa bölüm tamamen gizleniyor (yarım başlık kalmıyor). News boş-state dili de kullanıcı diline çevrildi.
+
+### 6.5 Devredilen (Faz 6.X / sonraki tur)
+
+- [ ] 🤖 **Home B3 — Anthology tile:** Home mid-row'da 4 jenerik veri tile'ı (Last Race / Constructors / Tyre / Standings) var; OnThisDay + News editöryel ama Anthology home'da temsil edilmiyor. Tam çözüm (jenerik tile'lardan birini `BentoAnthologyTile` ile değiştirmek + veri akışı) ayrı bir iş — regresyon riski yüksek olduğu için bu tura alınmadı. *(Devir: Faz 6 backlog)*
+- [ ] 🤖 **Takım logosu kontrastı, pist SVG normalize, BoxBox widget canlılığı** (sayaç tikleme, ↑↓ pozisyon oku) — düşük öncelik, sonraki tur.
+
+### 6.6 Faz kapanışı
+
+- [x] 🤖 `npm run build` → 0 hata ✓
+- [x] 🤖 `npx tsc --noEmit` → 0 hata ✓
+- [x] 🤖 `npm test` (vitest) → 52/52 yeşil ✓
+- [x] 🤖 Görsel doğrulama: prod build (`npm start`) + Playwright DPR=2/3 screenshot, 12 rota × desktop + mobil → `test-results/screenshots/21-06-2026/{desktop,mobile}/`. Kırmızı blok tüm hero'larda gitti, news kademe sistemi, drivers off-white puanlar doğrulandı.
+- [x] 🤖 `logs/AGENT_FAZ6_QA_FIX_2026-06-21.md` yaz.
+- [x] 🤖 **Commit:** `fix: phase 6 — mobile render bugs, news hierarchy, accent discipline`
+- [x] 🤖 **Push:** `git push origin main`
+
+---
+
 ## 9. FAZ FINAL — Tam Kapsam QA & Release
 
 > **Amaç:** Yayına hazır olduğunu kanıtla. Tam kapsam: otomatik + tarayıcı + prod smoke + Lighthouse + manuel görsel. (Seçim: **Tam kapsam.**)

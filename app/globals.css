@@ -105,7 +105,7 @@ body {
   max-width: 100%;
 }
 
-/* ── Site nav ─────────────────────────────────────────────────────────── */
+/* â”€â”€ Site nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .site-nav {
   position: fixed;
   top: 0;
@@ -316,7 +316,7 @@ body {
   }
 }
 
-/* ── Mobile bottom nav ─────────────────────────────────────────────────── */
+/* â”€â”€ Mobile bottom nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .mobile-bottom-nav {
   display: none;
 }
@@ -436,7 +436,7 @@ body {
   }
 }
 
-/* ── Shimmer skeleton ──────────────────────────────────────────────────── */
+/* â”€â”€ Shimmer skeleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .shimmer {
   background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
   background-size: 200% 100%;
@@ -465,7 +465,7 @@ body {
   border: 1px solid var(--border);
 }
 
-/* ── Atmospheric hero ─────────────────────────────────────────────────── */
+/* â”€â”€ Atmospheric hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .atmospheric-hero {
   position: relative;
   isolation: isolate;
@@ -477,7 +477,30 @@ body {
   min-height: 100svh;
   overflow: hidden;
   background-color: var(--background);
-  background-image: var(--carbon-grid);
+  /* Atmosphere lives entirely in this background stack as linear-gradients.
+     The previous build used absolutely-positioned `.hero-layer` divs with
+     `radial-gradient(circle at <pos> …)`; on mobile Chromium at DPR >= 2 that
+     radial form mis-rasterised into a solid coloured rectangle (the /season
+     "red block"). Vertical linear ramps render correctly everywhere: a faint
+     top key-light, the red bleed rising from the bottom, then the carbon grid. */
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0) 38%
+    ),
+    linear-gradient(
+      to top,
+      rgba(255, 24, 1, 0.2) 0%,
+      rgba(255, 24, 1, 0.07) 20%,
+      rgba(255, 24, 1, 0) 42%
+    ),
+    var(--carbon-grid);
+}
+
+.atmospheric-hero--compact {
+  min-height: 46vh;
+  min-height: 46svh;
 }
 
 .hero-layer {
@@ -486,39 +509,26 @@ body {
   pointer-events: none;
 }
 
-.hero-spotlight-left {
-  background: radial-gradient(
-    circle at 15% 15%,
-    rgba(255, 255, 255, 0.08) 0%,
-    transparent 50%
-  );
-}
+/* The two corner key-lights were standalone .hero-layer divs painted with
+   radial-gradient(circle at <pos> ...). On mobile Chromium at DPR >= 2 that
+   exact form mis-rasterises into a hard-edged solid rectangle in the wrong hue
+   (the red block in the top-right of the /season hero traced to the RIGHT
+   spotlight, not the red glow). The top-light atmosphere now lives in the hero
+   element's own background stack as a vertical linear ramp, which the
+   rasteriser handles correctly. */
 
-.hero-spotlight-right {
-  background: radial-gradient(
-    circle at 85% 15%,
-    rgba(255, 255, 255, 0.06) 0%,
-    transparent 60%
-  );
-}
-
-.hero-red-glow {
-  background:
-    radial-gradient(
-      ellipse 80% 50% at 50% 108%,
-      rgba(255, 24, 1, 0.28) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 120% 80% at 50% 50%,
-      transparent 55%,
-      rgba(0, 0, 0, 0.55) 100%
-    );
-}
-
+/* Film grain as a tiled CSS background data-URI rather than an inline
+   <svg><feTurbulence> layer. The inline form mis-renders on mobile WebKit/
+   Chromium at DPR 3 - the filter region is computed against the full viewport
+   and paints a solid coloured rectangle (the "red block" on /season mobile).
+   A background-image keeps the turbulence scoped to a fixed 160px tile, so the
+   artifact can't occur, and it's one fewer DOM node. */
 .hero-grain {
   opacity: 0.05;
   mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
 }
 
 .hero-light-streak,
@@ -595,7 +605,7 @@ body {
   width: 100%;
 }
 
-/* ── Circuit lap line ──────────────────────────────────────────────────── */
+/* â”€â”€ Circuit lap line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes lapLine {
   to {
     stroke-dashoffset: 0;
@@ -617,7 +627,7 @@ body {
   }
 }
 
-/* ── Lights-out flash ───────────────────────────────────────────────── */
+/* â”€â”€ Lights-out flash â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes lightsout-flash {
   0%   { opacity: 0.35; }
   30%  { opacity: 0.5; }
@@ -630,7 +640,7 @@ body {
   }
 }
 
-/* ── Constructor standings bar sweep ─────────────────────────────────── */
+/* â”€â”€ Constructor standings bar sweep â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .standings-bar-fill {
   width: 0;
   transition: width 800ms cubic-bezier(0.77, 0, 0.18, 1);
@@ -656,7 +666,7 @@ body {
   transition: none;
 }
 
-/* ── Page transition sweep ─────────────────────────────────────────────── */
+/* â”€â”€ Page transition sweep â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .page-transition-sweep {
   position: fixed;
   inset: 0;
@@ -665,7 +675,7 @@ body {
   pointer-events: none;
 }
 
-/* ── Section divider ───────────────────────────────────────────────────── */
+/* â”€â”€ Section divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .section-divider {
   font-family: var(--font-condensed);
   font-size: 13px;
@@ -686,7 +696,7 @@ body {
   background: color-mix(in srgb, var(--team-secondary) 60%, transparent);
 }
 
-/* ── Home atmosphere (hero band — homepage) ───────────────────────────── */
+/* â”€â”€ Home atmosphere (hero band - homepage) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .home-atmosphere {
   position: absolute;
   top: 0;
@@ -717,33 +727,41 @@ body {
   pointer-events: none;
 }
 
+/* All three glows use vertical linear ramps, not radial-gradient(ellipse at
+   <pos> …). The positioned-radial form mis-rasterises to a solid coloured block
+   on mobile Chromium at DPR >= 2 (the /season "red block" class of bug). Every
+   stop names its colour at zero alpha so the fade never crosses grey. */
 .home-atmosphere-spotlight-left {
-  background: radial-gradient(
-    ellipse at 15% 40%,
+  background: linear-gradient(
+    to bottom,
     rgba(255, 255, 255, 0.04) 0%,
-    transparent 60%
+    rgba(255, 255, 255, 0) 50%
   );
 }
 
 .home-atmosphere-spotlight-right {
-  background: radial-gradient(
-    ellipse at 85% 20%,
+  background: linear-gradient(
+    to bottom,
     rgba(255, 255, 255, 0.03) 0%,
-    transparent 55%
+    rgba(255, 255, 255, 0) 45%
   );
 }
 
 .home-atmosphere-red-glow {
-  background: radial-gradient(
-    ellipse at 50% 100%,
-    rgba(255, 24, 1, 0.08) 0%,
-    transparent 50%
+  background: linear-gradient(
+    to top,
+    rgba(255, 24, 1, 0.1) 0%,
+    rgba(255, 24, 1, 0.03) 30%,
+    rgba(255, 24, 1, 0) 55%
   );
 }
 
 .home-atmosphere-grain {
   opacity: 0.03;
   mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='hg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hg)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
 }
 
 .home-atmosphere-streak,
@@ -801,8 +819,8 @@ body {
   }
 }
 
-/* ── Cards ─────────────────────────────────────────────────────────────── */
-/* ── Bento dashboard (homepage) ───────────────────────────────────────── */
+/* â”€â”€ Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€ Bento dashboard (homepage) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-panel {
   background: var(--card);
   border: 1px solid var(--border);
@@ -826,7 +844,7 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Race Calendar horizontal scrollbar — thin, accent thumb on dark track. */
+/* Race Calendar horizontal scrollbar - thin, accent thumb on dark track. */
 .race-calendar-scroll {
   scrollbar-width: thin;
   scrollbar-color: #ff1801 #131313;
@@ -841,7 +859,7 @@ body {
   background: #131313;
 }
 
-/* Hero row — Championship Leader + Next Race share height */
+/* Hero row - Championship Leader + Next Race share height */
 .bento-hero-tile {
   min-height: 220px;
 }
@@ -863,7 +881,7 @@ body {
   }
 }
 
-/* Mid row — Last Race, Constructors, Tyre, Drivers (equal height) */
+/* Mid row - Last Race, Constructors, Tyre, Drivers (equal height) */
 .bento-mid-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -895,7 +913,7 @@ body {
   min-height: 0;
 }
 
-/* Drivers standings — ~5 rows visible, scroll for 6–10 */
+/* Drivers standings - ~5 rows visible, scroll for 6â€“10 */
 .bento-standings-scroll {
   max-height: 11.5rem;
   overflow-y: auto;
@@ -979,7 +997,7 @@ body {
   border-left-color: var(--paper);
 }
 
-/* ── Main content offset ───────────────────────────────────────────────── */
+/* â”€â”€ Main content offset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .site-main {
   flex: 1;
   padding-top: var(--navbar-height);
@@ -997,7 +1015,7 @@ body {
   }
 }
 
-/* ── Site footer (legal / attribution) ─────────────────────────────────── */
+/* â”€â”€ Site footer (legal / attribution) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .site-footer {
   border-top: 1px solid var(--border);
   margin-top: var(--section-gap);
@@ -1056,7 +1074,7 @@ body {
   color: var(--muted);
 }
 
-/* ── Profile pages (drivers / teams — Faz 3) ───────────────────────────── */
+/* â”€â”€ Profile pages (drivers / teams - Faz 3) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Season-aware palette vars default to the site accent; profile pages set
    --team-primary/secondary/accent inline and these transition on season swap. */
 .profile-root {
@@ -1086,10 +1104,15 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(
-    circle at 50% 120%,
-    color-mix(in srgb, var(--team-secondary) 22%, transparent) 0%,
-    transparent 60%
+  /* Vertical linear ramp, not radial-gradient(circle at 50% 120% …). The radial
+     form mis-rasterises to a solid coloured block on mobile Chromium at DPR >= 2
+     (same class of bug as the /season hero). The team-coloured bleed reads the
+     same rising from the bottom edge. */
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--team-secondary) 24%, transparent) 0%,
+    color-mix(in srgb, var(--team-secondary) 8%, transparent) 28%,
+    transparent 55%
   );
   transition: background 800ms ease;
 }
@@ -1109,7 +1132,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Viewport-bleeding driver number — decorative background layer in hero. */
+/* Viewport-bleeding driver number - decorative background layer in hero. */
 .profile-driver-number {
   position: absolute;
   right: -4vw;
@@ -1285,7 +1308,7 @@ body {
   background: color-mix(in srgb, var(--entity-color, rgba(255,255,255,0.05)) 10%, var(--card));
 }
 
-/* ── Glossary internal link ────────────────────────────────────────────── */
+/* â”€â”€ Glossary internal link â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .glossary-link {
   color: var(--paper);
   text-decoration: none;
@@ -1298,7 +1321,7 @@ body {
   border-bottom-color: rgba(255, 255, 255, 0.6);
 }
 
-/* ── Story prose (anthology detail) ────────────────────────────────────── */
+/* â”€â”€ Story prose (anthology detail) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .story-prose {
   max-width: 680px;
 }
@@ -1359,7 +1382,7 @@ body {
   color: var(--muted);
 }
 
-/* ── Entity drawer (season detail panel) ───────────────────────────────── */
+/* â”€â”€ Entity drawer (season detail panel) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .entity-drawer-root {
   position: fixed;
   inset: 0;

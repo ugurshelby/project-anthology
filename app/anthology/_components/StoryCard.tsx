@@ -47,8 +47,8 @@ export function StoryCard({ story, featured = false }: { story: Story; featured?
           />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <p
-              className="font-mono text-[9px] uppercase tracking-wider"
-              style={{ color: 'var(--muted)' }}
+              className="font-mono text-[10px] font-medium uppercase tracking-[0.18em]"
+              style={{ color: 'var(--paper)' }}
             >
               {story.category} · {story.year}
             </p>

@@ -87,7 +87,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
       <header
         className="profile-hero"
         style={{
-          minHeight: 'clamp(340px, 52vw, 540px)',
+          minHeight: 'clamp(300px, 44vw, 460px)',
           overflow: 'hidden',
           position: 'relative',
         }}
