@@ -20,10 +20,13 @@ export default function NotificationsScreen() {
 
   async function handleSave() {
     setLoading(true);
-    await registerForPushNotifications(prefs);
-    await markNotificationScreenShown();
-    setLoading(false);
-    router.replace('/(tabs)');
+    try {
+      await registerForPushNotifications(prefs);
+    } finally {
+      await markNotificationScreenShown();
+      setLoading(false);
+      router.replace('/(tabs)');
+    }
   }
 
   async function handleSkip() {
