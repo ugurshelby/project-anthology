@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
+import { hasShownNotificationScreen } from '../lib/notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
@@ -37,6 +38,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    async function checkNotifications() {
+      const shown = await hasShownNotificationScreen();
+      if (!shown) router.replace('/notifications');
+    }
+    if (fontsLoaded) void checkNotifications();
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;
