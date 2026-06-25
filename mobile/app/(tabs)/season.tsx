@@ -8,7 +8,6 @@ import { fetchSeason } from '../../lib/api';
 import { DriverStandingsRow, ConstructorStandingsRow } from '../../components/standings/StandingsRow';
 import { CalendarRow } from '../../components/race/CalendarRow';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
-import { SectionHeader } from '../../components/ui/SectionHeader';
 import { Divider } from '../../components/ui/Divider';
 import { Colors } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
