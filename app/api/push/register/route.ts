@@ -16,10 +16,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
   }
 
+  const safePrefs = preferences && typeof preferences === 'object' ? preferences : {};
+
   const { error } = await supabase
     .from('push_subscriptions')
     .upsert(
-      { token, preferences, updated_at: new Date().toISOString() },
+      { token, preferences: safePrefs, updated_at: new Date().toISOString() },
       { onConflict: 'token' }
     );
 
