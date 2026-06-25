@@ -21,6 +21,7 @@
     "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "expo-server-sdk": "^6.1.0",
     "framer-motion": "^12.40.0",
     "next": "16.2.7",
     "react": "19.2.4",
