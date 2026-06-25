@@ -36,10 +36,6 @@ export default function HomeScreen() {
     );
   }
 
-  const standings = standingsTab === 0
-    ? (season?.driverStandings ?? []).slice(0, 5)
-    : (season?.constructorStandings ?? []).slice(0, 5);
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
@@ -54,18 +50,18 @@ export default function HomeScreen() {
           />
           <View style={{ marginTop: 8 }}>
             {standingsTab === 0
-              ? standings.map((d: any) => <DriverStandingsRow key={d.driverId} item={d} />)
-              : standings.map((c: any) => <ConstructorStandingsRow key={c.constructorId} item={c} />)
+              ? (season?.driverStandings ?? []).slice(0, 5).map((d) => <DriverStandingsRow key={d.driverId} item={d} />)
+              : (season?.constructorStandings ?? []).slice(0, 5).map((c) => <ConstructorStandingsRow key={c.constructorId} item={c} />)
             }
           </View>
         </View>
 
         <View style={{ marginHorizontal: 20 }}>
           <SectionHeader title="Latest Intel" />
-          {(news ?? []).slice(0, 3).map((item) => (
+          {(news ?? []).slice(0, 3).map((item, index) => (
             <View key={item.id}>
               <NewsCard item={item} />
-              <Divider />
+              {index < 2 && <Divider />}
             </View>
           ))}
         </View>
