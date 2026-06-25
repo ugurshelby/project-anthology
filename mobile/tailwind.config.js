@@ -10,6 +10,7 @@ module.exports = {
         'surface-raised': '#1c1c1c',
         hairline: '#262626',
         'text-hi': '#ffffff',
+        'text-body': '#e6e6e6',
         'text-mid': '#9a9a9a',
         'text-low': '#666666',
         'apex-red': '#ff1801',
