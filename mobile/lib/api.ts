@@ -1,7 +1,7 @@
 import { SeasonData, NewsItem, Driver, Constructor, Story } from './types';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://project-anthology-five.vercel.app';
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://ezocovgpybrluvgaqnft.supabase.co';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 async function apiFetch<T>(path: string): Promise<T> {
@@ -38,19 +38,37 @@ export async function fetchTeams(): Promise<Constructor[]> {
 }
 
 export async function fetchStories(): Promise<Story[]> {
-  return supabaseFetch<Story[]>('stories', '?select=slug,title,kicker,cover_image_url,excerpt,published_at&order=published_at.desc');
+  const rows = await supabaseFetch<Array<Record<string, unknown>>>('stories', '?select=slug,title,kicker,cover_image_url,excerpt,published_at&order=published_at.desc');
+  return rows.map((r) => ({
+    slug: r['slug'] as string,
+    title: r['title'] as string,
+    kicker: r['kicker'] as string | undefined,
+    coverImageUrl: r['cover_image_url'] as string | undefined,
+    excerpt: r['excerpt'] as string | undefined,
+    publishedAt: r['published_at'] as string,
+  }));
 }
 
 export async function fetchStory(slug: string): Promise<Story> {
-  const rows = await supabaseFetch<Story[]>('stories', `?slug=eq.${slug}&select=*&limit=1`);
+  const rows = await supabaseFetch<Array<Record<string, unknown>>>('stories', `?slug=eq.${slug}&select=*&limit=1`);
   if (!rows[0]) throw new Error(`Story not found: ${slug}`);
-  return rows[0];
+  const r = rows[0];
+  return {
+    slug: r['slug'] as string,
+    title: r['title'] as string,
+    kicker: r['kicker'] as string | undefined,
+    coverImageUrl: r['cover_image_url'] as string | undefined,
+    excerpt: r['excerpt'] as string | undefined,
+    content: r['content'] as string | undefined,
+    publishedAt: r['published_at'] as string,
+  };
 }
 
 export async function registerPushToken(token: string, preferences: Record<string, boolean>): Promise<void> {
-  await fetch(`${BASE_URL}/api/push/register`, {
+  const res = await fetch(`${BASE_URL}/api/push/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token, preferences }),
   });
+  if (!res.ok) throw new Error(`Push registration error ${res.status}`);
 }
