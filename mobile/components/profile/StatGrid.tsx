@@ -16,7 +16,7 @@ export function StatGrid({ stats }: { stats: Stat[] }) {
           style={{ flex: 1, minWidth: '30%', backgroundColor: Colors.surface, padding: 16, alignItems: 'center' }}
         >
           <Text style={[Typography.headline, { color: Colors.textHi }]}>{s.value}</Text>
-          <Text style={[Typography.labelCaps, { marginTop: 4 }]}>{s.label}</Text>
+          <Text style={[Typography.labelCaps, { color: Colors.textMid, marginTop: 4 }]}>{s.label}</Text>
         </View>
       ))}
     </View>
