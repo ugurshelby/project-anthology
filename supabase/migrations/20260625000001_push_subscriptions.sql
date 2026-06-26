@@ -9,10 +9,7 @@ CREATE TABLE push_subscriptions (
 
 ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "anon can upsert own token"
-  ON push_subscriptions
-  FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
-GRANT INSERT, UPDATE, SELECT ON push_subscriptions TO anon, authenticated;
+-- Service-role key (used by Next.js API routes) bypasses RLS entirely.
+-- The anon key should never reach this table directly, so we grant nothing.
+-- All writes go through /api/push/register which uses SUPABASE_SERVICE_ROLE_KEY.
+REVOKE ALL ON push_subscriptions FROM anon, authenticated;

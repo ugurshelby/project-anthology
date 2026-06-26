@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { Expo } from 'expo-server-sdk';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
     preferences: Record<string, boolean>;
   };
 
-  if (!token || typeof token !== 'string') {
+  if (!token || typeof token !== 'string' || !Expo.isExpoPushToken(token)) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
   }
 
