@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Typography } from '../../constants/typography';
 import { Colors } from '../../constants/colors';
 
@@ -12,9 +12,9 @@ export function SectionHeader({ title, onSeeAll }: SectionHeaderProps) {
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
       <Text style={Typography.labelCaps}>{title}</Text>
       {onSeeAll && (
-        <TouchableOpacity onPress={onSeeAll}>
+        <Pressable onPress={onSeeAll} hitSlop={12}>
           <Text style={[Typography.labelCaps, { color: Colors.apexRed }]}>SEE ALL</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Dimensions, ActivityIndicator, Pressable } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
@@ -6,7 +6,8 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { Svg, Path } from 'react-native-svg';
+import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/queryKeys';
@@ -55,6 +56,17 @@ export default function StoryDetailScreen() {
             contentFit="cover"
           />
         </Animated.View>
+        <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={16}
+            style={{ marginLeft: 16, marginTop: 8, backgroundColor: 'rgba(10,10,10,0.6)', borderRadius: 20, padding: 8, alignSelf: 'flex-start' }}
+          >
+            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+              <Path d="M19 12H5M12 19L5 12L12 5" stroke={Colors.textHi} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
+        </SafeAreaView>
       </View>
       <AnimatedScrollView
         onScroll={scrollHandler}

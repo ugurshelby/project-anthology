@@ -30,11 +30,19 @@ export async function fetchNews(): Promise<NewsItem[]> {
 }
 
 export async function fetchDrivers(): Promise<Driver[]> {
-  return supabaseFetch<Driver[]>('drivers', '?select=*&order=familyName.asc');
+  const year = new Date().getFullYear();
+  const season = await fetchSeason(year);
+  return [...season.driverStandings].sort((a, b) =>
+    a.familyName.localeCompare(b.familyName)
+  );
 }
 
 export async function fetchTeams(): Promise<Constructor[]> {
-  return supabaseFetch<Constructor[]>('constructors', '?select=*&order=name.asc');
+  const year = new Date().getFullYear();
+  const season = await fetchSeason(year);
+  return [...season.constructorStandings].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 }
 
 export async function fetchStories(): Promise<Story[]> {

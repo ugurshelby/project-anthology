@@ -15,12 +15,15 @@ export function SegmentedControl({ options, selectedIndex, onChange }: Segmented
         <Pressable
           key={option}
           onPress={() => onChange(i)}
+          hitSlop={4}
           style={{
             flex: 1,
             paddingVertical: 8,
             alignItems: 'center',
             backgroundColor: i === selectedIndex ? Colors.surfaceRaised : 'transparent',
             borderRadius: 4,
+            borderBottomWidth: i === selectedIndex ? 2 : 0,
+            borderBottomColor: Colors.apexRed,
           }}
         >
           <Text style={[Typography.labelCaps, { color: i === selectedIndex ? Colors.textHi : Colors.textLow }]}>
