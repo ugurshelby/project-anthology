@@ -22,6 +22,7 @@
 | **Mobil Uygulama (12 Task)** | Expo SDK 56 + Expo Router 4; 5 tab (Home, Season, Profiles, Anthology, News+Glossary); pilot/takım/hikaye detay ekranları; push bildirim tercihleri; EAS build config | `7c14742` |
 | **Mobil Güvenlik Fix** | `push_subscriptions` anon RLS revoked; `Expo.isExpoPushToken()` validasyonu eklendi | `4496084` |
 | **Docs Temizliği** | F1 Race Replay (57 Python dosyası), stale frontend planı, mükerrer proje-dizini silindi | `bed0905` |
+| **Mobil UI/UX Güçlendirme** | Kritik bug fix: `fetchDrivers`/`fetchTeams` yanlış Supabase endpoint → standings'ten türetme. Tab bar SVG ikonları. Back button (driver/team/anthology detay). RaceCountdown apexRed accent. SegmentedControl aktif çizgi. NewsCard tarih/saat mantığı. `react-native-svg` eklendi. | `3b09599` |
 
 ---
 
