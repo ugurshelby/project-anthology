@@ -1,4 +1,22 @@
+# Mobile project's own heavy dirs
 node_modules/
-.git/
+android/
+ios/
+.expo/
+
+# Parent repo dirs that get swept in (anthology is a monorepo subfolder)
+../node_modules/
+../.next/
+../out/
+../.git/
+../mobile/node_modules/
+../logs/
+../design/stitch-design-pack/
+../public/
+
+# Unnecessary files
 *.md
-__tests__/
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
