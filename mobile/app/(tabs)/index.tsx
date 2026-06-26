@@ -7,7 +7,6 @@ import { fetchSeason, fetchNews } from '../../lib/api';
 import { RaceCountdown } from '../../components/race/RaceCountdown';
 import { DriverStandingsRow, ConstructorStandingsRow } from '../../components/standings/StandingsRow';
 import { NewsCard } from '../../components/news/NewsCard';
-import { SectionHeader } from '../../components/ui/SectionHeader';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { Divider } from '../../components/ui/Divider';
 import { Colors } from '../../constants/colors';
@@ -15,30 +14,6 @@ import { Typography } from '../../constants/typography';
 import { useState } from 'react';
 
 const CURRENT_YEAR = new Date().getFullYear();
-
-function HomeHero({ nextRaceName, season }: { nextRaceName?: string; season?: string }) {
-  return (
-    <View style={{ marginBottom: 8 }}>
-      <LinearGradient
-        colors={['rgba(255,24,1,0.12)', 'transparent']}
-        style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-          <View style={{ width: 20, height: 2, backgroundColor: Colors.apexRed }} />
-          <Text style={[Typography.labelCaps, { color: Colors.apexRed, fontSize: 10 }]}>
-            FORMULA 1 · {season ?? CURRENT_YEAR}
-          </Text>
-        </View>
-        <Text style={[Typography.hero, { fontSize: 52, lineHeight: 52 }]}>APEX</Text>
-        {nextRaceName && (
-          <Text style={[Typography.labelCaps, { color: Colors.textMid, fontSize: 10, marginTop: 2 }]}>
-            {nextRaceName.replace(' Grand Prix', ' GP').toUpperCase()}
-          </Text>
-        )}
-      </LinearGradient>
-    </View>
-  );
-}
 
 export default function HomeScreen() {
   const [standingsTab, setStandingsTab] = useState(0);
@@ -61,24 +36,65 @@ export default function HomeScreen() {
     );
   }
 
+  const today = new Date();
+  const nextRaceIndex = season?.races.findIndex((r) => new Date(r.date) >= today) ?? -1;
+  const pastCount = nextRaceIndex === -1 ? (season?.races.length ?? 0) : nextRaceIndex;
+  const totalRaces = season?.races.length ?? 0;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        <HomeHero
-          nextRaceName={season?.nextRace?.raceName}
-          season={season?.season}
-        />
+        {/* Hero */}
+        <LinearGradient
+          colors={['rgba(255,24,1,0.15)', 'rgba(255,24,1,0.04)', 'transparent']}
+          style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 20 }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <View style={{ width: 24, height: 2, backgroundColor: Colors.apexRed }} />
+            <Text style={[Typography.labelCaps, { color: Colors.apexRed, fontSize: 10 }]}>
+              FORMULA 1 · {season?.season ?? CURRENT_YEAR}
+            </Text>
+          </View>
+          <Text style={[Typography.hero, { fontSize: 64, lineHeight: 60, marginBottom: 6 }]}>APEX</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            {season?.nextRace && (
+              <View style={{
+                paddingHorizontal: 10, paddingVertical: 4,
+                backgroundColor: Colors.apexRed + '20',
+                borderRadius: 4,
+                borderWidth: 1, borderColor: Colors.apexRed + '50',
+              }}>
+                <Text style={[Typography.labelCaps, { color: Colors.apexRed, fontSize: 10 }]}>
+                  NEXT: {season.nextRace.raceName.replace(' Grand Prix', ' GP').toUpperCase()}
+                </Text>
+              </View>
+            )}
+            <Text style={[Typography.labelCaps, { color: Colors.textLow, fontSize: 10 }]}>
+              {pastCount}/{totalRaces} RACES
+            </Text>
+          </View>
+        </LinearGradient>
 
-        {season?.nextRace && <RaceCountdown race={season.nextRace} />}
+        {/* Next race countdown */}
+        {season?.nextRace && (
+          <View style={{ marginHorizontal: 16, marginBottom: 24 }}>
+            <RaceCountdown race={season.nextRace} />
+          </View>
+        )}
 
-        <View style={{ marginHorizontal: 20, marginBottom: 28 }}>
-          <SectionHeader title="Standings" />
-          <SegmentedControl
-            options={['Drivers', 'Teams']}
-            selectedIndex={standingsTab}
-            onChange={setStandingsTab}
-          />
-          <View style={{ marginTop: 4 }}>
+        {/* Standings */}
+        <View style={{ marginBottom: 28 }}>
+          <View style={{ paddingHorizontal: 20, marginBottom: 10, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <Text style={[Typography.headline, { fontSize: 20 }]}>STANDINGS</Text>
+          </View>
+          <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+            <SegmentedControl
+              options={['Drivers', 'Constructors']}
+              selectedIndex={standingsTab}
+              onChange={setStandingsTab}
+            />
+          </View>
+          <View style={{ paddingHorizontal: 16, gap: 0 }}>
             {standingsTab === 0
               ? (season?.driverStandings ?? []).slice(0, 5).map((d) => (
                   <DriverStandingsRow key={d.driverId} item={d} />
@@ -90,8 +106,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Latest Intel */}
         <View style={{ marginHorizontal: 20 }}>
-          <SectionHeader title="Latest Intel" />
+          <View style={{ marginBottom: 12, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <Text style={[Typography.headline, { fontSize: 20 }]}>LATEST INTEL</Text>
+          </View>
           {(news ?? []).slice(0, 4).map((item, index, arr) => (
             <View key={item.id}>
               <NewsCard item={item} />
