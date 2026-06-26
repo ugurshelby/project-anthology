@@ -38,7 +38,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bg }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 24, paddingTop: 16 }}>
         {season?.nextRace && <RaceCountdown race={season.nextRace} />}
 
         <View style={{ marginHorizontal: 20, marginBottom: 24 }}>

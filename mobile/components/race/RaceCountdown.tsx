@@ -25,16 +25,19 @@ export function RaceCountdown({ race }: RaceCountdownProps) {
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
-    <View style={{ marginHorizontal: 20, marginBottom: 24 }}>
-      <Text style={Typography.labelCaps}>NEXT RACE</Text>
+    <View style={{ marginHorizontal: 20, marginBottom: 24, marginTop: 4 }}>
+      <Text style={[Typography.labelCaps, { color: Colors.textMid }]}>NEXT RACE</Text>
       <Text style={[Typography.headline, { marginTop: 4 }]}>{race.raceName}</Text>
-      <View style={{ height: 1, backgroundColor: Colors.hairline, marginVertical: 12 }} />
+      <View style={{ height: 1, backgroundColor: Colors.apexRed, opacity: 0.4, marginVertical: 12 }} />
       {isExpired ? (
-        <Text style={[Typography.dataMono, { color: Colors.apexRed }]}>RACE WEEK</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.apexRed }} />
+          <Text style={[Typography.dataMono, { color: Colors.apexRed, letterSpacing: 2 }]}>RACE WEEK</Text>
+        </View>
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-          <Animated.Text style={[Typography.hero, animStyle]}>{days}</Animated.Text>
-          <Text style={[Typography.labelCaps, { marginBottom: 4 }]}>DAYS</Text>
+          <Animated.Text style={[Typography.hero, { color: Colors.textHi }, animStyle]}>{days}</Animated.Text>
+          <Text style={[Typography.labelCaps, { marginBottom: 4, color: Colors.textMid }]}>DAYS</Text>
           <Text style={[Typography.dataMono, { marginLeft: 8, color: Colors.textMid }]}>
             {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </Text>

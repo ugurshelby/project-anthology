@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
+import { Svg, Path } from 'react-native-svg';
 import { queryKeys } from '../../lib/queryKeys';
 import { fetchTeams } from '../../lib/api';
 import { StatGrid } from '../../components/profile/StatGrid';
@@ -21,13 +22,14 @@ export default function TeamDetailScreen() {
   if (isLoading || !team) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator color={Colors.apexRed} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: Colors.bg }}>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView>
         <TeamHeader teamId={team.constructorId} name={team.name} />
@@ -37,15 +39,22 @@ export default function TeamDetailScreen() {
           { label: 'POSITION', value: `P${team.position}` },
         ]} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 function TeamHeader({ teamId, name }: { teamId: string; name: string }) {
   const teamColor = useTeamColor(teamId);
   return (
-    <View style={{ paddingHorizontal: 20, paddingTop: 32, paddingBottom: 24, borderBottomWidth: 3, borderBottomColor: teamColor }}>
-      <Text style={[Typography.hero, { color: teamColor }]}>{name.toUpperCase()}</Text>
-    </View>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: Colors.bg }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24, borderBottomWidth: 3, borderBottomColor: teamColor }}>
+        <Pressable onPress={() => router.back()} hitSlop={16} style={{ marginBottom: 16 }}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+            <Path d="M19 12H5M12 19L5 12L12 5" stroke={Colors.textMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+        </Pressable>
+        <Text style={[Typography.hero, { color: teamColor }]}>{name.toUpperCase()}</Text>
+      </View>
+    </SafeAreaView>
   );
 }
