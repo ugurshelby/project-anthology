@@ -7,6 +7,7 @@
 > Yeni frontend tasarım dili kullanıcı tarafından verilecek — hazır bir tasarım anayasası YOK.
 
 ## 1. Başlamadan Önce
+- `docs/PLAN.md` oku — aktif fazlar, sıradaki işler, manuel aksiyonlar.
 - `docs/reference/proje-dizini.md` oku.
 - `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` — geçmiş hatalar + mimari kararlar.
 - Sezon/yıl/takım/pilot belirsizse: `lib/f1Calendar` → `getF1Context()`.
