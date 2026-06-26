@@ -29,6 +29,13 @@
         }
       ],
       "expo-splash-screen"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1a3d0a17-93e9-45c9-a989-345a9a15bf87"
+      }
+    },
+    "owner": "ugurshelby"
   }
 }
