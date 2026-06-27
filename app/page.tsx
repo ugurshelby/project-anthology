@@ -19,7 +19,7 @@ import { PodiumViz } from '@/components/season/PodiumViz';
 import { Countdown } from '@/components/home/Countdown';
 import { DriverAvatar } from '@/components/bento/DriverAvatar';
 import { StoryCard } from '@/components/anthology/StoryCard';
-import { circuitIconSrc, carSrc } from '@/lib/assets/f1-icons';
+import { circuitCoverSrc, carSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -67,7 +67,7 @@ export default async function HomePage() {
   const nextRaceName = nextRace?.Circuit?.Location?.country ?? nextRace?.raceName ?? 'Season';
   const nextRaceCircuit = nextRace?.Circuit?.circuitName ?? '';
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
-  const circuitOutline = circuitIconSrc(nextRace?.Circuit?.circuitId);
+  const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
   const championshipLeader = standings[0];
   const leaderColor = resolveTeamUiColor(undefined, championshipLeader?.constructorName);
   const leaderCar = carSrc(championshipLeader?.constructorId, championshipLeader?.constructorName);
@@ -79,21 +79,25 @@ export default async function HomePage() {
   return (
     <PageShell>
       <BentoGrid>
-        {/* Hero — next race. Circuit outline reads as track-map atmosphere. */}
-        <BentoCard span={8} className="flex min-h-80 flex-col justify-between">
-          {circuitOutline ? (
+        {/* Hero — next race. Live circuit photo from asset-package. */}
+        <BentoCard span={8} className="relative flex min-h-80 flex-col justify-between overflow-hidden">
+          {circuitCover ? (
             <Image
-              src={circuitOutline}
+              src={circuitCover}
               alt=""
               fill
+              priority
               sizes="(max-width: 1024px) 100vw, 66vw"
-              className="pointer-events-none object-contain object-right p-10 opacity-[0.14]"
+              className="pointer-events-none object-cover object-center"
             />
           ) : null}
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-20 blur-3xl"
-            style={{ backgroundColor: 'var(--accent)' }}
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-bg via-bg/85 to-bg/30"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/90 via-transparent to-bg/40"
           />
           <div className="relative z-10 flex flex-col gap-1">
             <span className="label-caps text-accent">
