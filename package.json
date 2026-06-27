@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "seed:f1db": "npx tsx scripts/seed-f1-history.ts",
     "seed:stories": "npx tsx scripts/seed-stories.ts",
-    "gen:pwa-icons": "node assets/scripts/generate-pwa-icons.mjs"
+    "gen:pwa-icons": "node assets/scripts/generate-pwa-icons.mjs",
+    "sync:assets": "node assets/scripts/sync-asset-package.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.56.0",
