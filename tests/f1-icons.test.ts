@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { driverIconSrc, teamIconSrc } from '@/lib/assets/f1-icons';
+import { driverIconSrc, teamIconSrc, circuitCoverSrc, circuitIconSrc } from '@/lib/assets/f1-icons';
 
 describe('driverIconSrc', () => {
   it('returns null when no slug can be derived (unknown code, no name)', () => {
@@ -72,5 +72,16 @@ describe('teamIconSrc', () => {
     const src = teamIconSrc('Ferrari', 2018);
     expect(src).not.toBeNull();
     expect(src).toContain('/teams/2018/');
+  });
+});
+
+describe('circuitCoverSrc / circuitIconSrc', () => {
+  it('resolves a live circuit photo for homepage covers', () => {
+    expect(circuitCoverSrc('monaco')).toBe('/circuit-images/circuit-de-monaco.png');
+  });
+
+  it('keeps the schematic track map separate from the cover photo', () => {
+    expect(circuitIconSrc('monaco')).toBe('/circuits/mc-1929.svg');
+    expect(circuitCoverSrc('monaco')).not.toBe(circuitIconSrc('monaco'));
   });
 });

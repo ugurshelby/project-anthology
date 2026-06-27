@@ -90,7 +90,37 @@ const ERGAST_SLUG_ALIASES: Record<string, string> = {
 
 const DRIVER_ASSET_SLUGS = new Set(Object.values(DRIVER_CODE_TO_SLUG));
 
-/** Ergast/Jolpica circuitId → public/circuits SVG basename. */
+/** Ergast/Jolpica circuitId → public/circuit-images PNG basename (aerial/live cover). */
+const CIRCUIT_ID_TO_COVER: Record<string, string> = {
+  albert_park: 'albert-park-circuit.png',
+  bahrain: 'bahrain-international-circuit.png',
+  jeddah: 'jeddah-corniche-circuit.png',
+  shanghai: 'shanghai-international-circuit.png',
+  suzuka: 'suzuka-circuit.png',
+  miami: 'miami-international-autodrome.png',
+  monaco: 'circuit-de-monaco.png',
+  villeneuve: 'circuit-gilles-villeneuve.png',
+  catalunya: 'circuit-de-barcelona-catalunya.png',
+  red_bull_ring: 'red-bull-ring.png',
+  silverstone: 'silverstone-circuit.png',
+  spa: 'circuit-de-spa-francorchamps.png',
+  hungaroring: 'hungaroring.png',
+  zandvoort: 'circuit-zandvoort.png',
+  monza: 'autodromo-nazionale-monza.png',
+  baku: 'baku-city-circuit.png',
+  marina_bay: 'marina-bay-street-circuit.png',
+  americas: 'circuit-of-the-americas.png',
+  rodriguez: 'autodromo-hermanos-rodriguez.png',
+  interlagos: 'interlagos-circuit.png',
+  vegas: 'las-vegas-strip-circuit.png',
+  las_vegas: 'las-vegas-strip-circuit.png',
+  losail: 'lusail-international-circuit.png',
+  qatar: 'lusail-international-circuit.png',
+  yas_marina: 'yas-marina-circuit.png',
+  madring: 'circuito-de-madrid.png',
+};
+
+/** Ergast/Jolpica circuitId → public/circuits SVG basename (track map outline). */
 const CIRCUIT_ID_TO_SVG: Record<string, string> = {
   albert_park: 'au-1953.svg',
   bahrain: 'bh-2002.svg',
@@ -295,6 +325,14 @@ export function circuitIconSrc(circuitId: string | undefined | null): string | n
   if (!id) return null;
   const file = CIRCUIT_ID_TO_SVG[id];
   return file ? `/circuits/${file}` : null;
+}
+
+/** Aerial / live circuit photo for marketing surfaces (homepage hero, etc.). */
+export function circuitCoverSrc(circuitId: string | undefined | null): string | null {
+  const id = (circuitId ?? '').trim().toLowerCase();
+  if (!id) return null;
+  const file = CIRCUIT_ID_TO_COVER[id];
+  return file ? `/circuit-images/${file}` : null;
 }
 
 /** Resolve a team car SVG path. constructorId is used as-is (underscore preserved). */

@@ -1,7 +1,11 @@
+/**
+ * @deprecated Dev-only placeholder cards. Production portraits come from
+ * assets/asset-package/ via `npm run sync:assets` — do not run this against public/.
+ */
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 
-const OUT = join(process.cwd(), "public", "drivers");
+const OUT = join(process.cwd(), "public", "drivers", "_generated-placeholder");
 mkdirSync(OUT, { recursive: true });
 
 const drivers = [
