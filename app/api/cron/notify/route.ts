@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { Expo } from 'expo-server-sdk';
 import type { ExpoPushMessage } from 'expo-server-sdk';
 import { isCronAuthorized } from '@/lib/cronAuth';
 import { CalendarRace } from '@/lib/f1Calendar';
+import { getSupabaseAdmin } from '@/lib/supabase';
+import type { PushSubscriptionRow } from '@/types/database';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 const expo = new Expo();
+
+type PushSubscription = Pick<PushSubscriptionRow, 'token' | 'preferences'>;
 
 type Session = { type: string; label: string };
 
@@ -53,16 +52,17 @@ export async function GET(req: NextRequest) {
   const sessions = getUpcomingSessions(races);
   if (sessions.length === 0) return NextResponse.json({ sent: 0 });
 
-  const { data: subs } = await supabase
+  const { data: subs } = await getSupabaseAdmin()
     .from('push_subscriptions')
     .select('token, preferences');
 
-  if (!subs?.length) return NextResponse.json({ sent: 0 });
+  const subscriptions = (subs ?? []) as PushSubscription[];
+  if (!subscriptions.length) return NextResponse.json({ sent: 0 });
 
   const messages: ExpoPushMessage[] = [];
 
   for (const session of sessions) {
-    for (const sub of subs) {
+    for (const sub of subscriptions) {
       const prefs = (sub.preferences ?? {}) as Record<string, boolean>;
       if (prefs[session.type] && Expo.isExpoPushToken(sub.token)) {
         messages.push({

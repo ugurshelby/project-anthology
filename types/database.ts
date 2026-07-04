@@ -135,6 +135,21 @@ export interface NewsCacheInsert {
 }
 export type NewsCacheUpdate = Partial<NewsCacheInsert>;
 
+// ── push_subscriptions ───────────────────────────────────────────────────────
+export interface PushSubscriptionRow {
+  id: string;
+  token: string;
+  preferences: Json;
+  created_at: string;
+  updated_at: string;
+}
+export interface PushSubscriptionInsert {
+  token: string;
+  preferences?: Json;
+  updated_at?: string;
+}
+export type PushSubscriptionUpdate = Partial<PushSubscriptionInsert>;
+
 // ── Database (supabase-js generic) ───────────────────────────────────────────
 // supabase-js v2 requires `Relationships: []` on each table entry to correctly
 // resolve Insert/Update types through its generic machinery.
@@ -169,6 +184,12 @@ export interface Database {
         Row: NewsCacheRow;
         Insert: NewsCacheInsert;
         Update: NewsCacheUpdate;
+        Relationships: never[];
+      };
+      push_subscriptions: {
+        Row: PushSubscriptionRow;
+        Insert: PushSubscriptionInsert;
+        Update: PushSubscriptionUpdate;
         Relationships: never[];
       };
     };
