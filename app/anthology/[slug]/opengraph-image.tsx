@@ -12,6 +12,9 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = `${SITE_NAME} — F1 story`;
 
+/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
+export const dynamic = 'force-dynamic';
+
 export default async function StoryOgImage({
   params,
 }: {

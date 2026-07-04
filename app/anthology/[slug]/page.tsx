@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
   getStoryBySlug,
-  getStorySlugs,
   getPublishedStories,
   type Story,
 } from '@/lib/data/stories';
@@ -14,10 +13,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const slugs = await getStorySlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
