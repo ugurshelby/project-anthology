@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getCircuitDetail, getCircuitIdsForSitemap } from '@/lib/data/circuits';
+import { getCircuitDetail } from '@/lib/data/circuits';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
@@ -10,10 +10,8 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateStaticParams() {
-  const ids = await getCircuitIdsForSitemap();
-  return ids.map((id) => ({ id }));
-}
+/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;

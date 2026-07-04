@@ -96,15 +96,15 @@ const nextConfig: NextConfig = {
 };
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+const enableSentrySourceMaps =
+  process.env.SENTRY_UPLOAD_SOURCE_MAPS === 'true' && Boolean(sentryAuthToken);
 
 export default withSentryConfig(nextConfig, {
   org: "anthology-z0",
   project: "project-anthology",
   authToken: sentryAuthToken,
-  // Hobby / fresh Vercel projects often ship without Sentry CI credentials.
-  // Missing or invalid tokens must not fail `next build`.
   sourcemaps: {
-    disable: !sentryAuthToken,
+    disable: !enableSentrySourceMaps,
   },
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
