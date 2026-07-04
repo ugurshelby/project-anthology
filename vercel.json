@@ -4,7 +4,6 @@
   "crons": [
     { "path": "/api/cron/sync-news", "schedule": "0 6 * * *" },
     { "path": "/api/cron/sync-f1?scope=season", "schedule": "0 7 * * *" },
-    { "path": "/api/cron/sync-radio", "schedule": "0 8 * * *" },
-    { "path": "/api/cron/notify", "schedule": "*/30 * * * *" }
+    { "path": "/api/cron/sync-radio", "schedule": "0 8 * * *" }
   ]
 }
