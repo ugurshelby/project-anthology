@@ -18,7 +18,7 @@ export function PageShell({ children }: { children: ReactNode }) {
   return (
     <main
       id="main-content"
-      className="mx-auto w-full max-w-[var(--container-max)] flex-1 px-5 py-8 md:px-8 lg:px-16 lg:py-12"
+      className="mx-auto w-full max-w-[var(--container-max)] flex-1 px-5 py-8 pb-mobile-nav md:px-8 md:pb-8 lg:px-16 lg:py-12"
     >
       {children}
     </main>
