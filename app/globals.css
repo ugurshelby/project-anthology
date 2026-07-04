@@ -95,7 +95,7 @@ body {
 .display-hero {
   font-family: var(--font-condensed);
   font-weight: 700;
-  font-size: clamp(64px, 9vw, 120px);
+  font-size: clamp(40px, 12vw, 120px);
   line-height: 0.92;
   letter-spacing: -0.02em;
 }
@@ -154,6 +154,11 @@ body {
   line-height: 0.9;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+}
+
+/* Poster Dense — clearance for fixed mobile tab-bar + safe area */
+.pb-mobile-nav {
+  padding-bottom: max(5.5rem, calc(72px + env(safe-area-inset-bottom, 0px)));
 }
 
 /* §5 reduced-motion zorunlu */

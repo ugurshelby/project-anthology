@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "old-versions-valuable-files", "pre-plans"]
+  "exclude": ["node_modules", "old-versions-valuable-files", "pre-plans", "docs/apex-old-version-valuable-files"]
 }

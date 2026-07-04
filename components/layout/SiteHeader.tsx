@@ -1,17 +1,26 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from './nav-items';
 import { HeaderNav } from './HeaderNav';
 
 /**
- * Desktop sticky header — real backdrop blur (design.md §4, one of ≤2/viewport).
- * Server shell; the active-link highlight is a small client island (HeaderNav).
- * On mobile the header collapses to a slim brand bar; primary nav moves to the
- * bottom tab-bar (MobileNav).
+ * Sticky header — full nav on md+. On mobile home (Poster Dense) header is hidden;
+ * logo lives in PosterHero instead.
  */
 export function SiteHeader() {
+  const pathname = usePathname();
+  const hideOnMobileHome = pathname === '/';
+
   return (
-    <header className="sticky top-0 z-30 border-b border-hairline bg-bg/60 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-[var(--container-max)] items-center justify-between px-5 md:px-8 lg:px-16">
+    <header
+      className={[
+        'sticky top-0 z-30 border-b border-hairline bg-bg/60 backdrop-blur-xl',
+        hideOnMobileHome ? 'hidden md:block' : 'block',
+      ].join(' ')}
+    >
+      <div className="mx-auto flex h-[52px] w-full max-w-[var(--container-max)] items-center justify-between px-5 md:px-8 lg:px-16">
         <Link
           href="/"
           className="font-condensed text-2xl font-700 tracking-tight text-text-hi"

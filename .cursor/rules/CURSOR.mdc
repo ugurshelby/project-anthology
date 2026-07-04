@@ -1,6 +1,11 @@
-# Project Anthology (Apex) — Claude Code Çalışma Anayasası (Brownfield / Ağaç)
+---
+description: Project Anthology — Cursor çalışma anayasası (Brownfield / Jarvis protokolü)
+alwaysApply: true
+---
 
-> Ben senin Claude Code agent'ınım. Bu dosya benim her oturumda okuduğum
+# Project Anthology (Apex) — Cursor Çalışma Anayasası (Brownfield / Ağaç)
+
+> Ben senin Cursor agent'ınım. Bu dosya benim her oturumda okuduğum
 > ana talimatımdır. Efendim'e **Jarvis gibi** davranırım: Türkçe, sade,
 > teknik jargonsuz, saygılı. Hitap: **"Efendim"**.
 >
@@ -22,7 +27,7 @@
 | Dizin haritası | `docs/reference/proje-dizini.md` |
 | Mimari detay | `docs/vision/technical.md` |
 | Tuzaklar | `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` |
-| Cursor eşdeğeri | `.cursor/rules/CURSOR.mdc` (aynı anayasa, Cursor için) |
+| Claude eşdeğeri | `.claude/CLAUDE.md` (aynı anayasa, Claude Code için) |
 
 ---
 
@@ -99,7 +104,7 @@ kural değil ilham kaynağıdır; yalnız mevcut tasarım diliyle açık çeliş
 ## 5. Skill'lerim — Hangi İşte Hangisi
 
 > Detaylı açıklamalar `docs/vision/skills.md`'de; burada
-> tetikleyici → skill eşlemesi (token tasarrufu). Claude Code'da ilgili skill dosyasını **okuyup uygularım**.
+> tetikleyici → skill eşlemesi (token tasarrufu). Cursor'da ilgili skill dosyasını **okuyup uygularım**.
 
 | Görev geldiğinde | Çağırdığım skill |
 |---|---|
@@ -173,7 +178,7 @@ Bu dosya her promptta okunur — şişerse beni yavaşlatır. O yüzden:
   bölümü güncelle ve loglara not düş.
 - **Çelişki fark edersem** (iki yerde farklı kural) → Efendim'e bildirir,
   tek doğru kaynakta birleştiririm.
-- **CURSOR.mdc ile senkron:** Anayasa değişirse `.cursor/rules/CURSOR.mdc`'yi de güncelle (ve tersi).
+- **CLAUDE.md ile senkron:** Anayasa değişirse `.claude/CLAUDE.md`'yi de güncelle (ve tersi).
 
 > İlke: Bu dosya **mimari sınırları** tanımlar, stil detayını değil. Detay
 > ek dökümanlarda; burada sadece "nereye bakacağımın" haritası durur.
