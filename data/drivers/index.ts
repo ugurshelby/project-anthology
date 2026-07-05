@@ -156,6 +156,32 @@ const DRIVERS: DriverLore[] = [
     ],
     lore: 'Stroll\'s 2020 Turkish GP pole was set in conditions where the track was declared "wet" but was drying rapidly — he elected to fit intermediate tyres two laps earlier than the field, generating a heat window that put 1.5°C more into the tread than any dry-tyre runner.',
   },
+  {
+    driverId: 'colapinto',
+    number: 43,
+    nationality: 'Argentine',
+    born: 2003,
+    bio: 'Franco Colapinto stepped into Williams mid-2024 as a late-season substitute and scored points on his second start. He moved to Alpine for 2026, becoming the first Argentine on the grid since the 1980s.',
+    milestones: [
+      '2024: F1 debut at the Italian GP as a mid-season Williams replacement',
+      '2024 Baku: Points finish in only his third race',
+      '2025: Confirmed at Alpine for the 2026 season',
+    ],
+    lore: 'Colapinto\'s rapid Williams call-up in 2024 came with barely a week of simulator preparation — the team compressed a normally multi-week onboarding process into a handful of days before his debut weekend.',
+  },
+  {
+    driverId: 'lindblad',
+    number: 41,
+    nationality: 'British',
+    born: 2007,
+    bio: 'Arvid Lindblad won the F1 Academy-adjacent junior ranks through Red Bull\'s programme and joined Racing Bulls for 2026, one of the youngest debutants in the sport\'s history.',
+    milestones: [
+      '2024: F3 championship contender with Red Bull junior backing',
+      '2025: Super Licence points secured through F2 campaign',
+      '2026: F1 debut with Racing Bulls',
+    ],
+    lore: 'Lindblad progressed through Red Bull\'s junior programme on an accelerated timeline, skipping a full season at a lower tier that most Red Bull juniors historically complete before their F1 debut.',
+  },
 ];
 
 const MAP = new Map(DRIVERS.map((d) => [d.driverId, d]));

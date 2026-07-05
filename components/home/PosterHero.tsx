@@ -42,6 +42,10 @@ export function PosterHero({
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#2a0a0a]/80 via-transparent to-transparent"
       />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+      />
 
       {showMobileLogo ? (
         <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 pt-[max(12px,env(safe-area-inset-top))] md:hidden">
