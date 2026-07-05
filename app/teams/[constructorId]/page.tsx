@@ -5,6 +5,7 @@ import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { SITE_NAME } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
+import { getDriverLore } from '@/data/drivers';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { StatBlock } from '@/components/bento/StatBlock';
@@ -60,6 +61,10 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   const car = carSrc(profile.constructorId, profile.constructorName);
   const logo = teamIconSrc(profile.constructorName);
   const [d1, d2] = profile.drivers;
+  const flankNumbers: [string | null, string | null] = [
+    d1 ? (getDriverLore(d1.driverId)?.number != null ? String(getDriverLore(d1.driverId)!.number) : null) : null,
+    d2 ? (getDriverLore(d2.driverId)?.number != null ? String(getDriverLore(d2.driverId)!.number) : null) : null,
+  ];
 
   return (
     <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12">
@@ -67,9 +72,11 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         kicker={`Constructor · ${season}`}
         title={profile.constructorName}
         meta={`P${profile.position} · ${profile.points} PTS · ${profile.wins} wins`}
-        imageSrc={car ?? logo}
+        imageSrc={car}
         imageAlt={profile.constructorName}
         imageKind="car"
+        flankNumbers={flankNumbers}
+        logoSrc={logo}
       />
 
       <div className="mt-6">

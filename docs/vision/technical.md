@@ -66,7 +66,6 @@ Jolpica · F1DB · OpenF1 · RSS
 | `/api/cron/sync-news` | RSS → news_cache (06:00 UTC) |
 | `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (07:00 UTC) |
 | `/api/cron/sync-radio` | OpenF1 → radio_moments (08:00 UTC) |
-| `/api/cron/notify` | Push bildirim (manuel veya harici cron; Vercel Hobby günde 1× limit) |
 | `/api/push/register` | Expo push token kayıt |
 | `/api/f1-season` | Canlı Jolpica proxy |
 | `/api/news` | Haber API |
