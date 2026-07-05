@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { DriverAvatar } from '@/components/bento/DriverAvatar';
+import { DriverLeaderCard } from '@/components/standings/StandingsLeaderCard';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
 
 /**
  * Poster Dense flat standings — no card shell, hairline rows, min 44px touch targets.
+ * P1 is broken out into a leader spotlight card above the flat list.
  */
 export function FlatStandingsList({
   rows,
@@ -15,10 +17,13 @@ export function FlatStandingsList({
   season: number;
   limit?: number;
 }) {
-  const visible = rows.slice(0, limit);
+  const [leader, ...rest] = rows;
+  const visible = rest.slice(0, Math.max(0, limit - 1));
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-3">
+      {leader ? <DriverLeaderCard row={leader} season={season} /> : null}
+      <div className="flex flex-col">
       {visible.map((row) => {
         const teamColor = resolveTeamUiColor(undefined, row.constructorName);
         return (
@@ -47,6 +52,7 @@ export function FlatStandingsList({
           </Link>
         );
       })}
+      </div>
     </div>
   );
 }
