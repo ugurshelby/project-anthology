@@ -15,6 +15,8 @@ import { PodiumViz } from '@/components/season/PodiumViz';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 
 export const revalidate = 0;
+/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
+export const dynamic = 'force-dynamic';
 
 const HOME_TITLE = `${SITE_NAME} — F1 Archive`;
 

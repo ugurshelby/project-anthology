@@ -15,6 +15,7 @@ import { ProfileHero } from '@/components/profile/ProfileHero';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
+/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
 
 type PageProps = {

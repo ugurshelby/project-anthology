@@ -4,6 +4,7 @@ import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
 import { rateLimit, getClientIP } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 60;

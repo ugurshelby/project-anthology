@@ -46,10 +46,13 @@ export async function POST(req: NextRequest) {
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await (getSupabaseAdmin().from('push_subscriptions') as any).upsert(
-    row,
-    { onConflict: 'token' },
-  );
+  // supabase-js's generic overload resolution mis-infers the upsert() payload
+  // type here (unrelated to Database completeness — push_subscriptions is
+  // fully typed above); cast is the pragmatic workaround, same as elsewhere
+  // in the codebase (lib/f1Ingest.ts, sync-news, sync-radio).
+  const { error } = await (getSupabaseAdmin().from('push_subscriptions') as unknown as {
+    upsert: (row: PushSubscriptionInsert, opts: { onConflict: string }) => Promise<{ error: { message: string } | null }>;
+  }).upsert(row, { onConflict: 'token' });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
