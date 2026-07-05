@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Expo mobile app — local / EAS only (web deploy uses repo root)
+/mobile/
+
 # supabase (local CLI artifacts; keep migrations + config.toml tracked)
 supabase/.temp/
 supabase/.branches/
