@@ -4,7 +4,7 @@
  * invocation makes one request and exits.
  *
  * Required env vars:
- *   SITE_URL     — e.g. https://project-anthology-five.vercel.app
+ *   SITE_URL     — e.g. https://project-anthology-seven.vercel.app
  *   CRON_SECRET  — shared secret, sent as Authorization: Bearer <secret>
  */
 
