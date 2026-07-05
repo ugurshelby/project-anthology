@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { aggregate } from '@/lib/news/aggregate';
 import { PageShell } from '@/components/layout/BentoGrid';
-import { NewsHero, WireItem } from '@/components/news/NewsList';
+import { NewsHero, NewsCard } from '@/components/news/NewsList';
 import { hasRealImage } from '@/lib/data/news';
 
 const TITLE = 'News';
@@ -25,9 +25,8 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 export default async function NewsPage() {
-  const news = await aggregate({ maxItems: 100 });
-  const featured = news.find((n) => hasRealImage(n)) ?? news[0];
-  const rest = news.filter((n) => n.id !== featured?.id);
+  const news = (await aggregate({ maxItems: 100 })).filter(hasRealImage);
+  const [featured, ...rest] = news;
 
   return (
     <PageShell>
@@ -38,9 +37,9 @@ export default async function NewsPage() {
 
       {featured ? <NewsHero item={featured} /> : null}
 
-      <div className="mt-8 grid grid-cols-1 gap-x-10 md:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
         {rest.map((item) => (
-          <WireItem key={item.id} item={item} />
+          <NewsCard key={item.id} item={item} />
         ))}
       </div>
     </PageShell>

@@ -129,6 +129,17 @@ export async function getNewsForEntity(
 }
 
 /**
+ * Single news item by id, for the /news/[id] detail page. Reuses the same
+ * DB → API → static fallback chain as getLatestNews (no separate by-id query
+ * exists upstream — news_cache/RSS aggregation isn't keyed for single-row
+ * lookups), so this pulls a generous batch and filters in memory.
+ */
+export async function getNewsById(id: string): Promise<NewsItem | null> {
+  const items = await getLatestNews(100);
+  return items.find((item) => item.id === id) ?? null;
+}
+
+/**
  * Latest news. DB (news_cache) → /api/news → static fallback.
  */
 export async function getLatestNews(limit = 20): Promise<NewsItem[]> {

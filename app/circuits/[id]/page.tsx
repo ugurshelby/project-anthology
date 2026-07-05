@@ -61,19 +61,24 @@ export default async function CircuitDetailPage({ params }: PageProps) {
       </header>
 
       <BentoGrid>
-        <BentoCard span={8} className="flex items-center justify-center">
+        <BentoCard span={4} className="order-2 md:order-1">
+          <span className="label-caps mb-3 block text-text-mid">Circuit Data</span>
+          <TechnicalDossier entries={dossier} />
+        </BentoCard>
+
+        <BentoCard span={8} className="relative order-1 flex items-center justify-center overflow-hidden md:order-2">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{ background: 'radial-gradient(120% 120% at 50% 40%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 65%)' }}
+          />
           {circuit.svgSrc ? (
-            <div className="relative h-64 w-full md:h-80">
+            <div className="relative z-10 h-64 w-full md:h-80">
               <Image src={circuit.svgSrc} alt={`${circuit.circuitName} track map`} fill sizes="(max-width: 1024px) 100vw, 66vw" className="object-contain" />
             </div>
           ) : (
-            <span className="label-caps text-text-low">No track map available</span>
+            <span className="label-caps relative z-10 text-text-low">No track map available</span>
           )}
-        </BentoCard>
-
-        <BentoCard span={4}>
-          <span className="label-caps mb-3 block text-text-mid">Circuit Data</span>
-          <TechnicalDossier entries={dossier} />
         </BentoCard>
 
         {circuit.winners.length > 0 ? (
