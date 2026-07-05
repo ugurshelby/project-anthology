@@ -14,6 +14,7 @@ import { ProfileHero } from '@/components/profile/ProfileHero';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { DriverLineup } from '@/components/profile/DriverLineup';
 import { HeadToHead } from '@/components/profile/HeadToHead';
+import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,6 +69,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
 
   return (
     <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12">
+      <PageThemeSync vars={theme} />
       <ProfileHero
         kicker={`Constructor · ${season}`}
         title={profile.constructorName}

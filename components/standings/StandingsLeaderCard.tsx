@@ -40,7 +40,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
         </span>
       </div>
       <div className="relative z-10 flex shrink-0 flex-col items-end">
-        <span className="hero-number text-4xl text-text-hi">{row.points}</span>
+        <span className="hero-number text-[clamp(36px,5vw,64px)] text-text-hi">{row.points}</span>
         <span className="label-caps text-text-low">PTS</span>
       </div>
       {portrait ? (
@@ -88,7 +88,7 @@ export function TeamLeaderCard({ row }: { row: ConstructorStandingRow }) {
         </span>
       </div>
       <div className="relative z-10 flex shrink-0 flex-col items-end">
-        <span className="hero-number text-4xl text-text-hi">{row.points}</span>
+        <span className="hero-number text-[clamp(36px,5vw,64px)] text-text-hi">{row.points}</span>
         <span className="label-caps text-text-low">PTS</span>
       </div>
     </Link>
