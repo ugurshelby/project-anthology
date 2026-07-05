@@ -16,6 +16,7 @@ import { DriverLineup } from '@/components/profile/DriverLineup';
 import { HeadToHead } from '@/components/profile/HeadToHead';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
+/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
 
 type PageProps = {

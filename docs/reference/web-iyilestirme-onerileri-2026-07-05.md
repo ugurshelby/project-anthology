@@ -24,9 +24,8 @@ if (explicit) return explicit;  // hep truthy, altındaki fallback'ler ölü kod
 ### ✅ ÇÖZÜLDÜ (2026-07-05) — `push/register` route'unda rate limit yok
 `app/api/push/register/route.ts` — diğer tüm public route'ların (f1-season, news, season/[year]) aksine hiç rate-limit yoktu. `lib/rateLimit.ts` uygulandı (IP başına dakikada 10 istek), ayrıca `req.json()` artık try/catch içinde (bozuk JSON → 400) ve `force-dynamic`/`runtime='nodejs'` export'ları eklendi.
 
-### 🟠 `jsdom` yanlış kategoride — production runtime'da kırılma riski
-`package.json:46` — `jsdom` devDependency olarak listeli ama `lib/news/aggregate.ts:112` runtime'da (`sync-news` cron + `/api/news` cache-miss yolunda) dinamik import ediyor. `outputFileTracingExcludes` düzeltmesi bunu bundle'da tutuyor ama kategori hâlâ yanlış; `npm ci --omit=dev` kullanan herhangi bir deploy adımı haber ingestion'ını kırar.
-**Öneri:** `jsdom`'u `dependencies`'e taşı.
+### ✅ ÇÖZÜLDÜ (2026-07-05) — `jsdom` yanlış kategoride — production runtime'da kırılma riski
+`package.json:46` — `jsdom` devDependency olarak listeliydi ama `lib/news/aggregate.ts:112` runtime'da (`sync-news` cron + `/api/news` cache-miss yolunda) dinamik import ediyor. `jsdom` `dependencies`'e taşındı; `npm install --package-lock-only` ile `package-lock.json`'daki jsdom + tüm transitive bağımlılıklarının (`cssstyle`, `data-urls`, `tough-cookie` vb.) `dev` bayrağı doğru şekilde temizlendi.
 
 ### 🟡 Aynı sayfa render'ında `getSeasonData` tekrar tekrar çağrılıyor
 `app/drivers/[driverId]/page.tsx:50-54` gibi yerlerde `getDriverProfile` + `getDriverSeasons` + `getDriverCareer` aynı sezon için bağımsız `getSeasonData()` çağırıyor — sezon başına 3x aynı Supabase okuması. `lib/data/f1.ts` içinde sadece calendar-staleness için kısa bir memo var (`stalenessRacesCache`), sezon paketi için yok.
@@ -36,9 +35,8 @@ if (explicit) return explicit;  // hep truthy, altındaki fallback'ler ölü kod
 `lib/data/entities.ts:8-10` şu an sadece `[CURRENT_SEASON]` döndürüyor, bu yüzden fan-out bugün no-op. Ama tarihsel sezonlar eklenince (isimlendirme zaten "career", "full profile archive" diyor) her profil sayfası N sezon × M round sorgusu tetikleyecek, hiçbir cache katmanı yok.
 **Öneri:** Tarihsel sezon desteği eklenirken aynı anda bir cache/memoization stratejisi de planla — sonradan eklemek daha zor olur.
 
-### 🟡 `.env.example` ile `lib/cronAuth.ts` arasında isim uyuşmazlığı
-`.env.example` sadece `CRON_SECRET_KEY` (legacy) belgeliyor; Vercel'in otomatik enjekte ettiği `CRON_SECRET` (birincil, `_KEY` eki yok) hiç bahsedilmiyor. Şablonu birebir takip eden biri sadece legacy adı ayarlar.
-**Öneri:** `.env.example`'a her ikisini de ekle, hangisinin birincil olduğunu not düş.
+### ✅ ÇÖZÜLDÜ (2026-07-05) — `.env.example` ile `lib/cronAuth.ts` arasında isim uyuşmazlığı
+`.env.example` sadece `CRON_SECRET_KEY` (legacy) belgeliyordu; `CRON_SECRET` (birincil) eklendi, hangisinin öncelikli olduğu yorumla belirtildi. `NEXT_PUBLIC_SITE_URL` yorumu da düzeltilen fallback sırasını (VERCEL_URL önce) yansıtacak şekilde güncellendi.
 
 ---
 
@@ -47,16 +45,11 @@ if (explicit) return explicit;  // hep truthy, altındaki fallback'ler ölü kod
 ### ✅ ÇÖZÜLDÜ (2026-07-05) — `cron/notify` route'u zombi — "kaldırıldı" ama hâlâ canlı ve tetiklenebilir
 30 dakikalık cron `vercel.json`'dan doğru şekilde çıkarılmıştı ama `app/api/cron/notify/route.ts` dosyası silinmemişti. Route tamamen kaldırıldı (`push_subscriptions` tablosu ve `/api/push/register` kayıt akışı dokunulmadan kalıyor, yalnızca bildirim *gönderme* cron'u silindi); `docs/vision/technical.md`'deki referansı da temizlendi.
 
-### 🟡 `force-dynamic` kullanımı tutarsız
-- Cron route'ları: `sync-f1`/`sync-news`/`sync-radio` var, `notify` yok.
-- Public API: `f1-season`/`news` var, `season/[year]` yok (sadece `runtime='nodejs'`).
-- Sayfalar: `season/page.tsx` hem `revalidate=0` hem `force-dynamic` (fazladan ama zararsız); `circuits/[id]`/`anthology/[slug]` sadece `force-dynamic` + açıklayıcı yorum ("SSG lambda mismatch"); `drivers/[driverId]`/`teams/[constructorId]` aynı fix'i yorumsuz uyguluyor; **ana sayfa (`app/page.tsx`) sadece `revalidate=0`, `force-dynamic` yok** — dünkü "SSG lambda mismatch" sınıfı hatanın kök route'ta tekrar çıkma riski var, çünkü `revalidate=0` ile `force-dynamic` Next'in route cache modelinde tam eşdeğer değil.
-**Öneri:** Ana sayfaya da `export const dynamic = 'force-dynamic'` ekle; `season/[year]` route'una da aynısını ekle; her `force-dynamic`'in yanına neden gerektiğini kısa yorumla belirt (tutarlı belgeleme).
+### ✅ ÇÖZÜLDÜ (2026-07-05) — `force-dynamic` kullanımı tutarsız
+Ana sayfaya (`app/page.tsx`) ve `season/[year]` API route'una `export const dynamic = 'force-dynamic'` eklendi; `drivers/[driverId]`/`teams/[constructorId]`'daki mevcut `force-dynamic`'lere de açıklayıcı yorum eklendi ("Vercel @vercel/next + Next 16 segment SSG packaging bug"). `cron/notify` zaten silinmişti (bkz. §2), o yüzden o tutarsızlık da kalktı.
 
-### 🟡 `push/register` — hata yönetimi ve tip güvenliği zayıf
-- `await req.json()` try/catch'siz — bozuk JSON gövdesi handler içinde unhandled exception'a düşüyor (Next genel 500'e çeviriyor ama diğer route'lardaki özenli hata şekillendirmesiyle tutarsız).
-- `(getSupabaseAdmin().from('push_subscriptions') as any).upsert(...)` — `any` cast, `Database` tipi kullanılmıyor (aynı pattern `lib/f1Ingest.ts`, `sync-news`, `sync-radio` içinde de var — codebase genelinde tekrarlanan bir workaround, muhtemelen generated type'ların insert şeklini tam karşılamamasından).
-**Öneri:** `req.json()`'u try/catch'e al, 400 döndür; push_subscriptions için Database tipini tamamla ya da en azından route-özel bir tip tanımla.
+### ✅ ÇÖZÜLDÜ (2026-07-05) (kısmen) — `push/register` — hata yönetimi ve tip güvenliği zayıf
+JSON try/catch daha önce eklenmişti. `any` cast kaldırılmaya çalışıldı — `Database` tipi zaten `push_subscriptions` için tamdı ama supabase-js'in generic overload çözümü `upsert()` payload'ını yanlış çıkarıyor (Database tanımından bağımsız bir kütüphane kısıtı, doğrulandı). `any` yerine dar/somut bir tip (`{ upsert: (row: PushSubscriptionInsert, ...) => ... }`) ile cast edildi — aynı `any` kaçış yolu değil, en azından `error.message` erişimi artık tip güvenli.
 
 ### 🟡 Cron `maxDuration=300` üç ayrı dosyada tekrar ediyor
 Merkezi bir yerden yönetilmiyor (Vercel `functions` bloğu tercih edilebilir), şu an sürüklenme riski düşük ama üç dosyayı senkron tutmak manuel.
@@ -115,23 +108,24 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 `next.config.ts:23` — portfolyo-embed kullanım senaryosu için bilinçli ama herhangi bir Vercel-hosted uygulamanın siteyi iframe'leyebilmesi anlamına geliyor (yalnızca kendi preview subdomain'leri değil). Küçük bir clickjacking-yüzeyi genişlemesi, muhtemelen kabul edilmiş bir tradeoff.
 **Öneri:** Mümkünse yalnızca kendi preview domain pattern'ine daraltılabilir mi diye değerlendir; değilse bilinçli kabul olarak belgelensin yeter.
 
-### 🟡 `.nvmrc` yok, yalnızca `package.json#engines: "24.x"`
-Vercel bunu doğrudan okuyor, sorun yok, ama yerel geliştirme araçları (`nvm use` vb.) `.nvmrc`'ye bakabilir.
-**Öneri:** Küçük bir `.nvmrc` eklemek maliyetsiz bir tutarlılık kazancı.
+### ✅ ÇÖZÜLDÜ (2026-07-05) — `.nvmrc` yok
+`.nvmrc` (`24`) eklendi.
 
-### 🟡 `tsconfig.tsbuildinfo` (469KB) birkaç config değişikliğinden eski tarihli
-Gitignore'da olduğunu doğrulamak gerek; değilse stale incremental-check yanlış pozitif/negatiflerine yol açabilir.
+### ✅ Doğrulandı — `tsconfig.tsbuildinfo` zaten gitignore'da
+`.gitignore:48` — `*.tsbuildinfo` zaten var, ek işlem gerekmedi.
 
 ---
 
 ## Öncelik Özeti (ilk yapılacaklar)
 
 1. ✅ `lib/data/siteUrl.ts` fallback sırası — çözüldü (2026-07-05).
-2. 🟠 `sync-f1` scope-forcing → veri staleness'i belgelenmeli / GH Actions saatlik tetikleyici planlanmalı.
+2. 🟠 `sync-f1` scope-forcing → veri staleness'i belgelenmeli / GH Actions saatlik tetikleyici planlanmalı. **(hâlâ açık — tek kalan orta öncelik madde)**
 3. ✅ `push/register` rate-limit eksikliği — çözüldü (2026-07-05).
-4. 🟠 `jsdom` dependency kategorisi.
-5. 🟠 Ana sayfaya `loading.tsx`/`error.tsx`/global `not-found.tsx`.
+4. ✅ `jsdom` dependency kategorisi — çözüldü (2026-07-05).
+5. 🟠 Ana sayfaya `loading.tsx`/`error.tsx`/global `not-found.tsx`. **(hâlâ açık)**
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
-7. 🟠 Tasarım dili bölünmesi — WEB-UI.5-7'yi hızlandır (zaten planda).
+7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); kalan sayfalar (drivers/teams/circuits liste, tech-glossary) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
+
+**Kalan açık maddeler:** `sync-f1` veri staleness'i (madde 2), `loading.tsx`/`error.tsx`/`not-found.tsx` eksikliği (madde 5), API route entegrasyon testleri (bkz. §4), request-scope memoization (`getSeasonData` tekrar çağrımı), arama ikonunun yanıltıcılığı (`SiteHeader`).
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.
