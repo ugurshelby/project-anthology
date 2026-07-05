@@ -164,6 +164,17 @@ body {
   padding-bottom: max(5.5rem, calc(72px + env(safe-area-inset-bottom, 0px)));
 }
 
+/* Mobile nav "+" full-screen menu — overlay fade + staggered card entrance */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes moreItemIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* §5 reduced-motion zorunlu */
 @media (prefers-reduced-motion: reduce) {
   *,
