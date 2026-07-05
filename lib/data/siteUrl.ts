@@ -9,7 +9,7 @@
  */
 
 /** Hardcoded production URL — last-resort fallback when no env var is set. */
-const PROD_SITE_URL = 'https://project-anthology-five.vercel.app';
+const PROD_SITE_URL = 'https://project-anthology-seven.vercel.app';
 
 export function getSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '');
