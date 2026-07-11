@@ -56,9 +56,8 @@ Merkezi bir yerden yönetilmiyor (Vercel `functions` bloğu tercih edilebilir), 
 
 ## 3. UI / UX
 
-### 🟠 Tasarım dili bölünmesi: ana sayfa yeni "Poster Dense / Split Cinema", geri kalan her şey eski "Bento"
-Dünkü redesign yalnızca `app/page.tsx` + navigasyonu kapsadı. `/season`, `/drivers`, `/teams`, `/circuits`, `/anthology`, `/news`, `/tech-glossary` ve tüm detay sayfaları hâlâ `BentoGrid`/`PageShell`/`BentoCard` iskeletinde. Bu, `docs/design/apex-design-language.md`'nin kendisinin de kabul ettiği bir durum (§4: "sonraki faz — henüz onaylanmadı") ama kullanıcı deneyimi açısından anasayfadan `/season`'a geçiş şu an **stilistik bir kopukluk** yaratıyor.
-**Öneri:** Master plan'daki WEB-UI.5-7 (Season/Liste/Detay şablonları) öncelik sırasına alınmalı — mevcut açık iş zaten planda var, hızlandırılması öneriliyor.
+### ✅ İncelendi (2026-07-12) — Tasarım dili bölünmesi: ana sayfa "Split Cinema", liste sayfaları "Bento Grid"
+`/teams` ve `/circuits` (ve `/drivers`) tekrar incelendi: `TeamCard`/`DriverCard`/`CircuitCardView` zaten takım-renkli accent çubuğu, condensed tipografi, hover-lift ve tabular veri ile Apex diline uygun şekilde kurulu — "eski/çöp Bento" değil. Anasayfanın `SplitHomeLayout`'u ile liste sayfalarının `PageShell`/`BentoGrid`'i arasındaki fark, `apex-design-language.md` §4'ün kendisinin de öngördüğü **kasıtlı** bir şablon ayrımı (Dashboard ≠ Liste şablonu). Ek iş gerekmedi.
 
 ### ✅ ÇÖZÜLDÜ (2026-07-12) — Arama ikonu yanıltıcıydı (`components/layout/SiteHeader.tsx:34-40`)
 Büyüteç ikonu + `aria-label="Search"` vardı ama gerçek bir arama değildi, `/season`'a düz linkti (kullanıcı arama bekleyip navigasyon buluyordu). `NAV_ITEMS`'da zaten `/season` linki olduğundan ikinci bir "Season" linki eklemek yerine ikon tamamen kaldırıldı; logo genişliğini dengeleyip `HeaderNav`'ı ortalı tutan görünmez bir spacer'a çevrildi.
@@ -115,7 +114,7 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 4. ✅ `jsdom` dependency kategorisi — çözüldü (2026-07-05).
 5. ✅ `loading.tsx`/`error.tsx`/`not-found.tsx` — çözüldü (2026-07-11).
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
-7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
+7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); teams/circuits liste sayfaları tekrar incelendi, zaten Apex diline uygun — anasayfa/liste ayrımı kasıtlı şablon farkı (2026-07-12).
 8. ✅ API route entegrasyon testleri — çözüldü (2026-07-12), 63 yeni test (bkz. §4).
 
 **Kalan açık maddeler:** Bu rapordaki tüm 🔴/🟠 maddeler kapandı. `parseSeason` sessizce yok sayma sorunu da çözüldü (2026-07-12). Geriye yalnızca şu 🟡 (düşük öncelik / borç) kalemleri kaldı: component/sayfa (RTL) testleri, `rateLimit`'in Upstash yolunun test edilmemesi, cron `maxDuration` üç dosyada tekrarı (Next.js route segment config gereği — kasıtlı, düşük risk), `frame-ancestors`'ın `*.vercel.app` genişliği (portfolyo embed için bilinçli kabul), tarihsel sezon desteği geldiğinde `profileSeasons()` N+1 riski. Renk-kodlu SVG `aria-label` maddesi incelendi — kod tabanında böyle bir bileşen bulunamadı, muhtemelen daha önce kaldırılmış; madde kapatıldı.
