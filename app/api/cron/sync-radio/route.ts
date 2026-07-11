@@ -22,7 +22,7 @@ import {
   type OpenF1TeamRadio,
   type OpenF1Driver,
 } from '@/lib/f1/sources/openf1';
-import { isCronAuthorized } from '@/lib/cronAuth';
+import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { RadioMomentInsert } from '@/types/database';
 
@@ -34,12 +34,17 @@ function authError(): NextResponse {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
+const MIN_TRIGGER_INTERVAL_MS = 60_000;
+
 function makeSlug(driver: string, sessionKey: number, idx: number): string {
   return `${driver.toLowerCase().replace(/[^a-z0-9]/g, '-')}-s${sessionKey}-${idx}`;
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isCronAuthorized(req)) return authError();
+  if (!isCronTriggerAllowed('sync-radio', MIN_TRIGGER_INTERVAL_MS)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
 
   const startedAt = Date.now();
   const errors: string[] = [];

@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/tests/test-results/
 
 # next.js
 /.next/
@@ -50,3 +51,6 @@ next-env.d.ts
 
 .env*
 .vercel
+
+# Claude Code skill/brainstorm output — tool-local, not project source
+/.superpowers/

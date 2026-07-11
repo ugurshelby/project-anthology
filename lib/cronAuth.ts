@@ -28,3 +28,19 @@ export function isCronAuthorized(req: { headers: { get(name: string): string | n
   if (secrets.length === 0) return false;
   return secrets.some((secret) => safeEqual(header, `Bearer ${secret}`));
 }
+
+// ── Per-route trigger throttle ───────────────────────────────────────────────
+// A leaked CRON_SECRET would otherwise let an attacker re-trigger these
+// expensive (maxDuration=300s, external API-calling) routes without limit.
+// This is a global (not per-IP) in-memory floor per route name — cheap
+// insurance, not a substitute for rotating a leaked secret.
+const lastTriggerAt = new Map<string, number>();
+
+/** True when at least `minIntervalMs` has passed since the last call for `routeName`. */
+export function isCronTriggerAllowed(routeName: string, minIntervalMs: number): boolean {
+  const now = Date.now();
+  const last = lastTriggerAt.get(routeName);
+  if (last !== undefined && now - last < minIntervalMs) return false;
+  lastTriggerAt.set(routeName, now);
+  return true;
+}

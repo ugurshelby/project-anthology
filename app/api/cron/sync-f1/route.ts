@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cronAuth';
+import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
 import { CURRENT_SEASON, isRaceWeekend, type CalendarRace } from '@/lib/f1Calendar';
 import {
   fetchCalendar,
@@ -48,8 +48,13 @@ function authError(): NextResponse {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
+const MIN_TRIGGER_INTERVAL_MS = 60_000;
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isCronAuthorized(req)) return authError();
+  if (!isCronTriggerAllowed('sync-f1', MIN_TRIGGER_INTERVAL_MS)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
 
   const startedAt = Date.now();
   const stats: IngestStats = { upserted: 0, skipped: 0, errors: [] };
