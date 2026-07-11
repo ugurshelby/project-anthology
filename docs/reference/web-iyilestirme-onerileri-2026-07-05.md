@@ -84,9 +84,11 @@ URL'de `?season=2024` gibi bir değer kabul ediliyor (tip tanımında da var) am
 
 ## 4. Test
 
-### 🟠 Hiçbir API route'u test edilmiyor
-`tests/` altında 7 dosya var (`f1Calendar`, `mrdata-round`, `f1-read-fallback`, `aggregate`, `cronAuth`, `rateLimit`, `f1-icons`) — hepsi saf mantık/yardımcı fonksiyon testi. `app/api/**/route.ts` handler'larının hiçbiri doğrudan test edilmiyor: auth-gate entegrasyonu (401 dönüyor mu), input validation, rate-limit 429 gövdesi, hata yanıtı şekli — hiçbiri uçtan uca doğrulanmıyor. `sync-f1`'in artık hep `season` scope'ta çalıştığı davranış değişikliği (bkz. §2) bu yüzden fark edilmemiş olabilirdi.
-**Öneri:** En kritik 2-3 route için (cron auth akışı, `push/register` validation, `f1-season` whitelist) entegrasyon testi ekle.
+### ✅ ÇÖZÜLDÜ (2026-07-12) — Hiçbir API route'u test edilmiyordu
+Üç entegrasyon test dosyası eklendi, route handler'ları doğrudan çağrılıyor (63 yeni test, toplam 54 → 117):
+- **`tests/api-f1-season.test.ts`** (29 test) — SSRF whitelist'i: mutlak URL'ler, `//` protocol-relative, cloud metadata IP'si (`169.254.169.254`), path traversal, listelenmemiş endpoint'ler hepsi 400 alıyor **ve ağa hiç çıkmıyor**; izinli path'ler geçiyor; upstream 404→200/`{MRData:{}}`, 500→502, abort→504 haritalaması; hata gövdelerinde upstream detayı sızmıyor. Whitelist kontrolü bilerek kaldırılıp testlerin gerçekten yakaladığı doğrulandı (11 test kırıldı).
+- **`tests/api-push-register.test.ts`** (16 test) — bozuk JSON→400, Expo olmayan/eksik token→400, `preferences` sanitizasyonu (yalnızca boolean değerler, max 20 anahtar, array/string/null → `{}`), DB hatasında generic mesaj (Supabase constraint adı sızmıyor, detay server log'una gidiyor).
+- **`tests/api-cron-guard.test.ts`** (18 test) — üç cron route'unun (`sync-f1`/`sync-news`/`sync-radio`) auth kapısı (header yok / yanlış secret / Bearer şeması yok / hiç secret yapılandırılmamış → hepsi 401) ve trigger throttle'ı (ikinci yetkili çağrı 60sn içinde 429; yetkisiz flood throttle'ı tüketmiyor — auth önce kontrol ediliyor).
 
 ### 🟡 Component/sayfa testi hiç yok
 `vitest.config.ts` `environment: 'node'` — DOM test ortamı tanımlı değil. Dünkü home redesign (`SplitHomeLayout`, `PosterHero`, `FlatStandingsList`, `MobileNav`) hiç otomatik test kapsamında değil, yalnızca manuel/görsel doğrulama var.
@@ -121,7 +123,8 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 5. ✅ `loading.tsx`/`error.tsx`/`not-found.tsx` — çözüldü (2026-07-11).
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
 7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
+8. ✅ API route entegrasyon testleri — çözüldü (2026-07-12), 63 yeni test (bkz. §4).
 
-**Kalan açık maddeler:** API route entegrasyon testleri (bkz. §4) — bu rapordaki tek kalan madde.
+**Kalan açık maddeler:** Bu rapordaki tüm 🔴/🟠 maddeler kapandı. Geriye yalnızca 🟡 (düşük öncelik / borç) kalemleri kaldı: component/sayfa (RTL) testleri, `rateLimit`'in Upstash yolunun test edilmemesi, `parseSeason`'ın `?season=` parametresini sessizce yok sayması, cron `maxDuration` tekrarı, `frame-ancestors` genişliği, tarihsel sezon desteği geldiğinde `profileSeasons()` N+1 riski, renk-kodlu SVG'lerde `aria-label`.
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.
