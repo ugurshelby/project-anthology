@@ -17,9 +17,8 @@ if (explicit) return explicit;  // hep truthy, altındaki fallback'ler ölü kod
 `PROD_SITE_URL` sabit dolu olduğundan `??` hiç devreye girmiyor; `VERCEL_URL`/`localhost` fallback'leri hiçbir zaman çalışmıyor. Sonuç: her preview/branch deploy'unda RSC self-fetch'ler (`fetchSiteJson` → homepage news, `getRacesForStaleness`, `fetchLiveSeasonSnapshot`) production'a (`project-anthology-five.vercel.app`) gidiyor, kendi preview API'sine değil. Bugüne kadar fark edilmemiş çünkü prod ortamında `PROD_SITE_URL` zaten doğru değere denk geliyor — ama her preview build'de **prod verisini** çekiyor olabiliriz, bu da preview testlerini yanıltıcı kılar.
 **Öneri:** Sırayı düzelt — önce `NEXT_PUBLIC_SITE_URL`, sonra `VERCEL_URL` (varsa `https://` ekle), en son `PROD_SITE_URL`/localhost.
 
-### 🟠 `sync-f1` cron artık pratikte hep `season` scope'ta çalışıyor → veri 24 saate kadar bayatlayabilir
-`app/api/cron/sync-f1/route.ts:59-69`: `vercel.json` cron'u her zaman `?scope=season` gönderdiği için `forcedScope` hep dolu, `scope` hiçbir zaman `'live'` olamıyor. Yarış haftasonu oturumları (quali/sprint/race) günde bir kez 07:00 UTC'de kontrol ediliyor; "due" kontrolü tek seferlik bir eşik kontrolü (`now >= due`) olduğundan veri kalıcı kaybolmuyor ama **bir sonraki gün 07:00'a kadar bayat kalabiliyor**. Bu, Hobby plan cron azaltmasının (30 dakikalık cron'un kaldırılmasının) doğrudan sonucu. Şu an kullanıcı tarafında bunu maskeleyen tek şey: okuma katmanındaki staleness-bypass + canlı Jolpica proxy fallback — yani her bayat okuma, DB yerine canlı Jolpica'ya gidiyor (ekstra dış API yükü + gecikme).
-**Öneri:** Ya (a) GitHub Actions ile yarış haftasonlarında saatlik ek bir tetikleyici kur (teknik borç tablosunda zaten var), ya da (b) `scope=live` mantığını günlük cron içinde "eğer bugün/yarın yarış haftasonuysa ekstra kontrol yap" şeklinde koşullu çalıştır.
+### ✅ ÇÖZÜLDÜ (2026-07-11) — `sync-f1` cron artık pratikte hep `season` scope'ta çalışıyordu → veri 24 saate kadar bayatlıyordu
+`app/api/cron/sync-f1/route.ts:59-69`: `vercel.json` cron'u her zaman `?scope=season` gönderdiği için `forcedScope` hep dolu, `scope` hiçbir zaman `'live'` olamıyordu. Vercel Hobby plan'ın günde 1x/route cron kısıtı nedeniyle GitHub Actions dışı, ayrı bir Railway servisi (`railway/apex-sync-f1-cron/`) kuruldu — `*/15 * * * 5,6,0` (Cuma/Cumartesi/Pazar, 15 dakikada bir) `?scope=live` endpoint'ini `CRON_SECRET` ile tetikliyor. 2026-07-11'de doğrulandı: `[sync-f1 live] 200 OK`.
 
 ### ✅ ÇÖZÜLDÜ (2026-07-05) — `push/register` route'unda rate limit yok
 `app/api/push/register/route.ts` — diğer tüm public route'ların (f1-season, news, season/[year]) aksine hiç rate-limit yoktu. `lib/rateLimit.ts` uygulandı (IP başına dakikada 10 istek), ayrıca `req.json()` artık try/catch içinde (bozuk JSON → 400) ve `force-dynamic`/`runtime='nodejs'` export'ları eklendi.
@@ -119,13 +118,13 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 ## Öncelik Özeti (ilk yapılacaklar)
 
 1. ✅ `lib/data/siteUrl.ts` fallback sırası — çözüldü (2026-07-05).
-2. 🟠 `sync-f1` scope-forcing → veri staleness'i belgelenmeli / GH Actions saatlik tetikleyici planlanmalı. **(hâlâ açık — tek kalan orta öncelik madde)**
+2. ✅ `sync-f1` scope-forcing → Railway cron ile çözüldü (2026-07-11).
 3. ✅ `push/register` rate-limit eksikliği — çözüldü (2026-07-05).
 4. ✅ `jsdom` dependency kategorisi — çözüldü (2026-07-05).
 5. 🟠 Ana sayfaya `loading.tsx`/`error.tsx`/global `not-found.tsx`. **(hâlâ açık)**
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
-7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); kalan sayfalar (drivers/teams/circuits liste, tech-glossary) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
+7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
 
-**Kalan açık maddeler:** `sync-f1` veri staleness'i (madde 2), `loading.tsx`/`error.tsx`/`not-found.tsx` eksikliği (madde 5), API route entegrasyon testleri (bkz. §4), request-scope memoization (`getSeasonData` tekrar çağrımı), arama ikonunun yanıltıcılığı (`SiteHeader`).
+**Kalan açık maddeler:** `loading.tsx`/`error.tsx`/`not-found.tsx` eksikliği (madde 5), API route entegrasyon testleri (bkz. §4), request-scope memoization (`getSeasonData` tekrar çağrımı), arama ikonunun yanıltıcılığı (`SiteHeader`).
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.
