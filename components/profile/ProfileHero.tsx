@@ -51,7 +51,18 @@ export function ProfileHero({
         }}
       />
 
-      {bigNumber ? (
+      {bigNumber && imageKind === 'portrait' ? (
+        <span
+          aria-hidden
+          className="hero-number pointer-events-none absolute inset-y-0 right-0 z-0 hidden select-none items-center justify-end pr-[2%] text-[clamp(220px,30vw,420px)] leading-none text-text-hi/[0.14] lg:flex"
+          style={{
+            WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 60%, transparent)',
+          }}
+        >
+          {bigNumber}
+        </span>
+      ) : null}
+      {bigNumber && imageKind !== 'portrait' ? (
         <span
           aria-hidden
           className="hero-number pointer-events-none absolute inset-0 z-0 flex select-none items-center justify-center text-[clamp(160px,26vw,340px)] leading-none text-text-hi/[0.06]"
@@ -81,6 +92,17 @@ export function ProfileHero({
 
         {imageKind === 'portrait' ? (
           <div className="relative z-10 flex h-64 items-end justify-center lg:h-[420px]">
+            {bigNumber ? (
+              <span
+                aria-hidden
+                className="hero-number pointer-events-none absolute -top-2 right-0 z-0 select-none text-[clamp(72px,18vw,120px)] leading-none text-text-hi/20 lg:hidden"
+                style={{
+                  WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 70%, transparent)',
+                }}
+              >
+                {bigNumber}
+              </span>
+            ) : null}
             {imageSrc ? (
               <div className="relative h-full w-full" style={maskFade}>
                 <Image
