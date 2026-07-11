@@ -12,6 +12,7 @@
  * Jolpica is never used for historical seasons. All reads are server-side (RSC).
  */
 
+import { cache } from 'react';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json, SnapshotType } from '@/types/database';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
@@ -417,8 +418,13 @@ function nearestRaceKeyFromCalendar(races: CalendarRace[], nowMs: number): strin
   return key;
 }
 
-/** Full season bundle for the archive explorer and API route. */
-export async function getSeasonData(year: number): Promise<SeasonData> {
+/**
+ * Full season bundle for the archive explorer and API route.
+ * Wrapped in React's `cache()` so multiple calls for the same year within one
+ * request/render pass (e.g. getDriverProfile + getDriverSeasons + getDriverCareer)
+ * share a single underlying fetch instead of re-querying Supabase 3x.
+ */
+export const getSeasonData = cache(async function getSeasonData(year: number): Promise<SeasonData> {
   const [calendarData, driverData, constructorData] = await Promise.all([
     fetchSeasonSnapshotTyped(year, 'calendar'),
     fetchSeasonSnapshotTyped(year, 'standings_drivers'),
@@ -459,7 +465,7 @@ export async function getSeasonData(year: number): Promise<SeasonData> {
     driverStats: getPerDriverRoundStats(roundData),
     evolutionSeries: getDriverCumulativePoints(roundData, 5),
   };
-}
+});
 
 export { F1_SEASON_MIN };
 
