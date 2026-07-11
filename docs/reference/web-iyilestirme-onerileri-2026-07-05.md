@@ -26,9 +26,8 @@ if (explicit) return explicit;  // hep truthy, altındaki fallback'ler ölü kod
 ### ✅ ÇÖZÜLDÜ (2026-07-05) — `jsdom` yanlış kategoride — production runtime'da kırılma riski
 `package.json:46` — `jsdom` devDependency olarak listeliydi ama `lib/news/aggregate.ts:112` runtime'da (`sync-news` cron + `/api/news` cache-miss yolunda) dinamik import ediyor. `jsdom` `dependencies`'e taşındı; `npm install --package-lock-only` ile `package-lock.json`'daki jsdom + tüm transitive bağımlılıklarının (`cssstyle`, `data-urls`, `tough-cookie` vb.) `dev` bayrağı doğru şekilde temizlendi.
 
-### 🟡 Aynı sayfa render'ında `getSeasonData` tekrar tekrar çağrılıyor
-`app/drivers/[driverId]/page.tsx:50-54` gibi yerlerde `getDriverProfile` + `getDriverSeasons` + `getDriverCareer` aynı sezon için bağımsız `getSeasonData()` çağırıyor — sezon başına 3x aynı Supabase okuması. `lib/data/f1.ts` içinde sadece calendar-staleness için kısa bir memo var (`stalenessRacesCache`), sezon paketi için yok.
-**Öneri:** Request-scope memoization (React `cache()` ile sarmalama) ekle.
+### ✅ ÇÖZÜLDÜ (2026-07-11) — Aynı sayfa render'ında `getSeasonData` tekrar tekrar çağrılıyordu
+`app/drivers/[driverId]/page.tsx:50-54` gibi yerlerde `getDriverProfile` + `getDriverSeasons` + `getDriverCareer` aynı sezon için bağımsız `getSeasonData()` çağırıyordu — sezon başına 3x aynı Supabase okuması. `lib/data/f1.ts:421` artık React `cache()` ile sarmalı; dev server'da doğrulandı (`calendar`/`standings_drivers`/`standings_constructors` fetch'leri sayfa başına 1x'e düştü, önceden 3x idi).
 
 ### 🟡 `profileSeasons()` / `getDriverCareer` / `getTeamCareer` — gelecekte N+1 patlaması riski
 `lib/data/entities.ts:8-10` şu an sadece `[CURRENT_SEASON]` döndürüyor, bu yüzden fan-out bugün no-op. Ama tarihsel sezonlar eklenince (isimlendirme zaten "career", "full profile archive" diyor) her profil sayfası N sezon × M round sorgusu tetikleyecek, hiçbir cache katmanı yok.
@@ -124,6 +123,6 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
 7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
 
-**Kalan açık maddeler:** API route entegrasyon testleri (bkz. §4), request-scope memoization (`getSeasonData` tekrar çağrımı), arama ikonunun yanıltıcılığı (`SiteHeader`).
+**Kalan açık maddeler:** API route entegrasyon testleri (bkz. §4), arama ikonunun yanıltıcılığı (`SiteHeader`).
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.
