@@ -66,15 +66,8 @@ Büyüteç ikonu + `aria-label="Search"` vardı ama gerçek bir arama değildi, 
 ### ✅ ÇÖZÜLDÜ (2026-07-11) — Hiçbir route'ta `loading.tsx` / `error.tsx` / `not-found.tsx` yoktu
 `app/loading.tsx` (home, split-layout'a özel), `app/season/loading.tsx`, `app/season/[year]/round/[n]/loading.tsx`, `app/drivers/loading.tsx` + `[driverId]/loading.tsx`, `app/teams/loading.tsx` + `[constructorId]/loading.tsx`, `app/circuits/[id]/loading.tsx`, `app/news/loading.tsx` + `[id]/loading.tsx`, `app/anthology/[slug]/loading.tsx` eklendi (yeni `components/layout/BentoSkeleton.tsx` — shimmer, Apex tasarım diline uygun). Kök `app/error.tsx` (Sentry entegreli) ve `app/not-found.tsx` markasız Next.js varsayılanlarının yerini alıyor.
 
-### 🟡 `parseSeason` her zaman `CURRENT_SEASON` döndürüyor — `?season=` parametresi sessizce yok sayılıyor
-`app/drivers/[driverId]/page.tsx:24-26` ve `app/teams/[constructorId]/page.tsx:24-26`:
-```ts
-function parseSeason(_raw: string | undefined): number {
-  return CURRENT_SEASON;
-}
-```
-URL'de `?season=2024` gibi bir değer kabul ediliyor (tip tanımında da var) ama sessizce göz ardı ediliyor, hata da verilmiyor. Muhtemelen tarihsel sezon desteği gelene kadar bilinçli bir stub ama eski/paylaşılmış bir linki takip eden kullanıcı için sessiz bir "yanlış veri gösterimi" riski.
-**Öneri:** Tarihsel destek gelene kadar en azından `?season=` geçerli değilse görünür bir not/banner ekle ("şu an yalnızca güncel sezon destekleniyor") ya da parametreyi tamamen kaldır ki yanlış beklenti yaratmasın.
+### ✅ ÇÖZÜLDÜ (2026-07-12) — `parseSeason` her zaman `CURRENT_SEASON` döndürüyordu, `?season=` sessizce yok sayılıyordu
+`app/drivers/[driverId]/page.tsx` ve `app/teams/[constructorId]/page.tsx` — `parseSeason` artık `{ season, requestedUnsupported }` döndürüyor; istenen sezon `CURRENT_SEASON`'dan farklı/geçersizse sayfada görünür bir uyarı banner'ı ("Only the {season} season is available right now") gösteriliyor, sessizce yutulmuyor.
 
 ### 🟡 Erişilebilirlik — genel olarak iyi, birkaç noktada spot-check gerekir
 `tech-glossary`, `DriverAvatar`, `CircuitCardView`, `CalendarList`, `GridCards` içinde tutarlı şekilde `alt=""` kullanılıyor (yanında metin etiketi olduğu için WCAG açısından kabul edilebilir) ama lastik bileşimi gibi renk-kodlu SVG'lerde ekran okuyucu kullanıcılarının kaybettiği bir sinyal olabilir.
@@ -125,6 +118,6 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
 8. ✅ API route entegrasyon testleri — çözüldü (2026-07-12), 63 yeni test (bkz. §4).
 
-**Kalan açık maddeler:** Bu rapordaki tüm 🔴/🟠 maddeler kapandı. Geriye yalnızca 🟡 (düşük öncelik / borç) kalemleri kaldı: component/sayfa (RTL) testleri, `rateLimit`'in Upstash yolunun test edilmemesi, `parseSeason`'ın `?season=` parametresini sessizce yok sayması, cron `maxDuration` tekrarı, `frame-ancestors` genişliği, tarihsel sezon desteği geldiğinde `profileSeasons()` N+1 riski, renk-kodlu SVG'lerde `aria-label`.
+**Kalan açık maddeler:** Bu rapordaki tüm 🔴/🟠 maddeler kapandı. `parseSeason` sessizce yok sayma sorunu da çözüldü (2026-07-12). Geriye yalnızca şu 🟡 (düşük öncelik / borç) kalemleri kaldı: component/sayfa (RTL) testleri, `rateLimit`'in Upstash yolunun test edilmemesi, cron `maxDuration` üç dosyada tekrarı (Next.js route segment config gereği — kasıtlı, düşük risk), `frame-ancestors`'ın `*.vercel.app` genişliği (portfolyo embed için bilinçli kabul), tarihsel sezon desteği geldiğinde `profileSeasons()` N+1 riski. Renk-kodlu SVG `aria-label` maddesi incelendi — kod tabanında böyle bir bileşen bulunamadı, muhtemelen daha önce kaldırılmış; madde kapatıldı.
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.

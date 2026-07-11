@@ -23,13 +23,21 @@ type PageProps = {
   searchParams: Promise<{ season?: string }>;
 };
 
-function parseSeason(_raw: string | undefined): number {
-  return CURRENT_SEASON;
+/**
+ * Only CURRENT_SEASON has profile data today (`profileSeasons()` in
+ * lib/data/entities.ts). Requesting anything else is a no-op, so surface that
+ * to the caller instead of silently swapping in the current season.
+ */
+function parseSeason(raw: string | undefined): { season: number; requestedUnsupported: boolean } {
+  if (raw === undefined) return { season: CURRENT_SEASON, requestedUnsupported: false };
+  const parsed = Number(raw);
+  const requestedUnsupported = !Number.isFinite(parsed) || parsed !== CURRENT_SEASON;
+  return { season: CURRENT_SEASON, requestedUnsupported };
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { driverId } = await params;
-  const season = parseSeason((await searchParams).season);
+  const { season } = parseSeason((await searchParams).season);
   const profile = await getDriverProfile(driverId, season);
   if (!profile) return { title: 'Driver not found' };
 
@@ -47,7 +55,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
 export default async function DriverProfilePage({ params, searchParams }: PageProps) {
   const { driverId } = await params;
-  const season = parseSeason((await searchParams).season);
+  const { season, requestedUnsupported } = parseSeason((await searchParams).season);
 
   const [profile, seasons, career] = await Promise.all([
     getDriverProfile(driverId, season),
@@ -76,6 +84,11 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   return (
     <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12">
       <PageThemeSync vars={theme} />
+      {requestedUnsupported ? (
+        <p className="label-caps mb-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent/10 px-4 py-2 text-accent">
+          Only the {season} season is available right now — showing current data instead.
+        </p>
+      ) : null}
       <ProfileHero
         kicker={`${profile.constructorName} · ${season}`}
         title={profile.driverName}
