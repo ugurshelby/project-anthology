@@ -9,6 +9,16 @@ export const dynamic = 'force-dynamic';
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 10;
+const MAX_PREFERENCE_KEYS = 20;
+
+/** Keep only boolean-valued keys, bounded in count — reject arbitrary/oversized payloads. */
+function sanitizePreferences(input: unknown): Record<string, boolean> {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
+  const entries = Object.entries(input as Record<string, unknown>)
+    .filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')
+    .slice(0, MAX_PREFERENCE_KEYS);
+  return Object.fromEntries(entries);
+}
 
 export async function POST(req: NextRequest) {
   const clientIP = getClientIP(req.headers);
@@ -38,7 +48,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
   }
 
-  const safePrefs = preferences && typeof preferences === 'object' ? preferences : {};
+  const safePrefs = sanitizePreferences(preferences);
 
   const row: PushSubscriptionInsert = {
     token,
@@ -54,6 +64,9 @@ export async function POST(req: NextRequest) {
     upsert: (row: PushSubscriptionInsert, opts: { onConflict: string }) => Promise<{ error: { message: string } | null }>;
   }).upsert(row, { onConflict: 'token' });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[push/register] upsert failed:', error.message);
+    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }
