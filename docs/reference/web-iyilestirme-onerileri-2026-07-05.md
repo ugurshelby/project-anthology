@@ -65,9 +65,8 @@ Dünkü redesign yalnızca `app/page.tsx` + navigasyonu kapsadı. `/season`, `/d
 Büyüteç ikonu + `aria-label="Search"` var ama gerçek bir arama değil, `/season`'a düz link. Kullanıcı arama bekleyip navigasyon buluyor.
 **Öneri:** Ya gerçek bir arama ekle (en azından basit client-side sürücü/takım/yarış araması), ya da ikonu/etiketini "Season" gibi doğru bir affordance'a çevir.
 
-### 🟠 Hiçbir route'ta `loading.tsx` / `error.tsx` / `not-found.tsx` yok
-Tüm dinamik sayfalar (`force-dynamic` + canlı Supabase/Jolpica fetch yapan ana sayfa, season, round, driver/team/circuit detay, anthology) veri çekilirken **boş/beyaz ekran** gösteriyor — streaming skeleton yok. Hata durumunda Next'in generic (markasız) hata sayfasına düşülüyor; `notFound()` çağrıları (circuits, anthology, drivers, teams) markasız varsayılan 404'e düşüyor.
-**Öneri:** En azından ana sayfa, season ve detay route grupları için `loading.tsx` (iskelet/shimmer) ve global bir `app/error.tsx` + `app/not-found.tsx` ekle — düşük efor, yüksek algılanan kalite kazancı.
+### ✅ ÇÖZÜLDÜ (2026-07-11) — Hiçbir route'ta `loading.tsx` / `error.tsx` / `not-found.tsx` yoktu
+`app/loading.tsx` (home, split-layout'a özel), `app/season/loading.tsx`, `app/season/[year]/round/[n]/loading.tsx`, `app/drivers/loading.tsx` + `[driverId]/loading.tsx`, `app/teams/loading.tsx` + `[constructorId]/loading.tsx`, `app/circuits/[id]/loading.tsx`, `app/news/loading.tsx` + `[id]/loading.tsx`, `app/anthology/[slug]/loading.tsx` eklendi (yeni `components/layout/BentoSkeleton.tsx` — shimmer, Apex tasarım diline uygun). Kök `app/error.tsx` (Sentry entegreli) ve `app/not-found.tsx` markasız Next.js varsayılanlarının yerini alıyor.
 
 ### 🟡 `parseSeason` her zaman `CURRENT_SEASON` döndürüyor — `?season=` parametresi sessizce yok sayılıyor
 `app/drivers/[driverId]/page.tsx:24-26` ve `app/teams/[constructorId]/page.tsx:24-26`:
@@ -121,10 +120,10 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 2. ✅ `sync-f1` scope-forcing → Railway cron ile çözüldü (2026-07-11).
 3. ✅ `push/register` rate-limit eksikliği — çözüldü (2026-07-05).
 4. ✅ `jsdom` dependency kategorisi — çözüldü (2026-07-05).
-5. 🟠 Ana sayfaya `loading.tsx`/`error.tsx`/global `not-found.tsx`. **(hâlâ açık)**
+5. ✅ `loading.tsx`/`error.tsx`/`not-found.tsx` — çözüldü (2026-07-11).
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
 7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
 
-**Kalan açık maddeler:** `loading.tsx`/`error.tsx`/`not-found.tsx` eksikliği (madde 5), API route entegrasyon testleri (bkz. §4), request-scope memoization (`getSeasonData` tekrar çağrımı), arama ikonunun yanıltıcılığı (`SiteHeader`).
+**Kalan açık maddeler:** API route entegrasyon testleri (bkz. §4), request-scope memoization (`getSeasonData` tekrar çağrımı), arama ikonunun yanıltıcılığı (`SiteHeader`).
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.
