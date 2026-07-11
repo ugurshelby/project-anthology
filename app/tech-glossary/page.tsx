@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { glossaryTerms, type GlossaryTerm } from '@/data/glossary/terms';
 import { TYRE_COMPOUNDS } from '@/data/glossary/tyres';
 import { PageShell } from '@/components/layout/BentoGrid';
+import { GlossaryAccordion } from '@/components/glossary/GlossaryAccordion';
 
 export const metadata: Metadata = {
   title: 'Tech Glossary',
@@ -58,16 +59,7 @@ export default function TechGlossaryPage() {
       {Object.entries(byCategory).map(([category, terms]) => (
         <section key={category} className="mb-10 flex flex-col gap-4">
           <h2 className="headline-md uppercase text-text-hi">{category}</h2>
-          <dl className="flex flex-col">
-            {terms.map((t) => (
-              <div key={t.term} className="border-b border-hairline py-4 last:border-b-0">
-                <dt className="font-condensed text-xl font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
-                  {t.term}
-                </dt>
-                <dd className="body-md mt-1 max-w-[68ch] text-text-mid">{t.definition}</dd>
-              </div>
-            ))}
-          </dl>
+          <GlossaryAccordion terms={terms} />
         </section>
       ))}
     </PageShell>
