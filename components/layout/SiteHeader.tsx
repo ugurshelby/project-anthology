@@ -31,23 +31,9 @@ export function SiteHeader() {
 
         <HeaderNav items={NAV_ITEMS} />
 
-        <Link
-          href="/season"
-          aria-label="Search"
-          className="hidden text-text-mid transition-colors hover:text-text-hi md:block"
-        >
-          <SearchIcon />
-        </Link>
+        {/* Balances the logo's width so HeaderNav stays visually centered. */}
+        <span aria-hidden className="hidden w-16 md:block" />
       </div>
     </header>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
   );
 }

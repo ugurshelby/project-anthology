@@ -60,9 +60,8 @@ Merkezi bir yerden yönetilmiyor (Vercel `functions` bloğu tercih edilebilir), 
 Dünkü redesign yalnızca `app/page.tsx` + navigasyonu kapsadı. `/season`, `/drivers`, `/teams`, `/circuits`, `/anthology`, `/news`, `/tech-glossary` ve tüm detay sayfaları hâlâ `BentoGrid`/`PageShell`/`BentoCard` iskeletinde. Bu, `docs/design/apex-design-language.md`'nin kendisinin de kabul ettiği bir durum (§4: "sonraki faz — henüz onaylanmadı") ama kullanıcı deneyimi açısından anasayfadan `/season`'a geçiş şu an **stilistik bir kopukluk** yaratıyor.
 **Öneri:** Master plan'daki WEB-UI.5-7 (Season/Liste/Detay şablonları) öncelik sırasına alınmalı — mevcut açık iş zaten planda var, hızlandırılması öneriliyor.
 
-### 🟠 Arama ikonu yanıltıcı (`components/layout/SiteHeader.tsx:34-40`)
-Büyüteç ikonu + `aria-label="Search"` var ama gerçek bir arama değil, `/season`'a düz link. Kullanıcı arama bekleyip navigasyon buluyor.
-**Öneri:** Ya gerçek bir arama ekle (en azından basit client-side sürücü/takım/yarış araması), ya da ikonu/etiketini "Season" gibi doğru bir affordance'a çevir.
+### ✅ ÇÖZÜLDÜ (2026-07-12) — Arama ikonu yanıltıcıydı (`components/layout/SiteHeader.tsx:34-40`)
+Büyüteç ikonu + `aria-label="Search"` vardı ama gerçek bir arama değildi, `/season`'a düz linkti (kullanıcı arama bekleyip navigasyon buluyordu). `NAV_ITEMS`'da zaten `/season` linki olduğundan ikinci bir "Season" linki eklemek yerine ikon tamamen kaldırıldı; logo genişliğini dengeleyip `HeaderNav`'ı ortalı tutan görünmez bir spacer'a çevrildi.
 
 ### ✅ ÇÖZÜLDÜ (2026-07-11) — Hiçbir route'ta `loading.tsx` / `error.tsx` / `not-found.tsx` yoktu
 `app/loading.tsx` (home, split-layout'a özel), `app/season/loading.tsx`, `app/season/[year]/round/[n]/loading.tsx`, `app/drivers/loading.tsx` + `[driverId]/loading.tsx`, `app/teams/loading.tsx` + `[constructorId]/loading.tsx`, `app/circuits/[id]/loading.tsx`, `app/news/loading.tsx` + `[id]/loading.tsx`, `app/anthology/[slug]/loading.tsx` eklendi (yeni `components/layout/BentoSkeleton.tsx` — shimmer, Apex tasarım diline uygun). Kök `app/error.tsx` (Sentry entegreli) ve `app/not-found.tsx` markasız Next.js varsayılanlarının yerini alıyor.
@@ -123,6 +122,6 @@ Upstash/Redis destekli dağıtık yol (`lib/rateLimit.ts:52-69,106-118`) hiçbir
 6. ✅ `cron/notify` zombi route — silindi (2026-07-05).
 7. ✅ Tasarım dili bölünmesi — standings/haber/circuit BoxBox-ilhamlı redesign + mobile nav yeniden tasarımı ile büyük ölçüde kapandı (2026-07-05); pilot detay hero + tech glossary mobil accordion ile devam etti (2026-07-11); kalan sayfalar (teams/circuits liste) hâlâ eski Bento'da, ayrı bir tur gerekebilir.
 
-**Kalan açık maddeler:** API route entegrasyon testleri (bkz. §4), arama ikonunun yanıltıcılığı (`SiteHeader`).
+**Kalan açık maddeler:** API route entegrasyon testleri (bkz. §4) — bu rapordaki tek kalan madde.
 
 Detaylı gerekçeler ve dosya/satır referansları için ilgili bölümlere bakınız.
