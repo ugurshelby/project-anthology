@@ -168,6 +168,36 @@ const TEAMS: TeamLore[] = [
     ],
     lore: 'The 2008 BMW Sauber F1.08 that Kubica drove to victory in Canada used a bespoke front brake duct design developed by Sauber\'s aerodynamicists in Hinwil — not shared from BMW\'s Munich facility — that directed more airflow to the inner brake surface, solving a thermal management issue the team had carried from the 2007 car.',
   },
+  {
+    constructorId: 'audi',
+    name: 'Audi F1 Team',
+    country: 'Switzerland',
+    founded: 2026,
+    hq: { lat: 47.4980, lng: 8.2185, label: 'Hinwil, Switzerland' },
+    bio: 'Audi\'s F1 works entry begins in 2026, built on the Sauber Motorsport lineage that has raced continuously from Hinwil since 1993 (as Sauber, BMW Sauber, Alfa Romeo, and Stake/Kick Sauber). The Volkswagen Group\'s factory backing makes Audi the first German manufacturer on the grid since BMW\'s 2009 exit, retaining the Swiss chassis base while adding a new power-unit programme.',
+    milestones: [
+      '1993: Sauber lineage enters F1 from the same Hinwil base still used today',
+      '2007–2009: BMW Sauber era — Kubica\'s 2008 Canadian GP win',
+      '2022: Audi confirms its F1 entry, acquiring a stake in the Sauber Group',
+      '2026: Audi works team debut — first German manufacturer since BMW left in 2009',
+    ],
+    lore: 'Audi\'s F1 power-unit programme was built at a dedicated Neuburg facility rather than retrofitted into an existing road-car engine plant — a from-scratch approach the manufacturer took specifically to meet the 2026 regulations\' 50/50 combustion/electric power split without inheriting legacy packaging compromises.',
+  },
+  {
+    constructorId: 'cadillac',
+    name: 'Cadillac F1 Team',
+    country: 'United States',
+    founded: 2026,
+    hq: { lat: 35.2271, lng: -80.8431, label: 'Charlotte, NC, USA' },
+    bio: 'Cadillac joins the 2026 grid as F1\'s eleventh team, backed by General Motors and TWG Motorsports. It is the first new constructor entry since Haas in 2016 and only the second American-badged manufacturer team in the sport\'s history. The team runs Ferrari power units in its debut seasons while GM develops its own power unit for a later entry.',
+    milestones: [
+      '2023: TWG Motorsports first files its F1 entry bid with the FIA',
+      '2024: FIA approves the entry as the sport\'s eleventh team',
+      '2025: General Motors confirmed as the entry\'s manufacturer partner, racing as Cadillac',
+      '2026: F1 grid debut — first new constructor since Haas in 2016',
+    ],
+    lore: 'Cadillac\'s bid was initially submitted without a confirmed power-unit supplier, which the other nine teams cited as a key objection during FIA review — the entry was only approved once GM committed to both a customer Ferrari deal for the early seasons and a longer-term in-house power-unit programme.',
+  },
 ];
 
 const MAP = new Map(TEAMS.map((t) => [t.constructorId, t]));
