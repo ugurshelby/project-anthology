@@ -34,7 +34,7 @@ export function BentoCard({
         'group relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6 md:p-8',
         'shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)]',
         interactive
-          ? 'transition-[transform,background-color] duration-150 ease-out hover:-translate-y-0.5 hover:bg-surface-raised'
+          ? 'bg-surface-raised/0 transition-[transform,opacity] duration-150 ease-out will-change-transform hover:-translate-y-0.5 hover:opacity-95'
           : '',
         className,
       ]

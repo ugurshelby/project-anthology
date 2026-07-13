@@ -12,7 +12,7 @@ export function DriverRow({ row, season }: { row: DriverStandingRow; season: num
   return (
     <Link
       href={`/drivers/${row.driverId}`}
-      className="group flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-2 transition-colors hover:bg-surface-raised"
+      className="group flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-2 transition-opacity duration-150 will-change-[opacity] hover:opacity-80"
     >
       <span className="data-tabular w-6 text-right text-text-mid">{row.position}</span>
       <DriverAvatar
@@ -40,7 +40,7 @@ export function TeamRow({ row }: { row: ConstructorStandingRow }) {
   return (
     <Link
       href={`/teams/${row.constructorId}`}
-      className="group flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-2 transition-colors hover:bg-surface-raised"
+      className="group flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-2 transition-opacity duration-150 will-change-[opacity] hover:opacity-80"
     >
       <span className="data-tabular w-6 text-right text-text-mid">{row.position}</span>
       {logo ? (
