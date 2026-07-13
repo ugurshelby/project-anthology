@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import type { NavItem } from './nav-items';
 
 /** Desktop nav links with active-route highlight (client: needs usePathname). */
-export function HeaderNav({ items }: { items: NavItem[] }) {
+export function HeaderNav({ items, className = 'hidden items-center gap-7 md:flex' }: { items: NavItem[]; className?: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden items-center gap-7 md:flex">
+    <nav className={['items-center gap-7', className].join(' ')}>
       {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(item.href + '/');
         return (
