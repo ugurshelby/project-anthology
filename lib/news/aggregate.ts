@@ -169,7 +169,7 @@ function formatDateLabel(ts: number): string {
   }
 }
 
-function canonicalize(url: string): string {
+export function canonicalize(url: string): string {
   try {
     const u = new URL(url);
     u.hash = '';
@@ -238,7 +238,7 @@ function isF1Related(item: { title: string; summary: string; url: string }): boo
 
 // ── Stable ID ─────────────────────────────────────────────────────────────
 
-function stableId(input: string): string {
+export function stableId(input: string): string {
   let h = 5381;
   for (let i = 0; i < input.length; i++) {
     h = ((h << 5) + h) ^ input.charCodeAt(i);

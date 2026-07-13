@@ -11,6 +11,7 @@ import type { NewsCacheRow } from '@/types/database';
 import { readPublicJson } from '@/lib/data/fs';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
 import { fetchSiteJson } from '@/lib/data/siteUrl';
+import { stableId, canonicalize } from '@/lib/news/aggregate';
 import type { NewsItem } from '@/lib/data/types';
 
 export type { NewsItem } from '@/lib/data/types';
@@ -43,7 +44,11 @@ function newsFromCache(row: NewsCacheRow): NewsItem {
   const publishedAt = row.published_at ?? '';
   const publishedTs = publishedAt ? Date.parse(publishedAt) : 0;
   return {
-    id: String(row.id),
+    // Must match the id the live /api/news aggregate() produces for the same
+    // article (stableId of the canonical URL) — news_cache.id is just Supabase's
+    // own row key and never matches, which is why /news/[id] 404s: the list page
+    // renders live-aggregate ids, the detail page looked up DB-row ids.
+    id: stableId(canonicalize(row.url)),
     title: row.title ?? '',
     summary: row.summary ?? row.description ?? '',
     url: row.url,
