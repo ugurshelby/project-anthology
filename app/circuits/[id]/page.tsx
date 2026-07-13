@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getCircuitDetail } from '@/lib/data/circuits';
-import { getSeasonData } from '@/lib/data/f1';
-import { CURRENT_SEASON } from '@/lib/f1Calendar';
+import { getCircuitDetail, getCurrentSeasonResults } from '@/lib/data/circuits';
+import { getCircuitFacts } from '@/data/circuits/facts';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
-import { DriverLeaderCard } from '@/components/standings/StandingsLeaderCard';
-import { DriverRow } from '@/components/standings/StandingsRow';
+import { SeasonResultsPanel } from '@/components/circuit/SeasonResultsPanel';
+import { CircuitCharacter } from '@/components/circuit/CircuitCharacter';
+import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -44,14 +44,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CircuitDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const [circuit, seasonData] = await Promise.all([
+  const [circuit, results] = await Promise.all([
     getCircuitDetail(id),
-    getSeasonData(CURRENT_SEASON),
+    getCurrentSeasonResults(),
   ]);
   if (!circuit) notFound();
 
-  const standings = seasonData.standings.slice(0, 6);
-  const [standingsLeader, ...standingsRest] = standings;
+  const facts = getCircuitFacts(id);
+  const cover = circuitCoverSrc(id);
 
   const dossier = [
     { label: 'Round', value: circuit.round ? `R${circuit.round}` : '—' },
@@ -78,29 +78,65 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               <TechnicalDossier entries={dossier} />
             </BentoCard>
 
-            <BentoCard span={8} className="relative order-1 flex items-center justify-center overflow-hidden md:order-2">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-40"
-                style={{ background: 'radial-gradient(120% 120% at 50% 40%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 65%)' }}
-              />
-              {circuit.svgSrc ? (
-                <div className="relative z-10 h-64 w-full md:h-80">
-                  <Image src={circuit.svgSrc} alt={`${circuit.circuitName} track map`} fill sizes="(max-width: 1024px) 100vw, 66vw" className="object-contain" />
-                </div>
-              ) : (
-                <span className="label-caps relative z-10 text-text-low">No track map available</span>
-              )}
+            {/* Track map — glassmorphic surface over the real circuit cover photo */}
+            <BentoCard
+              span={8}
+              className="relative order-1 flex min-h-64 items-center justify-center overflow-hidden !bg-transparent !p-0 md:order-2 md:min-h-80"
+            >
+              {cover ? (
+                <Image
+                  src={cover}
+                  alt=""
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="pointer-events-none object-cover opacity-50"
+                />
+              ) : null}
+              <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-bg/40" />
+              <div
+                className="relative z-10 m-4 flex h-[calc(100%-2rem)] w-[calc(100%-2rem)] items-center justify-center overflow-hidden rounded-[var(--radius-lg)] border border-white/15"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 32px rgba(0,0,0,0.4)',
+                }}
+              >
+                {circuit.svgSrc ? (
+                  <div className="relative h-56 w-full md:h-72">
+                    <Image src={circuit.svgSrc} alt={`${circuit.circuitName} track map`} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-contain" />
+                  </div>
+                ) : (
+                  <span className="label-caps text-text-low">No track map available</span>
+                )}
+              </div>
             </BentoCard>
 
+            {facts ? (
+              <BentoCard span={6}>
+                <CircuitCharacter facts={facts} />
+              </BentoCard>
+            ) : null}
+
             {circuit.winners.length > 0 ? (
-              <BentoCard span={12}>
+              <BentoCard span={facts ? 6 : 12}>
                 <span className="label-caps mb-3 block text-text-mid">Recent Winners</span>
                 <div className="flex flex-col">
-                  {circuit.winners.map((w) => (
-                    <div key={w.season} className="flex items-center gap-4 border-b border-hairline py-2.5 last:border-b-0">
-                      <span className="data-tabular w-14 text-text-mid">{w.season}</span>
-                      <span className="font-condensed flex-1 text-lg font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                  {circuit.winners.map((w, i) => (
+                    <div
+                      key={w.season}
+                      className={[
+                        'flex items-center gap-4 border-b border-hairline py-2.5 last:border-b-0',
+                        i === 0 ? 'text-text-hi' : '',
+                      ].join(' ')}
+                    >
+                      <span className={['data-tabular w-14', i === 0 ? 'font-700 text-accent' : 'text-text-mid'].join(' ')}>
+                        {w.season}
+                      </span>
+                      <span
+                        className={['font-condensed flex-1 uppercase text-text-hi', i === 0 ? 'text-xl font-700' : 'text-lg font-600'].join(' ')}
+                        style={{ fontFamily: 'var(--font-condensed)' }}
+                      >
                         {w.driverName}
                       </span>
                       <span className="data-tabular text-text-mid">{w.constructorName}</span>
@@ -112,17 +148,10 @@ export default async function CircuitDetailPage({ params }: PageProps) {
           </BentoGrid>
         </div>
 
-        {standingsLeader ? (
-          <aside className="hidden w-full shrink-0 flex-col gap-3 lg:flex lg:w-[300px]">
-            <span className="label-caps text-text-mid">Driver Standings</span>
-            <DriverLeaderCard row={standingsLeader} season={CURRENT_SEASON} />
-            <div className="flex flex-col">
-              {standingsRest.map((row) => (
-                <DriverRow key={row.driverId} row={row} season={CURRENT_SEASON} />
-              ))}
-            </div>
-          </aside>
-        ) : null}
+        <aside className="hidden w-full shrink-0 flex-col gap-3 lg:flex lg:w-[300px]">
+          <span className="label-caps text-text-mid">Results</span>
+          <SeasonResultsPanel results={results} />
+        </aside>
       </div>
     </PageShell>
   );

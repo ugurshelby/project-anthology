@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
-import { getCurrentSeasonCircuitCards, nextCircuitIndex } from '@/lib/data/circuits';
+import {
+  getCurrentSeasonCircuitCards,
+  nextCircuitIndex,
+  circuitGridSpan,
+  isFeaturedCircuitCard,
+} from '@/lib/data/circuits';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { CircuitCardView } from '@/components/circuit/CircuitCardView';
+import { ScrollToNextCircuit } from '@/components/circuit/ScrollToNextCircuit';
 
 export const revalidate = 900;
 
@@ -28,13 +34,19 @@ export default async function CircuitsPage() {
 
   return (
     <PageShell>
+      <ScrollToNextCircuit />
       <header className="mb-8 flex flex-col gap-1">
         <span className="label-caps text-text-mid">Track Maps</span>
         <h1 className="headline-lg uppercase text-text-hi">Circuits</h1>
       </header>
       <BentoGrid>
         {cards.map((card, i) => (
-          <CircuitCardView key={card.circuitId} card={card} featured={i === featuredIndex} />
+          <CircuitCardView
+            key={card.circuitId}
+            card={card}
+            featured={isFeaturedCircuitCard(i, featuredIndex)}
+            span={circuitGridSpan(i, featuredIndex)}
+          />
         ))}
       </BentoGrid>
     </PageShell>

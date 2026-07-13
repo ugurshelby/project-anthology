@@ -1,18 +1,20 @@
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
-import { fetchRoundSnapshot, fetchSeasonSnapshotTyped } from '@/lib/data/f1';
+import { fetchAllRoundResults, fetchRoundSnapshot, fetchSeasonSnapshotTyped } from '@/lib/data/f1';
 import { logSupabaseCall, timed } from '@/lib/data/logger';
 import {
   findRaceByCircuitId,
   getCircuitIdsFromRaces,
+  getLastRaceResult,
   getRaceWinner,
   getRacesFromCalendar,
   type CircuitWinnerEntry,
+  type LastRaceRecap,
 } from '@/lib/f1/mrdata';
 import { CURRENT_SEASON, isRaceDone, type CalendarRace } from '@/lib/f1Calendar';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json } from '@/types/database';
 
-const WINNER_HISTORY_SEASONS = 8;
+const WINNER_HISTORY_SEASONS = 5;
 
 export interface CircuitCard {
   circuitId: string;
@@ -245,6 +247,23 @@ export async function getCircuitWinners(
   return entries.filter((e): e is CircuitWinnerEntry => e !== null);
 }
 
+/** One finished round's podium recap, for the "Results" scroll panel on the circuit detail page. */
+export type SeasonRoundResult = LastRaceRecap;
+
+/**
+ * All finished rounds of the current season as podium recaps, newest first —
+ * powers the circuit detail page's "Results" panel (replaces the old Driver
+ * Standings sidebar, which duplicated /season and had no circuit relevance).
+ */
+export async function getCurrentSeasonResults(): Promise<SeasonRoundResult[]> {
+  const races = await getCurrentSeasonRaces();
+  const roundSnapshots = await fetchAllRoundResults(CURRENT_SEASON, races);
+  return roundSnapshots
+    .map((s) => getLastRaceResult(s.data))
+    .filter((r): r is LastRaceRecap => r !== null)
+    .sort((a, b) => Number(b.round) - Number(a.round));
+}
+
 export async function getCircuitDetail(circuitId: string): Promise<CircuitDetail | null> {
   const races = await getCurrentSeasonRaces();
   const race = findRaceByCircuitId(races, circuitId);
@@ -276,14 +295,18 @@ export async function getCircuitDetail(circuitId: string): Promise<CircuitDetail
   };
 }
 
-/** Editorial grid span classes — 6-column bento, repeating every 6 cards. */
+/**
+ * Editorial grid span classes — asymmetric bento rhythm repeating every 6
+ * cards. BentoGrid is 4-col mobile / 8-col tablet / 12-col desktop, so every
+ * entry sets all three breakpoints explicitly (mobile always full-width).
+ */
 export const CIRCUIT_GRID_SPANS = [
-  'md:col-span-4 md:row-span-2',
-  'md:col-span-2',
-  'md:col-span-2',
-  'md:col-span-3',
-  'md:col-span-3',
-  'md:col-span-6',
+  'col-span-4 md:col-span-8 lg:col-span-7 lg:row-span-2',
+  'col-span-4 md:col-span-4 lg:col-span-5',
+  'col-span-4 md:col-span-4 lg:col-span-5',
+  'col-span-4 md:col-span-4 lg:col-span-4',
+  'col-span-4 md:col-span-4 lg:col-span-4',
+  'col-span-4 md:col-span-8 lg:col-span-4',
 ] as const;
 
 const FEATURED_SPAN = CIRCUIT_GRID_SPANS[0];
