@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
+import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
 /**
@@ -26,6 +27,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
         className="pointer-events-none absolute inset-0"
         style={{ background: `radial-gradient(120% 140% at 85% 30%, color-mix(in srgb, ${teamColor} 30%, transparent), transparent 60%)` }}
       />
+      <span aria-hidden className="pointer-events-none absolute inset-0" style={teamPatternStyle(row.constructorId, teamColor)} />
       <span className="hero-number relative z-10 shrink-0 text-2xl text-text-hi/25">01</span>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="label-caps text-text-mid">Leader</span>
@@ -77,6 +79,7 @@ export function TeamLeaderCard({ row }: { row: ConstructorStandingRow }) {
         className="pointer-events-none absolute inset-0"
         style={{ background: `radial-gradient(120% 140% at 85% 30%, color-mix(in srgb, ${teamColor} 30%, transparent), transparent 60%)` }}
       />
+      <span aria-hidden className="pointer-events-none absolute inset-0" style={teamPatternStyle(row.constructorId, teamColor)} />
       <span className="hero-number relative z-10 shrink-0 text-2xl text-text-hi/25">01</span>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="label-caps text-text-mid">Leader</span>
