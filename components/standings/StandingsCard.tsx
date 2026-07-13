@@ -1,53 +1,63 @@
 import { BentoCard } from '@/components/bento/BentoCard';
 import { DriverRow, TeamRow } from './StandingsRow';
 import { DriverLeaderCard, TeamLeaderCard } from './StandingsLeaderCard';
-import { StandingsToggle } from './StandingsToggle';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
+type Span = 4 | 5 | 6 | 7 | 8 | 12;
+
 /**
- * Standings bento card (design.md §3.3) — single card with a Drivers/Teams
- * toggle. Both lists are rendered server-side; the client toggle only flips
- * which one is visible (§7). No separate constructors bar card. P1 in each
- * panel is broken out into a leader spotlight card.
+ * Drivers standings bento card — its own tile (no toggle; see TeamsStandingsCard
+ * for the sibling). 22 drivers vs 11 teams means the two naturally want
+ * different card weights, so they're separate bento tiles rather than one
+ * toggle-shared card (design.md §3.3 superseded 2026-07 for asymmetric season layout).
  */
 export function StandingsCard({
   drivers,
-  teams,
   season,
-  span = 4,
+  span = 7,
 }: {
   drivers: DriverStandingRow[];
-  teams: ConstructorStandingRow[];
   season: number;
-  span?: 4 | 6 | 8 | 12;
+  span?: Span;
 }) {
-  const [driverLeader, ...restDrivers] = drivers;
-  const [teamLeader, ...restTeams] = teams;
+  const [leader, ...rest] = drivers;
 
   return (
     <BentoCard span={span} className="flex flex-col gap-4">
-      <StandingsToggle
-        driversPanel={
-          <div className="flex flex-col gap-3">
-            {driverLeader ? <DriverLeaderCard row={driverLeader} season={season} /> : null}
-            <div className="flex flex-col">
-              {restDrivers.map((row) => (
-                <DriverRow key={row.driverId} row={row} season={season} />
-              ))}
-            </div>
-          </div>
-        }
-        teamsPanel={
-          <div className="flex flex-col gap-3">
-            {teamLeader ? <TeamLeaderCard row={teamLeader} /> : null}
-            <div className="flex flex-col">
-              {restTeams.map((row) => (
-                <TeamRow key={row.constructorId} row={row} />
-              ))}
-            </div>
-          </div>
-        }
-      />
+      <span className="label-caps text-text-mid">Drivers</span>
+      <div className="flex flex-col gap-3">
+        {leader ? <DriverLeaderCard row={leader} season={season} /> : null}
+        <div className="flex flex-col">
+          {rest.map((row) => (
+            <DriverRow key={row.driverId} row={row} season={season} />
+          ))}
+        </div>
+      </div>
+    </BentoCard>
+  );
+}
+
+/** Constructors standings bento card — sibling of StandingsCard, see its doc comment. */
+export function TeamsStandingsCard({
+  teams,
+  span = 5,
+}: {
+  teams: ConstructorStandingRow[];
+  span?: Span;
+}) {
+  const [leader, ...rest] = teams;
+
+  return (
+    <BentoCard span={span} className="flex flex-col gap-4">
+      <span className="label-caps text-text-mid">Teams</span>
+      <div className="flex flex-col gap-3">
+        {leader ? <TeamLeaderCard row={leader} /> : null}
+        <div className="flex flex-col">
+          {rest.map((row) => (
+            <TeamRow key={row.constructorId} row={row} />
+          ))}
+        </div>
+      </div>
     </BentoCard>
   );
 }

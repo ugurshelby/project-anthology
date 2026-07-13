@@ -3,10 +3,11 @@ import { getSeasonData } from '@/lib/data/f1';
 import { CURRENT_SEASON, F1_SEASON_MIN, getNextRace, isRaceDone } from '@/lib/f1Calendar';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { StatBlock } from '@/components/bento/StatBlock';
-import { StandingsCard } from '@/components/standings/StandingsCard';
+import { StandingsCard, TeamsStandingsCard } from '@/components/standings/StandingsCard';
 import { CalendarList } from '@/components/season/CalendarList';
-import { PodiumViz } from '@/components/season/PodiumViz';
+import { RoundsProgress } from '@/components/season/RoundsProgress';
+import { MostWinsCard } from '@/components/season/MostWinsCard';
+import { LatestRaceCard } from '@/components/home/LatestRaceCard';
 import { YearScrubber } from '@/components/season/YearScrubber';
 
 export const revalidate = 0;
@@ -45,42 +46,35 @@ export default async function SeasonPage() {
       {/* Header strip */}
       <header className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <YearScrubber year={CURRENT_SEASON} minSeason={F1_SEASON_MIN} currentSeason={CURRENT_SEASON} />
-        <div className="flex gap-8">
+        <div className="flex items-end gap-8">
           <Summary label="Rounds" value={String(races.length)} />
-          <Summary label="Completed" value={String(completed)} />
+          <div className="w-36">
+            <RoundsProgress completed={completed} total={races.length} />
+          </div>
           <Summary label="Leader" value={leader?.driverName.split(' ').pop()?.toUpperCase() ?? '—'} accent />
         </div>
       </header>
 
       <BentoGrid>
-        <BentoCard span={8} className="flex flex-col gap-4">
+        {/* Calendar — full width, on its own at the top */}
+        <BentoCard span={12} className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <span className="label-caps text-text-mid">Calendar</span>
           </div>
           <CalendarList races={races} nextRound={nextRace?.round != null ? String(nextRace.round) : undefined} />
         </BentoCard>
 
-        <StandingsCard drivers={standings} teams={constructors} season={CURRENT_SEASON} span={4} />
+        {/* Drivers + Teams — separate cards, asymmetric sizing (22 drivers vs 11 teams) */}
+        <StandingsCard drivers={standings} season={CURRENT_SEASON} span={7} />
+        <TeamsStandingsCard teams={constructors} span={5} />
 
-        <BentoCard span={4}>
-          <StatBlock
-            value={mostWins?.wins ?? '0'}
-            label="Most Wins · Constructor"
-            sublabel={mostWins?.constructorName}
-            size="lg"
-          />
+        <BentoCard span={5}>
+          <MostWinsCard wins={mostWins?.wins ?? '0'} constructorName={mostWins?.constructorName} />
         </BentoCard>
 
-        <BentoCard span={8}>
+        <BentoCard span={7}>
           {recap ? (
-            <PodiumViz
-              raceLabel={`Last Race · ${recap.raceName}`}
-              entries={recap.podium.map((p) => ({
-                position: Number(p.position) as 1 | 2 | 3,
-                driverCode: p.driverCode || p.driverName.split(' ').pop() || '',
-                constructorName: p.constructorName,
-              }))}
-            />
+            <LatestRaceCard recap={recap} season={CURRENT_SEASON} />
           ) : (
             <span className="label-caps text-text-low">No completed races yet</span>
           )}
