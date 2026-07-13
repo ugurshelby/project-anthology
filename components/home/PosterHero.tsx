@@ -9,10 +9,13 @@ export interface PosterHeroProps {
   countdownTargetMs: number | null;
   circuitCoverSrc: string | null;
   showMobileLogo?: boolean;
+  /** Rendered inside a bento tile (homepage asymmetric grid) rather than a full-viewport split hero. */
+  contained?: boolean;
 }
 
 /**
- * Sinematik poster hero — Poster Dense (mobile ~42dvh) / Split Cinema left panel (lg 60dvh).
+ * Sinematik poster hero — Poster Dense (mobile ~42dvh) / Split Cinema left panel (lg 60dvh),
+ * or a bounded bento-tile height when `contained` (homepage asymmetric grid).
  */
 export function PosterHero({
   eyebrow,
@@ -21,9 +24,15 @@ export function PosterHero({
   countdownTargetMs,
   circuitCoverSrc,
   showMobileLogo = true,
+  contained = false,
 }: PosterHeroProps) {
   return (
-    <section className="relative flex min-h-[42dvh] flex-col justify-end overflow-hidden md:min-h-[35vh] lg:min-h-[60vh]">
+    <section
+      className={[
+        'relative flex flex-col justify-end overflow-hidden',
+        contained ? 'min-h-[360px] lg:min-h-[440px]' : 'min-h-[42dvh] md:min-h-[35vh] lg:min-h-[60vh]',
+      ].join(' ')}
+    >
       {circuitCoverSrc ? (
         <Image
           src={circuitCoverSrc}

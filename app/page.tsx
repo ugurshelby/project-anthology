@@ -9,10 +9,14 @@ import {
   nowMs,
 } from '@/lib/f1/mrdata';
 import { CURRENT_SEASON, getLastFinishedRace, getLiveOrNextRace, raceStartMs } from '@/lib/f1Calendar';
-import { SplitHomeLayout } from '@/components/home/SplitHomeLayout';
-import { HomeDataColumn } from '@/components/home/HomeDataColumn';
-import { PodiumViz } from '@/components/season/PodiumViz';
+import { PosterHero } from '@/components/home/PosterHero';
+import { FlatStandingsList } from '@/components/home/FlatStandingsList';
+import { LatestRaceCard } from '@/components/home/LatestRaceCard';
+import { NewsList } from '@/components/news/NewsList';
+import { BentoGrid, PageShell } from '@/components/layout/BentoGrid';
+import { BentoCard } from '@/components/bento/BentoCard';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
+import Link from 'next/link';
 
 export const revalidate = 0;
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
@@ -37,7 +41,7 @@ export default async function HomePage() {
 
   const renderNowMs = nowMs();
   const races = getRacesFromCalendar(calendarData);
-  const standings = getDriverStandings(standingsData, 10);
+  const standings = getDriverStandings(standingsData, 6);
   const previousRace = getLastFinishedRace(races);
   const nextRace = getLiveOrNextRace(races, new Date(renderNowMs));
 
@@ -60,37 +64,50 @@ export default async function HomePage() {
 
   const subtitle = [nextRaceCircuit, nextRaceDate].filter(Boolean).join(' · ');
 
-  const podiumExtra =
-    lastRaceRecap ? (
-      <div className="hidden md:block lg:hidden">
-        <PodiumViz
-          raceLabel={`Last Race · ${lastRaceRecap.raceName}`}
-          entries={lastRaceRecap.podium.map((p) => ({
-            position: Number(p.position) as 1 | 2 | 3,
-            driverCode: p.driverCode || p.driverName.split(' ').pop() || '',
-            constructorName: p.constructorName,
-          }))}
-        />
-      </div>
-    ) : null;
-
   return (
-    <SplitHomeLayout
-      hero={{
-        eyebrow,
-        title: nextRaceTitle,
-        subtitle: subtitle || undefined,
-        countdownTargetMs: nextRaceStart,
-        circuitCoverSrc: circuitCover,
-      }}
-      dataColumn={
-        <HomeDataColumn
-          standings={standings}
-          season={CURRENT_SEASON}
-          news={news}
-          extra={podiumExtra}
-        />
-      }
-    />
+    <PageShell>
+      <BentoGrid>
+        {/* Next Race — asymmetric hero tile, no longer the whole viewport */}
+        <BentoCard span={7} className="!p-0 overflow-hidden">
+          <PosterHero
+            eyebrow={eyebrow}
+            title={nextRaceTitle}
+            subtitle={subtitle || undefined}
+            countdownTargetMs={nextRaceStart}
+            circuitCoverSrc={circuitCover}
+            showMobileLogo={false}
+            contained
+          />
+        </BentoCard>
+
+        {/* Latest Race — new panel, podium + fastest lap */}
+        <BentoCard span={5}>
+          {lastRaceRecap ? (
+            <LatestRaceCard recap={lastRaceRecap} season={CURRENT_SEASON} />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+              <span className="label-caps text-text-mid">Latest Race</span>
+              <span className="data-tabular text-text-low">No results yet this season</span>
+            </div>
+          )}
+        </BentoCard>
+
+        {/* Standings — 5 drivers, larger portraits, leader spotlight */}
+        <BentoCard span={7}>
+          <div className="mb-3 flex items-baseline justify-between gap-2">
+            <h2 className="label-caps text-text-mid">Driver Standings</h2>
+            <Link href="/season" className="label-caps text-accent">
+              Full →
+            </Link>
+          </div>
+          <FlatStandingsList rows={standings} season={CURRENT_SEASON} limit={5} avatarSize={48} />
+        </BentoCard>
+
+        {/* News */}
+        <BentoCard span={5}>
+          <NewsList items={news} heading="The Wire" />
+        </BentoCard>
+      </BentoGrid>
+    </PageShell>
   );
 }
