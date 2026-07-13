@@ -31,13 +31,21 @@ export function CalendarList({ races, nextRound }: { races: CalendarRace[]; next
             key={round}
             href={href}
             className={[
-              'group flex items-center gap-4 border-b border-hairline py-4 pl-4 transition-colors last:border-b-0 hover:bg-surface-raised',
+              'group flex items-center gap-4 border-b border-hairline py-4 pl-4 transition-opacity duration-150 will-change-[opacity] last:border-b-0 hover:opacity-80',
               isNext ? 'border-l-2 border-l-accent bg-surface-raised/40' : 'border-l-2 border-l-transparent',
             ].join(' ')}
           >
             <span className="data-tabular w-8 text-text-mid">R{round}</span>
-            <span className="relative hidden h-8 w-12 shrink-0 sm:block">
-              {svg ? <Image src={svg} alt="" fill sizes="48px" className="object-contain opacity-70" /> : null}
+            <span className="relative hidden h-14 w-20 shrink-0 sm:block">
+              {svg ? (
+                <Image
+                  src={svg}
+                  alt=""
+                  fill
+                  sizes="80px"
+                  className="object-contain opacity-95 [filter:drop-shadow(0_0_1px_rgba(255,255,255,0.15))]"
+                />
+              ) : null}
             </span>
             <span className="flex-1 truncate">
               <span className="font-condensed block text-lg font-600 uppercase leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
