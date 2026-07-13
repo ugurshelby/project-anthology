@@ -1,52 +1,62 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { teamIconSrc, carSrc } from '@/lib/assets/f1-icons';
+import { teamIconSrc, carSrc, driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { DriverAvatar } from '@/components/bento/DriverAvatar';
 import type { DriverGridRow, TeamDriverGroup } from '@/lib/data/entities';
 import type { ConstructorStandingRow } from '@/lib/f1/mrdata';
 
-/** Driver card for the /drivers grid. */
+/**
+ * Driver card for the Grid page's "2 drivers beside their team" row. Large,
+ * uncropped portrait (not the circular DriverAvatar) with a dominant team-color
+ * wash — 2026-07 redesign superseding the smaller monogram-avatar card.
+ */
 export function DriverCard({ row, season }: { row: DriverGridRow; season: number }) {
   const color = resolveTeamUiColor(undefined, row.constructorName);
+  const portrait = driverIconSrc(row.driverCode, row.driverId, season);
   return (
     <Link
       href={`/drivers/${row.driverId}`}
-      className="group relative col-span-2 flex flex-col gap-3 overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-5 transition-[transform,background-color] duration-150 hover:-translate-y-0.5 hover:bg-surface-raised md:col-span-2 lg:col-span-3"
+      className="group relative col-span-4 flex min-h-72 flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline p-5 transition-[transform,opacity] duration-150 will-change-transform hover:-translate-y-0.5 hover:opacity-95 md:col-span-4 lg:col-span-4"
+      style={{ background: `linear-gradient(160deg, color-mix(in srgb, ${color} 30%, transparent), var(--surface) 65%)` }}
     >
-      <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: color }} />
-      {/* faint team-colour wash bottom-right so the card never reads empty */}
+      <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: color }} />
+      {portrait ? (
+        <div className="pointer-events-none absolute inset-0 z-0">
+          <Image
+            src={portrait}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover object-top"
+            style={{
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.35) 85%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.35) 85%, transparent 100%)',
+            }}
+          />
+        </div>
+      ) : null}
       <span
         aria-hidden
-        className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full opacity-[0.10] blur-2xl transition-opacity duration-150 group-hover:opacity-20"
-        style={{ backgroundColor: color }}
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 55%)' }}
       />
-      <div className="relative z-10 flex items-start justify-between">
-        <span className="hero-number text-5xl text-text-hi/15">{row.carNumber ?? row.position}</span>
-        <DriverAvatar
-          driverName={row.driverName}
-          driverCode={row.driverCode}
-          driverId={row.driverId}
-          constructorName={row.constructorName}
-          season={season}
-          size={64}
-        />
-      </div>
-      <div className="relative z-10 flex flex-col">
-        <span className="font-condensed text-2xl font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+      <span className="hero-number relative z-10 text-4xl" style={{ color: color + '80' }}>
+        {row.carNumber ?? row.position}
+      </span>
+      <div className="relative z-10 mt-2 flex flex-col">
+        <span className="font-condensed text-3xl font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
           {row.driverName}
         </span>
-        <span className="data-tabular mt-1 text-text-mid">{row.constructorName}</span>
-      </div>
-      <div className="relative z-10 data-tabular flex justify-between text-text-low">
-        <span>P{row.position}</span>
-        <span>{row.points} PTS</span>
+        <div className="data-tabular mt-2 flex justify-between text-text-mid">
+          <span>P{row.position}</span>
+          <span className="text-text-hi">{row.points} PTS</span>
+        </div>
       </div>
     </Link>
   );
 }
 
-/** Constructor card for the /teams grid. */
+/** Constructor card for the Grid page's "1 team beside 2 drivers" row. */
 export function TeamCard({ row }: { row: ConstructorStandingRow }) {
   const logo = teamIconSrc(row.constructorName);
   const car = carSrc(row.constructorId, row.constructorName);
@@ -54,7 +64,7 @@ export function TeamCard({ row }: { row: ConstructorStandingRow }) {
   return (
     <Link
       href={`/teams/${row.constructorId}`}
-      className="group relative col-span-4 flex flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6 transition-[transform,background-color] duration-150 hover:-translate-y-0.5 hover:bg-surface-raised md:col-span-4 lg:col-span-6"
+      className="group relative col-span-4 flex min-h-72 flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6 transition-[transform,opacity] duration-150 will-change-transform hover:-translate-y-0.5 hover:opacity-95 md:col-span-4 lg:col-span-4"
     >
       <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: color }} />
       <div className="flex items-center justify-between gap-3">
@@ -69,8 +79,8 @@ export function TeamCard({ row }: { row: ConstructorStandingRow }) {
         <span className="data-tabular text-text-mid">P{row.position}</span>
       </div>
       {car ? (
-        <div className="relative h-20 w-full">
-          <Image src={car} alt="" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain object-right opacity-90" />
+        <div className="relative mt-auto h-28 w-full">
+          <Image src={car} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-contain object-center opacity-90" />
         </div>
       ) : null}
       <div className="data-tabular flex justify-between text-text-low">

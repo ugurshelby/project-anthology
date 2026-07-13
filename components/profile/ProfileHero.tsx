@@ -54,7 +54,7 @@ export function ProfileHero({
       {bigNumber && imageKind === 'portrait' ? (
         <span
           aria-hidden
-          className="hero-number pointer-events-none absolute inset-y-0 right-0 z-0 hidden select-none items-center justify-end pr-[2%] text-[clamp(220px,30vw,420px)] leading-none text-text-hi/[0.14] lg:flex"
+          className="hero-number pointer-events-none absolute inset-0 z-0 hidden select-none items-center justify-center text-[clamp(220px,30vw,420px)] leading-none text-text-hi/10 lg:flex"
           style={{
             WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 60%, transparent)',
           }}
@@ -71,8 +71,36 @@ export function ProfileHero({
         </span>
       ) : null}
 
-      <div className="relative z-20 grid grid-cols-1 items-end gap-6 px-5 pt-10 pb-6 md:px-8 md:pt-14 lg:grid-cols-[1.4fr_1fr] lg:px-16 lg:pt-20 lg:pb-10">
-        <div className="flex flex-col gap-3">
+      <div className="relative z-20 flex flex-col items-center gap-6 px-5 pt-10 pb-6 text-center md:px-8 md:pt-14 lg:px-16 lg:pt-20 lg:pb-10">
+        {imageKind === 'portrait' ? (
+          <div className="relative z-10 flex h-56 w-full items-end justify-center lg:h-[320px]">
+            {bigNumber ? (
+              <span
+                aria-hidden
+                className="hero-number pointer-events-none absolute -top-2 z-0 select-none text-[clamp(72px,18vw,140px)] leading-none text-text-hi/15"
+                style={{
+                  WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 70%, transparent)',
+                }}
+              >
+                {bigNumber}
+              </span>
+            ) : null}
+            {imageSrc ? (
+              <div className="relative z-10 h-full w-full max-w-xs" style={maskFade}>
+                <Image
+                  src={imageSrc}
+                  alt={imageAlt}
+                  fill
+                  sizes="(max-width: 1024px) 60vw, 320px"
+                  className="object-contain object-bottom"
+                  priority
+                />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="flex flex-col items-center gap-3">
           {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
           <h1
             className="font-condensed uppercase text-text-hi"
@@ -89,34 +117,6 @@ export function ProfileHero({
           {meta ? <p className="data-tabular text-text-mid">{meta}</p> : null}
           {children}
         </div>
-
-        {imageKind === 'portrait' ? (
-          <div className="relative z-10 flex h-64 items-end justify-center lg:h-[420px]">
-            {bigNumber ? (
-              <span
-                aria-hidden
-                className="hero-number pointer-events-none absolute -top-2 right-0 z-0 select-none text-[clamp(72px,18vw,120px)] leading-none text-text-hi/20 lg:hidden"
-                style={{
-                  WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 70%, transparent)',
-                }}
-              >
-                {bigNumber}
-              </span>
-            ) : null}
-            {imageSrc ? (
-              <div className="relative h-full w-full" style={maskFade}>
-                <Image
-                  src={imageSrc}
-                  alt={imageAlt}
-                  fill
-                  sizes="(max-width: 1024px) 60vw, 33vw"
-                  className="object-contain object-bottom"
-                  priority
-                />
-              </div>
-            ) : null}
-          </div>
-        ) : null}
       </div>
 
       {imageKind === 'car' ? (
