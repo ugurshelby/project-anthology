@@ -46,16 +46,16 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
         <span className="label-caps text-text-low">PTS</span>
       </div>
       {portrait ? (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-28 sm:block">
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-36 sm:block">
           <Image
             src={portrait}
             alt=""
             fill
-            sizes="112px"
-            className="object-contain object-bottom opacity-40"
+            sizes="144px"
+            className="object-contain object-bottom opacity-90"
             style={{
-              maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 90%)',
-              WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 90%)',
+              maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 95%)',
+              WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 95%)',
             }}
           />
         </div>

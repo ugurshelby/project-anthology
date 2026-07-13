@@ -12,13 +12,16 @@ export function FlatStandingsList({
   rows,
   season,
   limit = 8,
+  avatarSize = 32,
 }: {
   rows: DriverStandingRow[];
   season: number;
   limit?: number;
+  avatarSize?: number;
 }) {
   const [leader, ...rest] = rows;
   const visible = rest.slice(0, Math.max(0, limit - 1));
+  const rowMinHeight = avatarSize >= 44 ? 'min-h-16' : 'min-h-11';
 
   return (
     <div className="flex flex-col gap-3">
@@ -30,7 +33,7 @@ export function FlatStandingsList({
           <Link
             key={row.driverId}
             href={`/drivers/${row.driverId}`}
-            className="flex min-h-11 items-center gap-3 border-b border-hairline py-2.5 transition-opacity duration-150 will-change-[opacity] last:border-b-0 hover:opacity-80"
+            className={[rowMinHeight, 'flex items-center gap-3 border-b border-hairline py-2.5 transition-opacity duration-150 will-change-[opacity] last:border-b-0 hover:opacity-80'].join(' ')}
           >
             <span className="data-tabular w-5 shrink-0 text-right text-text-mid">{row.position}</span>
             <DriverAvatar
@@ -39,10 +42,10 @@ export function FlatStandingsList({
               driverId={row.driverId}
               constructorName={row.constructorName}
               season={season}
-              size={32}
+              size={avatarSize}
             />
             <span
-              className="font-condensed min-w-0 flex-1 truncate text-base font-600 uppercase tracking-tight text-text-hi"
+              className="font-condensed min-w-0 flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
               {row.driverName}

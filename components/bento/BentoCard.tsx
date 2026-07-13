@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
 
-type Span = 4 | 6 | 8 | 12;
+type Span = 4 | 5 | 6 | 7 | 8 | 12;
 
 const SPAN: Record<Span, string> = {
   4: 'col-span-4 md:col-span-4 lg:col-span-4',
+  5: 'col-span-4 md:col-span-8 lg:col-span-5',
   6: 'col-span-4 md:col-span-4 lg:col-span-6',
+  7: 'col-span-4 md:col-span-8 lg:col-span-7',
   8: 'col-span-4 md:col-span-8 lg:col-span-8',
   12: 'col-span-4 md:col-span-8 lg:col-span-12',
 };
