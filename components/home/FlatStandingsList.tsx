@@ -30,7 +30,7 @@ export function FlatStandingsList({
           <Link
             key={row.driverId}
             href={`/drivers/${row.driverId}`}
-            className="flex min-h-11 items-center gap-3 border-b border-hairline py-2.5 transition-colors last:border-b-0 hover:bg-surface-raised/40"
+            className="flex min-h-11 items-center gap-3 border-b border-hairline py-2.5 transition-opacity duration-150 will-change-[opacity] last:border-b-0 hover:opacity-80"
           >
             <span className="data-tabular w-5 shrink-0 text-right text-text-mid">{row.position}</span>
             <DriverAvatar
