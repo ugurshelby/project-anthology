@@ -3,10 +3,11 @@ import type { StoryBlock } from '@/data/stories/types';
 import { Reveal } from './Reveal';
 
 /**
- * Editorial-flow story body (design.md §3.1/§3.3) — the only non-bento layout.
- * Centered reading column (~68ch), full-bleed images, drop-cap opening,
- * condensed section headers, pull-quotes with a thin accent vertical rule.
- * Blocks fade/translate in on scroll (Reveal, reduced-motion safe).
+ * Editorial-flow story body — centered reading column (~68ch), framed image
+ * cards (not full-bleed 100vw — 2026-07 redesign, see AnthologyHero for the
+ * same change on the hero), drop-cap opening, condensed section headers,
+ * pull-quotes with a thin accent vertical rule. Blocks fade/translate in on
+ * scroll (Reveal, reduced-motion safe).
  */
 export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
   let firstParagraphSeen = false;
@@ -32,21 +33,27 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
                 </blockquote>
               </Reveal>
             );
-          case 'image':
+          case 'image': {
+            const aspect = block.layout === 'portrait' ? 'aspect-[3/4]' : 'aspect-video';
             return (
-              <Reveal key={i} className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2">
+              <Reveal key={i}>
                 <figure className="flex flex-col gap-2">
-                  <div className="relative aspect-[16/9] w-full">
-                    <Image src={block.src ?? '/placeholder.svg'} alt={block.caption ?? ''} fill sizes="100vw" className="object-cover" />
+                  <div className={[aspect, 'relative w-full overflow-hidden rounded-[var(--radius-lg)] border border-hairline'].join(' ')}>
+                    <Image
+                      src={block.src ?? '/placeholder.svg'}
+                      alt={block.caption ?? ''}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 768px"
+                      className="object-cover"
+                    />
                   </div>
                   {block.caption ? (
-                    <figcaption className="label-caps mx-auto max-w-3xl px-5 text-text-low md:px-8">
-                      {block.caption}
-                    </figcaption>
+                    <figcaption className="label-caps text-text-low">{block.caption}</figcaption>
                   ) : null}
                 </figure>
               </Reveal>
             );
+          }
           case 'paragraph':
           default: {
             const isFirst = !firstParagraphSeen;
