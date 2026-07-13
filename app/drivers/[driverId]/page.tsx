@@ -13,6 +13,7 @@ import { StatBlock } from '@/components/bento/StatBlock';
 import { StatTrio } from '@/components/bento/StatTrio';
 import { ProfileHero } from '@/components/profile/ProfileHero';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
+import { LoreSection } from '@/components/profile/LoreSection';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
@@ -135,6 +136,22 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
               ]}
             />
           </BentoCard>
+
+          {/* Story — bio, milestones, deep-cut lore (mirrors mobile driver detail) */}
+          {lore ? (
+            <BentoCard span={12}>
+              <LoreSection
+                heading="The Story"
+                bio={lore.bio}
+                milestones={lore.milestones}
+                lore={lore.lore}
+                facts={[
+                  { label: 'Nationality', value: lore.nationality },
+                  { label: 'Born', value: String(lore.born) },
+                ]}
+              />
+            </BentoCard>
+          ) : null}
 
           {/* 2026 Car — the team machine, a full-width cinematic strip */}
           {car ? (

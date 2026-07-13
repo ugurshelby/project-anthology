@@ -6,12 +6,14 @@ import { SITE_NAME } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
+import { getTeamLore } from '@/data/teams';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { StatBlock } from '@/components/bento/StatBlock';
 import { StatTrio } from '@/components/bento/StatTrio';
 import { ProfileHero } from '@/components/profile/ProfileHero';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
+import { LoreSection } from '@/components/profile/LoreSection';
 import { DriverLineup } from '@/components/profile/DriverLineup';
 import { HeadToHead } from '@/components/profile/HeadToHead';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
@@ -70,6 +72,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   const theme = teamThemeVars(profile.constructorId, season);
   const car = carSrc(profile.constructorId, profile.constructorName);
   const logo = teamIconSrc(profile.constructorName);
+  const lore = getTeamLore(profile.constructorId);
   const [d1, d2] = profile.drivers;
   const flankNumbers: [string | null, string | null] = [
     d1 ? (getDriverLore(d1.driverId)?.number != null ? String(getDriverLore(d1.driverId)!.number) : null) : null,
@@ -141,6 +144,22 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
               ]}
             />
           </BentoCard>
+
+          {/* Story — bio, milestones, deep-cut lore (mirrors mobile team detail) */}
+          {lore ? (
+            <BentoCard span={12}>
+              <LoreSection
+                heading="The Team"
+                bio={lore.bio}
+                milestones={lore.milestones}
+                lore={lore.lore}
+                facts={[
+                  { label: 'Base', value: lore.hq.label },
+                  { label: 'Founded', value: String(lore.founded) },
+                ]}
+              />
+            </BentoCard>
+          ) : null}
         </BentoGrid>
       </div>
     </main>
