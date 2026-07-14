@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Story } from '@/lib/data/stories';
+import { truncateToWord } from '@/lib/text/truncateToWord';
 
 /** Anthology hub story card — hero image, condensed title, category/year mono. */
 export function StoryCard({ story, wide = false }: { story: Story; wide?: boolean }) {
@@ -28,7 +29,11 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
         <h3 className={[wide ? 'headline-lg' : 'headline-md', 'uppercase text-text-hi'].join(' ')}>
           {story.title}
         </h3>
-        {story.subtitle ? <p className="body-md mt-1 line-clamp-2 text-text-mid">{story.subtitle}</p> : null}
+        {story.subtitle ? (
+          <p className="body-md mt-1 line-clamp-2 text-text-mid">
+            {truncateToWord(story.subtitle, wide ? 160 : 100)}
+          </p>
+        ) : null}
       </div>
     </Link>
   );
