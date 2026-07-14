@@ -61,7 +61,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/hunt-lauda/landscape/01.png",
+        "src": "/stories/hunt-lauda/landscape/02.png",
         "caption": "Hunt in the rain, Zandvoort.",
         "layout": "landscape"
       },
@@ -111,7 +111,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/massa-2008/landscape/01.png",
+        "src": "/stories/massa-2008/landscape/02.png",
         "caption": "Interlagos grid in the rain.",
         "layout": "landscape"
       },
@@ -176,7 +176,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/schumacher-ferrari/landscape/01.png",
+        "src": "/stories/schumacher-ferrari/landscape/02.png",
         "caption": "Ferrari F2004 silhouette.",
         "layout": "landscape"
       },
@@ -229,7 +229,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/hakkinen-schumacher/landscape/01.png",
+        "src": "/stories/hakkinen-schumacher/landscape/02.png",
         "caption": "Häkkinen, focus through Eau Rouge.",
         "layout": "landscape"
       },
@@ -300,7 +300,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/button-canada/landscape/01.png",
+        "src": "/stories/button-canada/landscape/02.png",
         "caption": "Parc Jean-Drapeau under rain.",
         "layout": "landscape"
       },
@@ -338,7 +338,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/fangio-nurburgring/landscape/01.png",
+        "src": "/stories/fangio-nurburgring/landscape/02.png",
         "caption": "Maserati 250F lines and muscle.",
         "layout": "landscape"
       },
@@ -393,7 +393,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/dijon-1979/landscape/01.png",
+        "src": "/stories/dijon-1979/landscape/02.png",
         "caption": "Villeneuve's 312T4.",
         "layout": "landscape"
       },
@@ -491,7 +491,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/brawn-2009/landscape/01.png",
+        "src": "/stories/brawn-2009/landscape/02.png",
         "caption": "Button's 2009 motif.",
         "layout": "landscape"
       }
@@ -539,7 +539,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/schumacher-1994-spain/landscape/01.png",
+        "src": "/stories/schumacher-1994-spain/landscape/02.png",
         "caption": "Benetton B194 exhaust flames.",
         "layout": "landscape"
       },
@@ -578,7 +578,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/collins-fangio-1956/landscape/01.png",
+        "src": "/stories/collins-fangio-1956/landscape/02.png",
         "caption": "Ferrari D50 Monza 1956 track action.",
         "layout": "landscape"
       },
@@ -631,7 +631,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/monaco-1982/landscape/01.png",
+        "src": "/stories/monaco-1982/landscape/02.png",
         "caption": "Didier Pironi Ferrari Monaco 1982 stalled.",
         "layout": "landscape"
       },
@@ -687,7 +687,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/jerez-1997/landscape/01.png",
+        "src": "/stories/jerez-1997/landscape/02.png",
         "caption": "Schumacher Villeneuve Jerez 1997 crash contact.",
         "layout": "landscape"
       },
@@ -731,7 +731,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/senna-donington-1993/landscape/01.png",
+        "src": "/stories/senna-donington-1993/landscape/02.png",
         "caption": "Senna McLaren MP4/8 Donington water spray.",
         "layout": "landscape"
       },
@@ -792,7 +792,7 @@ export const storyContent: StoryContentRecord[] = [
       },
       {
         "type": "image",
-        "src": "/stories/jaguar-monaco-diamond/landscape/01.png",
+        "src": "/stories/jaguar-monaco-diamond/landscape/02.png",
         "caption": "Christian Klien, Jaguar R5, Loews hairpin crash, Monaco 2004.",
         "layout": "landscape"
       },
