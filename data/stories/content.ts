@@ -417,6 +417,12 @@ export const storyContent: StoryContentRecord[] = [
       }
     ]
   },
+  // imola-1994: known exception to the 2026-07-13 anthology image-dedup pass —
+  // its Tamburello image block intentionally still reuses heroImage
+  // (landscape/01.png). No distinct spare asset exists for this story
+  // (verified: full/01.png is byte-identical to landscape/01.png via MD5;
+  // portrait/01.png is the only genuinely different file and is already used
+  // elsewhere in this story). Needs a newly sourced photo to resolve properly.
   {
     "slug": "imola-1994",
     "title": "The Black Weekend",
