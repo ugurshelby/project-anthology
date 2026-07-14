@@ -18,9 +18,9 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
         alt=""
         fill
         sizes={wide ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-        className="object-cover opacity-45 transition-opacity duration-150 group-hover:opacity-60"
+        className="object-cover opacity-40 transition-opacity duration-150 group-hover:opacity-55"
       />
-      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/50 to-transparent" />
+      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg from-10% via-bg/60 via-45% to-transparent" />
       <div className="relative z-10 flex flex-col gap-1">
         <span className="label-caps text-text-mid">
           {story.category}
