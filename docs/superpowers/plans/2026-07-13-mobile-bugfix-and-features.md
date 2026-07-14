@@ -20,18 +20,31 @@
 
 ## Part A — Bug fixes (each its own commit, no approval needed)
 
-### Task A1: Fix Lindblad (and any other driver) permanent-number casing bug
+### Task A1: Fix Lindblad permanent-number lookup (live driverId includes first name)
 
 **Files:**
-- Modify: `mobile/lib/entityAssets.ts:170-174`
+- Modify: `mobile/lib/entityAssets.ts:58` (add an alias key to `DRIVER_NUMBER`)
+- Modify: `mobile/lib/entityAssets.ts:170-174` (`driverPermanentNumber`)
 
 **Interfaces:**
 - Consumes: nothing new.
 - Produces: `driverPermanentNumber(driverId)` behavior unchanged in signature, fixed in correctness.
 
-**Root cause (verified):** `DRIVER_NUMBER` already has `lindblad: 41` at `mobile/lib/entityAssets.ts:58`. Every sibling lookup (`teamLogoUrl`, `carImageUrl`, `circuitMapUrl`, `circuitCoverUrl`) calls `.toLowerCase()` on its id before the lookup; `driverPermanentNumber` does not. If the live Ergast/Jolpica `driverId` for any driver arrives with different casing than the hardcoded lowercase map key, the lookup silently misses and falls through to `'—'`.
+**Root cause (verified via a live curl to production — `curl https://project-anthology-seven.vercel.app/api/season/2026` — not just static-code reading):** every other driver's live `driverId` is a bare surname (`hamilton`, `norris`, `russell`, ...) matching `DRIVER_NUMBER`'s keys exactly. Arvid Lindblad is the one exception: his live `driverId` is `"arvid_lindblad"`, not `"lindblad"`. The map has `lindblad: 41` but the lookup key that actually arrives at runtime is `arvid_lindblad`, so it misses and falls through to `'—'`. A `.toLowerCase()` fix alone does NOT resolve this — `"arvid_lindblad".toLowerCase()` is still `"arvid_lindblad"`, still not equal to `"lindblad"`. (`.toLowerCase()` is still worth adding for consistency with sibling lookups like `teamLogoUrl`/`carImageUrl`/`circuitMapUrl`, which all normalize case before their lookup — but it is not sufficient by itself and must not be treated as the fix.)
 
-- [ ] **Step 1: Fix the lookup**
+- [ ] **Step 1: Add the alias key**
+
+Current (`mobile/lib/entityAssets.ts:58`):
+```ts
+  lindblad: 41,
+```
+Change to (add a new line immediately after, do not replace the existing key — in case anything else looks it up by bare surname):
+```ts
+  lindblad: 41,
+  arvid_lindblad: 41,
+```
+
+- [ ] **Step 2: Normalize the lookup for consistency (does not by itself fix the bug, but matches sibling functions)**
 
 Current code (`mobile/lib/entityAssets.ts:170-174`):
 ```ts
@@ -51,17 +64,17 @@ export function driverPermanentNumber(driverId: string | undefined): string {
 }
 ```
 
-- [ ] **Step 2: Verify**
+- [ ] **Step 3: Verify**
 
 Run: `cd mobile && npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 cd mobile
 git add lib/entityAssets.ts
-git commit -m "fix: driverPermanentNumber artık driverId'yi lowercase karşılaştırıyor (Lindblad #- bug'ı)"
+git commit -m "fix: Lindblad'ın permanentNumber lookup'u artık live API'nin driverId'si (arvid_lindblad) ile eşleşiyor"
 ```
 
 ---
@@ -141,12 +154,27 @@ console.log(bad === 0 ? 'OK: no duplicates' : \`FAIL: \${bad} duplicates remain\
 ```
 Expected: `OK: no duplicates` (this inline script assumes `content.ts` exports a plain JSON-parseable array literal; if the file has TS-specific syntax around the array, adjust the slice bounds or run a quick manual re-check of the 14 edited stories instead — the point of this step is confirming zero `heroImage`-in-blocks duplication remains, however you verify it).
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Commit the content.ts fix**
 
 ```bash
 git add data/stories/content.ts
 git commit -m "fix: anthology hikayelerinde tekrarlayan hero görseli — 14 hikayede body image block'u farklı crop'a (02.png) yönlendirildi"
 ```
+
+- [ ] **Step 6: Re-seed the live Supabase `stories` table**
+
+**Critical — do not skip:** `data/stories/content.ts` is only the tracked source file; both web and mobile actually read from the live Supabase `stories` table (`scripts/seed-stories.ts` upserts `content.ts` into it, keyed on `slug`, idempotent). Editing `content.ts` alone does not change what users see until this re-seed runs.
+
+Run: `npx tsx scripts/seed-stories.ts --dry-run`
+Expected: dry-run output shows the 14 affected slugs would be updated (upserted), no errors.
+
+Run: `npx tsx scripts/seed-stories.ts`
+Expected: real upsert completes, console confirms all `storyContent.length` rows processed with no errors. Requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (already required by the project — check `.env.local` exists with this key before running; if missing, stop and report rather than guessing at credentials).
+
+- [ ] **Step 7: Spot-check the live fix**
+
+Run: `curl -s "https://project-anthology-seven.vercel.app/api/stories/jaguar-monaco-diamond" | grep -o '"src":"[^"]*"'` (adjust the endpoint path if the actual live story-detail API route differs — check `app/api/stories/` or however the web app's `fetchStory` resolves its URL if this exact path 404s)
+Expected: no two `src` values in the output (excluding portrait) are identical to each other or to the story's `heroImage`.
 
 ---
 
@@ -569,34 +597,146 @@ git commit -m "fix: Anthology tab ikonu artık News'ten görsel olarak ayırt ed
 
 ---
 
-### Task A10: Verify remaining reported bugs against current code, fix or document as already-resolved
+### Task A10: Fix News card black-render (gradient-on-fallback stacking) and unify the 5 duplicated back-button implementations
 
 **Files:**
-- Read-only verification, fixes applied inline if a real gap is found: `mobile/app/(tabs)/news.tsx`, `mobile/components/news/NewsCard.tsx`, `mobile/app/notifications.tsx`, all screens with `BackButton`/`Stack.Screen` usage.
+- Modify: `mobile/app/(tabs)/news.tsx:59-73` (`ExpandableNewsCard`'s fallback + gradient)
+- Create: `mobile/components/ui/BackButton.tsx`
+- Modify: `mobile/app/anthology/[slug].tsx:131-140`, `mobile/app/driver/[id].tsx:18-33`, `mobile/app/team/[id].tsx:62-70`, `mobile/app/circuit/[id].tsx:16-31`, `mobile/app/glossary.tsx:122-130` — replace each screen's own copy-pasted back-button block with the shared component.
 
-**Interfaces:** none — this task is a verification pass, not a scoped feature.
+**Interfaces:**
+- Produces: `BackButton` — a component with no props (always calls `router.back()`), matching the existing absolute-positioned `top:16, left:16` pattern used by `driver/[id].tsx` and `circuit/[id].tsx`.
 
-**Context:** during planning, direct code inspection showed several originally-reported bugs do not match the current mobile code:
-- **News grid consistency / source-name duplication / black card** — `mobile/app/(tabs)/news.tsx`'s `chunkBento` already produces a consistent big+pair-of-2 pattern every 3 items, `ExpandableNewsCard` renders the source name exactly once (`{item.source.toUpperCase()} · {timeLabel}`), and already falls back to a placeholder (source initials on a solid background) when `item.imageUrl` is falsy. This already matches what the bug report is asking for.
-- **Back-arrow navigation consistency** — every pushed/detail screen (`anthology/[slug].tsx`, `circuit/[id].tsx`, `driver/[id].tsx`, `team/[id].tsx`, `glossary.tsx`) already has an identical `BackButton` pattern; tab roots (Home, Season, Grid, News, Anthology) correctly have none since they're not pushed screens. `notifications.tsx` has no back button, but it's only reachable via a first-run `router.replace` with no other entry point in the app, so a back affordance there would be misleading (there's nothing to go back to) — this is by design, not a bug.
+**Root cause (verified by a dedicated research pass, corrected from the plan's original theory):**
 
-This strongly suggests the originally-reported News/back-arrow issues were observed on an **older APK build** predating a previous round's fixes, or (like Tasks A3/A4 turned out to be) were actually about the **web** equivalents. Given full autonomy was granted with an instruction to finish the work rather than silently under-deliver, this task's job is to close the loop rather than skip these two items outright.
+1. **News black-card:** NOT a missing-fallback bug (a fallback already exists: source-name text on `Colors.surfaceRaised`). The real cause is gradient-on-fallback stacking: `ExpandableNewsCard` (`mobile/app/(tabs)/news.tsx:59-73`) always layers `LinearGradient colors={['transparent', 'rgba(10,9,8,0.55)', 'rgba(10,9,8,0.92)']}` over the image area regardless of whether `item.imageUrl` exists. When it doesn't, that gradient sits on top of the already near-black `Colors.surfaceRaised` (`#1e1c19`) fallback, compounding to a nearly-fully-black card with only tiny 9px source-name text visible — reading as "fully black/empty" in a screenshot, especially on a `big` card (`imageHeight = 220`).
+2. **Back-arrow inconsistency:** NOT a "some screens have it, some don't" issue — every detail screen already has one. The real issue: 5 separate screens (`anthology/[slug].tsx`, `driver/[id].tsx`, `team/[id].tsx`, `circuit/[id].tsx`, `glossary.tsx`) each hand-roll their own near-identical `Pressable` + `Svg`/`Path` chevron block, and `team/[id].tsx`'s copy is positioned differently (in normal document flow, `marginBottom: 24`) than the other four (absolutely positioned, `top:16, left:16` over the hero image) — a real, visible layout inconsistency between `team/[id].tsx` and its siblings.
+3. **News source-name duplication as literally described (twice in one card) was NOT found** — no component renders `item.source` twice. Not fixing this specific sub-claim; it may have been a one-off screenshot artifact or perception across two adjacent components (Home's `NewsCard` directly above the News tab's `ExpandableNewsCard`), not a real code defect.
 
-- [ ] **Step 1: Re-check web's news page for the black-card / duplicate-source symptom**
+- [ ] **Step 1: Fix the News card gradient-on-fallback stacking**
 
-Run: `grep -n "hasRealImage" lib/data/news.ts`
-
-Confirm (already verified during planning) that `hasRealImage` only checks `Boolean(item.image) && item.image !== '/placeholder.svg'` — it does not verify the URL actually resolves at request time. A dead/expired RSS-sourced image URL (e.g. a source's CDN link that 404s) would pass this check and render as a broken/black image client-side, which no static grep can catch. If time allows, spot-check a handful of live `item.image` URLs from `/api/news` in a browser to see if any 404. If one does, that confirms this is a live-data staleness issue, not a code defect — no code change is needed, but note it in the commit message so it's not silently dropped from the record.
-
-- [ ] **Step 2: Commit a no-op documentation note if no code bug is found**
-
-If Step 1 finds no code-level defect (expected, based on planning-time verification):
-
-```bash
-git commit --allow-empty -m "docs: news/back-arrow bug'ları mevcut kodda doğrulanamadı — muhtemelen eski APK build'inde görülmüş, web ile mobile'da mevcut davranış zaten tutarlı"
+Current (`mobile/app/(tabs)/news.tsx:59-73`, inside `ExpandableNewsCard`):
+```tsx
+<View style={{ height: imageHeight }}>
+  {item.imageUrl ? (
+    <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+  ) : (
+    <View style={{ flex: 1, backgroundColor: Colors.surfaceRaised, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={[Typography.labelCaps, { color: Colors.textLow, fontSize: 9 }]}>{item.source.toUpperCase()}</Text>
+    </View>
+  )}
+  <LinearGradient
+    colors={['transparent', 'rgba(10,9,8,0.55)', 'rgba(10,9,8,0.92)']}
+    locations={[0.3, 0.65, 1]}
+    style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%' }}
+  />
+  <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: big ? 16 : 12 }}>
+    <Text style={[Typography.labelCaps, { color: Colors.apexRed, fontSize: 9 }]}>{item.source.toUpperCase()} · {timeLabel}</Text>
+    <Text
+      style={[Typography.cardTitle, { color: Colors.textHi, fontSize: big ? 18 : 14, lineHeight: big ? 22 : 18, marginTop: 4 }]}
+      numberOfLines={expanded ? undefined : big ? 3 : 3}
+    >
+      {item.title}
+    </Text>
+  </View>
+</View>
+```
+Replace with (only render the gradient when there's an actual image to scrim over; give the no-image fallback its own self-contained readable footer instead of relying on the gradient+overlay text pattern):
+```tsx
+<View style={{ height: imageHeight }}>
+  {item.imageUrl ? (
+    <>
+      <Image source={{ uri: item.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+      <LinearGradient
+        colors={['transparent', 'rgba(10,9,8,0.55)', 'rgba(10,9,8,0.92)']}
+        locations={[0.3, 0.65, 1]}
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%' }}
+      />
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: big ? 16 : 12 }}>
+        <Text style={[Typography.labelCaps, { color: Colors.apexRed, fontSize: 9 }]}>{item.source.toUpperCase()} · {timeLabel}</Text>
+        <Text
+          style={[Typography.cardTitle, { color: Colors.textHi, fontSize: big ? 18 : 14, lineHeight: big ? 22 : 18, marginTop: 4 }]}
+          numberOfLines={expanded ? undefined : big ? 3 : 3}
+        >
+          {item.title}
+        </Text>
+      </View>
+    </>
+  ) : (
+    <View style={{ flex: 1, backgroundColor: Colors.surfaceRaised, padding: big ? 16 : 12, justifyContent: 'flex-end' }}>
+      <Text style={[Typography.labelCaps, { color: Colors.apexRed, fontSize: 9 }]}>{item.source.toUpperCase()} · {timeLabel}</Text>
+      <Text
+        style={[Typography.cardTitle, { color: Colors.textHi, fontSize: big ? 18 : 14, lineHeight: big ? 22 : 18, marginTop: 4 }]}
+        numberOfLines={expanded ? undefined : big ? 3 : 3}
+      >
+        {item.title}
+      </Text>
+    </View>
+  )}
+</View>
 ```
 
-If Step 1 *does* find a live dead-image-URL case, fix `hasRealImage` (or its mobile equivalent, if mobile has its own filter — check `mobile/lib/api.ts`'s `fetchNews`) to also reject known-bad URL patterns, and commit that as a real fix instead of the no-op above.
+- [ ] **Step 2: Verify the News fix**
+
+Run: `cd mobile && npx tsc --noEmit`
+Expected: clean.
+
+- [ ] **Step 3: Commit the News fix**
+
+```bash
+cd mobile
+git add "app/(tabs)/news.tsx"
+git commit -m "fix: news kartında görsel yoksa artık gradient siyah zemin üzerine yığılmıyor (siyah/boş kart bug'ı)"
+```
+
+- [ ] **Step 4: Extract the shared BackButton component**
+
+Create `mobile/components/ui/BackButton.tsx`:
+```tsx
+import { Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { Svg, Path } from 'react-native-svg';
+import { Colors } from '../../constants/colors';
+
+/** Shared back-chevron button — absolutely positioned over a detail screen's hero. */
+export function BackButton() {
+  return (
+    <Pressable
+      onPress={() => router.back()}
+      hitSlop={16}
+      style={{
+        position: 'absolute', top: 16, left: 16, zIndex: 10,
+        backgroundColor: 'rgba(10,10,10,0.6)', borderRadius: 20, padding: 8,
+      }}
+    >
+      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+        <Path d="M19 12H5M12 19L5 12L12 5" stroke={Colors.textHi} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      </Svg>
+    </Pressable>
+  );
+}
+```
+
+- [ ] **Step 5: Replace each screen's local back-button with the shared component**
+
+For `mobile/app/circuit/[id].tsx` and `mobile/app/driver/[id].tsx` (both already have a local `function BackButton() { ... }` matching this exact shape): delete the local function definition, add `import { BackButton } from '../../components/ui/BackButton';` at the top, keep the `<BackButton />` usage in the JSX unchanged (same component name, now imported instead of locally defined).
+
+For `mobile/app/anthology/[slug].tsx:131-140` and `mobile/app/glossary.tsx:122-130` (inline `Pressable` blocks, not extracted local functions): replace the inline block with `<BackButton />` and add the same import. Read each file's exact surrounding JSX first (the inline block may be wrapped in a `SafeAreaView edges={['top']}` in `[slug].tsx` — preserve that wrapper, only replace the `Pressable`+`Svg` internals with `<BackButton />`).
+
+For `mobile/app/team/[id].tsx:62-70` (the one positioned differently, in normal flow rather than absolute): replace its inline block with `<BackButton />` too — since `BackButton` is always `position: 'absolute', top: 16, left: 16`, this also fixes the positioning inconsistency by construction. Read the surrounding JSX first to confirm removing the inline `Pressable` from normal flow doesn't leave a layout gap (it shouldn't, since absolute positioning removes it from flow) — check the header area still looks correct relative to the team-color background/logo below it.
+
+- [ ] **Step 6: Verify**
+
+Run: `cd mobile && npx tsc --noEmit`
+Expected: clean, and confirms no leftover unused `Svg`/`Path` imports in files that no longer use them directly (remove any that become unused).
+
+- [ ] **Step 7: Commit**
+
+```bash
+cd mobile
+git add components/ui/BackButton.tsx app/anthology/\[slug\].tsx app/driver/\[id\].tsx app/team/\[id\].tsx app/circuit/\[id\].tsx app/glossary.tsx
+git commit -m "refactor: 5 ayrı kopyalanmış geri butonu tek paylaşılan BackButton bileşenine indirgendi (team detail'deki konum tutarsızlığı da düzeldi)"
+```
 
 ---
 
