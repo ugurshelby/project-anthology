@@ -25,14 +25,14 @@
 
 ### 🔴 Manuel — Efendim aksiyonu
 
-- [ ] Vercel production deploy (push bildirim + vercel.json 4. cron)
-- [ ] EAS build test: `cd mobile && eas build --platform android --profile preview`
-- [ ] EAS CLI güncelle: `npm install -g eas-cli`
+- [x] Vercel production deploy (push bildirim gönderme tarafı) — 2026-07-15, `49bda3f`
+- [ ] **Railway cron kur:** `apex-notify-sessions-cron` servisi (5-10dk schedule, `SITE_URL`+`CRON_SECRET`). Kod/kalıp hazır (`railway/apex-notify-sessions-cron/`); panelden servis oluşturmak Efendim'de. NOT: `vercel.json`'a cron EKLENMEDİ (Hobby = 1 cron/gün).
+- [x] EAS build test: preview APK alındı — 2026-07-15, build `6e9bd8f1`
 
 ### 🟠 EAS Build — Monorepo arşiv boyutu
 
 - [x] `.easignore` genişletildi (`../node_modules/`, `../.next/`, `../.git/`)
-- [ ] Preview build al; hâlâ >200 MB ise `eas.json` monorepo `projectRoot` dene
+- [x] Preview build al — upload 858 MB → **1.2 MB'a düştü**, sorun çözüldü (2026-07-15)
 
 ### 🤖 WEB-UI — Web responsive + home refactor
 
@@ -53,7 +53,7 @@ Spec: `docs/design/apex-design-language.md`
 
 - [ ] 2026 sezon snapshot Jolpica ile kalıcı DB doldurması
 - [ ] Production `seed:f1db` — Past Winners 2018–2025 dolu mu?
-- [ ] Push bildirim cron (`/api/cron/notify`) canlı test
+- [~] Push bildirim cron: endpoint `/api/cron/notify-sessions` canlıda (401 auth OK), `notified_sessions` tablosu uygulandı. Canlı uçtan-uca test Railway cron kurulunca yapılabilir.
 
 ### 🤖 MOBİL-OTA (EAS build sonrası)
 
