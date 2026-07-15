@@ -66,6 +66,7 @@ Jolpica · F1DB · OpenF1 · RSS
 | `/api/cron/sync-news` | RSS → news_cache (06:00 UTC) |
 | `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (07:00 UTC) |
 | `/api/cron/sync-radio` | OpenF1 → radio_moments (08:00 UTC) |
+| `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (Railway cron, 5-10dk) |
 | `/api/push/register` | Expo push token kayıt |
 | `/api/f1-season` | Canlı Jolpica proxy |
 | `/api/news` | Haber API |
@@ -85,6 +86,7 @@ Cron auth: `Authorization: Bearer ${CRON_SECRET_KEY}`
 | `circuits` | Pist verisi |
 | `news_cache` | Agregat haberler |
 | `push_subscriptions` | Mobil push token'ları |
+| `notified_sessions` | Seans bildirimi dedupe guard'ı (season/round/session_type) |
 
 Migration kuralı: `YYYYMMDDHHMMSS_*.sql` formatı zorunlu.
 
