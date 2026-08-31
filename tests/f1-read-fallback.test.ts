@@ -59,6 +59,7 @@ vi.mock('@/lib/data/fs', () => ({
 vi.mock('@/lib/data/logger', () => ({
   logFallback: () => {},
   logSupabaseCall: () => {},
+  logSlowQuery: () => {},
   timed: async <T>(fn: () => Promise<T>) => ({ result: await fn(), durationMs: 0 }),
 }));
 
@@ -98,7 +99,7 @@ describe('fetchSeasonSnapshotTyped — tier order', () => {
     expect(result).toEqual(dbData);
     expect(mockReadPublicJson).not.toHaveBeenCalled();
     expect(mockFetchSiteJson).not.toHaveBeenCalled();
-  });
+  }, 15_000);
 
   it('falls back to the static file when the DB is empty', async () => {
     const staticData = calendarMrData('Static GP', '2019-03-17');

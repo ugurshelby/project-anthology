@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { DriverAvatar } from '@/components/bento/DriverAvatar';
@@ -72,11 +73,18 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
       </div>
 
       {recap.fastestLapDriver ? (
-        <span className="label-caps mt-auto text-text-low">
+        <span className="label-caps text-text-low">
           Fastest Lap · {recap.fastestLapDriver}
           {recap.fastestLapTime ? ` · ${recap.fastestLapTime}` : ''}
         </span>
       ) : null}
+
+      <Link
+        href={`/season/${season}/round/${recap.round}`}
+        className="label-caps mt-auto text-accent transition-opacity hover:opacity-80"
+      >
+        Full results →
+      </Link>
     </div>
   );
 }

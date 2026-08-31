@@ -43,21 +43,31 @@ export default async function AnthologyPage() {
       </header>
 
       <BentoGrid>
-        {lead ? (
-          <div className="col-span-4 md:col-span-8 lg:col-span-8">
-            <StoryCard story={lead} wide />
+        {stories.length === 0 ? (
+          <div className="col-span-4 md:col-span-8 lg:col-span-12">
+            <p className="body-md text-center text-text-mid">
+              No stories published yet. Check back soon.
+            </p>
           </div>
-        ) : null}
-        {rest.slice(0, 1).map((s) => (
-          <div key={s.slug} className="col-span-4 md:col-span-8 lg:col-span-4">
-            <StoryCard story={s} />
-          </div>
-        ))}
-        {rest.slice(1).map((s) => (
-          <div key={s.slug} className="col-span-4 md:col-span-4 lg:col-span-4">
-            <StoryCard story={s} />
-          </div>
-        ))}
+        ) : (
+          <>
+            {lead ? (
+              <div className="col-span-4 md:col-span-8 lg:col-span-8">
+                <StoryCard story={lead} wide />
+              </div>
+            ) : null}
+            {rest.slice(0, 1).map((s) => (
+              <div key={s.slug} className="col-span-4 md:col-span-8 lg:col-span-4">
+                <StoryCard story={s} />
+              </div>
+            ))}
+            {rest.slice(1).map((s) => (
+              <div key={s.slug} className="col-span-4 md:col-span-4 lg:col-span-4">
+                <StoryCard story={s} />
+              </div>
+            ))}
+          </>
+        )}
       </BentoGrid>
 
       {moments.length > 0 ? (

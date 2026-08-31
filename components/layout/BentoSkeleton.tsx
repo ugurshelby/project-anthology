@@ -24,6 +24,9 @@ export function BentoSkeleton({
 }) {
   return (
     <PageShell>
+      <span className="sr-only" role="status">
+        Loading page content…
+      </span>
       {heroSpan > 0 ? (
         <div
           aria-hidden

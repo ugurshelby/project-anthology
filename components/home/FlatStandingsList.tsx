@@ -51,7 +51,10 @@ export function FlatStandingsList({
               {row.driverName}
             </span>
             <span aria-hidden className="h-4 w-0.5 shrink-0 rounded-full" style={{ backgroundColor: teamColor }} />
-            <span className="data-tabular w-10 shrink-0 text-right text-text">{row.points}</span>
+            <span className="data-tabular w-10 shrink-0 text-right text-text">
+              <span className="sr-only">Points: </span>
+              {row.points}
+            </span>
           </Link>
         );
       })}

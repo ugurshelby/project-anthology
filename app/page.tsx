@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME, SITE_TAGLINE } from '@/lib/seo';
-import { fetchSeasonSnapshotTyped, fetchRoundSnapshot } from '@/lib/data/f1';
+import { fetchSeasonSnapshotTyped, fetchRoundSnapshot, getOnThisDay } from '@/lib/data/f1';
 import { aggregate } from '@/lib/news/aggregate';
 import {
   getDriverStandings,
@@ -12,6 +12,7 @@ import { CURRENT_SEASON, getLastFinishedRace, getLiveOrNextRace, raceStartMs } f
 import { PosterHero } from '@/components/home/PosterHero';
 import { FlatStandingsList } from '@/components/home/FlatStandingsList';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
+import { OnThisDayCard } from '@/components/home/OnThisDayCard';
 import { NewsList } from '@/components/news/NewsList';
 import { BentoGrid, PageShell } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
@@ -33,10 +34,11 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [calendarData, standingsData, news] = await Promise.all([
+  const [calendarData, standingsData, news, onThisDay] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
     aggregate({ maxItems: 6 }),
+    getOnThisDay(),
   ]);
 
   const renderNowMs = nowMs();
@@ -107,6 +109,12 @@ export default async function HomePage() {
         <BentoCard span={5}>
           <NewsList items={news} heading="The Wire" />
         </BentoCard>
+
+        {onThisDay.length > 0 ? (
+          <BentoCard span={12}>
+            <OnThisDayCard entries={onThisDay} />
+          </BentoCard>
+        ) : null}
       </BentoGrid>
     </PageShell>
   );

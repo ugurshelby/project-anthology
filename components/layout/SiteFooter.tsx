@@ -17,7 +17,7 @@ export function SiteFooter() {
         <p className="label-caps text-text-low">
           © {YEAR} Apex F1 — Archive & Anthology
         </p>
-        <nav className="flex flex-wrap gap-x-6 gap-y-2">
+        <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer">
           {FOOTER_LINKS.map((l) => (
             <Link
               key={l.href}

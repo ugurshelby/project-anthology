@@ -35,13 +35,21 @@ export default async function NewsPage() {
         <h1 className="headline-lg uppercase text-text-hi">News</h1>
       </header>
 
-      {featured ? <NewsHero item={featured} /> : null}
+      {news.length === 0 ? (
+        <p className="body-md text-center text-text-mid">
+          No headlines available right now. Check back soon.
+        </p>
+      ) : (
+        <>
+          {featured ? <NewsHero item={featured} /> : null}
 
-      <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {rest.map((item) => (
-          <NewsCard key={item.id} item={item} />
-        ))}
-      </div>
+          <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
+            {rest.map((item) => (
+              <NewsCard key={item.id} item={item} />
+            ))}
+          </div>
+        </>
+      )}
     </PageShell>
   );
 }

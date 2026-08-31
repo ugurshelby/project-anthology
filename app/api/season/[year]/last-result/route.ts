@@ -3,6 +3,7 @@ import { fetchSeasonSnapshotTyped, fetchRoundSnapshot } from '@/lib/data/f1';
 import { getRacesFromCalendar, getLastRaceResult } from '@/lib/f1/mrdata';
 import { CURRENT_SEASON, F1_SEASON_MIN, getLastFinishedRace, isRaceWeekend } from '@/lib/f1Calendar';
 import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { jsonApiError, logApiError } from '@/lib/api/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,7 +65,7 @@ export async function GET(
       },
     );
   } catch (error) {
-    console.error('[api/season/last-result] failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch last result' }, { status: 500 });
+    logApiError('season/[year]/last-result', error);
+    return jsonApiError('Failed to fetch last result', 500);
   }
 }

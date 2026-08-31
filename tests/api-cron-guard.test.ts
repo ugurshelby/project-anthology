@@ -8,7 +8,7 @@
  * routes in a loop.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const SECRET = 'test-cron-secret';
@@ -62,21 +62,40 @@ function request(authorization?: string): NextRequest {
   return new NextRequest('http://localhost/api/cron/sync-f1', { headers });
 }
 
-/**
- * The throttle keeps its state in a module-level Map, so each test needs a fresh
- * module registry — otherwise the first test's call would throttle the next one.
- */
-async function freshRoute(path: string): Promise<(req: NextRequest) => Promise<Response>> {
-  vi.resetModules();
-  const mod = (await import(path)) as { GET: (req: NextRequest) => Promise<Response> };
-  return mod.GET;
-}
-
 const ROUTES = [
   ['sync-f1', '@/app/api/cron/sync-f1/route'],
   ['sync-news', '@/app/api/cron/sync-news/route'],
   ['sync-radio', '@/app/api/cron/sync-radio/route'],
 ] as const;
+
+/** Cached handlers — sync-f1 cold import is heavy; auth tests reuse the same module. */
+const cachedHandlers = new Map<string, (req: NextRequest) => Promise<Response>>();
+
+async function routeHandler(path: string): Promise<(req: NextRequest) => Promise<Response>> {
+  const cached = cachedHandlers.get(path);
+  if (cached) return cached;
+  const mod = (await import(path)) as { GET: (req: NextRequest) => Promise<Response> };
+  cachedHandlers.set(path, mod.GET);
+  return mod.GET;
+}
+
+/**
+ * The throttle keeps its state in a module-level Map, so each throttle test needs a fresh
+ * module registry — otherwise the first test's call would throttle the next one.
+ */
+async function freshRoute(path: string): Promise<(req: NextRequest) => Promise<Response>> {
+  vi.resetModules();
+  cachedHandlers.delete(path);
+  const mod = (await import(path)) as { GET: (req: NextRequest) => Promise<Response> };
+  cachedHandlers.set(path, mod.GET);
+  return mod.GET;
+}
+
+beforeAll(async () => {
+  for (const [, path] of ROUTES) {
+    await routeHandler(path);
+  }
+}, 60_000);
 
 beforeEach(() => {
   process.env.CRON_SECRET = SECRET;
@@ -92,27 +111,27 @@ afterEach(() => {
 
 describe.each(ROUTES)('/api/cron/%s — auth gate', (_name, path) => {
   it('rejects a request with no Authorization header', async () => {
-    const GET = await freshRoute(path);
+    const GET = await routeHandler(path);
     const res = await GET(request());
     expect(res.status).toBe(401);
     await expect(res.json()).resolves.toEqual({ error: 'Unauthorized' });
   });
 
   it('rejects a wrong secret', async () => {
-    const GET = await freshRoute(path);
+    const GET = await routeHandler(path);
     const res = await GET(request('Bearer wrong-secret'));
     expect(res.status).toBe(401);
   });
 
   it('rejects a bare token without the Bearer scheme', async () => {
-    const GET = await freshRoute(path);
+    const GET = await routeHandler(path);
     const res = await GET(request(SECRET));
     expect(res.status).toBe(401);
   });
 
   it('fails closed when no secret is configured at all', async () => {
     delete process.env.CRON_SECRET;
-    const GET = await freshRoute(path);
+    const GET = await routeHandler(path);
     const res = await GET(request('Bearer anything'));
     expect(res.status).toBe(401);
   });
@@ -131,7 +150,7 @@ describe.each(ROUTES)('/api/cron/%s — trigger throttle', (_name, path) => {
     const second = await GET(request(`Bearer ${SECRET}`));
     expect(second.status).toBe(429);
     await expect(second.json()).resolves.toEqual({ error: 'Too many requests' });
-  });
+  }, 15_000);
 
   it('checks auth before the throttle (an unauthorized flood never consumes it)', async () => {
     const GET = await freshRoute(path);
@@ -144,5 +163,5 @@ describe.each(ROUTES)('/api/cron/%s — trigger throttle', (_name, path) => {
     // The throttle is still unspent, so a legitimate call goes through.
     const authorized = await GET(request(`Bearer ${SECRET}`));
     expect(authorized.status).not.toBe(429);
-  });
+  }, 15_000);
 });

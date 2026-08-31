@@ -121,7 +121,7 @@ async function main() {
     const roster = ROSTERS[String(season)];
     if (!roster) continue;
 
-    let drivers = [...roster.drivers];
+    const drivers = [...roster.drivers];
     if (season === 2026) {
       for (const extra of EXTRA_2026) {
         if (!drivers.some((d) => d.driverId === extra.driverId)) drivers.push(extra);

@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getTeamCareer } from '@/lib/data/entities';
 import { getTeamLore } from '@/data/teams';
 import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { isErgastSlug } from '@/lib/api/validation';
+import { jsonApiError, logApiError } from '@/lib/api/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,6 +32,10 @@ export async function GET(
 
   const { constructorId } = await params;
 
+  if (!isErgastSlug(constructorId)) {
+    return jsonApiError('Invalid constructor id', 400);
+  }
+
   try {
     const [career, lore] = await Promise.all([
       getTeamCareer(constructorId),
@@ -43,7 +49,7 @@ export async function GET(
       },
     );
   } catch (error) {
-    console.error('[api/teams/[constructorId]/career] failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch team career' }, { status: 500 });
+    logApiError('teams/[constructorId]/career', error);
+    return jsonApiError('Failed to fetch team career', 500);
   }
 }

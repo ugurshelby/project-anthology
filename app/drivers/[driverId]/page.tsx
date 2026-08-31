@@ -7,13 +7,15 @@ import Image from 'next/image';
 import { teamThemeVars } from '@/lib/theme';
 import { driverIconSrc, carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
-import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
+import { getNewsForEntity } from '@/lib/data/news';
+import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { StatBlock } from '@/components/bento/StatBlock';
 import { StatTrio } from '@/components/bento/StatTrio';
 import { ProfileHero } from '@/components/profile/ProfileHero';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { LoreSection } from '@/components/profile/LoreSection';
+import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
@@ -65,6 +67,8 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   ]);
 
   if (!profile) notFound();
+
+  const relatedNews = await getNewsForEntity(profile.driverName, 4);
   void seasons;
 
   const theme = teamThemeVars(profile.constructorId, season);
@@ -150,6 +154,12 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
                   { label: 'Born', value: String(lore.born) },
                 ]}
               />
+            </BentoCard>
+          ) : null}
+
+          {relatedNews.length > 0 ? (
+            <BentoCard span={6}>
+              <RelatedNewsList items={relatedNews} heading="Related News" />
             </BentoCard>
           ) : null}
 

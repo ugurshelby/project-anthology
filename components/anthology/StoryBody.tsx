@@ -10,7 +10,9 @@ import { Reveal } from './Reveal';
  * scroll (Reveal, reduced-motion safe).
  */
 export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
-  let firstParagraphSeen = false;
+  const firstParagraphIndex = blocks.findIndex(
+    (block) => block.type === 'paragraph' || block.type === undefined,
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-5 py-16 md:px-8">
@@ -56,8 +58,7 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
           }
           case 'paragraph':
           default: {
-            const isFirst = !firstParagraphSeen;
-            firstParagraphSeen = true;
+            const isFirst = i === firstParagraphIndex;
             return (
               <Reveal key={i}>
                 <p className={['body-lg text-text', isFirst ? 'first-letter:float-left first-letter:mr-3 first-letter:font-condensed first-letter:text-7xl first-letter:font-700 first-letter:leading-[0.8] first-letter:text-text-hi' : ''].join(' ')}>

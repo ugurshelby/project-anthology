@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCircuitDetail } from '@/lib/data/circuits';
 import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { isErgastSlug } from '@/lib/api/validation';
+import { jsonApiError, logApiError } from '@/lib/api/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -29,6 +31,10 @@ export async function GET(
 
   const { id } = await params;
 
+  if (!isErgastSlug(id)) {
+    return jsonApiError('Invalid circuit id', 400);
+  }
+
   try {
     const circuit = await getCircuitDetail(id);
     if (!circuit) {
@@ -39,7 +45,7 @@ export async function GET(
       headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
     });
   } catch (error) {
-    console.error('[api/circuits/[id]] failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch circuit detail' }, { status: 500 });
+    logApiError('circuits/[id]', error);
+    return jsonApiError('Failed to fetch circuit detail', 500);
   }
 }

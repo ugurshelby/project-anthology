@@ -16,6 +16,7 @@ export function HeaderNav({ items, className = 'hidden items-center gap-7 md:fle
           <Link
             key={item.href}
             href={item.href}
+            aria-current={active ? 'page' : undefined}
             className={[
               'label-caps relative py-1 transition-colors',
               active ? 'text-text-hi' : 'text-text-mid hover:text-text',

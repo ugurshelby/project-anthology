@@ -96,6 +96,16 @@ describe('/api/f1-season — path whitelist (SSRF guard)', () => {
     expect(fetchedUrl).toBeNull();
   });
 
+  it('rejects unexpected query params', async () => {
+    const url = new URL('http://localhost/api/f1-season');
+    url.searchParams.set('path', '2024');
+    url.searchParams.set('evil', '1');
+    const res = await GET(new NextRequest(url));
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual({ error: 'Invalid request parameters' });
+    expect(fetchedUrl).toBeNull();
+  });
+
   it('strips leading slashes before validating', async () => {
     const res = await GET(request('/2024/driverStandings'));
     expect(res.status).toBe(200);

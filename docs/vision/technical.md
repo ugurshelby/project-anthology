@@ -57,6 +57,10 @@ Jolpica · F1DB · OpenF1 · RSS
 - `getSupabaseClient()` — anon, yalnızca okuma
 - `getSupabaseAdmin()` — service_role, yalnızca server-side yazma
 
+**API yardımcıları (`lib/api/`):**
+- `validation.ts` — Ergast slug doğrulama (`isErgastSlug`)
+- `errors.ts` — tutarlı hata loglama/yanıt (`logApiError`, `jsonApiError`)
+
 ---
 
 ## API & Cron
