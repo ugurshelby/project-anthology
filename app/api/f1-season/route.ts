@@ -50,6 +50,13 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 60;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  // Only `path` is a valid query param — reject anything else to keep the cache key clean.
+  for (const key of req.nextUrl.searchParams.keys()) {
+    if (key !== 'path') {
+      return NextResponse.json({ error: 'Invalid request parameters' }, { status: 400 });
+    }
+  }
+
   // Throttle the upstream proxy so it can't be used as a free scraping relay.
   const clientIP = getClientIP(req.headers);
   if (clientIP !== 'unknown') {

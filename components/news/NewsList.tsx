@@ -44,11 +44,15 @@ export function NewsList({ items, heading = 'THE WIRE' }: { items: NewsItem[]; h
   return (
     <div className="flex flex-col gap-2">
       <span className="label-caps text-text-mid">{heading}</span>
-      <div className="flex flex-col">
-        {withImages.map((item) => (
-          <WireItem key={item.id} item={item} />
-        ))}
-      </div>
+      {withImages.length === 0 ? (
+        <p className="body-md py-4 text-text-mid">No headlines available right now.</p>
+      ) : (
+        <div className="flex flex-col">
+          {withImages.map((item) => (
+            <WireItem key={item.id} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

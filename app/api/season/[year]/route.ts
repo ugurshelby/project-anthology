@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getSeasonData } from '@/lib/data/f1';
 import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
 import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { jsonApiError, logApiError } from '@/lib/api/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,7 +48,7 @@ export async function GET(
       headers: { 'Cache-Control': cacheControl },
     });
   } catch (error) {
-    console.error('[api/season] failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch season data' }, { status: 500 });
+    logApiError('season/[year]', error);
+    return jsonApiError('Failed to fetch season data', 500);
   }
 }

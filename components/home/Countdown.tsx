@@ -11,9 +11,13 @@ export function Countdown({ targetMs }: { targetMs: number }) {
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
+    const tick = () => setNow(Date.now());
+    const initial = setTimeout(tick, 0);
+    const id = setInterval(tick, 1000);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(id);
+    };
   }, []);
 
   if (now === null) {
@@ -32,7 +36,13 @@ export function Countdown({ targetMs }: { targetMs: number }) {
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
-    <div className="flex items-end gap-3">
+    <div
+      className="flex items-end gap-3"
+      role="timer"
+      aria-live="polite"
+      aria-atomic="true"
+      aria-label={`${d} days, ${h} hours, ${m} minutes, ${s} seconds until race start`}
+    >
       {[
         { v: d, l: 'DAYS' },
         { v: h, l: 'HRS' },
@@ -40,8 +50,12 @@ export function Countdown({ targetMs }: { targetMs: number }) {
         { v: s, l: 'SEC' },
       ].map((u) => (
         <div key={u.l} className="flex flex-col items-center">
-          <span className="hero-number text-[clamp(32px,5vw,56px)] text-text-hi">{pad(u.v)}</span>
-          <span className="label-caps text-text-low">{u.l}</span>
+          <span className="hero-number text-[clamp(32px,5vw,56px)] text-text-hi" aria-hidden>
+            {pad(u.v)}
+          </span>
+          <span className="label-caps text-text-low" aria-hidden>
+            {u.l}
+          </span>
         </div>
       ))}
     </div>

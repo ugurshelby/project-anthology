@@ -164,6 +164,32 @@ body {
   padding-bottom: max(5.5rem, calc(72px + env(safe-area-inset-bottom, 0px)));
 }
 
+/* Screen-reader only — used by skip link and loading states */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus,
+.sr-only:active,
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
 /* Mobile nav "+" full-screen menu — overlay fade + staggered card entrance */
 @keyframes fadeIn {
   from { opacity: 0; }

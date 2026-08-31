@@ -15,7 +15,7 @@
 import { cache } from 'react';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json, SnapshotType } from '@/types/database';
-import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
+import { logFallback, logSlowQuery, logSupabaseCall, timed } from '@/lib/data/logger';
 import { fetchSiteJson } from '@/lib/data/siteUrl';
 import {
   CURRENT_SEASON,
@@ -105,11 +105,9 @@ async function fetchDbSnapshotRow(
     }
 
     const { result, durationMs } = await timed(async () => query.maybeSingle<DbSnapshotRow>());
-    logSupabaseCall(
-      'f1_snapshots',
-      `season=${season} round=${round ?? 'null'} type=${type}`,
-      durationMs,
-    );
+    const op = `season=${season} round=${round ?? 'null'} type=${type}`;
+    logSupabaseCall('f1_snapshots', op, durationMs);
+    logSlowQuery('f1_snapshots', op, durationMs);
 
     if (!result.error && result.data?.data && hasMrData(result.data.data)) {
       return result.data;

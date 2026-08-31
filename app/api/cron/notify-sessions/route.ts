@@ -79,58 +79,72 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
-  const now = Date.now();
-  const calendarData = await fetchCalendar(CURRENT_SEASON);
-  const races = (
-    (calendarData.MRData as { RaceTable?: { Races?: CalendarRace[] } })?.RaceTable?.Races ?? []
-  );
+  const startedAt = Date.now();
 
-  const upcoming = findUpcomingSessions(races, now);
-  if (upcoming.length === 0) {
-    return NextResponse.json({ notified: 0, reason: 'no sessions in window' });
-  }
-
-  const db = getSupabaseAdmin();
-  let notifiedCount = 0;
-
-  for (const session of upcoming) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: already } = await (db.from('notified_sessions') as any)
-      .select('id')
-      .eq('season', CURRENT_SEASON)
-      .eq('round', session.round)
-      .eq('session_type', session.sessionType)
-      .maybeSingle();
-    if (already) continue;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: subs } = await (db.from('push_subscriptions') as any)
-      .select('token, preferences')
-      .not('token', 'is', null);
-
-    const targets = (subs ?? []).filter(
-      (s: { preferences: Record<string, boolean> }) => s.preferences?.[session.sessionType] === true,
+  try {
+    const now = Date.now();
+    const calendarData = await fetchCalendar(CURRENT_SEASON);
+    const races = (
+      (calendarData.MRData as { RaceTable?: { Races?: CalendarRace[] } })?.RaceTable?.Races ?? []
     );
 
-    if (targets.length > 0) {
-      const messages: ExpoPushMessage[] = targets.map((s: { token: string }) => ({
-        to: s.token,
-        sound: 'default',
-        title: `${session.raceName} — ${session.sessionType.toUpperCase()} in 30 minutes`,
-        body: 'Session starts soon. Tap to open Apex.',
-        data: { round: session.round, sessionType: session.sessionType },
-      }));
-      await sendExpoPushNotifications(messages);
-      notifiedCount += messages.length;
+    const upcoming = findUpcomingSessions(races, now);
+    if (upcoming.length === 0) {
+      return NextResponse.json({ notified: 0, reason: 'no sessions in window' });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db.from('notified_sessions') as any).insert({
-      season: CURRENT_SEASON,
-      round: session.round,
-      session_type: session.sessionType,
-    });
-  }
+    const db = getSupabaseAdmin();
+    let notifiedCount = 0;
 
-  return NextResponse.json({ sessionsChecked: upcoming.length, notified: notifiedCount });
+    for (const session of upcoming) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: already } = await (db.from('notified_sessions') as any)
+        .select('id')
+        .eq('season', CURRENT_SEASON)
+        .eq('round', session.round)
+        .eq('session_type', session.sessionType)
+        .maybeSingle();
+      if (already) continue;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: subs } = await (db.from('push_subscriptions') as any)
+        .select('token, preferences')
+        .not('token', 'is', null);
+
+      const targets = (subs ?? []).filter(
+        (s: { preferences: Record<string, boolean> }) => s.preferences?.[session.sessionType] === true,
+      );
+
+      if (targets.length > 0) {
+        const messages: ExpoPushMessage[] = targets.map((s: { token: string }) => ({
+          to: s.token,
+          sound: 'default',
+          title: `${session.raceName} — ${session.sessionType.toUpperCase()} in 30 minutes`,
+          body: 'Session starts soon. Tap to open Apex.',
+          data: { round: session.round, sessionType: session.sessionType },
+        }));
+        await sendExpoPushNotifications(messages);
+        notifiedCount += messages.length;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (db.from('notified_sessions') as any).insert({
+        season: CURRENT_SEASON,
+        round: session.round,
+        session_type: session.sessionType,
+      });
+    }
+
+    return NextResponse.json({
+      sessionsChecked: upcoming.length,
+      notified: notifiedCount,
+      durationMs: Date.now() - startedAt,
+    });
+  } catch (err) {
+    console.error('[cron notify-sessions] failed:', err);
+    return NextResponse.json(
+      { error: 'Notification sync failed', durationMs: Date.now() - startedAt },
+      { status: 500 },
+    );
+  }
 }

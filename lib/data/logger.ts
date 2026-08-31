@@ -17,3 +17,10 @@ export async function timed<T>(fn: () => Promise<T>): Promise<{ result: T; durat
   const result = await fn();
   return { result, durationMs: Date.now() - started };
 }
+
+/** Warn when a slow Supabase read exceeds the threshold (ms). */
+export function logSlowQuery(table: string, op: string, durationMs: number, thresholdMs = 500): void {
+  if (durationMs >= thresholdMs) {
+    console.warn(`[supabase] slow ${table} ${op} (${durationMs.toFixed(0)}ms, threshold ${thresholdMs}ms)`);
+  }
+}

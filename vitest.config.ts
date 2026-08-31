@@ -13,5 +13,7 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
     globals: false,
+    // Cold dynamic imports (cron routes, lib/data/f1 resetModules) can exceed 5s on Windows CI.
+    testTimeout: 30_000,
   },
 });

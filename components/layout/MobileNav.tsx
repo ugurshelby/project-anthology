@@ -36,6 +36,16 @@ export function MobileNav() {
     return () => document.removeEventListener('keydown', onKey);
   }, [moreOpen]);
 
+  // Prevent background scroll while the full-screen more menu is open.
+  useEffect(() => {
+    if (!moreOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [moreOpen]);
+
   return (
     <>
       {moreOpen ? (
@@ -58,6 +68,7 @@ export function MobileNav() {
                   key={item.href}
                   href={item.href}
                   role="menuitem"
+                  aria-current={active ? 'page' : undefined}
                   className={[
                     'group flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[var(--radius-lg)] border transition-colors',
                     active
@@ -96,6 +107,7 @@ export function MobileNav() {
               <li key={item.href} className="flex-1">
                 <Link
                   href={item.href}
+                  aria-current={active ? 'page' : undefined}
                   className={[
                     'label-caps mx-auto flex h-11 max-w-[4.5rem] flex-col items-center justify-center gap-0.5 rounded-full px-2 transition-all duration-150 active:scale-90',
                     active ? 'text-text-hi' : 'text-text-mid',

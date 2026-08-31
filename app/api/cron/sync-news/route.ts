@@ -23,6 +23,7 @@ function authError(): NextResponse {
 }
 
 const MIN_TRIGGER_INTERVAL_MS = 60_000;
+const NEWS_UPSERT_BATCH_SIZE = 50;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isCronAuthorized(req)) return authError();
@@ -41,10 +42,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // 1) Fetch & aggregate RSS
     const items = await aggregate({ maxItems: 100 });
 
-    // 2) Upsert into news_cache (onConflict = url)
-    for (const item of items) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (db.from('news_cache') as any).upsert({
+    // 2) Upsert into news_cache (onConflict = url) — batched to cut round-trips
+    for (let i = 0; i < items.length; i += NEWS_UPSERT_BATCH_SIZE) {
+      const batch = items.slice(i, i + NEWS_UPSERT_BATCH_SIZE).map((item) => ({
         url: item.url,
         source: item.sourceName,
         title: item.title,
@@ -52,12 +52,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         image_url: item.image || null,
         published_at: item.publishedAt || null,
         tags: item.sources,
-      } as Record<string, unknown>, { onConflict: 'url' });
+      }));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (db.from('news_cache') as any).upsert(batch, { onConflict: 'url' });
 
       if (error) {
-        errors.push(`upsert ${item.url}: ${error.message}`);
+        errors.push(`batch upsert offset ${i}: ${error.message}`);
       } else {
-        upserted++;
+        upserted += batch.length;
       }
     }
 

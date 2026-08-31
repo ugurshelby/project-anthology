@@ -7,7 +7,8 @@ import { teamThemeVars } from '@/lib/theme';
 import { carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
 import { getTeamLore } from '@/data/teams';
-import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
+import { getNewsForEntity } from '@/lib/data/news';
+import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { StatBlock } from '@/components/bento/StatBlock';
 import { StatTrio } from '@/components/bento/StatTrio';
@@ -16,6 +17,7 @@ import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { LoreSection } from '@/components/profile/LoreSection';
 import { DriverLineup } from '@/components/profile/DriverLineup';
 import { HeadToHead } from '@/components/profile/HeadToHead';
+import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
@@ -67,6 +69,8 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   ]);
 
   if (!profile) notFound();
+
+  const relatedNews = await getNewsForEntity(profile.constructorName, 4);
   void seasons;
 
   const theme = teamThemeVars(profile.constructorId, season);
@@ -158,6 +162,12 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
                   { label: 'Founded', value: String(lore.founded) },
                 ]}
               />
+            </BentoCard>
+          ) : null}
+
+          {relatedNews.length > 0 ? (
+            <BentoCard span={6}>
+              <RelatedNewsList items={relatedNews} heading="Related News" />
             </BentoCard>
           ) : null}
         </BentoGrid>

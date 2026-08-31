@@ -30,17 +30,21 @@ export default async function GridPage() {
       </header>
 
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        {groups.map((group) => {
-          const teamRow = teamByConstructorId.get(group.constructorId);
-          const [d1, d2] = group.drivers;
-          return (
-            <div key={group.constructorId} className="grid grid-cols-4 gap-4 md:grid-cols-8 lg:grid-cols-12">
-              {d1 ? <DriverCard row={d1} season={season} /> : <div className="col-span-4" />}
-              {d2 ? <DriverCard row={d2} season={season} /> : <div className="col-span-4" />}
-              {teamRow ? <TeamCard row={teamRow} /> : <div className="col-span-4" />}
-            </div>
-          );
-        })}
+        {groups.length === 0 ? (
+          <p className="body-md text-center text-text-mid">Grid data unavailable right now.</p>
+        ) : (
+          groups.map((group) => {
+            const teamRow = teamByConstructorId.get(group.constructorId);
+            const [d1, d2] = group.drivers;
+            return (
+              <div key={group.constructorId} className="grid grid-cols-4 gap-4 md:grid-cols-8 lg:grid-cols-12">
+                {d1 ? <DriverCard row={d1} season={season} /> : <div className="col-span-4" />}
+                {d2 ? <DriverCard row={d2} season={season} /> : <div className="col-span-4" />}
+                {teamRow ? <TeamCard row={teamRow} /> : <div className="col-span-4" />}
+              </div>
+            );
+          })
+        )}
       </div>
     </PageShell>
   );

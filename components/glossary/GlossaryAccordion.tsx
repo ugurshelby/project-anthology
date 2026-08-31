@@ -27,6 +27,7 @@ export function GlossaryAccordion({ terms }: { terms: GlossaryTerm[] }) {
                 type="button"
                 onClick={() => setOpenSlug(isOpen ? null : t.slug)}
                 aria-expanded={isOpen}
+                aria-controls={`${t.slug}-panel`}
                 className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
               >
                 <span
@@ -44,6 +45,7 @@ export function GlossaryAccordion({ terms }: { terms: GlossaryTerm[] }) {
                 </span>
               </button>
               <div
+                id={`${t.slug}-panel`}
                 className="grid transition-[grid-template-rows] duration-200 ease-out"
                 style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
               >

@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getDriverCareer } from '@/lib/data/entities';
 import { getDriverLore } from '@/data/drivers';
 import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { isErgastSlug } from '@/lib/api/validation';
+import { jsonApiError, logApiError } from '@/lib/api/errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,6 +32,10 @@ export async function GET(
 
   const { driverId } = await params;
 
+  if (!isErgastSlug(driverId)) {
+    return jsonApiError('Invalid driver id', 400);
+  }
+
   try {
     const [career, lore] = await Promise.all([
       getDriverCareer(driverId),
@@ -43,7 +49,7 @@ export async function GET(
       },
     );
   } catch (error) {
-    console.error('[api/drivers/[driverId]/career] failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch driver career' }, { status: 500 });
+    logApiError('drivers/[driverId]/career', error);
+    return jsonApiError('Failed to fetch driver career', 500);
   }
 }
