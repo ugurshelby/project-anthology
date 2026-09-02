@@ -1,13 +1,20 @@
 import Image from 'next/image';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+
+const PORTRAIT_MASK: CSSProperties = {
+  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 78%, rgba(0,0,0,0) 100%)',
+  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 78%, rgba(0,0,0,0) 100%)',
+};
+
+const CAR_MASK: CSSProperties = {
+  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 68%, rgba(0,0,0,0) 98%)',
+  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 68%, rgba(0,0,0,0) 98%)',
+};
 
 /**
  * Cinematic profile hero (Apex sinematik dil, driver/team detail).
- * No card shell — full-bleed section that blends into the page background.
- * Layers: Z-0 background wash + giant faded number, Z-10 subject cutout with
- * a mask-image fade at the base, Z-20 foreground title/meta/stats.
- * Theme colors come from the page root (--team-* / --accent) so this stays
- * presentational.
+ * Full-bleed within the page container — portrait drivers get a split-cinema
+ * layout on lg (title left, cutout right); team pages keep the car strip.
  */
 export function ProfileHero({
   kicker,
@@ -34,121 +41,132 @@ export function ProfileHero({
   logoSrc?: string | null;
   children?: ReactNode;
 }) {
-  const maskFade = {
-    maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 96%)',
-    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 96%)',
-  };
-
   return (
-    <section className="relative overflow-hidden">
-      {/* Z-0 — team-tinted wash dissolving into the page background */}
+    <section className="relative -mx-5 overflow-hidden md:-mx-8 lg:-mx-16">
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'linear-gradient(to bottom, color-mix(in srgb, var(--team-secondary) 25%, transparent) 0%, rgba(0,0,0,0.4) 55%, var(--bg) 100%)',
+            'linear-gradient(to bottom, color-mix(in srgb, var(--team-secondary) 22%, transparent) 0%, rgba(0,0,0,0.35) 50%, var(--bg) 100%)',
         }}
       />
 
-      {bigNumber && imageKind === 'portrait' ? (
-        <span
-          aria-hidden
-          className="hero-number pointer-events-none absolute inset-0 z-0 hidden select-none items-center justify-center text-[clamp(220px,30vw,420px)] leading-none text-text-hi/10 lg:flex"
-          style={{
-            WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 60%, transparent)',
-          }}
-        >
-          {bigNumber}
-        </span>
-      ) : null}
-      {bigNumber && imageKind !== 'portrait' ? (
-        <span
-          aria-hidden
-          className="hero-number pointer-events-none absolute inset-0 z-0 flex select-none items-center justify-center text-[clamp(160px,26vw,340px)] leading-none text-text-hi/[0.06]"
-        >
-          {bigNumber}
-        </span>
-      ) : null}
+      {imageKind === 'portrait' ? (
+        <>
+          {bigNumber ? (
+            <span
+              aria-hidden
+              className="hero-number pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[58%] select-none items-center justify-start pl-6 text-[clamp(160px,22vw,380px)] leading-none text-text-hi/[0.07] md:flex md:pl-10"
+              style={{
+                WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 45%, transparent)',
+              }}
+            >
+              {bigNumber}
+            </span>
+          ) : null}
 
-      <div className="relative z-20 flex flex-col items-center gap-6 px-5 pt-10 pb-6 text-center md:px-8 md:pt-14 lg:px-16 lg:pt-20 lg:pb-10">
-        {imageKind === 'portrait' ? (
-          <div className="relative z-10 flex h-56 w-full items-end justify-center lg:h-[320px]">
-            {bigNumber ? (
+          <div className="relative z-20 grid min-h-[min(50vh,440px)] grid-cols-1 items-end gap-4 px-5 pb-6 pt-4 sm:gap-5 md:min-h-[min(48vh,480px)] md:grid-cols-[minmax(0,1fr)_minmax(220px,40%)] md:gap-6 md:px-8 md:pb-8 lg:min-h-[min(52vh,520px)] lg:grid-cols-[minmax(0,1fr)_minmax(260px,42%)] lg:gap-8 lg:px-16 lg:pb-10 lg:pt-8">
+            <div className="relative order-1 flex h-[min(42vh,360px)] w-full items-end justify-center sm:h-[min(44vh,400px)] md:order-2 md:col-start-2 md:h-[min(50vh,460px)] md:justify-end lg:h-[min(56vh,520px)]">
+              {bigNumber ? (
+                <span
+                  aria-hidden
+                  className="hero-number pointer-events-none absolute inset-x-0 top-2 z-0 flex justify-center select-none text-[clamp(88px,26vw,168px)] leading-none text-text-hi/12 md:hidden"
+                  style={{
+                    WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 55%, transparent)',
+                  }}
+                >
+                  {bigNumber}
+                </span>
+              ) : null}
               <span
                 aria-hidden
-                className="hero-number pointer-events-none absolute -top-2 z-0 select-none text-[clamp(72px,18vw,140px)] leading-none text-text-hi/15"
+                className="pointer-events-none absolute inset-x-[5%] bottom-0 top-[15%] opacity-50 blur-3xl"
                 style={{
-                  WebkitTextStroke: '1px color-mix(in srgb, var(--team-secondary) 70%, transparent)',
+                  background:
+                    'radial-gradient(ellipse 80% 70% at 50% 80%, color-mix(in srgb, var(--team-secondary) 35%, transparent), transparent 70%)',
                 }}
-              >
-                {bigNumber}
-              </span>
-            ) : null}
-            {imageSrc ? (
-              <div className="relative z-10 h-full w-full max-w-xs" style={maskFade}>
-                <Image
-                  src={imageSrc}
-                  alt={imageAlt}
-                  fill
-                  sizes="(max-width: 1024px) 60vw, 320px"
-                  className="object-contain object-bottom"
-                  priority
-                />
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
-        <div className="flex flex-col items-center gap-3">
-          {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
-          <h1
-            className="font-condensed uppercase text-text-hi"
-            style={{
-              fontFamily: 'var(--font-condensed)',
-              fontWeight: 700,
-              fontSize: 'clamp(48px, 8vw, 104px)',
-              lineHeight: 0.92,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {title}
-          </h1>
-          {meta ? <p className="data-tabular text-text-mid">{meta}</p> : null}
-          {children}
-        </div>
-      </div>
-
-      {imageKind === 'car' ? (
-        <div className="relative z-10 -mt-4 flex flex-col items-center gap-4 px-5 pb-8 md:px-8 lg:px-16 lg:pb-12">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 blur-2xl"
-            style={{ background: 'linear-gradient(to top, color-mix(in srgb, var(--team-secondary) 15%, transparent), transparent)' }}
-          />
-          {logoSrc ? (
-            <div className="relative z-10 h-10 w-10 md:h-14 md:w-14">
-              <Image src={logoSrc} alt="" fill sizes="56px" className="object-contain" />
+              />
+              {imageSrc ? (
+                <div
+                  className="relative z-10 h-full w-full max-w-[min(82vw,380px)] sm:max-w-[min(76vw,420px)] md:max-w-none md:w-full"
+                  style={PORTRAIT_MASK}
+                >
+                  <Image
+                    src={imageSrc}
+                    alt={imageAlt}
+                    fill
+                    sizes="(max-width: 1024px) 82vw, 42vw"
+                    className="object-contain object-bottom md:object-right-bottom md:scale-[1.05] lg:scale-[1.08]"
+                    priority
+                  />
+                </div>
+              ) : null}
             </div>
+
+            <div className="order-2 flex flex-col items-center gap-2 text-center md:order-1 md:col-start-1 md:row-start-1 md:items-start md:justify-end md:self-end md:pb-1 md:text-left">
+              {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
+              <h1 className="display-hero uppercase text-text-hi">{title}</h1>
+              {meta ? <p className="data-tabular text-text-mid">{meta}</p> : null}
+              {children}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {bigNumber ? (
+            <span
+              aria-hidden
+              className="hero-number pointer-events-none absolute inset-0 z-0 flex select-none items-center justify-center text-[clamp(140px,24vw,320px)] leading-none text-text-hi/[0.05]"
+            >
+              {bigNumber}
+            </span>
           ) : null}
-          <div className="relative z-10 flex w-full items-center justify-center gap-6 md:gap-10">
-            <span className="hero-number text-4xl text-text-hi/20 md:text-6xl">{flankNumbers?.[0] ?? ''}</span>
-            {imageSrc ? (
-              <div className="relative h-32 w-full max-w-2xl md:h-48" style={maskFade}>
-                <Image
-                  src={imageSrc}
-                  alt={imageAlt}
-                  fill
-                  sizes="(max-width: 1024px) 90vw, 50vw"
-                  className="object-contain object-bottom"
-                  priority
-                />
+
+          <div className="relative z-20 flex flex-col items-center gap-3 px-5 pt-8 pb-4 text-center md:px-8 md:pt-12 lg:px-16 lg:pt-14">
+            {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
+            <h1 className="display-hero uppercase text-text-hi">{title}</h1>
+            {meta ? <p className="data-tabular text-text-mid">{meta}</p> : null}
+            {children}
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center gap-3 px-5 pb-8 md:px-8 lg:px-16 lg:pb-12">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 blur-2xl"
+              style={{
+                background:
+                  'linear-gradient(to top, color-mix(in srgb, var(--team-secondary) 18%, transparent), transparent)',
+              }}
+            />
+            {logoSrc ? (
+              <div className="relative z-10 h-10 w-10 md:h-14 md:w-14">
+                <Image src={logoSrc} alt="" fill sizes="56px" className="object-contain" />
               </div>
             ) : null}
-            <span className="hero-number text-4xl text-text-hi/20 md:text-6xl">{flankNumbers?.[1] ?? ''}</span>
+            <div className="relative z-10 flex w-full max-w-3xl items-end justify-center gap-3 sm:gap-6 md:gap-10">
+              <span className="hero-number hidden shrink-0 text-3xl text-text-hi/20 sm:block md:text-5xl">
+                {flankNumbers?.[0] ?? ''}
+              </span>
+              {imageSrc ? (
+                <div className="relative h-36 w-full sm:h-44 md:h-52" style={CAR_MASK}>
+                  <Image
+                    src={imageSrc}
+                    alt={imageAlt}
+                    fill
+                    sizes="(max-width: 1024px) 90vw, 50vw"
+                    className="object-contain object-bottom"
+                    priority
+                  />
+                </div>
+              ) : null}
+              <span className="hero-number hidden shrink-0 text-3xl text-text-hi/20 sm:block md:text-5xl">
+                {flankNumbers?.[1] ?? ''}
+              </span>
+            </div>
           </div>
-        </div>
-      ) : null}
+        </>
+      )}
     </section>
   );
 }

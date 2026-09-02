@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
 import {
   getCurrentSeasonCircuitCards,
+  getCurrentSeasonRaces,
   nextCircuitIndex,
-  circuitGridSpan,
-  isFeaturedCircuitCard,
 } from '@/lib/data/circuits';
-import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
+import { PageShell } from '@/components/layout/BentoGrid';
 import { CircuitCardView } from '@/components/circuit/CircuitCardView';
-import { ScrollToNextCircuit } from '@/components/circuit/ScrollToNextCircuit';
+import { NextCircuitHero } from '@/components/circuit/NextCircuitHero';
 
 export const revalidate = 900;
 
@@ -29,26 +28,28 @@ export const metadata: Metadata = {
 };
 
 export default async function CircuitsPage() {
-  const cards = await getCurrentSeasonCircuitCards();
-  const featuredIndex = nextCircuitIndex(cards);
+  const [races, cards] = await Promise.all([getCurrentSeasonRaces(), getCurrentSeasonCircuitCards()]);
+  const nextIndex = nextCircuitIndex(cards);
+  const nextRace = nextIndex >= 0 ? races[nextIndex] : null;
+  const nextCard = nextIndex >= 0 ? cards[nextIndex] : null;
+  const gridCards = nextIndex >= 0 ? cards.filter((_, i) => i !== nextIndex) : cards;
 
   return (
     <PageShell>
-      <ScrollToNextCircuit />
-      <header className="mb-8 flex flex-col gap-1">
+      <header className="mb-6 flex flex-col gap-1 md:mb-8">
         <span className="label-caps text-text-mid">Track Maps</span>
         <h1 className="headline-lg uppercase text-text-hi">Circuits</h1>
       </header>
-      <BentoGrid>
-        {cards.map((card, i) => (
-          <CircuitCardView
-            key={card.circuitId}
-            card={card}
-            featured={isFeaturedCircuitCard(i, featuredIndex)}
-            span={circuitGridSpan(i, featuredIndex)}
-          />
+
+      {nextCard && nextRace ? (
+        <NextCircuitHero card={nextCard} race={nextRace} totalRounds={cards.length} />
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
+        {gridCards.map((card) => (
+          <CircuitCardView key={card.circuitId} card={card} status={card.done ? 'done' : 'upcoming'} />
         ))}
-      </BentoGrid>
+      </div>
     </PageShell>
   );
 }
