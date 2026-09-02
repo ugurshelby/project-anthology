@@ -647,6 +647,95 @@ export function getSprintResultRows(data: MrData | null): RaceResultRow[] {
   return results.map(toResultRow);
 }
 
+export interface SeasonRaceSummary {
+  round: string;
+  raceName: string;
+  circuitId: string;
+  country: string;
+  date: string;
+  done: boolean;
+  winnerCode: string | null;
+  winnerName: string | null;
+  fastestLapDriver: string | null;
+  fastestLapTime: string | null;
+  podium: RacePodiumDriver[];
+}
+
+export interface SeasonHighlights {
+  fastestLapKing: { driverName: string; driverCode: string; count: number } | null;
+  dnfRatePercent: number;
+  dnfCount: number;
+  classifiedCount: number;
+}
+
+/** Per-round recap map for the season race strip and micro-summary panel. */
+export function buildSeasonRaceSummaries(
+  races: import('@/lib/f1Calendar').CalendarRace[],
+  roundResults: Array<{ round: number; data: MrData }>,
+  isDone: (race: import('@/lib/f1Calendar').CalendarRace) => boolean,
+): SeasonRaceSummary[] {
+  const recaps = new Map<string, LastRaceRecap>();
+  for (const { round, data } of roundResults) {
+    const recap = getLastRaceResult(data);
+    if (recap) recaps.set(String(round), recap);
+  }
+
+  return races.map((race) => {
+    const round = String(race.round ?? '');
+    const recap = recaps.get(round);
+    const winner = recap?.podium[0];
+    return {
+      round,
+      raceName: race.raceName ?? 'Grand Prix',
+      circuitId: race.Circuit?.circuitId ?? '',
+      country: race.Circuit?.Location?.country ?? '—',
+      date: race.date ?? '',
+      done: isDone(race),
+      winnerCode: winner?.driverCode ?? null,
+      winnerName: winner?.driverName ?? null,
+      fastestLapDriver: recap?.fastestLapDriver ?? null,
+      fastestLapTime: recap?.fastestLapTime ?? null,
+      podium: recap?.podium ?? [],
+    };
+  });
+}
+
+/** Fastest-lap king and DNF rate across all finished rounds. */
+export function buildSeasonHighlights(allRoundResults: MrData[]): SeasonHighlights {
+  const flCounts = new Map<string, { driverName: string; driverCode: string; count: number }>();
+  let dnfCount = 0;
+  let classifiedCount = 0;
+
+  for (const snapshot of allRoundResults) {
+    for (const row of getRaceResultRows(snapshot)) {
+      classifiedCount++;
+      const status = row.timeOrStatus.toUpperCase();
+      if (status.includes('DNF') || status.includes('RETIRED') || status.includes('ACCIDENT')) {
+        dnfCount++;
+      }
+      if (row.fastestLap) {
+        const cur = flCounts.get(row.driverName) ?? {
+          driverName: row.driverName,
+          driverCode: row.driverCode,
+          count: 0,
+        };
+        cur.count++;
+        flCounts.set(row.driverName, cur);
+      }
+    }
+  }
+
+  const fastestLapKing =
+    [...flCounts.values()].sort((a, b) => b.count - a.count)[0] ?? null;
+
+  return {
+    fastestLapKing,
+    dnfRatePercent: classifiedCount > 0 ? Math.round((dnfCount / classifiedCount) * 100) : 0,
+    dnfCount,
+    classifiedCount,
+  };
+}
+
 export interface QualifyingRow {
   position: string;
   driverName: string;
