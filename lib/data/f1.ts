@@ -36,8 +36,12 @@ import {
   getDriverStandings,
   getPerDriverRoundStats,
   getDriverCumulativePoints,
+  buildSeasonRaceSummaries,
+  buildSeasonHighlights,
   type DriverRoundStats,
   type DriverCumulativePoints,
+  type SeasonRaceSummary,
+  type SeasonHighlights,
   getLastRaceResult,
   getQualifyingPole,
   getRaceWinner,
@@ -399,6 +403,10 @@ export interface SeasonData {
   driverStats: Record<string, DriverRoundStats>;
   /** Top-5 drivers' cumulative points per round — for evolution chart. */
   evolutionSeries: DriverCumulativePoints[];
+  /** Per-round summaries for the season race strip. */
+  raceSummaries: SeasonRaceSummary[];
+  /** Season micro-stats for highlight bento tiles. */
+  highlights: SeasonHighlights;
 }
 
 function nearestRaceKeyFromCalendar(races: CalendarRace[], nowMs: number): string | null {
@@ -462,6 +470,8 @@ export const getSeasonData = cache(async function getSeasonData(year: number): P
     nearestRaceKey: nearestRaceKeyFromCalendar(races, Date.now()),
     driverStats: getPerDriverRoundStats(roundData),
     evolutionSeries: getDriverCumulativePoints(roundData, 5),
+    raceSummaries: buildSeasonRaceSummaries(races, allRoundResults, (r) => isRaceDone(r)),
+    highlights: buildSeasonHighlights(roundData),
   };
 });
 
