@@ -296,41 +296,9 @@ export async function getCircuitDetail(circuitId: string): Promise<CircuitDetail
 }
 
 /**
- * Editorial grid span classes — asymmetric bento rhythm repeating every 6
- * cards. BentoGrid is 4-col mobile / 8-col tablet / 12-col desktop, so every
- * entry sets all three breakpoints explicitly (mobile always full-width).
- */
-export const CIRCUIT_GRID_SPANS = [
-  'col-span-4 md:col-span-8 lg:col-span-7 lg:row-span-2',
-  'col-span-4 md:col-span-4 lg:col-span-5',
-  'col-span-4 md:col-span-4 lg:col-span-5',
-  'col-span-4 md:col-span-4 lg:col-span-4',
-  'col-span-4 md:col-span-4 lg:col-span-4',
-  'col-span-4 md:col-span-8 lg:col-span-4',
-] as const;
-
-const FEATURED_SPAN = CIRCUIT_GRID_SPANS[0];
-
-/**
- * Bento sizing is data-driven, not positional: the next upcoming race (first
- * card with `done === false`) gets the large featured cell — that's the one a
- * visitor cares about right now. Everything else flows through the repeating
- * span rhythm. If the season is over, no card is featured and the rhythm starts
- * from the top. This is what turns the asymmetry into "design" rather than
- * "randomness" — the big tile always means something.
+ * Index of the next upcoming race in the card list (first with `done === false`).
+ * Used to pull that race into the page hero instead of an oversized grid cell.
  */
 export function nextCircuitIndex(cards: Pick<CircuitCard, 'done'>[]): number {
   return cards.findIndex((c) => !c.done);
-}
-
-export function circuitGridSpan(index: number, featuredIndex: number): string {
-  if (index === featuredIndex) return FEATURED_SPAN;
-  // Skip the featured slot in the rhythm so spans don't double up on row 1.
-  const rhythmIndex = featuredIndex >= 0 && index > featuredIndex ? index - 1 : index;
-  // Offset by 1 so the non-featured rhythm starts after the large cell.
-  return CIRCUIT_GRID_SPANS[(rhythmIndex % (CIRCUIT_GRID_SPANS.length - 1)) + 1];
-}
-
-export function isFeaturedCircuitCard(index: number, featuredIndex: number): boolean {
-  return index === featuredIndex;
 }

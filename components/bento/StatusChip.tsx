@@ -11,13 +11,17 @@ const STATUS_LABEL: Record<Status, string> = {
  * single accent cue; DONE/UPCOMING stay neutral. Inline SVG icons (no emoji).
  */
 export function StatusChip({ status }: { status: Status }) {
+  const styles: Record<Status, string> = {
+    done: 'border-white/10 bg-white/[0.06] text-text-mid',
+    next: 'border-accent/50 bg-accent/10 text-accent',
+    upcoming: 'border-zinc-500/30 bg-zinc-500/10 text-text-mid',
+  };
+
   return (
     <span
       className={[
-        'data-tabular inline-flex items-center gap-1.5 rounded-[var(--radius-chip)] border px-2.5 py-1',
-        status === 'next'
-          ? 'border-accent/50 text-accent'
-          : 'border-hairline text-text-mid',
+        'data-tabular inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-chip)] border px-2.5 py-1 text-[11px] font-medium tracking-wide uppercase',
+        styles[status],
       ].join(' ')}
     >
       <StatusIcon status={status} />
@@ -35,7 +39,7 @@ function StatusIcon({ status }: { status: Status }) {
     );
   }
   if (status === 'next') {
-    return <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />;
+    return <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />;
   }
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>

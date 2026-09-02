@@ -87,7 +87,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   ];
 
   return (
-    <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12">
+    <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 pt-4 pb-8 md:px-8 md:pt-6 lg:px-16 lg:pb-12">
       <PageThemeSync vars={theme} />
       {requestedUnsupported ? (
         <p className="label-caps mb-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent/10 px-4 py-2 text-accent">
@@ -165,28 +165,30 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
 
           {/* 2026 Car — the team machine, a full-width cinematic strip */}
           {car ? (
-            <BentoCard span={12} as="div" className="relative flex min-h-48 items-center overflow-hidden">
+            <BentoCard span={12} as="div" className="relative flex min-h-44 flex-col justify-end overflow-hidden p-5 sm:min-h-48 sm:flex-row sm:items-center sm:p-6">
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-30"
                 style={{ background: 'radial-gradient(120% 120% at 80% 50%, var(--team-secondary), transparent 60%)' }}
               />
-              <div className="relative z-10 flex flex-col gap-2">
+              <div className="relative z-10 flex max-w-full flex-col gap-2 pb-28 sm:max-w-[48%] sm:pb-0">
                 {teamLogo ? (
-                  <Image src={teamLogo} alt={profile.constructorName} width={48} height={48} className="object-contain" />
+                  <Image src={teamLogo} alt={profile.constructorName} width={48} height={48} className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
                 ) : null}
                 <span className="label-caps text-text-mid">{season} Machinery</span>
-                <span className="font-condensed text-3xl font-700 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                <span className="font-condensed text-2xl font-700 uppercase text-text-hi sm:text-3xl" style={{ fontFamily: 'var(--font-condensed)' }}>
                   {profile.constructorName}
                 </span>
               </div>
-              <Image
-                src={car}
-                alt={`${profile.constructorName} ${season} car`}
-                width={640}
-                height={220}
-                className="pointer-events-none absolute bottom-0 right-0 w-[58%] object-contain md:w-[55%]"
-              />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 sm:inset-x-auto sm:inset-y-0 sm:right-0 sm:h-full sm:w-[52%] md:w-[50%]">
+                <Image
+                  src={car}
+                  alt={`${profile.constructorName} ${season} car`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  className="object-contain object-bottom sm:object-right-bottom"
+                />
+              </div>
             </BentoCard>
           ) : null}
         </BentoGrid>
