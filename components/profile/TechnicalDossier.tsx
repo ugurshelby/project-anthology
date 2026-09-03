@@ -12,8 +12,8 @@ export function TechnicalDossier({ entries }: { entries: DossierEntry[] }) {
           key={e.label}
           className="flex items-center justify-between border-b border-hairline py-2.5 last:border-b-0"
         >
-          <dt className="label-caps text-text-mid">{e.label}</dt>
-          <dd className="data-tabular text-text-hi">{e.value}</dd>
+          <dt className="text-xs uppercase tracking-wide text-zinc-500">{e.label}</dt>
+          <dd className="font-mono text-zinc-200">{e.value}</dd>
         </div>
       ))}
     </dl>

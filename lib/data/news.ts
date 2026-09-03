@@ -12,9 +12,11 @@ import { readPublicJson } from '@/lib/data/fs';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
 import { fetchSiteJson } from '@/lib/data/siteUrl';
 import { stableId, canonicalize } from '@/lib/news/aggregate';
+import { hasRealImage } from '@/lib/news/categories';
 import type { NewsItem } from '@/lib/data/types';
 
 export type { NewsItem } from '@/lib/data/types';
+export { hasRealImage };
 
 /** Shape returned by the live /api/news route. */
 interface ApiNewsItem {
@@ -87,11 +89,6 @@ function newsFromApiItem(item: ApiNewsItem): NewsItem {
 
 function sortNews(items: NewsItem[]): NewsItem[] {
   return [...items].sort((a, b) => b.publishedTs - a.publishedTs);
-}
-
-/** Does this item have a real (non-placeholder) image usable as a hero background? */
-export function hasRealImage(item: { image: string }): boolean {
-  return Boolean(item.image) && item.image !== '/placeholder.svg';
 }
 
 /**

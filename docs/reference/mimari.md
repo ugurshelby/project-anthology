@@ -192,7 +192,7 @@ App Router (`app/**/page.tsx`, RSC — veri server-side okunur):
 
 ## 8. Güvenlik & Operasyon
 
-- **CSP / güvenlik header'ları** [`next.config.ts`](../next.config.ts)'de: `connect-src` whitelist (Supabase, Sentry, Vercel insights, Jolpica, OpenF1, open-meteo), HSTS, X-Content-Type-Options, frame-ancestors (portfolio embed izinli). Preview deploy'larda `X-Robots-Tag: noindex`.
+- **CSP / güvenlik header'ları** [`next.config.ts`](../next.config.ts) (`lib/security/csp.ts`): `font-src` same-origin + `data:` + `https://vercel.live` (Vercel Toolbar Geist fontları); `connect-src` whitelist (Supabase, Sentry, Vercel insights, Jolpica, OpenF1, open-meteo); HSTS, X-Content-Type-Options, frame-ancestors (portfolio embed izinli). Preview deploy'larda `X-Robots-Tag: noindex`.
 - **SSRF koruması:** `/api/f1-season` proxy'sinde host hardcode + path whitelist regex.
 - **Rate-limit:** [`lib/rateLimit.ts`](../lib/rateLimit.ts) — Upstash sliding-window (UPSTASH_* env varsa, instance'lar arası tutarlı), yoksa in-memory fallback.
 - **Sentry:** kritik fonksiyonlar sarılı; client upload `tunnelRoute = '/monitoring'` üzerinden.

@@ -1,37 +1,8 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { CSP } from "./lib/security/csp";
 
-// Pragmatic Content-Security-Policy. Allows the origins this app actually uses
-// (Supabase, Sentry, Vercel insights, news image CDNs) without breaking Next's
-// runtime, inline JSON-LD, or next/font. 'unsafe-inline'/'unsafe-eval' are
-// required by the Next.js client runtime and inline schema scripts; a stricter
-// nonce-based policy is a separate future hardening step.
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "frame-src 'self' https://vercel.live",
-  // `data:` is permitted here because Vercel Analytics/Speed Insights and some
-  // client beacons issue data-URI requests; without it the browser reports a
-  // connect-src CSP violation (Lighthouse Best Practices).
-  "connect-src 'self' data: https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
-  // Allow the personal portfolio site to embed this app in an <iframe> for a
-  // live preview. Includes the canonical host plus Vercel preview subdomains
-  // (*.vercel.app), which rotate per deployment.
-  "frame-ancestors 'self' https://portfolio-orcin-chi-ad77scl275.vercel.app https://*.vercel.app",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  // Service worker (public/sw.js) and the web manifest are same-origin only.
-  "worker-src 'self'",
-  "manifest-src 'self'",
-  // Radio-moment audio + news imagery may load from https sources.
-  "media-src 'self' https:",
-  // Block legacy plugin/applet vectors and Flash-era mixed content.
-  "upgrade-insecure-requests",
-].join('; ');
+// CSP lives in lib/security/csp.ts so tests can assert Toolbar font-src.
 
 const SECURITY_HEADERS = [
   { key: 'Content-Security-Policy', value: CSP },
@@ -71,6 +42,9 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Drop 2048/3840 so news/srcset never asks the optimizer for 4K variants.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       { protocol: 'https', hostname: '**.motorsport.com' },
       { protocol: 'https', hostname: '**.autosport.com' },

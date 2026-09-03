@@ -78,7 +78,7 @@ Aşağıdaki maddeler log'lardan çıkarılmış gerçek olaylardır. Format: **
 |---|-----------|----------|
 | 27 | `EntityDrawer` kendi fetch yapar sanıldı; aslında **props ile veri** almalı (sezon bağlamı). | Drawer yalnızca `SeasonExplorer` island'ında; seçili sezonun standings/records'undan beslenir. Yeni sayfaya kopyalarken fetch ekleme. |
 | 28 | Pit-stop / en hızlı pit istatistiği istendi; snapshot'ta **veri yok**. | Season Records: puan, kazanma, podyum, 1-2 finish ile sınırlandı. Pit-stop için ayrı veri kaynağı gerekir. |
-| 29 | CSP eksik direktifler → Vercel Live toolbar, BBC görselleri, Open-Meteo bloklandı. | `script-src` + `connect-src` + `frame-src` + `images.remotePatterns` güncellemeleri (`next.config.ts`) — yeni dış domain eklerken CSP'yi unutma. |
+| 29 | CSP eksik direktifler → Vercel Live toolbar, BBC görselleri, Open-Meteo bloklandı. | `script-src` + `connect-src` + `frame-src` + `font-src https://vercel.live` (Toolbar Geist) + `images.remotePatterns` — yeni dış domain eklerken CSP'yi unutma. |
 | 30 | `roundSuffixToSnapshotType("results-1")` beklenen `"results"` değil → test brief ile kod çelişkisi. | Kod bilerek **null** döndürür (`_\d+$` disk artefact reddi). DB'ye legacy path sızmasını engeller. |
 | 31 | Supabase migration / env / seed işi bitmeden UI özelliği → boş ekranlar, yanlış debug. | **"Karardan Koda"** (`pre-plans/CLAUDE.md`): veri gerçekliğini öğren, sonra UI. |
 

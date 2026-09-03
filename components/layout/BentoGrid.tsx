@@ -14,11 +14,11 @@ export function BentoGrid({ children }: { children: ReactNode }) {
 }
 
 /** Page container — centered, container-max 1440, responsive page margins (§3.2). */
-export function PageShell({ children }: { children: ReactNode }) {
+export function PageShell({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <main
       id="main-content"
-      className="mx-auto w-full max-w-[var(--container-max)] flex-1 px-5 py-8 pb-mobile-nav md:px-8 md:pb-8 lg:px-16 lg:py-12"
+      className={`mx-auto w-full max-w-[var(--container-max)] flex-1 px-5 py-8 pb-mobile-nav md:px-8 md:pb-8 lg:px-16 lg:py-12 ${className}`.trim()}
     >
       {children}
     </main>

@@ -43,11 +43,20 @@ Spec: `docs/design/apex-design-language.md`
 - [x] WEB-UI.1: Mobil shell fix (pb safe-area, hero clamp, tab-bar 5+More, overflow-x)
 - [x] WEB-UI.2: `SplitHomeLayout` + `PosterHero` bileşenleri
 - [x] WEB-UI.3: Home refactor (`app/page.tsx`) — Split Cinema desktop / Poster Dense mobile
+- [x] WEB-UI.3b: Home cinematic Grand Prix Weekend (full-bleed hero, Live Paddock bento, archive On This Day)
 - [ ] WEB-UI.4: Tablet breakpoint (md)
 - [ ] WEB-UI.5: Season sayfası layout (Visual Companion Faz 3)
 - [ ] WEB-UI.6: Liste şablonu (drivers, teams, circuits, news, anthology, glossary)
+- [x] WEB-UI.6b: News editoryal redesign (1+2 manşet, sticky filtre, Wire telemetry, Load More)
+- [x] WEB-UI.6c: Tech Glossary dossier redesign (arama, lastik telemetry, bento terimler)
+- [x] WEB-UI.6d: Grid paddock garage (tek takım paneli, TBA koltuk, constructor/driver görünüm)
+- [x] WEB-UI.7a: Team detay — garage hero, constructor pulse, lineup H2H, kompakt news
 - [ ] WEB-UI.7: Detay şablonu (driver, team, circuit, story)
 - [ ] WEB-UI.8: Lighthouse (LCP ≤2.5s, CLS <0.1, a11y ≥95)
+
+### 🤖 WEB-PERF — Preview CSP + ana sayfa TTFB
+
+- [x] WEB-PERF.1: CSP `font-src` + `https://vercel.live` (Toolbar Geist); home Suspense streaming; Wire `getLatestNews` (canlı RSS yok); image `deviceSizes` 1920 tavan
 
 ### 🤖 VERİ-GÜNCELLİK
 

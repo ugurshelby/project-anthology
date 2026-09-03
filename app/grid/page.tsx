@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { getDriversByTeam, getCurrentTeams } from '@/lib/data/entities';
+import { powerUnitLabel } from '@/lib/f1/power-units';
 import { PageShell } from '@/components/layout/BentoGrid';
-import { DriverCard, TeamCard } from '@/components/standings/GridCards';
+import { GridExplorer } from '@/components/standings/GridExplorer';
+import type { GarageUnit } from '@/components/standings/GarageTeamPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,36 +18,28 @@ export const metadata: Metadata = {
 };
 
 export default async function GridPage() {
-  const [{ season, groups }, { rows: teamRows }] = await Promise.all([
+  const [{ season, groups, flat }, { rows: teamRows }] = await Promise.all([
     getDriversByTeam(),
     getCurrentTeams(),
   ]);
   const teamByConstructorId = new Map(teamRows.map((r) => [r.constructorId, r]));
 
+  const units: GarageUnit[] = groups.map((group) => {
+    const teamRow = teamByConstructorId.get(group.constructorId);
+    return {
+      constructorId: group.constructorId,
+      constructorName: group.constructorName,
+      constructorPosition: group.constructorPosition,
+      points: teamRow?.points ?? '0',
+      wins: teamRow?.wins ?? '0',
+      powerUnit: powerUnitLabel(group.constructorId),
+      drivers: group.drivers.slice(0, 2),
+    };
+  });
+
   return (
     <PageShell>
-      <header className="mb-8 flex flex-col items-center gap-1 text-center">
-        <span className="label-caps text-text-mid">{season} Championship</span>
-        <h1 className="headline-lg uppercase text-text-hi">Grid</h1>
-      </header>
-
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        {groups.length === 0 ? (
-          <p className="body-md text-center text-text-mid">Grid data unavailable right now.</p>
-        ) : (
-          groups.map((group) => {
-            const teamRow = teamByConstructorId.get(group.constructorId);
-            const [d1, d2] = group.drivers;
-            return (
-              <div key={group.constructorId} className="grid grid-cols-4 gap-4 md:grid-cols-8 lg:grid-cols-12">
-                {d1 ? <DriverCard row={d1} season={season} /> : <div className="col-span-4" />}
-                {d2 ? <DriverCard row={d2} season={season} /> : <div className="col-span-4" />}
-                {teamRow ? <TeamCard row={teamRow} /> : <div className="col-span-4" />}
-              </div>
-            );
-          })
-        )}
-      </div>
+      <GridExplorer season={season} units={units} drivers={flat} />
     </PageShell>
   );
 }
