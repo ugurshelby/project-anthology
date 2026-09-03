@@ -4,6 +4,7 @@ import {
   getRaceCountdownPhase,
   isRaceDone,
   RACE_LIVE_WINDOW_MS,
+  weekendSessionChips,
   type CalendarRace,
 } from '@/lib/f1Calendar';
 import { raceStartMs } from '@/lib/f1/mrdata';
@@ -64,6 +65,26 @@ describe('getLiveOrNextRace', () => {
 
   it('returns the next upcoming race when none are live', () => {
     expect(getLiveOrNextRace(races, NOW)?.raceName).toBe('Live GP');
+  });
+});
+
+describe('weekendSessionChips', () => {
+  it('formats FP1, qualifying and race from calendar slots', () => {
+    const chips = weekendSessionChips({
+      raceName: 'Italian Grand Prix',
+      date: '2026-09-06',
+      time: '13:00:00Z',
+      FirstPractice: { date: '2026-09-04', time: '11:30:00Z' },
+      Qualifying: { date: '2026-09-05', time: '14:00:00Z' },
+    });
+    expect(chips.map((c) => c.id)).toEqual(['fp1', 'qualifying', 'race']);
+    expect(chips[0]?.when).toMatch(/Friday/);
+    expect(chips[1]?.label).toBe('Qualifying');
+    expect(chips[2]?.label).toBe('Race');
+  });
+
+  it('returns an empty list when the race is missing', () => {
+    expect(weekendSessionChips(null)).toEqual([]);
   });
 });
 

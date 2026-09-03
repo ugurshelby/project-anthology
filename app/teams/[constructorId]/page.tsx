@@ -8,15 +8,14 @@ import { carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
 import { getTeamLore } from '@/data/teams';
 import { getNewsForEntity } from '@/lib/data/news';
+import { powerUnitLabel } from '@/lib/f1/power-units';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { StatBlock } from '@/components/bento/StatBlock';
-import { StatTrio } from '@/components/bento/StatTrio';
-import { ProfileHero } from '@/components/profile/ProfileHero';
-import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
+import { TeamGarageHero } from '@/components/profile/TeamGarageHero';
+import { TeamConstructorPulse } from '@/components/profile/TeamConstructorPulse';
+import { TeamLineupDuel } from '@/components/profile/TeamLineupDuel';
+import { TeamTechnicalCard } from '@/components/profile/TeamTechnicalCard';
 import { LoreSection } from '@/components/profile/LoreSection';
-import { DriverLineup } from '@/components/profile/DriverLineup';
-import { HeadToHead } from '@/components/profile/HeadToHead';
 import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 
@@ -28,11 +27,6 @@ type PageProps = {
   searchParams: Promise<{ season?: string }>;
 };
 
-/**
- * Only CURRENT_SEASON has profile data today (`profileSeasons()` in
- * lib/data/entities.ts). Requesting anything else is a no-op, so surface that
- * to the caller instead of silently swapping in the current season.
- */
 function parseSeason(raw: string | undefined): { season: number; requestedUnsupported: boolean } {
   if (raw === undefined) return { season: CURRENT_SEASON, requestedUnsupported: false };
   const parsed = Number(raw);
@@ -84,74 +78,61 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   ];
 
   return (
-    <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12">
+    <main
+      id="main-content"
+      style={theme as React.CSSProperties}
+      className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 pt-2 pb-8 md:px-8 md:pt-4 lg:px-16 lg:pb-12"
+    >
       <PageThemeSync vars={theme} />
       {requestedUnsupported ? (
         <p className="label-caps mb-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent/10 px-4 py-2 text-accent">
           Only the {season} season is available right now — showing current data instead.
         </p>
       ) : null}
-      <ProfileHero
-        kicker={`Constructor · ${season}`}
+
+      <TeamGarageHero
+        kicker={`Constructor // ${season}`}
         title={profile.constructorName}
-        meta={`P${profile.position} · ${profile.points} PTS · ${profile.wins} wins`}
+        meta={`P${profile.position} · ${profile.points} PTS`}
         imageSrc={car}
         imageAlt={profile.constructorName}
-        imageKind="car"
-        flankNumbers={flankNumbers}
         logoSrc={logo}
+        flankNumbers={flankNumbers}
       />
 
-      <div className="mt-6">
+      <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <BentoCard span={4}>
-            <StatBlock value={`P${profile.position}`} label="Constructor Standing" sublabel={`${profile.points} PTS`} size="md" accent />
-          </BentoCard>
+          <TeamConstructorPulse
+            season={season}
+            position={profile.position}
+            points={profile.points}
+            wins={profile.wins}
+            championships={career.championships}
+          />
 
-          <BentoCard span={8}>
-            <StatTrio
-              items={[
-                { value: profile.wins, label: 'Wins' },
-                { value: String(career.championships), label: 'Titles' },
-                { value: String(career.seasons), label: 'Seasons' },
-              ]}
-            />
-          </BentoCard>
+          <TeamLineupDuel
+            drivers={profile.drivers}
+            season={season}
+            constructorName={profile.constructorName}
+          />
 
-          <BentoCard span={8}>
-            <span className="label-caps mb-3 block text-text-mid">Driver Line-up</span>
-            <DriverLineup drivers={profile.drivers} season={season} constructorName={profile.constructorName} />
-          </BentoCard>
+          <TeamTechnicalCard
+            powerUnit={powerUnitLabel(profile.constructorId)}
+            entries={[
+              { label: 'Championships', value: String(career.championships) },
+              { label: 'Seasons', value: String(career.seasons) },
+              { label: 'Career Wins', value: String(career.wins) },
+              { label: 'Best Finish', value: career.bestPosition != null ? `P${career.bestPosition}` : '—' },
+            ]}
+          />
 
-          {d1 && d2 ? (
-            <BentoCard span={4}>
-              <span className="label-caps mb-4 block text-text-mid">Head to Head</span>
-              <HeadToHead
-                leftName={d1.driverCode.toUpperCase() || d1.driverName.split(' ').pop()!.toUpperCase()}
-                rightName={d2.driverCode.toUpperCase() || d2.driverName.split(' ').pop()!.toUpperCase()}
-                metrics={[
-                  { label: 'Points', left: Number(d1.points) || 0, right: Number(d2.points) || 0 },
-                  { label: 'Position', left: Number(d2.position) || 0, right: Number(d1.position) || 0 },
-                ]}
-              />
-            </BentoCard>
-          ) : null}
-
-          <BentoCard span={12}>
-            <span className="label-caps mb-3 block text-text-mid">Technical Dossier</span>
-            <TechnicalDossier
-              entries={[
-                { label: 'Championships', value: String(career.championships) },
-                { label: 'Seasons', value: String(career.seasons) },
-                { label: 'Career Wins', value: String(career.wins) },
-                { label: 'Best Finish', value: career.bestPosition != null ? `P${career.bestPosition}` : '—' },
-              ]}
-            />
-          </BentoCard>
-
-          {/* Story — bio, milestones, deep-cut lore (mirrors mobile team detail) */}
           {lore ? (
-            <BentoCard span={12}>
+            <BentoCard span={relatedNews.length > 0 ? 8 : 12} className="relative">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                style={{ backgroundColor: 'var(--team-secondary)', opacity: 0.7 }}
+              />
               <LoreSection
                 heading="The Team"
                 bio={lore.bio}
@@ -166,7 +147,12 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
           ) : null}
 
           {relatedNews.length > 0 ? (
-            <BentoCard span={6}>
+            <BentoCard span={lore ? 4 : 12} className="relative">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                style={{ backgroundColor: 'var(--team-secondary)', opacity: 0.7 }}
+              />
               <RelatedNewsList items={relatedNews} heading="Related News" />
             </BentoCard>
           ) : null}

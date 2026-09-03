@@ -239,7 +239,7 @@ async function fetchLiveRoundSnapshot(
  * Fetch a season-level snapshot (round IS NULL) by canonical type.
  * DB (staleness-aware) → static → Jolpica proxy.
  */
-export async function fetchSeasonSnapshotTyped(
+export const fetchSeasonSnapshotTyped = cache(async function fetchSeasonSnapshotTyped(
   season: number,
   type: SeasonSnapshotType,
 ): Promise<MrData | null> {
@@ -274,7 +274,7 @@ export async function fetchSeasonSnapshotTyped(
   }
 
   return null;
-}
+});
 
 /**
  * Fetch a round-level snapshot (results / qualifying / sprint).
@@ -322,10 +322,13 @@ export interface OnThisDayEntry {
   raceName: string;
   winnerName: string;
   winnerConstructor: string;
+  circuitId: string | null;
+  p2Name: string | null;
+  p3Name: string | null;
 }
 
 /** Races on this calendar day (MM-DD) across all seasons with results snapshots. */
-export async function getOnThisDay(): Promise<OnThisDayEntry[]> {
+export const getOnThisDay = cache(async function getOnThisDay(): Promise<OnThisDayEntry[]> {
   const now = new Date();
   const todayMd = `${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
 
@@ -342,20 +345,51 @@ export async function getOnThisDay(): Promise<OnThisDayEntry[]> {
     const entries: OnThisDayEntry[] = [];
     for (const row of data) {
       if (!hasMrData(row.data)) continue;
-      const race = (
-        row.data as MrData
-      ).MRData?.RaceTable as { Races?: Array<{ date?: string; raceName?: string }> } | undefined;
-      const first = race?.Races?.[0];
+      const raceTable = (row.data as MrData).MRData?.RaceTable as
+        | {
+            raceName?: string;
+            Races?: Array<{
+              date?: string;
+              raceName?: string;
+              Circuit?: { circuitId?: string; circuitName?: string };
+              Results?: Array<{
+                position?: string;
+                Driver?: { givenName?: string; familyName?: string };
+              }>;
+            }>;
+          }
+        | undefined;
+      const first = raceTable?.Races?.[0];
       if (!first?.date || first.date.slice(5) !== todayMd) continue;
 
       const winner = getRaceWinner(row.data as MrData);
       if (!winner) continue;
 
+      const nameAt = (pos: string) => {
+        const r = first.Results?.find((x) => x.position === pos);
+        if (!r) return null;
+        const given = r.Driver?.givenName ?? '';
+        const family = r.Driver?.familyName ?? '';
+        const full = `${given} ${family}`.trim();
+        return full || null;
+      };
+
+      const circuitLabel = first.Circuit?.circuitId
+        ? first.Circuit.circuitId.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+        : null;
+      const raceName =
+        [first.raceName, raceTable?.raceName, first.Circuit?.circuitName, circuitLabel]
+          .find((s) => s?.trim())
+          ?.trim() ?? 'Grand Prix';
+
       entries.push({
         season: row.season,
-        raceName: first.raceName ?? 'Grand Prix',
+        raceName,
         winnerName: winner.driverName,
         winnerConstructor: winner.constructorName,
+        circuitId: first.Circuit?.circuitId ?? null,
+        p2Name: nameAt('2'),
+        p3Name: nameAt('3'),
       });
     }
 
@@ -364,7 +398,7 @@ export async function getOnThisDay(): Promise<OnThisDayEntry[]> {
     logFallback('getOnThisDay', 'empty', (err as Error).message);
     return [];
   }
-}
+});
 
 export interface RoundResultSnapshot {
   round: number;

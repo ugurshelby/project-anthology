@@ -42,8 +42,54 @@ export interface CalendarRace {
   time?: string; // HH:mm:ssZ — race green-light start (Ergast convention)
   raceName?: string;
   Circuit?: CalendarCircuit;
+  FirstPractice?: SessionSlot;
+  SecondPractice?: SessionSlot;
+  ThirdPractice?: SessionSlot;
   Qualifying?: SessionSlot;
   Sprint?: SessionSlot;
+}
+
+export interface WeekendSessionChip {
+  id: string;
+  label: string;
+  when: string;
+}
+
+function formatSessionWhen(slot: SessionSlot): string | null {
+  if (!slot.date) return null;
+  const iso = slot.time ? `${slot.date}T${slot.time}` : `${slot.date}T12:00:00Z`;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  const d = new Date(t);
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
+  const clock = d.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+  });
+  return `${weekday} ${clock}`;
+}
+
+/** Practice / quali / race chips for the homepage weekend telemetry bar. */
+export function weekendSessionChips(race: CalendarRace | null | undefined): WeekendSessionChip[] {
+  if (!race) return [];
+  const slots: Array<[string, string, SessionSlot | undefined]> = [
+    ['fp1', 'FP1', race.FirstPractice],
+    ['fp2', 'FP2', race.SecondPractice],
+    ['fp3', 'FP3', race.ThirdPractice],
+    ['qualifying', 'Qualifying', race.Qualifying],
+    ['sprint', 'Sprint', race.Sprint],
+    ['race', 'Race', { date: race.date, time: race.time }],
+  ];
+  const out: WeekendSessionChip[] = [];
+  for (const [id, label, slot] of slots) {
+    if (!slot) continue;
+    const when = formatSessionWhen(slot);
+    if (!when) continue;
+    out.push({ id, label, when });
+  }
+  return out;
 }
 
 /** UTC epoch ms for a session start, or null when the slot is unusable. */

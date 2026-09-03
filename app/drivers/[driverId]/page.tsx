@@ -3,17 +3,16 @@ import { notFound } from 'next/navigation';
 import { getDriverProfile, getDriverSeasons, getDriverCareer } from '@/lib/data/entities';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { SITE_NAME } from '@/lib/seo';
-import Image from 'next/image';
 import { teamThemeVars } from '@/lib/theme';
 import { driverIconSrc, carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
 import { getNewsForEntity } from '@/lib/data/news';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { StatBlock } from '@/components/bento/StatBlock';
-import { StatTrio } from '@/components/bento/StatTrio';
-import { ProfileHero } from '@/components/profile/ProfileHero';
-import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
+import { DriverProfileHero } from '@/components/profile/DriverProfileHero';
+import { DriverSeasonPulse } from '@/components/profile/DriverSeasonPulse';
+import { DriverCombinedDossier } from '@/components/profile/DriverCombinedDossier';
+import { DriverMachineryCard } from '@/components/profile/DriverMachineryCard';
 import { LoreSection } from '@/components/profile/LoreSection';
 import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
@@ -36,6 +35,12 @@ function parseSeason(raw: string | undefined): { season: number; requestedUnsupp
   const parsed = Number(raw);
   const requestedUnsupported = !Number.isFinite(parsed) || parsed !== CURRENT_SEASON;
   return { season: CURRENT_SEASON, requestedUnsupported };
+}
+
+function editorialTaglineFromLore(lore: NonNullable<ReturnType<typeof getDriverLore>>): string | null {
+  const first = lore.lore.split(/(?<=[.!?])\s+/)[0]?.trim();
+  if (!first) return null;
+  return first.length > 110 ? `${first.slice(0, 107)}…` : first;
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
@@ -77,7 +82,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   const car = carSrc(profile.constructorId, profile.constructorName);
   const teamLogo = teamIconSrc(profile.constructorName);
 
-  const dossier = [
+  const technicalDossier = [
     { label: 'Number', value: lore?.number != null ? String(lore.number) : '—' },
     { label: 'Team', value: profile.constructorName },
     { label: 'GP Starts', value: career.seasons ? String(career.seasons) : '—' },
@@ -86,64 +91,48 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
     { label: 'Best Finish', value: career.bestPosition != null ? `P${career.bestPosition}` : '—' },
   ];
 
+  const careerDossier = [
+    { label: 'Seasons', value: String(career.seasons) },
+    { label: 'Championships', value: String(career.championships) },
+    { label: 'Wins', value: String(career.wins) },
+    { label: 'Podiums', value: String(career.podiums) },
+  ];
+
   return (
-    <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 pt-4 pb-8 md:px-8 md:pt-6 lg:px-16 lg:pb-12">
+    <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 pt-2 pb-8 md:px-8 md:pt-4 lg:px-16 lg:pb-12">
       <PageThemeSync vars={theme} />
       {requestedUnsupported ? (
         <p className="label-caps mb-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent/10 px-4 py-2 text-accent">
           Only the {season} season is available right now — showing current data instead.
         </p>
       ) : null}
-      <ProfileHero
+
+      <DriverProfileHero
         kicker={`${profile.constructorName} · ${season}`}
         title={profile.driverName}
         meta={`P${profile.position} · ${profile.points} PTS`}
         bigNumber={lore?.number != null ? String(lore.number) : null}
         imageSrc={portrait}
         imageAlt={profile.driverName}
-        imageKind="portrait"
+        editorialTagline={lore ? editorialTaglineFromLore(lore) : null}
       />
 
-      <div className="mt-6">
+      <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <BentoCard span={4} className="flex min-h-40 flex-col justify-center">
-            <StatTrio
-              items={[
-                { value: profile.wins, label: 'Wins' },
-                { value: profile.podiums, label: 'Podiums' },
-                { value: career.championships, label: 'Titles' },
-              ]}
-            />
-          </BentoCard>
+          <DriverSeasonPulse
+            season={season}
+            position={profile.position}
+            points={profile.points}
+            wins={profile.wins}
+            podiums={profile.podiums}
+            championships={career.championships}
+            careerPoints={career.points}
+          />
 
-          <BentoCard span={4} className="flex min-h-40 flex-col justify-center">
-            <StatBlock value={`P${profile.position}`} label="Season Standing" sublabel={`${profile.points} PTS`} size="md" accent />
-          </BentoCard>
+          <DriverCombinedDossier technical={technicalDossier} career={careerDossier} />
 
-          <BentoCard span={4} className="flex min-h-40 flex-col justify-center">
-            <StatBlock value={career.points} label="Career Points" size="md" />
-          </BentoCard>
-
-          <BentoCard span={6}>
-            <span className="label-caps mb-3 block text-text-mid">Technical Dossier</span>
-            <TechnicalDossier entries={dossier} />
-          </BentoCard>
-
-          <BentoCard span={6}>
-            <span className="label-caps mb-3 block text-text-mid">Career</span>
-            <TechnicalDossier
-              entries={[
-                { label: 'Seasons', value: String(career.seasons) },
-                { label: 'Championships', value: String(career.championships) },
-                { label: 'Wins', value: String(career.wins) },
-                { label: 'Podiums', value: String(career.podiums) },
-              ]}
-            />
-          </BentoCard>
-
-          {/* Story — bio, milestones, deep-cut lore (mirrors mobile driver detail) */}
           {lore ? (
-            <BentoCard span={12}>
+            <BentoCard span={car ? 8 : 12}>
               <LoreSection
                 heading="The Story"
                 bio={lore.bio}
@@ -157,38 +146,19 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             </BentoCard>
           ) : null}
 
-          {relatedNews.length > 0 ? (
-            <BentoCard span={6}>
-              <RelatedNewsList items={relatedNews} heading="Related News" />
-            </BentoCard>
+          {car ? (
+            <DriverMachineryCard
+              span={lore ? 4 : 12}
+              season={season}
+              constructorName={profile.constructorName}
+              teamLogo={teamLogo}
+              carSrc={car}
+            />
           ) : null}
 
-          {/* 2026 Car — the team machine, a full-width cinematic strip */}
-          {car ? (
-            <BentoCard span={12} as="div" className="relative flex min-h-44 flex-col justify-end overflow-hidden p-5 sm:min-h-48 sm:flex-row sm:items-center sm:p-6">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-30"
-                style={{ background: 'radial-gradient(120% 120% at 80% 50%, var(--team-secondary), transparent 60%)' }}
-              />
-              <div className="relative z-10 flex max-w-full flex-col gap-2 pb-28 sm:max-w-[48%] sm:pb-0">
-                {teamLogo ? (
-                  <Image src={teamLogo} alt={profile.constructorName} width={48} height={48} className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
-                ) : null}
-                <span className="label-caps text-text-mid">{season} Machinery</span>
-                <span className="font-condensed text-2xl font-700 uppercase text-text-hi sm:text-3xl" style={{ fontFamily: 'var(--font-condensed)' }}>
-                  {profile.constructorName}
-                </span>
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 sm:inset-x-auto sm:inset-y-0 sm:right-0 sm:h-full sm:w-[52%] md:w-[50%]">
-                <Image
-                  src={car}
-                  alt={`${profile.constructorName} ${season} car`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  className="object-contain object-bottom sm:object-right-bottom"
-                />
-              </div>
+          {relatedNews.length > 0 ? (
+            <BentoCard span={lore && car ? 12 : 6}>
+              <RelatedNewsList items={relatedNews} heading="Related News" />
             </BentoCard>
           ) : null}
         </BentoGrid>

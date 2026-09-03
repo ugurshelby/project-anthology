@@ -34,12 +34,12 @@ export function LoreSection({
         </div>
       ) : null}
 
-      <p className="body-md text-text">{bio}</p>
+      <p className="body-md line-clamp-4 text-text md:line-clamp-none">{bio}</p>
 
       {milestones.length > 0 ? (
         <ul className="flex flex-col gap-2.5">
           {milestones.map((m, i) => (
-            <li key={i} className="flex items-start gap-3">
+            <li key={i} className={['flex items-start gap-3', i > 1 ? 'hidden md:flex' : ''].join(' ')}>
               <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
               <span className="body-md text-text-mid">{m}</span>
             </li>

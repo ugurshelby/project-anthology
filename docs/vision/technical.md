@@ -19,6 +19,7 @@
 | Test | Vitest (unit), Playwright (devDep, e2e henüz yok) |
 | İzleme | Sentry, Vercel Analytics + Speed Insights |
 | Rate-limit | Upstash Redis + in-memory fallback |
+| CSP | `lib/security/csp.ts` — `font-src` same-origin + `data:` + `https://vercel.live` (Vercel Toolbar) |
 
 ---
 
