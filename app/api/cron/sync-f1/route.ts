@@ -72,8 +72,17 @@ function extractConstructorLeaderId(data: unknown): string | null {
   return list?.[0]?.Constructor?.constructorId ?? null;
 }
 
-async function notifyLeaderChange(kind: 'driver' | 'constructor', data: unknown): Promise<void> {
-  const db = getSupabaseAdmin();
+/**
+ * Build push notification messages for a leader change and append them to
+ * `out`. Subscribers are NOT fetched here — the caller fetches them once and
+ * passes them in, so multiple championship changes never hit the DB twice.
+ */
+function buildLeaderChangeMessages(
+  kind: 'driver' | 'constructor',
+  data: unknown,
+  subscribers: { token: string; preferences: Record<string, boolean> }[],
+  out: ExpoPushMessage[],
+): void {
   const leaderName =
     kind === 'driver'
       ? (data as { MRData?: { StandingsTable?: { StandingsLists?: Array<{ DriverStandings?: DriverStandingRow[] }> } } })
@@ -81,33 +90,27 @@ async function notifyLeaderChange(kind: 'driver' | 'constructor', data: unknown)
       : (data as { MRData?: { StandingsTable?: { StandingsLists?: Array<{ ConstructorStandings?: ConstructorStandingRow[] }> } } })
           ?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings?.[0]?.Constructor?.name;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: subs } = await (db.from('push_subscriptions') as any)
-    .select('token, preferences')
-    .not('token', 'is', null);
-
-  const targets = (subs ?? []).filter(
-    (s: { preferences: Record<string, boolean> }) => s.preferences?.standings === true,
-  );
+  const targets = subscribers.filter((s) => s.preferences?.standings === true);
   if (targets.length === 0) return;
 
-  const messages: ExpoPushMessage[] = targets.map((s: { token: string }) => ({
-    to: s.token,
-    sound: 'default',
-    title: kind === 'driver' ? 'New championship leader' : 'New constructors’ leader',
-    body: leaderName
-      ? `${leaderName} now leads the ${kind === 'driver' ? 'drivers’' : 'constructors’'} championship.`
-      : 'The championship lead has changed.',
-    data: { kind },
-  }));
-  await sendExpoPushNotifications(messages);
+  for (const s of targets) {
+    out.push({
+      to: s.token,
+      sound: 'default',
+      title: kind === 'driver' ? 'New championship leader' : "New constructors' leader",
+      body: leaderName
+        ? `${leaderName} now leads the ${kind === 'driver' ? "drivers'" : "constructors'"} championship.`
+        : 'The championship lead has changed.',
+      data: { kind },
+    });
+  }
 }
 
 const MIN_TRIGGER_INTERVAL_MS = 60_000;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isCronAuthorized(req)) return authError();
-  if (!isCronTriggerAllowed('sync-f1', MIN_TRIGGER_INTERVAL_MS)) {
+  if (!(await isCronTriggerAllowed('sync-f1', MIN_TRIGGER_INTERVAL_MS))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
@@ -140,42 +143,67 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (refreshStandings) {
       const db = getSupabaseAdmin();
 
-      // Read the CURRENT (about-to-be-overwritten) leader before ingesting the
-      // new snapshot — upsertF1Snapshot updates season-level rows in place, so
-      // there is no history to look back on after the write.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: prevDriverRow } = await (db.from('f1_snapshots') as any)
-        .select('data')
-        .eq('season', CURRENT_SEASON)
-        .is('round', null)
-        .eq('type', 'standings_drivers')
-        .maybeSingle();
-      const prevDriverLeaderId = extractDriverLeaderId(prevDriverRow?.data ?? null);
+      // ── Read previous leaders before overwriting ──────────────────────────
+      // upsertF1Snapshot updates rows in-place — no history after the write.
+      // Both snapshot types are fetched in a single parallel round-trip.
+      const [prevDriverRow, prevConstrRow] = await Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (db.from('f1_snapshots') as any)
+          .select('data')
+          .eq('season', CURRENT_SEASON)
+          .is('round', null)
+          .eq('type', 'standings_drivers')
+          .maybeSingle(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (db.from('f1_snapshots') as any)
+          .select('data')
+          .eq('season', CURRENT_SEASON)
+          .is('round', null)
+          .eq('type', 'standings_constructors')
+          .maybeSingle(),
+      ]);
+      const prevDriverLeaderId = extractDriverLeaderId(prevDriverRow.data?.data ?? null);
+      const prevConstrLeaderId = extractConstructorLeaderId(prevConstrRow.data?.data ?? null);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: prevConstrRow } = await (db.from('f1_snapshots') as any)
-        .select('data')
-        .eq('season', CURRENT_SEASON)
-        .is('round', null)
-        .eq('type', 'standings_constructors')
-        .maybeSingle();
-      const prevConstrLeaderId = extractConstructorLeaderId(prevConstrRow?.data ?? null);
-
+      // ── Fetch new standings ───────────────────────────────────────────────
       const driverSt = await fetchDriverStandings(CURRENT_SEASON);
+      const constrSt = await fetchConstructorStandings(CURRENT_SEASON);
+
       if (hasDriverStandings(driverSt)) {
         await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_drivers', driverSt as unknown as Json, 'jolpica', stats);
-        const newDriverLeaderId = extractDriverLeaderId(driverSt as unknown);
-        if (prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId) {
-          await notifyLeaderChange('driver', driverSt as unknown);
-        }
       }
-
-      const constrSt = await fetchConstructorStandings(CURRENT_SEASON);
       if (hasConstructorStandings(constrSt)) {
         await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_constructors', constrSt as unknown as Json, 'jolpica', stats);
-        const newConstrLeaderId = extractConstructorLeaderId(constrSt as unknown);
+      }
+
+      // ── Consolidated push notifications ───────────────────────────────────
+      // Fetch push_subscriptions once; build all messages into one array;
+      // call sendExpoPushNotifications once (even if two changes happened).
+      const pendingMessages: ExpoPushMessage[] = [];
+
+      const newDriverLeaderId = extractDriverLeaderId(driverSt as unknown);
+      const newConstrLeaderId = extractConstructorLeaderId(constrSt as unknown);
+
+      const needsNotification =
+        (prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId) ||
+        (prevConstrLeaderId && newConstrLeaderId && prevConstrLeaderId !== newConstrLeaderId);
+
+      if (needsNotification) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: subs } = await (db.from('push_subscriptions') as any)
+          .select('token, preferences')
+          .not('token', 'is', null);
+        const subscribers: { token: string; preferences: Record<string, boolean> }[] = subs ?? [];
+
+        if (prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId) {
+          buildLeaderChangeMessages('driver', driverSt as unknown, subscribers, pendingMessages);
+        }
         if (prevConstrLeaderId && newConstrLeaderId && prevConstrLeaderId !== newConstrLeaderId) {
-          await notifyLeaderChange('constructor', constrSt as unknown);
+          buildLeaderChangeMessages('constructor', constrSt as unknown, subscribers, pendingMessages);
+        }
+
+        if (pendingMessages.length > 0) {
+          await sendExpoPushNotifications(pendingMessages);
         }
       }
     }
@@ -199,24 +227,45 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         continue;
       }
 
+      // Each session fetch is wrapped in its own try/catch so a Jolpica
+      // network error or timeout for one session does not abort the remaining
+      // rounds. The error is recorded in stats.errors and the loop continues.
       if (fetchQuali) {
-        const qual = await fetchQualifying(CURRENT_SEASON, round);
-        if (hasQualifyingResults(qual)) {
-          await ingestRoundSnapshot(CURRENT_SEASON, round, 'qualifying', qual as unknown as Json, 'jolpica', stats);
+        try {
+          const qual = await fetchQualifying(CURRENT_SEASON, round);
+          if (hasQualifyingResults(qual)) {
+            await ingestRoundSnapshot(CURRENT_SEASON, round, 'qualifying', qual as unknown as Json, 'jolpica', stats);
+          }
+        } catch (err) {
+          const msg = `R${round} qualifying: ${err instanceof Error ? err.message : String(err)}`;
+          stats.errors.push(msg);
+          console.warn(`[sync-f1] ${msg}`);
         }
       }
 
       if (fetchSprintData) {
-        const sprint = await fetchSprint(CURRENT_SEASON, round);
-        if (hasSprintResults(sprint)) {
-          await ingestRoundSnapshot(CURRENT_SEASON, round, 'sprint', sprint as unknown as Json, 'jolpica', stats);
+        try {
+          const sprint = await fetchSprint(CURRENT_SEASON, round);
+          if (hasSprintResults(sprint)) {
+            await ingestRoundSnapshot(CURRENT_SEASON, round, 'sprint', sprint as unknown as Json, 'jolpica', stats);
+          }
+        } catch (err) {
+          const msg = `R${round} sprint: ${err instanceof Error ? err.message : String(err)}`;
+          stats.errors.push(msg);
+          console.warn(`[sync-f1] ${msg}`);
         }
       }
 
       if (fetchRaceResults) {
-        const results = await fetchResults(CURRENT_SEASON, round);
-        if (hasResults(results)) {
-          await ingestRoundSnapshot(CURRENT_SEASON, round, 'results', results as unknown as Json, 'jolpica', stats);
+        try {
+          const results = await fetchResults(CURRENT_SEASON, round);
+          if (hasResults(results)) {
+            await ingestRoundSnapshot(CURRENT_SEASON, round, 'results', results as unknown as Json, 'jolpica', stats);
+          }
+        } catch (err) {
+          const msg = `R${round} results: ${err instanceof Error ? err.message : String(err)}`;
+          stats.errors.push(msg);
+          console.warn(`[sync-f1] ${msg}`);
         }
       }
 

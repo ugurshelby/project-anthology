@@ -14,7 +14,10 @@ export interface MRData {
 
 const JOLPICA_BASE = 'https://api.jolpi.ca/ergast/f1';
 const FETCH_DELAY_MS = 1_200; // ~0.8 req/s sustained
-const MAX_RETRIES = 6;
+// MAX_RETRIES intentionally kept low: Vercel Hobby=10s / Pro=60s timeout.
+// 3 retries → max backoff ≈ 1.2s+2.4s+4.8s = ~8.4s base + up to 1.5s jitter.
+// Raising this above 3 risks blowing the function execution limit.
+const MAX_RETRIES = 3;
 const REQUEST_TIMEOUT_MS = 10_000;
 
 let _lastFetchAt = 0;
@@ -48,8 +51,11 @@ export async function fetchJolpica(path: string): Promise<MRData> {
     } catch (err) {
       clearTimeout(timer);
       if (attempt === MAX_RETRIES) throw new Error(`Jolpica network error for ${path}: ${String(err)}`);
-      const backoff = FETCH_DELAY_MS * 2 ** attempt;
-      console.warn(`  jolpica retry ${path} (network) in ${backoff}ms`);
+      // Exponential backoff + random jitter to avoid thundering-herd when
+      // multiple serverless containers retry at the exact same millisecond.
+      const jitter = Math.random() * 500;
+      const backoff = FETCH_DELAY_MS * 2 ** attempt + jitter;
+      console.warn(`  jolpica retry ${path} (network) in ${Math.round(backoff)}ms`);
       await sleep(backoff);
       continue;
     } finally {
@@ -59,8 +65,10 @@ export async function fetchJolpica(path: string): Promise<MRData> {
     if (res.status === 404) return { MRData: {} };
 
     if (res.status === 429 || res.status >= 500) {
-      const backoff = FETCH_DELAY_MS * 2 ** attempt;
-      console.warn(`  jolpica retry ${path} (${res.status}) in ${backoff}ms`);
+      // Jitter prevents coordinated retry storms across warm instances.
+      const jitter = Math.random() * 500;
+      const backoff = FETCH_DELAY_MS * 2 ** attempt + jitter;
+      console.warn(`  jolpica retry ${path} (${res.status}) in ${Math.round(backoff)}ms`);
       await sleep(backoff);
       continue;
     }

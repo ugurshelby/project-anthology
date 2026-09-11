@@ -141,20 +141,20 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 | `GET /api/cron/sync-f1?scope=season` | `0 7 * * *` | Jolpica → `f1_snapshots` | 300 s |
 | `GET /api/cron/sync-radio` | `0 8 * * *` | OpenF1 → `radio_moments` | 300 s |
 
-- **Auth:** [`lib/cronAuth.ts`](../lib/cronAuth.ts) — `Authorization: Bearer <CRON_SECRET>` (birincil; Vercel Cron tam bu env adıyla enjekte eder) veya legacy `CRON_SECRET_KEY`. Karşılaştırma **constant-time** (`timingSafeEqual`). Secret yoksa fail-closed (asla yetkili değil).
-- **sync-f1 scope:** `live` (race-weekend pencereleri: quali/sprint/results) veya `season` (tam backfill). Race-weekend olmadığında varsayılan `season`. Round seçimi takvim-farkındalıklı ([`lib/f1/syncSchedule.ts`](../lib/f1/syncSchedule.ts)).
+- **Auth:** [`lib/cronAuth.ts`](../lib/cronAuth.ts) — `Authorization: Bearer <CRON_SECRET>` (birincil; Vercel Cron tam bu env adıyla enjekte eder) veya legacy `CRON_SECRET_KEY`. Karşılaştırma **constant-time** (`timingSafeEqual`). Upstash Redis varsa (`UPSTASH_REDIS_REST_URL`) serverless container'lar arası SET-NX dağıtık lock ile trigger throttle uygulanır; yoksa in-memory fallback devrededir.
+- **sync-f1 scope:** `live` (race-weekend pencereleri: quali/sprint/results) veya `season` (tam backfill). Seans bazında yerel try/catch ile hata izolasyonu bulunur (tek seans çökmesi tüm cron'u kırmaz). Sürücü/takım lider değişim bildirimleri tek bir havuzda toplanıp tek seferde `sendExpoPushNotifications` ile gönderilir.
 
 ### 5.2 Public/okuma rotaları
 
 | Rota | İş |
 |---|---|
-| `GET /api/f1-season?path=…` | **SSRF-sertleştirilmiş** Jolpica proxy. `path` katı whitelist regex'ine karşı doğrulanır, host hardcode. Sezon-farkındalıklı cache (tarihsel immutable, güncel kısa+SWR). |
+| `GET /api/f1-season?path=…` | **SSRF-sertleştirilmiş** Jolpica proxy & Snapshot Fallback. İstek path'i (season/round/type) önce `f1_snapshots` tablosunda aranır; varsa doğrudan veritabanından dönülür (upstream bağımlılığı ve gecikme azalır). Bulunamazsa Jolpica'ya gidilir; Jolpica hata/timeout verirse stale snapshot fallback yapılır (`x-data-source` header: `snapshot`, `jolpica`, `snapshot-stale`). `applyRateLimit` ile IP tespit edilemese dahi fallback havuzu üzerinden oran sınırlaması uygulanır. |
 | `GET /api/season/[year]` | Tam sezon bundle'ı (`getSeasonData`). `F1_SEASON_MIN..CURRENT_SEASON` aralığı dışı 400. |
 | `GET /api/news` | Canlı RSS aggregate (news_cache boşsa fallback). Upstash rate-limit (30 req/60 s), IP `x-real-ip`'ten (spoof-dirençli). |
 
 ---
 
-## 6. Okuma Katmanı — 3 Kademeli Fallback
+## 6. Okuma Katmanı — 3 Kademeli Fallback & Performans
 
 [`lib/data/f1.ts`](../lib/data/f1.ts) tüm F1 okumaları için:
 
@@ -166,6 +166,8 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 
 - **Staleness kontrolü:** güncel sezon satırları takvim-farkındalıklı tazelik kontrolünden geçer ([`lib/f1/snapshotStaleness.ts`](../lib/f1/snapshotStaleness.ts)). DB cache beklenenden eskiyse (post-quali/post-race) bypass edilip canlı Jolpica okunur — cron çalışmaları arası standings/results taze kalır.
 - **Content-validity guard:** F1DB seed'in placeholder (boş `raceName` / eksik `Constructors[]`) yazdığı satırlar tazelik geçse bile geçersiz sayılıp canlıya düşülür.
+- **Batch Querying (`fetchAllRoundResults`):** Sezonun tamamlanan rauntları N adet tekil veritabanı sorgusu yerine tek bir `.in('round', finishedRounds)` batch sorgusu ile tek round-trip'te çekilir. Eksik/stale kalanlar için tekil fallback zinciri işletilir.
+- **getOnThisDay Bellek Koruması (OOM Guard):** Tüm zamanların `results` kayıtlarının `data` sütununu belleğe çekmek yerine doğrudan PostgreSQL JSON operatörü (`data->MRData->RaceTable->Races->0->>date LIKE %-MM-DD`) ve `.limit(80)` uygulanarak serverless OOM riski engellenmiştir.
 - **Tarihsel veri her zaman DB'den** servis edilir; Jolpica tarihsel için asla kullanılmaz.
 - Diğer okuyucular: [`lib/data/news.ts`](../lib/data/news.ts) (news_cache → /api/news → static fallback), [`lib/data/stories.ts`](../lib/data/stories.ts) (published-only), [`lib/data/radio.ts`](../lib/data/radio.ts), [`lib/data/circuits.ts`](../lib/data/circuits.ts).
 

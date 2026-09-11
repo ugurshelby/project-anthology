@@ -31,9 +31,9 @@ export function getClientIP(headers: Headers): string {
   const forwardedFor = headers.get('x-forwarded-for');
   if (forwardedFor) {
     const parts = forwardedFor.split(',');
-    return parts[parts.length - 1]?.trim() || 'unknown';
+    return parts[parts.length - 1]?.trim() || 'fallback:unknown';
   }
-  return 'unknown';
+  return 'fallback:unknown';
 }
 
 interface RateLimitOptions {
@@ -117,4 +117,31 @@ export async function rateLimit(
     }
   }
   return checkMemory(identifier, opts);
+}
+
+/**
+ * Convenience wrapper used by API routes.
+ *
+ * When `getClientIP` returns 'fallback:unknown' (no trustworthy IP header
+ * present), protection is NOT skipped. Instead the shared 'fallback:unknown'
+ * bucket is rate-limited at 1/5 of the normal `max` so that unauthenticated
+ * proxied requests are still throttled without penalising real users.
+ *
+ * Example:
+ *   const result = await applyRateLimit(req.headers, { prefix: 'news', max: 30, windowMs: 60_000 });
+ *   if (!result.success) return NextResponse.json({ error: 'Too many requests' }, { status: 429, ... });
+ */
+export async function applyRateLimit(
+  headers: Headers,
+  opts: RateLimitOptions,
+): Promise<RateLimitResult> {
+  const clientIP = getClientIP(headers);
+  if (clientIP === 'fallback:unknown') {
+    // Shared bucket — use a much tighter limit (1/5) to avoid blanket bypass.
+    return rateLimit('fallback:unknown', {
+      ...opts,
+      max: Math.max(1, Math.floor(opts.max / 5)),
+    });
+  }
+  return rateLimit(clientIP, opts);
 }

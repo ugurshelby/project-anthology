@@ -90,27 +90,37 @@ export async function upsertF1Snapshot(
     fetched_at: new Date().toISOString(),
   };
 
-  // Season-level rows (round IS NULL): Postgres UNIQUE(season,round,type) treats
-  // each NULL as distinct, so plain upsert can INSERT duplicates and hit the
-  // partial unique index idx_f1_snapshots_season_type_no_round. Update-first instead.
+  // Season-level rows (round IS NULL): PostgreSQL treats each NULL as distinct
+  // in UNIQUE constraints, so a plain .upsert() can produce duplicate inserts
+  // and violate idx_f1_snapshots_season_type_no_round. The old update-first
+  // pattern had a race condition: two concurrent containers both see 0 updated
+  // rows and both fall through to INSERT, causing a unique-index violation.
+  //
+  // Fix: attempt INSERT first (atomic); if a concurrent caller already inserted
+  // the row we catch the unique-violation (Postgres code 23505) and fall back
+  // to UPDATE. Exactly one container wins the INSERT; the other succeeds on
+  // the subsequent UPDATE. No TOCTOU window.
   if (round === null) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: updated, error: updateError } = await (db.from('f1_snapshots') as any)
+    const { error: insertError } = await (db.from('f1_snapshots') as any).insert(row);
+
+    if (!insertError) return; // fast path: new row inserted cleanly
+
+    // Unique violation (23505) → another container just inserted; update instead.
+    const pgCode = (insertError as { code?: string }).code;
+    if (pgCode !== '23505') {
+      throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${insertError.message}`);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: updateError } = await (db.from('f1_snapshots') as any)
       .update({ data: row.data, source: row.source, fetched_at: row.fetched_at })
       .eq('season', season)
       .is('round', null)
-      .eq('type', type)
-      .select('id');
+      .eq('type', type);
 
     if (updateError) {
       throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${updateError.message}`);
-    }
-    if (updated?.length) return;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: insertError } = await (db.from('f1_snapshots') as any).insert(row);
-    if (insertError) {
-      throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${insertError.message}`);
     }
     return;
   }

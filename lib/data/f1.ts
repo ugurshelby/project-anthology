@@ -330,14 +330,27 @@ export interface OnThisDayEntry {
 /** Races on this calendar day (MM-DD) across all seasons with results snapshots. */
 export const getOnThisDay = cache(async function getOnThisDay(): Promise<OnThisDayEntry[]> {
   const now = new Date();
-  const todayMd = `${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(now.getUTCDate()).padStart(2, '0');
+  const todayMd = `${month}-${day}`;
+  // Full ISO prefix we can match against: YYYY-MM-DD, e.g. "2023-05-28"
+  // We filter at the Postgres level using a json operator so we never load
+  // all result blobs into memory — only rows whose race date MM-DD matches.
+  // The pattern '%-MM-DD' is matched with LIKE on the text extracted by ->>.
+  // Limit to 80 rows (one per round × ~24 seasons max) as a hard OOM guard.
+  const datePattern = `%-${todayMd}`;
 
   try {
     const supabase = getSupabaseClient();
+    // Use a Postgres text filter on the nested JSON race date so the database
+    // does the heavy lifting: only rows matching today's MM-DD are transferred.
+    // data->'MRData'->'RaceTable'->'Races'->0->>'date'  LIKE '%-MM-DD'
     const { data, error } = await supabase
       .from('f1_snapshots')
       .select('season, data')
       .eq('type', 'results')
+      .like("data->MRData->RaceTable->Races->0->>date", datePattern)
+      .limit(80)
       .returns<Array<{ season: number; data: Json }>>();
 
     if (error || !data?.length) return [];
@@ -360,6 +373,7 @@ export const getOnThisDay = cache(async function getOnThisDay(): Promise<OnThisD
           }
         | undefined;
       const first = raceTable?.Races?.[0];
+      // Double-check in JS (Postgres LIKE is not exact for month-only mis-matches).
       if (!first?.date || first.date.slice(5) !== todayMd) continue;
 
       const winner = getRaceWinner(row.data as MrData);
@@ -405,21 +419,75 @@ export interface RoundResultSnapshot {
   data: MrData;
 }
 
-/** Parallel fetch of `results` snapshots for every finished round on the calendar. */
+/**
+ * Batch fetch of `results` snapshots for every finished round on the calendar.
+ *
+ * Old pattern: N parallel fetchRoundSnapshot calls → N Supabase round-trips.
+ * New pattern:
+ *   1. Single .in('round', finishedRounds) query → all available rows in one trip.
+ *   2. For rounds missing from the batch result (not yet ingested / stale) we
+ *      fall back to the existing per-round fetchRoundSnapshot path (which also
+ *      handles staleness checks and the static/Jolpica fallback chain).
+ *
+ * Return type is identical: RoundResultSnapshot[] ordered by round.
+ */
 export async function fetchAllRoundResults(
   season: number,
   races: CalendarRace[],
 ): Promise<RoundResultSnapshot[]> {
-  const finished = races.filter((r) => isRaceDone(r));
-  const snapshots = await Promise.all(
-    finished.map(async (race) => {
-      const round = Number(race.round);
-      if (!Number.isFinite(round)) return null;
+  const finishedRaces = races.filter((r) => isRaceDone(r));
+  if (finishedRaces.length === 0) return [];
+
+  const finishedRounds = finishedRaces
+    .map((r) => Number(r.round))
+    .filter((n) => Number.isFinite(n) && n > 0);
+
+  // ── 1) Batch DB query ────────────────────────────────────────────────────
+  let batchMap = new Map<number, MrData>();
+  try {
+    const supabase = getSupabaseClient();
+    const { data: batchRows, error } = await supabase
+      .from('f1_snapshots')
+      .select('round, data, fetched_at')
+      .eq('season', season)
+      .eq('type', 'results')
+      .in('round', finishedRounds)
+      .returns<Array<{ round: number; data: Json; fetched_at: string }>>();
+
+    const op = `season=${season} type=results in(round,[${finishedRounds.join(',')}])`;
+    if (!error && batchRows) {
+      logSupabaseCall('f1_snapshots', op, 0); // timing not available for batch
+      for (const row of batchRows) {
+        if (hasMrData(row.data)) {
+          batchMap.set(row.round, row.data as MrData);
+        }
+      }
+    } else if (error) {
+      logFallback('f1_snapshots batch', 'per-round fallback', error.message);
+    }
+  } catch (err) {
+    logFallback('f1_snapshots batch', 'per-round fallback', (err as Error).message);
+    // batchMap stays empty → every round falls through to the per-round path below
+  }
+
+  // ── 2) Per-round fallback for missing / stale rounds ─────────────────────
+  // Rounds absent from the batch (not ingested yet, or excluded due to bad
+  // data) are fetched via the full fetchRoundSnapshot path, which handles
+  // staleness, static-file fallback, and the Jolpica proxy.
+  const results = await Promise.all(
+    finishedRounds.map(async (round): Promise<RoundResultSnapshot | null> => {
+      const cached = batchMap.get(round);
+      if (cached) return { round, data: cached };
+
+      // Not in batch → use the full fallback chain (staleness + static + proxy)
       const data = await fetchRoundSnapshot(season, round, 'results');
       return data ? { round, data } : null;
     }),
   );
-  return snapshots.filter((s): s is RoundResultSnapshot => s !== null);
+
+  return results
+    .filter((s): s is RoundResultSnapshot => s !== null)
+    .sort((a, b) => a.round - b.round);
 }
 
 export interface SeasonData {

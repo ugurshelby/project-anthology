@@ -8,23 +8,28 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { MobileNav } from '@/components/layout/MobileNav';
 import './globals.css';
 
+// Critical weights only — one preload per family avoids the
+// "preloaded but not used within a few seconds" console warning.
+// Non-critical variants (e.g. inter-500, jetbrains-500/700) are still
+// available via CSS font-weight matching; the browser downloads them
+// on demand after display:swap shows the page with fallback text.
 const barlowCondensed = Barlow_Condensed({
   variable: '--font-barlow-condensed',
-  weight: ['400', '500', '600', '700'],
+  weight: ['600', '700'], // nav + headings — the only weights painted above-fold
   subsets: ['latin'],
   display: 'swap',
 });
 
 const inter = Inter({
   variable: '--font-inter',
-  weight: ['400', '500'],
+  weight: ['400'], // body copy — 500 (labels) loads lazily on first use
   subsets: ['latin'],
   display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
-  weight: ['400', '500', '700'],
+  weight: ['400'], // code blocks — 500/700 not painted on initial render
   subsets: ['latin'],
   display: 'swap',
 });
