@@ -27,7 +27,7 @@ const NEWS_UPSERT_BATCH_SIZE = 50;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isCronAuthorized(req)) return authError();
-  if (!isCronTriggerAllowed('sync-news', MIN_TRIGGER_INTERVAL_MS)) {
+  if (!(await isCronTriggerAllowed('sync-news', MIN_TRIGGER_INTERVAL_MS))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 

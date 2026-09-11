@@ -42,7 +42,7 @@ function makeSlug(driver: string, sessionKey: number, idx: number): string {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isCronAuthorized(req)) return authError();
-  if (!isCronTriggerAllowed('sync-radio', MIN_TRIGGER_INTERVAL_MS)) {
+  if (!(await isCronTriggerAllowed('sync-radio', MIN_TRIGGER_INTERVAL_MS))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 

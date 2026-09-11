@@ -32,12 +32,48 @@ export function isCronAuthorized(req: { headers: { get(name: string): string | n
 // ── Per-route trigger throttle ───────────────────────────────────────────────
 // A leaked CRON_SECRET would otherwise let an attacker re-trigger these
 // expensive (maxDuration=300s, external API-calling) routes without limit.
-// This is a global (not per-IP) in-memory floor per route name — cheap
-// insurance, not a substitute for rotating a leaked secret.
+//
+// When Upstash Redis is configured (UPSTASH_REDIS_REST_URL +
+// UPSTASH_REDIS_REST_TOKEN) a distributed SET-NX lock is used so the throttle
+// holds across ALL serverless containers — not just within one warm instance.
+// Without Upstash the Map-based in-memory floor is kept as a best-effort
+// fallback (same behaviour as before).
+
 const lastTriggerAt = new Map<string, number>();
 
 /** True when at least `minIntervalMs` has passed since the last call for `routeName`. */
-export function isCronTriggerAllowed(routeName: string, minIntervalMs: number): boolean {
+export async function isCronTriggerAllowed(
+  routeName: string,
+  minIntervalMs: number,
+): Promise<boolean> {
+  // ── Distributed lock via Upstash Redis ────────────────────────────────────
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (url && token) {
+    try {
+      const lockKey = `cron:lock:${routeName}`;
+      const ttlSeconds = Math.ceil(minIntervalMs / 1000);
+
+      // SET <key> 1 NX EX <ttl> — atomic; only the first container succeeds.
+      const res = await fetch(`${url}/set/${encodeURIComponent(lockKey)}/1/nx/ex/${ttlSeconds}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error(`Upstash ${res.status}`);
+      const body = (await res.json()) as { result: string | null };
+
+      // "OK" = lock acquired (first caller). null = already locked (reject).
+      return body.result === 'OK';
+    } catch (err) {
+      // Redis unreachable → fall through to in-memory floor rather than
+      // blocking all cron runs. Log and degrade gracefully.
+      console.warn(`[cronAuth] Upstash lock unavailable, using in-memory fallback: ${String(err)}`);
+    }
+  }
+
+  // ── In-memory fallback (single-container only) ────────────────────────────
   const now = Date.now();
   const last = lastTriggerAt.get(routeName);
   if (last !== undefined && now - last < minIntervalMs) return false;

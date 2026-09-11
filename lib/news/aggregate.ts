@@ -104,22 +104,43 @@ const NON_F1_KEYWORDS = [
   'btcc', 'british touring car', 'wtcr',
 ];
 
-// ── DOMParser polyfill (Node.js) ──────────────────────────────────────────
+// ── DOMParser for XML (RSS) and HTML (image extraction) ──────────────────
+//
+// Node.js 18+ does NOT ship a native DOMParser. We use JSDOM as the parser
+// but instantiate it as a SINGLETON per warm serverless container so that
+// the expensive JSDOM bootstrap (CSS engine, scripting env) runs exactly once.
+//
+// For RSS XML parsing we pass `contentType: 'text/xml'` which skips most of
+// the HTML-specific DOM machinery, keeping memory usage well below the
+// equivalent of creating a new JSDOM instance per feed item.
+//
+// HTML parsing (extractImageFromHtml) also reuses the same singleton parser
+// — no additional JSDOM instances are ever created during a request.
 
-async function ensureDOMParser(): Promise<void> {
-  const g = globalThis as { DOMParser?: unknown };
-  if (typeof g.DOMParser !== 'undefined') return;
+type DOMParserLike = { parseFromString(s: string, t: string): Document };
+
+let _xmlParser: DOMParserLike | null = null;
+
+/** Initialise the shared JSDOM-backed parser once per warm instance. */
+async function ensureXMLParser(): Promise<void> {
+  if (_xmlParser) return;
   const { JSDOM } = await import('jsdom');
-  (g as { DOMParser: unknown }).DOMParser = class NodeDOMParser {
+  // Minimal window — no resources, no scripting, no pretend-CSS.
+  _xmlParser = {
     parseFromString(str: string, type: string): Document {
-      const contentType = type === 'text/xml' ? 'text/xml' : 'text/html';
-      const dom = new JSDOM(str, { contentType });
-      return dom.window.document as unknown as Document;
-    }
+      const contentType =
+        type === 'text/xml' || type === 'application/xml' ? 'text/xml' : 'text/html';
+      return new JSDOM(str, { contentType }).window.document as unknown as Document;
+    },
   };
 }
 
-type DOMParserCtor = { new (): { parseFromString(s: string, t: string): Document } };
+/** Parse an HTML string for image extraction (reuses the singleton parser). */
+async function parseHTML(html: string): Promise<Document> {
+  await ensureXMLParser();
+  return _xmlParser!.parseFromString(html, 'text/html');
+}
+
 
 // ── Text utilities ────────────────────────────────────────────────────────
 
@@ -198,11 +219,11 @@ function absoluteUrl(src: string, baseUrl: string): string {
   }
 }
 
-function extractImageFromHtml(html: string, baseUrl: string): string {
+async function extractImageFromHtml(html: string, baseUrl: string): Promise<string> {
   if (!html) return '';
   try {
-    const parser = new (globalThis as unknown as { DOMParser: DOMParserCtor }).DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    // parseHTML uses JSDOM only for HTML img extraction — not for RSS XML.
+    const doc = await parseHTML(html);
     const candidates = Array.from(doc.querySelectorAll('img'));
     for (const img of candidates) {
       const raw =
@@ -329,8 +350,8 @@ async function fetchRSSFeed(
     const xml = await response.text();
     if (xml.trim().startsWith('<!DOCTYPE') || xml.trim().toLowerCase().startsWith('<html')) return [];
 
-    const parser = new (globalThis as unknown as { DOMParser: DOMParserCtor }).DOMParser();
-    const doc = parser.parseFromString(xml, 'text/xml');
+    // Use the lightweight XML parser (xmldom or JSDOM fallback), not globalThis.DOMParser.
+    const doc = _xmlParser!.parseFromString(xml, 'text/xml');
     if (doc.querySelector('parsererror')) return [];
 
     const items = Array.from(doc.querySelectorAll('item'));
@@ -365,7 +386,7 @@ async function fetchRSSFeed(
         const mediaThumb = it.getElementsByTagName('media:thumbnail')[0];
         if (mediaThumb) image = absoluteUrl(mediaThumb.getAttribute('url') || '', source.baseUrl);
       }
-      if (!image) image = extractImageFromHtml(contentEncoded || description, source.baseUrl);
+      if (!image) image = await extractImageFromHtml(contentEncoded || description, source.baseUrl);
 
       const ts = parseDateToTs(pubDate);
 
@@ -414,7 +435,8 @@ export interface AggregateOptions {
 
 /** Fetch + process every RSS source into the full deduped/clustered feed. */
 async function aggregateUncached(): Promise<NewsItem[]> {
-  await ensureDOMParser();
+  // Initialise the lightweight XML parser once per warm instance.
+  await ensureXMLParser();
 
   const totalDeadline = Date.now() + TOTAL_TIMEOUT_MS;
   const perFeed = NEWS_SOURCES.map((source) => {

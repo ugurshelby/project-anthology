@@ -122,17 +122,42 @@ export function getSyncWindows(races: CalendarRace[]): SyncWindow[] {
 }
 
 /**
- * Windows whose dueAt fell within [now - lookbackMs, now].
- * Hourly GitHub Actions passes lookbackMs ≈ 65 minutes.
+ * Windows whose dueAt has passed and (optionally) have not yet been ingested.
+ *
+ * Primary use-case: hourly GitHub Actions pass `lookbackMs ≈ 65 minutes` to
+ * catch only the most recent window. When the action is delayed or skipped,
+ * passing `alreadyIngestedKeys` (a Set of `"season-round-kind"` strings built
+ * from existing DB snapshots) enables catch-up: any past window that is
+ * missing from the DB will be returned regardless of how old it is, up to
+ * `maxLookbackMs` (default: 7 days, so we never re-fetch an entire season).
+ *
+ * Backwards-compatible: both new parameters are optional. Without them the
+ * function behaves exactly as before (65-minute strict window).
  */
 export function getDueSyncWindows(
   windows: SyncWindow[],
   now: Date = new Date(),
   lookbackMs = 65 * 60 * 1000,
+  alreadyIngestedKeys?: Set<string>,
+  maxLookbackMs = 7 * 24 * 60 * 60 * 1000,
 ): SyncWindow[] {
   const t = now.getTime();
-  const start = t - lookbackMs;
-  return windows.filter((w) => w.kind !== 'calendar' && w.dueAt > 0 && w.dueAt <= t && w.dueAt >= start);
+  const strictStart = t - lookbackMs;
+
+  return windows.filter((w) => {
+    if (w.kind === 'calendar' || w.dueAt <= 0 || w.dueAt > t) return false;
+
+    // Always include windows within the strict lookback window.
+    if (w.dueAt >= strictStart) return true;
+
+    // Beyond the strict window: only include if catch-up keys are provided
+    // and this window has not been ingested yet.
+    if (!alreadyIngestedKeys) return false;
+    if (t - w.dueAt > maxLookbackMs) return false; // too old — skip
+
+    const key = `${w.round ?? 'null'}-${w.kind}`;
+    return !alreadyIngestedKeys.has(key);
+  });
 }
 
 /** Whether a round should be processed in live ingestion scope. */

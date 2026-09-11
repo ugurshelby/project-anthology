@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS } from './nav-items';
 import { NavIcon } from './NavIcons';
@@ -13,6 +13,9 @@ import { NavIcon } from './NavIcons';
  */
 export function MobileNav() {
   const pathname = usePathname();
+  // Disable eager viewport-based prefetch; use touch-intent instead to avoid
+  // ERR_ABORTED cascade and wasted bandwidth on heavy RSC routes.
+  const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [lastPathname, setLastPathname] = useState(pathname);
 
@@ -67,6 +70,8 @@ export function MobileNav() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={false}
+                  onTouchStart={() => router.prefetch(item.href)}
                   role="menuitem"
                   aria-current={active ? 'page' : undefined}
                   className={[
@@ -107,6 +112,8 @@ export function MobileNav() {
               <li key={item.href} className="flex-1">
                 <Link
                   href={item.href}
+                  prefetch={false}
+                  onTouchStart={() => router.prefetch(item.href)}
                   aria-current={active ? 'page' : undefined}
                   className={[
                     'label-caps mx-auto flex h-11 max-w-[4.5rem] flex-col items-center justify-center gap-0.5 rounded-full px-2 transition-all duration-150 active:scale-90',
