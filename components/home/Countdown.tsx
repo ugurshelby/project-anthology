@@ -21,7 +21,7 @@ export function Countdown({ targetMs }: { targetMs: number }) {
   }, []);
 
   if (now === null) {
-    return <span className="font-mono text-sm text-zinc-500">-- · -- · -- · --</span>;
+    return <span className="font-mono text-sm text-text-low">-- · -- · -- · --</span>;
   }
 
   const diff = targetMs - now;
@@ -50,7 +50,7 @@ export function Countdown({ targetMs }: { targetMs: number }) {
       ].map((u) => (
         <span key={u.l} className="flex items-baseline gap-0.5">
           <span className="text-[clamp(1.4rem,3.5vw,2.25rem)] leading-none">{pad(u.v)}</span>
-          <span className="text-[10px] text-zinc-500">{u.l}</span>
+          <span className="text-xs text-text-low">{u.l}</span>
         </span>
       ))}
     </div>

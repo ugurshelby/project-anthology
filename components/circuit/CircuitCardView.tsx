@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ApexFallback } from '@/components/media/ApexFallback';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { CircuitCard } from '@/lib/data/circuits';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { countryFlag } from '@/lib/data/countryFlags';
@@ -32,17 +34,21 @@ export function CircuitCardView({
       href={`/circuits/${card.circuitId}`}
       className="group relative flex min-h-[200px] flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface/50 backdrop-blur-sm transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
     >
-      {cover ? (
-        <div className="absolute inset-0 overflow-hidden">
-          <Image
+      <div className="absolute inset-0 overflow-hidden">
+        {cover ? (
+          <ApexImage
             src={cover}
             alt=""
             fill
+            kind="circuit"
+            fallbackLabel={card.circuitName}
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-[transform,filter] duration-300 saturate-75 brightness-90 group-hover:scale-105 group-hover:saturate-110 group-hover:brightness-105"
           />
-        </div>
-      ) : null}
+        ) : (
+          <ApexFallback kind="circuit" label={card.circuitName} />
+        )}
+      </div>
 
       <span
         aria-hidden

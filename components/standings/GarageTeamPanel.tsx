@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ApexFallback } from '@/components/media/ApexFallback';
+import { ApexImage } from '@/components/media/ApexImage';
 import { teamIconSrc, carSrc, driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
@@ -44,27 +45,35 @@ function DriverBay({
           background: `radial-gradient(circle at 50% 28%, color-mix(in srgb, ${color} 28%, transparent), transparent 62%)`,
         }}
       />
-      <span
-        aria-hidden
-        className="hero-number pointer-events-none absolute inset-0 z-0 flex select-none items-center justify-center text-[clamp(4.5rem,18vw,7.5rem)] leading-none text-white/[0.08]"
-      >
-        {number}
-      </span>
       {portrait ? (
+        <>
+          <span
+            aria-hidden
+            className="hero-number pointer-events-none absolute inset-0 z-0 flex select-none items-center justify-center text-[clamp(4.5rem,18vw,7.5rem)] leading-none text-white/[0.08]"
+          >
+            {number}
+          </span>
+          <div className="pointer-events-none absolute inset-0 z-[1]">
+            <ApexImage
+              src={portrait}
+              alt=""
+              fill
+              kind="driver"
+              fallbackLabel={row.driverName}
+              sizes="(max-width: 768px) 50vw, 28vw"
+              className="object-contain object-top scale-110 md:object-bottom md:scale-125"
+              style={{
+                maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
+              }}
+            />
+          </div>
+        </>
+      ) : (
         <div className="pointer-events-none absolute inset-0 z-[1]">
-          <Image
-            src={portrait}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 50vw, 28vw"
-            className="object-contain object-top scale-110 md:object-bottom md:scale-125"
-            style={{
-              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
-            }}
-          />
+          <ApexFallback kind="driver" label={row.driverName} />
         </div>
-      ) : null}
+      )}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-2/3 bg-gradient-to-t from-[#050505] via-[#050505]/85 to-transparent"
@@ -76,7 +85,7 @@ function DriverBay({
         >
           {row.driverName}
         </span>
-        <div className="data-tabular flex justify-between text-xs text-zinc-400 md:text-sm">
+        <div className="data-tabular flex justify-between text-xs text-text-mid md:text-sm">
           <span>P{row.position}</span>
           <span className="text-text-hi">{row.points} PTS</span>
         </div>
@@ -101,7 +110,7 @@ function EmptySeat({ divided }: { divided?: boolean }) {
             'repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(255,255,255,0.04) 11px, rgba(255,255,255,0.04) 12px), repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.04) 11px, rgba(255,255,255,0.04) 12px)',
         }}
       />
-      <span className="relative z-10 font-mono text-xs font-700 uppercase tracking-wider text-zinc-500">
+      <span className="relative z-10 font-mono text-xs font-700 uppercase tracking-wider text-text-low">
         TBA // Seat unconfirmed
       </span>
     </div>
@@ -136,7 +145,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <span className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10">
-                {logo ? <Image src={logo} alt="" fill sizes="40px" className="object-contain" /> : null}
+                <ApexImage src={logo} alt="" fill kind="media" sizes="40px" className="object-contain" fallbackLabel="TEAM" />
               </span>
               <span
                 className="font-condensed truncate text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
@@ -148,35 +157,31 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
             <span className="data-tabular shrink-0 text-accent">P{unit.constructorPosition}</span>
           </div>
 
-          {car ? (
-            <div className="relative h-16 w-full sm:h-20 lg:mt-auto lg:h-28">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-50"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,255,255,0.06) 10px, rgba(255,255,255,0.06) 11px), repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(255,255,255,0.06) 10px, rgba(255,255,255,0.06) 11px)',
-                }}
-              />
-              <Image
+          <div className="relative h-16 w-full sm:h-20 lg:mt-auto lg:h-28">
+            {car ? (
+              <ApexImage
                 src={car}
                 alt=""
                 fill
+                kind="car"
+                fallbackLabel={unit.constructorName}
                 sizes="(max-width: 1024px) 100vw, 38vw"
                 className="object-contain object-bottom"
               />
-            </div>
-          ) : null}
+            ) : (
+              <ApexFallback kind="car" label={unit.constructorName} />
+            )}
+          </div>
 
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             {unit.powerUnit ? (
-              <span className="data-tabular text-[10px] uppercase tracking-wider text-zinc-500">
+              <span className="data-tabular text-xs uppercase tracking-wider text-text-low">
                 {unit.powerUnit}
               </span>
             ) : (
               <span />
             )}
-            <span className="data-tabular text-xs text-zinc-400">
+            <span className="data-tabular text-xs text-text-mid">
               {unit.wins} W · {unit.points} PTS
             </span>
           </div>

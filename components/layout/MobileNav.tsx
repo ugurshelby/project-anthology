@@ -126,7 +126,7 @@ export function MobileNav() {
                   }
                 >
                   <NavIcon icon={item.icon!} className="h-4.5 w-4.5" />
-                  <span className="text-[10px]">{item.label}</span>
+                  <span className="text-xs">{item.label}</span>
                 </Link>
               </li>
             );

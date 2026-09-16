@@ -5,7 +5,7 @@ function TelemetryBar({ label, value, color }: { label: string; value: number; c
   const clamped = Math.max(0, Math.min(10, value));
   return (
     <div className="flex items-center gap-2">
-      <span className="data-tabular w-[4.5rem] shrink-0 text-[10px] uppercase tracking-wider text-zinc-500">
+      <span className="data-tabular w-[4.5rem] shrink-0 text-xs uppercase tracking-wider text-text-low">
         {label}
       </span>
       <div className="flex flex-1 gap-px" aria-hidden>

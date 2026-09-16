@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ApexFallback } from '@/components/media/ApexFallback';
+import { ApexImage } from '@/components/media/ApexImage';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import type { DriverGridRow } from '@/lib/data/entities';
@@ -28,25 +29,31 @@ export function GridDriverStandings({
                 className="pointer-events-none absolute inset-y-0 left-0 w-0.5"
                 style={{ backgroundColor: color }}
               />
-              <span className="data-tabular w-8 shrink-0 text-sm text-zinc-500 md:w-10 md:text-base">
+              <span className="data-tabular w-8 shrink-0 text-sm text-text-low md:w-10 md:text-base">
                 P{row.position}
               </span>
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface md:h-14 md:w-14">
-                <span
-                  aria-hidden
-                  className="hero-number pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-2xl text-white/10"
-                >
-                  {number}
-                </span>
                 {portrait ? (
-                  <Image
-                    src={portrait}
-                    alt=""
-                    fill
-                    sizes="56px"
-                    className="relative z-[1] object-contain object-top"
-                  />
-                ) : null}
+                  <>
+                    <span
+                      aria-hidden
+                      className="hero-number pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-2xl text-white/10"
+                    >
+                      {number}
+                    </span>
+                    <ApexImage
+                      src={portrait}
+                      alt=""
+                      fill
+                      kind="driver"
+                      fallbackLabel={row.driverName}
+                      sizes="56px"
+                      className="relative z-[1] object-contain object-top"
+                    />
+                  </>
+                ) : (
+                  <ApexFallback kind="driver" label={row.driverCode ?? 'DRV'} />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <span
@@ -55,7 +62,7 @@ export function GridDriverStandings({
                 >
                   {row.driverName}
                 </span>
-                <span className="data-tabular text-xs text-zinc-500">{row.constructorName}</span>
+                <span className="data-tabular text-xs text-text-low">{row.constructorName}</span>
               </div>
               <span className="data-tabular shrink-0 text-text-hi">{row.points} PTS</span>
             </Link>

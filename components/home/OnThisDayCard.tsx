@@ -34,7 +34,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
       <div className="relative z-10 flex flex-col justify-center gap-3 p-5 md:p-8">
         <div className="flex items-baseline justify-between gap-2">
           <span className="label-caps text-text-mid">On This Day</span>
-          <span className="label-caps text-zinc-500">{dateLabel}</span>
+          <span className="label-caps text-text-low">{dateLabel}</span>
         </div>
         <h2
           className="font-condensed text-2xl font-700 uppercase italic leading-tight text-text-hi md:text-3xl"
@@ -43,7 +43,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
           {featured.season} · {featured.raceName}
         </h2>
         {podium.length > 0 ? (
-          <p className="font-mono text-xs uppercase tracking-wide text-zinc-400">
+          <p className="font-mono text-xs uppercase tracking-wide text-text-mid">
             Podium · {podium.join(' · ')}
           </p>
         ) : null}
@@ -56,7 +56,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
           {featured.season ? ` in ${featured.season}` : ''}.
         </p>
         {entries.length > 1 ? (
-          <p className="data-tabular text-[11px] text-zinc-500">
+          <p className="data-tabular text-xs text-text-low">
             Also {entries.slice(1, 4).map((e) => e.season).join(' · ')}
           </p>
         ) : null}

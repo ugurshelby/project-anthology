@@ -30,7 +30,7 @@ export function WireItem({ item }: { item: NewsItem }) {
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="data-tabular text-[10px] uppercase tracking-wider text-zinc-500">
+        <span className="data-tabular text-xs uppercase tracking-wider text-text-low">
           {item.dateLabel} · {item.sourceName}
         </span>
         <span
@@ -84,7 +84,7 @@ export function NewsHero({ item }: { item: NewsItem }) {
       )}
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent" />
       <div className="relative z-10 flex flex-col gap-2">
-        <span className="data-tabular text-[10px] uppercase tracking-wider text-zinc-400">
+        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
           {item.dateLabel} · {item.sourceName}
         </span>
         <h2 className="headline-lg line-clamp-3 text-text-hi">{item.title}</h2>
@@ -115,7 +115,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
       )}
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-bg/20" />
       <div className="relative z-10 flex flex-col gap-1.5">
-        <span className="data-tabular text-[10px] uppercase tracking-wider text-zinc-400">
+        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
           {item.dateLabel} · {item.sourceName}
         </span>
         <span

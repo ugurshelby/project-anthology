@@ -75,7 +75,7 @@ export function GlossaryExplorer({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search technical terms…  (Press / to search)"
-            className="w-full rounded-[var(--radius-chip)] border border-white/10 bg-surface/80 px-4 py-2.5 font-mono text-sm text-text-hi outline-none placeholder:text-zinc-600 focus:border-white/25"
+            className="w-full rounded-[var(--radius-chip)] border border-white/10 bg-surface/80 px-4 py-2.5 font-mono text-sm text-text-hi outline-none placeholder:text-text-low focus:border-white/25"
           />
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -91,7 +91,7 @@ export function GlossaryExplorer({
                   'label-caps shrink-0 rounded-[var(--radius-pill)] border px-3 py-1.5 transition-colors',
                   selected
                     ? 'border-white/20 bg-white/5 text-text-hi'
-                    : 'border-transparent text-zinc-500 hover:text-zinc-300',
+                    : 'border-transparent text-text-low hover:text-text-mid',
                 ].join(' ')}
               >
                 {chip.label}
@@ -149,7 +149,7 @@ export function GlossaryExplorer({
               <h3 id="tyre-sheet-title" className="font-condensed text-xl font-700 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                 {sheetTyre.name}
               </h3>
-              <button type="button" onClick={() => setSheetTyre(null)} className="label-caps text-zinc-500">
+              <button type="button" onClick={() => setSheetTyre(null)} className="label-caps text-text-low">
                 Close
               </button>
             </div>

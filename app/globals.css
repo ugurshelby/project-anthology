@@ -13,8 +13,8 @@
   --hairline: #262626;
   --text-hi: #ffffff;
   --text: #e6e6e6;
-  --text-mid: #9a9a9a;
-  --text-low: #666666;
+  --text-mid: #A1A6AE;
+  --text-low: #8A8F98;
 
   /* §1.3 Global accent — Apex Red (tek kaynak: config/team-colors.ts). */
   --accent: #ff1801;
@@ -28,6 +28,10 @@
   --radius-lg: 16px; /* kart / büyük container */
   --radius: 8px; /* buton / çip */
   --radius-pill: 9999px;
+
+  /* §4 Card rhythm */
+  --card-pad: 1.5rem; /* 24px — mobile card padding */
+  --card-pad-md: 2rem; /* 32px — md+ card padding */
 
   /* §3.2 Grid & ritim */
   --container-max: 1440px;
@@ -129,6 +133,13 @@ body {
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 16px;
+  line-height: 1.5;
+}
+
+.body-sm {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
   line-height: 1.5;
 }
 

@@ -40,8 +40,8 @@ export function TeamConstructorPulse({
           <div className="flex flex-wrap items-end gap-4">
             <span className="hero-number text-[clamp(56px,10vw,104px)] text-accent">P{position}</span>
             <div className="flex flex-col gap-0.5 pb-1">
-              <span className="font-mono text-lg text-zinc-200">{points} PTS</span>
-              <span className="label-caps text-zinc-500">Championship</span>
+              <span className="font-mono text-lg text-text">{points} PTS</span>
+              <span className="label-caps text-text-low">Championship</span>
             </div>
           </div>
         </div>

@@ -28,7 +28,7 @@ export function HomeAnthologyCard({ story }: { story: Story }) {
           {story.title}
         </h2>
         {story.subtitle ? (
-          <p className="line-clamp-3 body-md text-zinc-400">{truncateToWord(story.subtitle, 140)}</p>
+          <p className="line-clamp-3 body-md text-text-mid">{truncateToWord(story.subtitle, 140)}</p>
         ) : null}
       </div>
     </Link>

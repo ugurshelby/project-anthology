@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import { ApexFallback } from '@/components/media/ApexFallback';
+import { ApexImage } from '@/components/media/ApexImage';
 import Link from 'next/link';
 import { Countdown } from '@/components/home/Countdown';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
@@ -105,15 +107,19 @@ export function NextCircuitHero({
 
         <div className="relative min-h-[220px] border-t border-white/[0.06] lg:min-h-[360px] lg:border-t-0 lg:border-l">
           {cover ? (
-            <Image
+            <ApexImage
               src={cover}
               alt=""
               fill
+              kind="circuit"
+              fallbackLabel={card.circuitName}
               sizes="(max-width: 1024px) 100vw, 46vw"
               className="object-cover saturate-90 brightness-95"
               priority
             />
-          ) : null}
+          ) : (
+            <ApexFallback kind="circuit" label={card.circuitName} />
+          )}
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10 lg:bg-gradient-to-l lg:from-black/80 lg:via-black/30 lg:to-transparent"

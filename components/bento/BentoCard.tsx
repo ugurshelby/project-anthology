@@ -33,7 +33,7 @@ export function BentoCard({
     <Tag
       className={[
         SPAN[span],
-        'group relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6 md:p-8',
+        'group relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-[var(--card-pad)] md:p-[var(--card-pad-md)]',
         'shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)]',
         interactive
           ? 'bg-surface-raised/0 transition-[transform,opacity] duration-150 ease-out will-change-transform hover:-translate-y-0.5 hover:opacity-95'
