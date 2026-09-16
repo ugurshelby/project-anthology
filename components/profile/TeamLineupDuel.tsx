@@ -48,7 +48,7 @@ function DriverPole({
         >
           {driver.driverName}
         </span>
-        <span className="font-mono text-xs text-zinc-500">
+        <span className="font-mono text-xs text-text-low">
           {codeOf(driver)} · P{driver.position}
         </span>
       </div>
@@ -93,7 +93,7 @@ export function TeamLineupDuel({
               <DriverPole driver={d2} season={season} constructorName={constructorName} align="right" />
             ) : (
               <div className="flex flex-1 items-center justify-end">
-                <span className="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                <span className="font-mono text-xs uppercase tracking-wider text-text-low">
                   TBA // Seat unconfirmed
                 </span>
               </div>
@@ -102,9 +102,9 @@ export function TeamLineupDuel({
 
           {d2 ? (
             <div className="flex flex-col gap-2">
-              <div className="flex items-baseline justify-between font-mono text-sm text-zinc-200 md:text-base">
+              <div className="flex items-baseline justify-between font-mono text-sm text-text md:text-base">
                 <span>{leftPts} PTS</span>
-                <span className="label-caps text-zinc-500">Telemetry split</span>
+                <span className="label-caps text-text-low">Telemetry split</span>
                 <span>{rightPts} PTS</span>
               </div>
               <div className="relative h-2 overflow-hidden rounded-full bg-white/[0.06]">

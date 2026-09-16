@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 
@@ -41,7 +41,7 @@ export function DriverAvatar({
       style={{ width: size, height: size }}
     >
       {portrait ? (
-        <Image src={portrait} alt="" fill sizes={`${size}px`} className="object-cover object-top" />
+        <ApexImage src={portrait} alt="" fill kind="driver" fallbackLabel={driverName} sizes={`${size}px`} className="object-cover object-top" />
       ) : (
         <span
           className="flex h-full w-full items-center justify-center font-condensed font-700 uppercase text-text-hi"

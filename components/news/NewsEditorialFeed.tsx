@@ -45,7 +45,7 @@ function CompactNewsRow({ item }: { item: NewsItem }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <span className="data-tabular text-[10px] uppercase tracking-wider text-zinc-500">
+        <span className="data-tabular text-xs uppercase tracking-wider text-text-low">
           {item.dateLabel} · {item.sourceName}
         </span>
         <span

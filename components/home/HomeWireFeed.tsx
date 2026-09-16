@@ -40,7 +40,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
                     </div>
                   ) : null}
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs uppercase tracking-wider text-text-low">
                       <span>[{formatWireTime(item.publishedTs)}]</span>
                       <span className="text-accent/80">[{team ?? item.sourceName.toUpperCase().slice(0, 10)}]</span>
                     </div>

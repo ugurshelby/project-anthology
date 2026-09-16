@@ -26,7 +26,7 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       )}
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-transparent" />
       <div className="relative z-10 flex flex-col gap-1.5">
-        <span className="data-tabular text-[10px] uppercase tracking-wider text-zinc-400">
+        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
           {item.dateLabel} · {item.sourceName}
         </span>
         <span
@@ -86,11 +86,11 @@ export function NewsLeadBlock({
             <p className="line-clamp-2 max-w-xl body-md text-text-mid">{lead.summary}</p>
           ) : null}
           <div className="mt-1 flex flex-wrap items-center gap-3">
-            <span className="data-tabular text-xs text-zinc-400">
+            <span className="data-tabular text-xs text-text-mid">
               {readMins} MIN READ
             </span>
-            <span className="text-zinc-600">·</span>
-            <span className="data-tabular text-xs text-zinc-400">
+            <span className="text-text-low">·</span>
+            <span className="data-tabular text-xs text-text-mid">
               {lead.dateLabel} · {lead.sourceName}
             </span>
           </div>

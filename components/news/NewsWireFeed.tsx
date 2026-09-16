@@ -19,7 +19,7 @@ export function NewsWireFeed({
     <section className="mt-10 border border-hairline bg-surface/40">
       <div className="flex items-center justify-between border-b border-hairline px-4 py-3 md:px-5">
         <h2 className="label-caps text-text-mid">{heading}</h2>
-        <span className="data-tabular text-[10px] text-zinc-500">{items.length} items</span>
+        <span className="data-tabular text-xs text-text-low">{items.length} items</span>
       </div>
       <ul className="divide-y divide-hairline">
         {items.map((item) => {
@@ -30,7 +30,7 @@ export function NewsWireFeed({
                 href={`/news/${item.id}`}
                 className="group flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-white/[0.03] md:flex-row md:items-baseline md:gap-3 md:px-5"
               >
-                <span className="data-tabular shrink-0 text-xs text-zinc-500">
+                <span className="data-tabular shrink-0 text-xs text-text-low">
                   [{formatWireTime(item.publishedTs)}]
                 </span>
                 <span className="data-tabular shrink-0 text-xs text-accent/80">
@@ -39,7 +39,7 @@ export function NewsWireFeed({
                 <span className="min-w-0 flex-1 text-sm leading-snug text-text-hi group-hover:text-white">
                   &ldquo;{item.title}&rdquo;
                 </span>
-                <span className="data-tabular shrink-0 text-xs text-zinc-500">
+                <span className="data-tabular shrink-0 text-xs text-text-low">
                   Source: {item.sourceName}
                 </span>
               </Link>

@@ -1,4 +1,5 @@
-import Image from 'next/image';
+import { ApexFallback } from '@/components/media/ApexFallback';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { CSSProperties } from 'react';
 
 const CAR_MASK: CSSProperties = {
@@ -52,10 +53,11 @@ export function TeamGarageHero({
       />
       {imageSrc ? (
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <Image
+          <ApexImage
             src={imageSrc}
             alt=""
             fill
+            kind="car"
             sizes="100vw"
             className="scale-[2.4] object-cover object-center opacity-25 blur-2xl saturate-50"
           />
@@ -86,18 +88,22 @@ export function TeamGarageHero({
           {title}
         </span>
 
-        {imageSrc ? (
-          <div className="absolute inset-x-0 top-[8%] z-10 mx-auto h-[min(42vh,280px)] w-full max-w-[1200px] md:top-[6%] md:h-[min(58vh,420px)] lg:h-[min(62vh,460px)]" style={CAR_MASK}>
-            <Image
+        <div className="absolute inset-x-0 top-[8%] z-10 mx-auto h-[min(42vh,280px)] w-full max-w-[1200px] md:top-[6%] md:h-[min(58vh,420px)] lg:h-[min(62vh,460px)]" style={imageSrc ? CAR_MASK : undefined}>
+          {imageSrc ? (
+            <ApexImage
               src={imageSrc}
               alt={imageAlt}
               fill
               priority
+              kind="car"
+              fallbackLabel={title}
               sizes="(max-width: 768px) 100vw, 1200px"
               className="object-contain object-bottom scale-110 md:scale-125 lg:scale-[1.35]"
             />
-          </div>
-        ) : null}
+          ) : (
+            <ApexFallback kind="car" label={title} className="rounded-[var(--radius-lg)]" />
+          )}
+        </div>
 
         <div className="relative z-20 hidden min-h-[520px] flex-col justify-end px-10 pb-12 lg:px-16 md:flex">
           <div className="flex items-end justify-between gap-6">
@@ -108,7 +114,7 @@ export function TeamGarageHero({
             </div>
             {logoSrc ? (
               <div className="relative h-14 w-14 shrink-0 opacity-80">
-                <Image src={logoSrc} alt="" fill sizes="56px" className="object-contain" />
+                <ApexImage src={logoSrc} alt="" fill kind="media" sizes="56px" className="object-contain" />
               </div>
             ) : null}
           </div>

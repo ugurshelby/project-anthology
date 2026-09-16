@@ -28,7 +28,7 @@ export function TermDossierCard({ term }: { term: GlossaryTerm }) {
       >
         <span className="min-w-0">
           <span className="block font-mono text-sm font-700 uppercase text-white">{term.term}</span>
-          <span className="label-caps text-zinc-500">{term.badge}</span>
+          <span className="label-caps text-text-low">{term.badge}</span>
         </span>
         <span
           aria-hidden
@@ -50,13 +50,13 @@ export function TermDossierCard({ term }: { term: GlossaryTerm }) {
             <h3 className="font-mono text-sm font-700 uppercase tracking-wide text-white md:text-base">
               {term.term}
             </h3>
-            <span className="label-caps rounded-[var(--radius-chip)] border border-white/10 bg-white/[0.04] px-2 py-0.5 text-zinc-400">
+            <span className="label-caps rounded-[var(--radius-chip)] border border-white/10 bg-white/[0.04] px-2 py-0.5 text-text-mid">
               {term.badge}
             </span>
           </div>
           <p className="line-clamp-2 body-md text-text-mid">{term.definition}</p>
           {term.keyImpact ? (
-            <p className="data-tabular text-xs leading-snug text-zinc-500">Key impact: {term.keyImpact}</p>
+            <p className="data-tabular text-xs leading-snug text-text-low">Key impact: {term.keyImpact}</p>
           ) : null}
         </div>
       </div>
@@ -64,7 +64,7 @@ export function TermDossierCard({ term }: { term: GlossaryTerm }) {
       <div className={open ? 'block md:hidden' : 'hidden md:hidden'}>
         <p className="body-md px-3 pb-3 text-text-mid">{term.definition}</p>
         {term.keyImpact ? (
-          <p className="data-tabular px-3 pb-3 text-xs text-zinc-500">Key impact: {term.keyImpact}</p>
+          <p className="data-tabular px-3 pb-3 text-xs text-text-low">Key impact: {term.keyImpact}</p>
         ) : null}
       </div>
     </article>

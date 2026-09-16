@@ -27,7 +27,7 @@ export function NewsFilterBar({
                 'label-caps shrink-0 rounded-[var(--radius-pill)] border px-3.5 py-1.5 transition-colors',
                 selected
                   ? 'border-white/20 bg-white/5 text-text-hi'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-300',
+                  : 'border-transparent text-text-low hover:text-text-mid',
               ].join(' ')}
             >
               {filter.label}

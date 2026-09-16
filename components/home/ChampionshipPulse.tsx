@@ -50,7 +50,7 @@ export function ChampionshipPulse({
                 >
                   P{row.position} {row.driverName}
                 </span>
-                <span className="font-mono shrink-0 text-xs text-zinc-500">+{delta} PTS</span>
+                <span className="font-mono shrink-0 text-xs text-text-low">+{delta} PTS</span>
               </div>
               <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
                 <span className="block h-full" style={{ width: `${width}%`, backgroundColor: color }} />
@@ -62,7 +62,7 @@ export function ChampionshipPulse({
 
       {topConstructors.length > 0 ? (
         <div className="mt-auto flex flex-col gap-2">
-          <span className="label-caps text-zinc-500">Constructors</span>
+          <span className="label-caps text-text-low">Constructors</span>
           {topConstructors.map((row) => {
             const pts = Number(row.points) || 0;
             const width = Math.max(8, (pts / constructorLead) * 100);
@@ -74,8 +74,8 @@ export function ChampionshipPulse({
                 className="flex flex-col gap-1"
               >
                 <div className="flex justify-between gap-2">
-                  <span className="truncate font-mono text-[11px] uppercase text-zinc-300">{row.constructorName}</span>
-                  <span className="font-mono text-[11px] text-zinc-500">{row.points}</span>
+                  <span className="truncate font-mono text-xs uppercase text-text-mid">{row.constructorName}</span>
+                  <span className="font-mono text-xs text-text-low">{row.points}</span>
                 </div>
                 <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
                   <span className="block h-full" style={{ width: `${width}%`, backgroundColor: color }} />
