@@ -2,571 +2,628 @@
   {
     "storyTitle": "The Divine Lap",
     "slug": "senna-monaco",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/senna-monaco/landscape/01.png",
     "export": "the-divine-lap-cover.png",
-    "status": "ok",
-    "bytes": 2124170
+    "status": "missing-asset",
+    "bytes": 19031,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Divine Lap",
     "slug": "senna-monaco",
-    "where": "govde · giris · MP4/4, Senna 1988.",
+    "where": "govde · giris",
     "caption": "MP4/4, Senna 1988.",
     "source": "/stories/senna-monaco/full/01.png",
     "export": "the-divine-lap-body-01-full-giris.png",
-    "status": "ok",
-    "bytes": 2124170
+    "status": "missing-asset",
+    "bytes": 18645,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "Fire & Ice",
     "slug": "hunt-lauda",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/hunt-lauda/landscape/01.png",
     "export": "fire-ice-cover.png",
     "status": "ok",
-    "bytes": 757186
+    "bytes": 757186,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "Fire & Ice",
     "slug": "hunt-lauda",
-    "where": "govde · blueprints-and-cigarettes · Hunt in the rain, Zandvoort.",
+    "where": "govde · blueprints-and-cigarettes",
     "caption": "Hunt in the rain, Zandvoort.",
     "source": "/stories/hunt-lauda/landscape/02.png",
     "export": "fire-ice-body-01-landscape-blueprints-and-cigarettes.png",
     "status": "missing-asset",
-    "bytes": 17849
+    "bytes": 17849,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "Fire & Ice",
     "slug": "hunt-lauda",
-    "where": "govde · the-ring · Lauda Ferrari 312T2.",
+    "where": "govde · the-ring",
     "caption": "Lauda Ferrari 312T2.",
     "source": "/stories/hunt-lauda/portrait/01.png",
     "export": "fire-ice-body-02-portrait-the-ring.png",
     "status": "missing-asset",
-    "bytes": 22547
+    "bytes": 22547,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The 39-Second Champion",
     "slug": "massa-2008",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/massa-2008/landscape/01.png",
     "export": "the-39-second-champion-cover.png",
     "status": "ok",
-    "bytes": 2275402
+    "bytes": 2275402,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The 39-Second Champion",
     "slug": "massa-2008",
-    "where": "govde · interlagos-weather-front · Interlagos grid in the rain.",
+    "where": "govde · interlagos-weather-front",
     "caption": "Interlagos grid in the rain.",
     "source": "/stories/massa-2008/landscape/02.png",
     "export": "the-39-second-champion-body-01-landscape-interlagos-weather-front.png",
     "status": "missing-asset",
-    "bytes": 18268
+    "bytes": 18268,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The 39-Second Champion",
     "slug": "massa-2008",
-    "where": "govde · the-switch · Ferrari cutting through spray.",
+    "where": "govde · the-switch",
     "caption": "Ferrari cutting through spray.",
     "source": "/stories/massa-2008/portrait/01.png",
     "export": "the-39-second-champion-body-02-portrait-the-switch.png",
     "status": "missing-asset",
-    "bytes": 17596
+    "bytes": 17596,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The 39-Second Champion",
     "slug": "massa-2008",
-    "where": "govde · dignity · Massa on the podium, rain and light.",
+    "where": "govde · dignity",
     "caption": "Massa on the podium, rain and light.",
     "source": "/stories/massa-2008/full/01.png",
     "export": "the-39-second-champion-body-03-full-dignity.png",
     "status": "ok",
-    "bytes": 2275402
+    "bytes": 2275402,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Red Baron",
     "slug": "schumacher-ferrari",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/schumacher-ferrari/landscape/01.png",
     "export": "the-red-baron-cover.png",
     "status": "ok",
-    "bytes": 1780378
+    "bytes": 1780378,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Red Baron",
     "slug": "schumacher-ferrari",
-    "where": "govde · maranello-bells · Ferrari F2004 silhouette.",
+    "where": "govde · maranello-bells",
     "caption": "Ferrari F2004 silhouette.",
     "source": "/stories/schumacher-ferrari/landscape/02.png",
     "export": "the-red-baron-body-01-landscape-maranello-bells.png",
     "status": "missing-asset",
-    "bytes": 17473
+    "bytes": 17473,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Red Baron",
     "slug": "schumacher-ferrari",
-    "where": "govde · dynasty · Schumacher era, red dominance.",
+    "where": "govde · dynasty",
     "caption": "Schumacher era, red dominance.",
     "source": "/stories/schumacher-ferrari/portrait/01.png",
     "export": "the-red-baron-body-02-portrait-dynasty.png",
     "status": "ok",
-    "bytes": 3205606
+    "bytes": 3205606,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Red Baron",
     "slug": "schumacher-ferrari",
-    "where": "govde · dynasty · The Tifosi at Monza.",
+    "where": "govde · dynasty",
     "caption": "The Tifosi at Monza.",
     "source": "/stories/schumacher-ferrari/full/01.png",
     "export": "the-red-baron-body-03-full-dynasty.png",
     "status": "missing-asset",
-    "bytes": 17800
+    "bytes": 17800,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Zonta Overtake",
     "slug": "hakkinen-schumacher",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/hakkinen-schumacher/landscape/01.png",
     "export": "the-zonta-overtake-cover.png",
     "status": "missing-asset",
-    "bytes": 17691
+    "bytes": 17691,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Zonta Overtake",
     "slug": "hakkinen-schumacher",
-    "where": "govde · knife-edge · Häkkinen, focus through Eau Rouge.",
+    "where": "govde · knife-edge",
     "caption": "Häkkinen, focus through Eau Rouge.",
     "source": "/stories/hakkinen-schumacher/landscape/02.png",
     "export": "the-zonta-overtake-body-01-landscape-knife-edge.png",
     "status": "missing-asset",
-    "bytes": 17073
+    "bytes": 17073,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Zonta Overtake",
     "slug": "hakkinen-schumacher",
-    "where": "govde · the-split · Schumacher, the constant adversary.",
+    "where": "govde · the-split",
     "caption": "Schumacher, the constant adversary.",
     "source": "/stories/hakkinen-schumacher/portrait/01.png",
     "export": "the-zonta-overtake-body-02-portrait-the-split.png",
     "status": "missing-asset",
-    "bytes": 22607
+    "bytes": 22607,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "Copse Corner",
     "slug": "hamilton-silverstone",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/hamilton-silverstone/landscape/01.png",
     "export": "copse-corner-cover.png",
     "status": "ok",
-    "bytes": 1375897
+    "bytes": 1375897,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "Copse Corner",
     "slug": "hamilton-silverstone",
-    "where": "govde · giris · Hamilton's victory lap, Silverstone 2021.",
+    "where": "govde · giris",
     "caption": "Hamilton's victory lap, Silverstone 2021.",
     "source": "/stories/hamilton-silverstone/full/01.png",
     "export": "copse-corner-body-01-full-giris.png",
     "status": "missing-asset",
-    "bytes": 18216
+    "bytes": 18216,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Longest Race",
     "slug": "button-canada",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/button-canada/landscape/01.png",
     "export": "the-longest-race-cover.png",
     "status": "ok",
-    "bytes": 1851035
+    "bytes": 1851035,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Longest Race",
     "slug": "button-canada",
-    "where": "govde · weather-system · Parc Jean-Drapeau under rain.",
+    "where": "govde · weather-system",
     "caption": "Parc Jean-Drapeau under rain.",
     "source": "/stories/button-canada/landscape/02.png",
     "export": "the-longest-race-body-01-landscape-weather-system.png",
     "status": "ok",
-    "bytes": 1469116
+    "bytes": 1469116,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Longest Race",
     "slug": "button-canada",
-    "where": "govde · the-hunt · Button, soaked and relentless.",
+    "where": "govde · the-hunt",
     "caption": "Button, soaked and relentless.",
     "source": "/stories/button-canada/portrait/01.png",
     "export": "the-longest-race-body-02-portrait-the-hunt.png",
     "status": "missing-asset",
-    "bytes": 22712
+    "bytes": 22712,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Green Hell",
     "slug": "fangio-nurburgring",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/fangio-nurburgring/landscape/01.png",
     "export": "the-green-hell-cover.png",
-    "status": "ok",
-    "bytes": 1412318
+    "status": "missing-asset",
+    "bytes": 18258,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Green Hell",
     "slug": "fangio-nurburgring",
-    "where": "govde · the-pit-gamble · Maserati 250F lines and muscle.",
+    "where": "govde · the-pit-gamble",
     "caption": "Maserati 250F lines and muscle.",
     "source": "/stories/fangio-nurburgring/landscape/02.png",
     "export": "the-green-hell-body-01-landscape-the-pit-gamble.png",
     "status": "ok",
-    "bytes": 2127962
+    "bytes": 2127962,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Green Hell",
     "slug": "fangio-nurburgring",
-    "where": "govde · the-chase · Fangio and the 250F.",
+    "where": "govde · the-chase",
     "caption": "Fangio and the 250F.",
     "source": "/stories/fangio-nurburgring/portrait/01.png",
     "export": "the-green-hell-body-02-portrait-the-chase.png",
     "status": "ok",
-    "bytes": 4378362
+    "bytes": 4378362,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Duel",
     "slug": "dijon-1979",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/dijon-1979/landscape/01.png",
     "export": "the-duel-cover.png",
-    "status": "ok",
-    "bytes": 1957654
+    "status": "missing-asset",
+    "bytes": 17663,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Duel",
     "slug": "dijon-1979",
-    "where": "govde · home-victory-battle-behind · Villeneuve's 312T4.",
+    "where": "govde · home-victory-battle-behind",
     "caption": "Villeneuve's 312T4.",
     "source": "/stories/dijon-1979/landscape/02.png",
     "export": "the-duel-body-01-landscape-home-victory-battle-behind.png",
     "status": "ok",
-    "bytes": 2673913
+    "bytes": 2673913,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Duel",
     "slug": "dijon-1979",
-    "where": "govde · home-victory-battle-behind · Arnoux in the RS10.",
+    "where": "govde · home-victory-battle-behind",
     "caption": "Arnoux in the RS10.",
     "source": "/stories/dijon-1979/portrait/01.png",
     "export": "the-duel-body-02-portrait-home-victory-battle-behind.png",
     "status": "ok",
-    "bytes": 1237311
+    "bytes": 1237311,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Black Weekend",
     "slug": "imola-1994",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/imola-1994/landscape/01.png",
     "export": "the-black-weekend-cover.png",
     "status": "missing-asset",
-    "bytes": 17876
+    "bytes": 17876,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Black Weekend",
     "slug": "imola-1994",
-    "where": "govde · omen · Senna memorial, Parco delle Acque Minerali.",
+    "where": "govde · omen",
     "caption": "Senna memorial, Parco delle Acque Minerali.",
     "source": "/stories/imola-1994/portrait/01.png",
     "export": "the-black-weekend-body-01-portrait-omen.png",
     "status": "ok",
-    "bytes": 4079715
+    "bytes": 4079715,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Black Weekend",
     "slug": "imola-1994",
-    "where": "govde · tamburello · Imola, old flow, new scars.",
+    "where": "govde · tamburello",
     "caption": "Imola, old flow, new scars.",
     "source": "/stories/imola-1994/landscape/01.png",
     "export": "the-black-weekend-body-02-landscape-tamburello.png",
     "status": "missing-asset",
-    "bytes": 17876
+    "bytes": 17876,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Phoenix",
     "slug": "brawn-2009",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/brawn-2009/landscape/01.png",
     "export": "the-phoenix-cover.png",
     "status": "ok",
-    "bytes": 998007
+    "bytes": 998007,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Phoenix",
     "slug": "brawn-2009",
-    "where": "govde · buyout-and-belief · BGP001 lines, white and neon.",
+    "where": "govde · buyout-and-belief",
     "caption": "BGP001 lines, white and neon.",
     "source": "/stories/brawn-2009/portrait/01.png",
     "export": "the-phoenix-body-01-portrait-buyout-and-belief.png",
     "status": "ok",
-    "bytes": 2051309
+    "bytes": 2051309,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Phoenix",
     "slug": "brawn-2009",
-    "where": "govde · six-of-seven · Button's 2009 motif.",
+    "where": "govde · six-of-seven",
     "caption": "Button's 2009 motif.",
     "source": "/stories/brawn-2009/landscape/02.png",
     "export": "the-phoenix-body-02-landscape-six-of-seven.png",
     "status": "ok",
-    "bytes": 1250750
+    "bytes": 1250750,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
     "slug": "schumacher-1994-spain",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/schumacher-1994-spain/landscape/01.png",
     "export": "the-fifth-gear-symphony-cover.png",
     "status": "ok",
-    "bytes": 2052913
+    "bytes": 2052913,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
     "slug": "schumacher-1994-spain",
-    "where": "govde · the-jam · Schumacher Benetton B194 Spain 1994.",
+    "where": "govde · the-jam",
     "caption": "Schumacher Benetton B194 Spain 1994.",
     "source": "/stories/schumacher-1994-spain/full/01.png",
     "export": "the-fifth-gear-symphony-body-01-full-the-jam.png",
     "status": "ok",
-    "bytes": 2052913
+    "bytes": 2052913,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
     "slug": "schumacher-1994-spain",
-    "where": "govde · the-jam · Steering wheel, Spain 1994.",
+    "where": "govde · the-jam",
     "caption": "Steering wheel, Spain 1994.",
     "source": "/stories/schumacher-1994-spain/portrait/01.png",
     "export": "the-fifth-gear-symphony-body-02-portrait-the-jam.png",
-    "status": "ok",
-    "bytes": 4471920
+    "status": "missing-asset",
+    "bytes": 23525,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
     "slug": "schumacher-1994-spain",
-    "where": "govde · the-physics · Benetton B194 exhaust flames.",
+    "where": "govde · the-physics",
     "caption": "Benetton B194 exhaust flames.",
     "source": "/stories/schumacher-1994-spain/landscape/02.png",
     "export": "the-fifth-gear-symphony-body-03-landscape-the-physics.png",
     "status": "missing-asset",
-    "bytes": 17709
+    "bytes": 17709,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
     "slug": "collins-fangio-1956",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/collins-fangio-1956/landscape/01.png",
     "export": "the-ultimate-sacrifice-cover.png",
     "status": "ok",
-    "bytes": 1008265
+    "bytes": 1008265,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
     "slug": "collins-fangio-1956",
-    "where": "govde · monza-final-round · Collins and Fangio, Monza 1956.",
+    "where": "govde · monza-final-round",
     "caption": "Collins and Fangio, Monza 1956.",
     "source": "/stories/collins-fangio-1956/full/01.png",
     "export": "the-ultimate-sacrifice-body-01-full-monza-final-round.png",
     "status": "ok",
-    "bytes": 1008265
+    "bytes": 1008265,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
     "slug": "collins-fangio-1956",
-    "where": "govde · monza-final-round · Ferrari D50 Monza 1956 track action.",
+    "where": "govde · monza-final-round",
     "caption": "Ferrari D50 Monza 1956 track action.",
     "source": "/stories/collins-fangio-1956/landscape/02.png",
     "export": "the-ultimate-sacrifice-body-02-landscape-monza-final-round.png",
     "status": "ok",
-    "bytes": 1147875
+    "bytes": 1147875,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
     "slug": "collins-fangio-1956",
-    "where": "govde · the-gift · Collins giving car to Fangio, 1956.",
+    "where": "govde · the-gift",
     "caption": "Collins giving car to Fangio, 1956.",
     "source": "/stories/collins-fangio-1956/portrait/01.png",
     "export": "the-ultimate-sacrifice-body-03-portrait-the-gift.png",
     "status": "missing-asset",
-    "bytes": 22769
+    "bytes": 22769,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Chaos Theory",
     "slug": "monaco-1982",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/monaco-1982/landscape/01.png",
     "export": "the-chaos-theory-cover.png",
     "status": "ok",
-    "bytes": 2194556
+    "bytes": 2194556,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Chaos Theory",
     "slug": "monaco-1982",
-    "where": "govde · the-final-lap · Monaco GP 1982 final lap chaos.",
+    "where": "govde · the-final-lap",
     "caption": "Monaco GP 1982 final lap chaos.",
     "source": "/stories/monaco-1982/full/01.png",
     "export": "the-chaos-theory-body-01-full-the-final-lap.png",
     "status": "ok",
-    "bytes": 2194556
+    "bytes": 2194556,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Chaos Theory",
     "slug": "monaco-1982",
-    "where": "govde · the-final-lap · Didier Pironi Ferrari Monaco 1982 stalled.",
+    "where": "govde · the-final-lap",
     "caption": "Didier Pironi Ferrari Monaco 1982 stalled.",
     "source": "/stories/monaco-1982/landscape/02.png",
     "export": "the-chaos-theory-body-02-landscape-the-final-lap.png",
     "status": "ok",
-    "bytes": 1823945
+    "bytes": 1823945,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Chaos Theory",
     "slug": "monaco-1982",
-    "where": "govde · the-winner · Riccardo Patrese Brabham Monaco 1982 win.",
+    "where": "govde · the-winner",
     "caption": "Riccardo Patrese Brabham Monaco 1982 win.",
     "source": "/stories/monaco-1982/portrait/01.png",
     "export": "the-chaos-theory-body-03-portrait-the-winner.png",
     "status": "ok",
-    "bytes": 4209336
+    "bytes": 4209336,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Triple Zero",
     "slug": "jerez-1997",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/jerez-1997/landscape/01.png",
     "export": "the-triple-zero-cover.png",
     "status": "ok",
-    "bytes": 1950644
+    "bytes": 1950644,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Triple Zero",
     "slug": "jerez-1997",
-    "where": "govde · the-mathematical-impossibility · Villeneuve Schumacher Frentzen 1:21.072 timing.",
+    "where": "govde · the-mathematical-impossibility",
     "caption": "Villeneuve Schumacher Frentzen 1:21.072 timing.",
     "source": "/stories/jerez-1997/full/01.png",
     "export": "the-triple-zero-body-01-full-the-mathematical-impossibility.png",
     "status": "missing-asset",
-    "bytes": 16777
+    "bytes": 16777,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Triple Zero",
     "slug": "jerez-1997",
-    "where": "govde · the-collision · Schumacher Villeneuve Jerez 1997 crash contact.",
+    "where": "govde · the-collision",
     "caption": "Schumacher Villeneuve Jerez 1997 crash contact.",
     "source": "/stories/jerez-1997/landscape/02.png",
     "export": "the-triple-zero-body-02-landscape-the-collision.png",
     "status": "ok",
-    "bytes": 2175835
+    "bytes": 2175835,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Triple Zero",
     "slug": "jerez-1997",
-    "where": "govde · the-collision · Jacques Villeneuve Williams 1997 Jerez celebration.",
+    "where": "govde · the-collision",
     "caption": "Jacques Villeneuve Williams 1997 Jerez celebration.",
     "source": "/stories/jerez-1997/portrait/01.png",
     "export": "the-triple-zero-body-03-portrait-the-collision.png",
     "status": "missing-asset",
-    "bytes": 22982
+    "bytes": 22982,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The Ghost of Donington",
     "slug": "senna-donington-1993",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/senna-donington-1993/landscape/01.png",
     "export": "the-ghost-of-donington-cover.png",
     "status": "ok",
-    "bytes": 1481423
+    "bytes": 1481423,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Ghost of Donington",
     "slug": "senna-donington-1993",
-    "where": "govde · the-deluge · Ayrton Senna Donington 1993 rain opening lap.",
+    "where": "govde · the-deluge",
     "caption": "Ayrton Senna Donington 1993 rain opening lap.",
     "source": "/stories/senna-donington-1993/full/01.png",
     "export": "the-ghost-of-donington-body-01-full-the-deluge.png",
     "status": "ok",
-    "bytes": 1481423
+    "bytes": 1481423,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Ghost of Donington",
     "slug": "senna-donington-1993",
-    "where": "govde · the-deluge · Senna McLaren MP4/8 Donington water spray.",
+    "where": "govde · the-deluge",
     "caption": "Senna McLaren MP4/8 Donington water spray.",
     "source": "/stories/senna-donington-1993/landscape/02.png",
     "export": "the-ghost-of-donington-body-02-landscape-the-deluge.png",
     "status": "ok",
-    "bytes": 2553452
+    "bytes": 2553452,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The Ghost of Donington",
     "slug": "senna-donington-1993",
-    "where": "govde · the-masterpiece · Ayrton Senna Donington 1993 Sonic trophy.",
+    "where": "govde · the-masterpiece",
     "caption": "Ayrton Senna Donington 1993 Sonic trophy.",
     "source": "/stories/senna-donington-1993/portrait/01.png",
     "export": "the-ghost-of-donington-body-03-portrait-the-masterpiece.png",
     "status": "missing-asset",
-    "bytes": 23092
+    "bytes": 23092,
+    "note": "Dark placeholder; historic source required"
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
     "slug": "jaguar-monaco-diamond",
-    "where": "hero / kapak (liste + detay)",
+    "where": "hero / kapak",
     "caption": "",
     "source": "/stories/jaguar-monaco-diamond/landscape/01.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-cover.png",
     "status": "ok",
-    "bytes": 1807014
+    "bytes": 1807014,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
     "slug": "jaguar-monaco-diamond",
-    "where": "govde · the-publicity-stunt · Jaguar R5 nose with Steinmetz diamond, Monaco 2004.",
+    "where": "govde · the-publicity-stunt",
     "caption": "Jaguar R5 nose with Steinmetz diamond, Monaco 2004.",
     "source": "/stories/jaguar-monaco-diamond/full/01.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-body-01-full-the-publicity-stunt.png",
     "status": "ok",
-    "bytes": 1807014
+    "bytes": 1807014,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
     "slug": "jaguar-monaco-diamond",
-    "where": "govde · the-impact · Christian Klien, Jaguar R5, Loews hairpin crash, Monaco 2004.",
+    "where": "govde · the-impact",
     "caption": "Christian Klien, Jaguar R5, Loews hairpin crash, Monaco 2004.",
     "source": "/stories/jaguar-monaco-diamond/landscape/02.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-body-02-landscape-the-impact.png",
     "status": "ok",
-    "bytes": 1666910
+    "bytes": 1666910,
+    "note": "Verified or remapped"
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
     "slug": "jaguar-monaco-diamond",
-    "where": "govde · the-mystery · Enigma: the lost Steinmetz diamond of Monaco.",
+    "where": "govde · the-mystery",
     "caption": "Enigma: the lost Steinmetz diamond of Monaco.",
     "source": "/stories/jaguar-monaco-diamond/portrait/01.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-body-03-portrait-the-mystery.png",
     "status": "missing-asset",
-    "bytes": 23371
+    "bytes": 23371,
+    "note": "Dark placeholder; historic source required"
   }
 ]
