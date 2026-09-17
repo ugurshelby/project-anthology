@@ -4,13 +4,13 @@
  */
 export const CSP_DIRECTIVES = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   // next/font is same-origin; Vercel Toolbar (preview) loads Geist from vercel.live.
   "font-src 'self' data: https://vercel.live",
   "frame-src 'self' https://vercel.live",
-  "connect-src 'self' data: https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
+  "connect-src 'self' data: https://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io https://*.vercel-insights.com https://va.vercel-scripts.com https://api.jolpi.ca https://api.openf1.org https://api.open-meteo.com",
   "frame-ancestors 'self' https://portfolio-orcin-chi-ad77scl275.vercel.app https://*.vercel.app",
   "base-uri 'self'",
   "form-action 'self'",
