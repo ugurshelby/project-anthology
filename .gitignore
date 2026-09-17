@@ -55,3 +55,9 @@ next-env.d.ts
 
 # Claude Code skill/brainstorm output — tool-local, not project source
 /.superpowers/
+
+# Local anthology remap working copies (do not commit)
+_stories-backup-*/
+_remap-staging/
+_remap-*.ps1
+_remap-*.mjs
