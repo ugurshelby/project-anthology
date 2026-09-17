@@ -443,7 +443,7 @@ export async function fetchAllRoundResults(
     .filter((n) => Number.isFinite(n) && n > 0);
 
   // ── 1) Batch DB query ────────────────────────────────────────────────────
-  let batchMap = new Map<number, MrData>();
+  const batchMap = new Map<number, MrData>();
   try {
     const supabase = getSupabaseClient();
     const { data: batchRows, error } = await supabase
