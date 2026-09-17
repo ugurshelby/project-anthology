@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { NEWS_FILTERS, type NewsCategory } from '@/lib/news/categories';
 
@@ -24,7 +24,7 @@ export function NewsFilterBar({
               onClick={() => onChange(filter.id)}
               aria-pressed={selected}
               className={[
-                'label-caps shrink-0 rounded-[var(--radius-pill)] border px-3.5 py-1.5 transition-colors',
+                'touch-target label-caps flex min-h-11 shrink-0 items-center rounded-[var(--radius-pill)] border px-3.5 py-2 transition-colors',
                 selected
                   ? 'border-white/20 bg-white/5 text-text-hi'
                   : 'border-transparent text-text-low hover:text-text-mid',

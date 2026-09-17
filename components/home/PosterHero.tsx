@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import { Countdown } from './Countdown';
 
@@ -14,7 +14,7 @@ export interface PosterHeroProps {
 }
 
 /**
- * Sinematik poster hero — Poster Dense (mobile ~42dvh) / Split Cinema left panel (lg 60dvh),
+ * Sinematik poster hero â€” Poster Dense (mobile ~42dvh) / Split Cinema left panel (lg 60dvh),
  * or a bounded bento-tile height when `contained` (homepage asymmetric grid).
  */
 export function PosterHero({
@@ -68,7 +68,7 @@ export function PosterHero({
         </div>
       ) : null}
 
-      <div className="relative z-10 flex flex-col gap-1 px-5 pb-8 pt-16 md:px-8 md:pb-10 lg:px-12 lg:pb-12">
+      <div className="relative z-10 flex flex-col gap-1 px-[max(1.25rem,env(safe-area-inset-left))] pb-8 pt-16 pr-5 md:px-8 md:pb-10 lg:px-12 lg:pb-12">
         <span className="label-caps text-accent">{eyebrow}</span>
         <h1 className="display-hero uppercase text-text-hi">{title}</h1>
         {subtitle ? <p className="data-tabular text-text-mid">{subtitle}</p> : null}

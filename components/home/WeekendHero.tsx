@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
 import { Countdown } from './Countdown';
@@ -72,16 +72,16 @@ export function WeekendHero({
         <h1 className="display-hero mt-2 max-w-[18ch] italic uppercase leading-[0.86] text-text-hi">{title}</h1>
         {subtitle ? <p className="data-tabular mt-2 text-text-mid">{subtitle}</p> : null}
 
-        <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           {countdownTargetMs ? <Countdown targetMs={countdownTargetMs} /> : (
             <span className="label-caps text-text-low">Schedule to be confirmed</span>
           )}
           {bar.length > 0 ? (
-            <div className="flex max-w-xl flex-wrap gap-x-5 gap-y-1 font-mono text-xs uppercase tracking-wide text-text-mid">
+            <div className="flex max-w-xl flex-col gap-2 font-mono text-[13px] uppercase tracking-wide text-text-mid sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-2">
               {bar.map((s) => (
                 <span key={s.id}>
                   <span className="text-text">{s.label}</span>
-                  <span className="text-text-low"> · </span>
+                  <span className="text-text-low"> Â· </span>
                   {s.when}
                 </span>
               ))}
