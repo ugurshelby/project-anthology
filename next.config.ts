@@ -45,15 +45,10 @@ const nextConfig: NextConfig = {
     // Drop 2048/3840 so news/srcset never asks the optimizer for 4K variants.
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    remotePatterns: [
-      { protocol: 'https', hostname: '**.motorsport.com' },
-      { protocol: 'https', hostname: '**.autosport.com' },
-      { protocol: 'https', hostname: 'storage.ghost.io' },
-      { protocol: 'https', hostname: '**.the-race.com' },
-      { protocol: 'https', hostname: '**.bbc.co.uk' },
-      { protocol: 'https', hostname: '**.racefans.net' },
-      { protocol: 'https', hostname: 'ichef.bbci.co.uk' },
-    ],
+    // External editorial images are intentionally not optimized remotely.
+    // Local/openly licensed SVG and raster assets remain supported, while
+    // unverified press/team imagery falls back through ApexImage.
+    remotePatterns: [],
   },
   // Keep heavy/unnecessary files out of serverless function bundles. NOTE:
   // jsdom must NOT be excluded — the news aggregator (lib/news/aggregate.ts)
