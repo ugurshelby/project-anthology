@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { StoryBlock } from '@/data/stories/types';
 import { Reveal } from './Reveal';
 
@@ -57,16 +57,17 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
                       'relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline',
                     ].join(' ')}
                   >
-                    <Image
+                    <ApexImage
                       src={block.src ?? '/placeholder.svg'}
                       alt={block.caption ?? ''}
                       fill
+                      kind="media"
                       sizes="(max-width: 768px) 100vw, 768px"
                       className="object-cover"
                     />
                   </div>
                   {block.caption ? (
-                    <figcaption className="label-caps text-text-low">{block.caption}</figcaption>
+                    <figcaption className="label-caps text-text-mid">{block.caption}</figcaption>
                   ) : null}
                 </figure>
               </Reveal>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { detectTeamTag, formatWireTime, hasRealImage } from '@/lib/news/categories';
 
@@ -29,9 +29,10 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
                 >
                   {thumb ? (
                     <div className="relative hidden h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface md:block">
-                      <Image
+                      <ApexImage
                         src={item.image}
                         alt=""
+                      kind="media"
                         fill
                         sizes="48px"
                         loading="lazy"
@@ -40,7 +41,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
                     </div>
                   ) : null}
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs uppercase tracking-wider text-text-low">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs uppercase tracking-wider text-text-mid">
                       <span>[{formatWireTime(item.publishedTs)}]</span>
                       <span className="text-accent/80">[{team ?? item.sourceName.toUpperCase().slice(0, 10)}]</span>
                     </div>

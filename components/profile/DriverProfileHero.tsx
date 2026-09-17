@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { CSSProperties } from 'react';
 
 const PORTRAIT_MASK: CSSProperties = {
@@ -102,10 +102,11 @@ export function DriverProfileHero({
               className="absolute inset-0 mx-auto md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[min(68%,820px)] lg:w-[min(62%,900px)]"
               style={PORTRAIT_MASK}
             >
-              <Image
+              <ApexImage
                 src={imageSrc}
                 alt={imageAlt}
                 fill
+                kind="driver"
                 sizes="(max-width: 768px) 100vw, 62vw"
                 className="object-contain object-[center_12%] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
                 priority

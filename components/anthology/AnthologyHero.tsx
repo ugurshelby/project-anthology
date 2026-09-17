@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 
 /**
  * Anthology story hero — contained framed image card (not full-bleed).
@@ -26,17 +26,18 @@ export function AnthologyHero({
       </div>
 
       <div className="relative aspect-video max-h-[min(48vh,26rem)] w-full overflow-hidden rounded-[var(--radius-lg)] border border-hairline md:max-h-[min(52vh,30rem)] lg:max-h-none">
-        <Image
+        <ApexImage
           src={image}
           alt=""
           fill
           priority
+          kind="media"
           sizes="(max-width: 768px) 100vw, 768px"
           className="object-cover"
         />
         <span
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-bg/40 via-transparent to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-bg/50 via-transparent to-transparent"
         />
       </div>
     </header>

@@ -73,7 +73,7 @@ export default async function SeasonPage() {
               {recap ? (
                 <LatestRaceCard recap={recap} season={CURRENT_SEASON} />
               ) : (
-                <span className="label-caps text-text-low">No completed races yet</span>
+                <span className="label-caps text-text-mid">No completed races yet</span>
               )}
             </BentoCard>
           </BentoGrid>

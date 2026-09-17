@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { hasRealImage } from '@/lib/news/categories';
 import { formatDispatchAge } from '@/lib/news/time';
@@ -30,10 +30,11 @@ export function RelatedNewsList({
               >
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface">
                   {hasImage ? (
-                    <Image
+                    <ApexImage
                       src={item.image}
                       alt=""
                       fill
+                      kind="media"
                       sizes="64px"
                       loading="lazy"
                       className="object-cover transition-transform duration-200 group-hover:scale-105"
@@ -43,7 +44,7 @@ export function RelatedNewsList({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="data-tabular text-xs uppercase tracking-wider text-text-low">
+                  <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
                     {age || item.dateLabel} · {item.sourceName}
                   </span>
                   <span

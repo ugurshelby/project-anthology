@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+﻿import { ApexImage } from '@/components/media/ApexImage';
 import Link from 'next/link';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
 import { Countdown } from './Countdown';
@@ -30,11 +30,12 @@ export function WeekendHero({
   return (
     <section className="relative -mx-5 h-[520px] overflow-hidden md:-mx-8 md:h-[600px] lg:-mx-16">
       {circuitCoverSrc ? (
-        <Image
+        <ApexImage
           src={circuitCoverSrc}
           alt=""
           fill
           priority
+          kind="circuit"
           sizes="100vw"
           className="pointer-events-none object-cover object-center"
         />
@@ -63,7 +64,7 @@ export function WeekendHero({
           >
             // {lastWinnerName}
           </span>
-          {lastRaceName ? <span className="data-tabular text-xs text-text-low">{lastRaceName}</span> : null}
+          {lastRaceName ? <span className="data-tabular text-xs text-text-mid">{lastRaceName}</span> : null}
         </Link>
       ) : null}
 

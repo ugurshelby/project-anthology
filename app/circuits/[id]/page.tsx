@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import { getCircuitDetail, getCurrentSeasonResults } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
@@ -84,9 +85,10 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               className="relative order-1 flex min-h-64 items-center justify-center overflow-hidden !bg-transparent !p-0 md:order-2 md:min-h-80"
             >
               {cover ? (
-                <Image
+                <ApexImage
                   src={cover}
                   alt=""
+                  kind="circuit"
                   fill
                   sizes="(max-width: 1024px) 100vw, 66vw"
                   className="pointer-events-none object-cover opacity-50"

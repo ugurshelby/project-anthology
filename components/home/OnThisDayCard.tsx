@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { OnThisDayEntry } from '@/lib/data/f1';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 
@@ -18,10 +18,11 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
     <article className="relative grid overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface md:grid-cols-[minmax(0,38%),minmax(0,1fr)]">
       <div className="relative min-h-40 md:min-h-[220px]">
         {cover ? (
-          <Image
+          <ApexImage
             src={cover}
             alt=""
             fill
+            kind="circuit"
             sizes="(max-width: 768px) 100vw, 38vw"
             className="object-cover grayscale contrast-125"
           />
@@ -34,7 +35,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
       <div className="relative z-10 flex flex-col justify-center gap-3 p-5 md:p-8">
         <div className="flex items-baseline justify-between gap-2">
           <span className="label-caps text-text-mid">On This Day</span>
-          <span className="label-caps text-text-low">{dateLabel}</span>
+          <span className="label-caps text-text-mid">{dateLabel}</span>
         </div>
         <h2
           className="font-condensed text-2xl font-700 uppercase italic leading-tight text-text-hi md:text-3xl"
@@ -56,7 +57,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
           {featured.season ? ` in ${featured.season}` : ''}.
         </p>
         {entries.length > 1 ? (
-          <p className="data-tabular text-xs text-text-low">
+          <p className="data-tabular text-xs text-text-mid">
             Also {entries.slice(1, 4).map((e) => e.season).join(' · ')}
           </p>
         ) : null}

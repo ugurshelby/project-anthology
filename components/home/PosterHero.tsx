@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+﻿import { ApexImage } from '@/components/media/ApexImage';
 import Link from 'next/link';
 import { Countdown } from './Countdown';
 
@@ -34,11 +34,12 @@ export function PosterHero({
       ].join(' ')}
     >
       {circuitCoverSrc ? (
-        <Image
+        <ApexImage
           src={circuitCoverSrc}
           alt=""
           fill
           priority
+          kind="circuit"
           sizes="(max-width: 1024px) 100vw, 55vw"
           className="pointer-events-none object-cover object-center"
         />

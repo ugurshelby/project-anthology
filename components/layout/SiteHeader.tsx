@@ -15,16 +15,23 @@ import { HeaderNav } from './HeaderNav';
  */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 hidden border-b border-hairline bg-bg/60 backdrop-blur-xl md:block">
-      <div className="mx-auto flex h-[52px] w-full max-w-[var(--container-max)] items-center justify-between px-5 md:px-8 lg:justify-center lg:gap-10 lg:px-16">
+    <header className="sticky top-0 z-30 hidden border-b border-white/[0.1] bg-bg/85 backdrop-blur-xl md:block">
+      <div className="mx-auto flex h-16 w-full max-w-[var(--container-max)] items-center justify-between px-5 md:px-8 lg:justify-center lg:gap-10 lg:px-16">
         <HeaderNav items={NAV_ITEMS_LEFT} className="hidden lg:flex" />
 
         <Link
           href="/"
-          className="font-condensed text-2xl font-700 tracking-tight text-text-hi"
-          style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}
+          className="flex flex-col items-start leading-none lg:items-center"
         >
-          APEX
+          <span
+            className="font-condensed text-2xl font-700 tracking-tight text-text-hi"
+            style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}
+          >
+            APEX
+          </span>
+          <span className="label-caps mt-0.5 text-[10px] tracking-[0.22em] text-text-mid">
+            ARCHIVE
+          </span>
         </Link>
 
         <HeaderNav items={NAV_ITEMS_RIGHT} className="hidden lg:flex" />

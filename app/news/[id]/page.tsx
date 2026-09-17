@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import { getNewsById } from '@/lib/data/news';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { SITE_NAME } from '@/lib/seo';
@@ -40,9 +40,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
   return (
     <main id="main-content" className="flex-1">
       <section className="relative flex min-h-[45vh] flex-col justify-end overflow-hidden md:min-h-[50vh]">
-        <Image
+        <ApexImage
           src={item.image}
           alt=""
+          kind="media"
           fill
           priority
           sizes="100vw"

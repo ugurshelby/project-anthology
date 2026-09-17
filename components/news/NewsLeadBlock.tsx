@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { estimateReadMinutes } from '@/lib/news/categories';
 import { hasRealImage } from '@/lib/news/categories';
@@ -13,10 +13,11 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       className="group relative flex min-h-[200px] flex-1 flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-4 md:min-h-0"
     >
       {hasImage ? (
-        <Image
+        <ApexImage
           src={item.image}
           alt=""
           fill
+          kind="media"
           sizes="(max-width: 1024px) 92vw, 33vw"
           loading="lazy"
           className="object-cover opacity-55 transition-opacity duration-200 group-hover:opacity-70"
@@ -62,11 +63,12 @@ export function NewsLeadBlock({
         className="group relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-5 sm:min-h-[340px] md:p-8 lg:col-span-8 lg:min-h-[420px]"
       >
         {leadHasImage ? (
-          <Image
+          <ApexImage
             src={lead.image}
             alt=""
             fill
             priority
+            kind="media"
             sizes="(max-width: 1024px) 100vw, 66vw"
             className="object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-75"
           />

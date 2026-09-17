@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Story } from '@/lib/data/stories';
 import { truncateToWord } from '@/lib/text/truncateToWord';
+import { ApexImage } from '@/components/media/ApexImage';
 
 /** Anthology hub story card — hero image, condensed title, category/year mono. */
 export function StoryCard({ story, wide = false }: { story: Story; wide?: boolean }) {
@@ -13,14 +13,18 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
         wide ? 'md:min-h-72' : '',
       ].join(' ')}
     >
-      <Image
+      <ApexImage
         src={story.heroImage}
         alt=""
         fill
+        kind="media"
         sizes={wide ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-        className="object-cover opacity-40 transition-opacity duration-150 group-hover:opacity-55"
+        className="object-cover opacity-55 transition-opacity duration-150 group-hover:opacity-70"
       />
-      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg from-10% via-bg/60 via-45% to-transparent" />
+      <span
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-t from-bg from-25% via-bg/80 via-55% to-transparent"
+      />
       <div className="relative z-10 flex flex-col gap-1">
         <span className="label-caps text-text-mid">
           {story.category}
