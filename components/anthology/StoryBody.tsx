@@ -3,11 +3,8 @@ import type { StoryBlock } from '@/data/stories/types';
 import { Reveal } from './Reveal';
 
 /**
- * Editorial-flow story body — centered reading column (~68ch), framed image
- * cards (not full-bleed 100vw — 2026-07 redesign, see AnthologyHero for the
- * same change on the hero), drop-cap opening, condensed section headers,
- * pull-quotes with a thin accent vertical rule. Blocks fade/translate in on
- * scroll (Reveal, reduced-motion safe).
+ * Editorial story body — reading column (~max-w-3xl), framed image cards,
+ * optically aligned drop-cap, stronger pull-quotes, scroll-reveal blocks.
  */
 export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
   const firstParagraphIndex = blocks.findIndex(
@@ -15,7 +12,7 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-5 py-16 md:px-8">
+    <div className="story-body mx-auto flex w-full max-w-3xl flex-col gap-8 px-5 pb-8 pt-12 md:gap-10 md:px-8 md:pt-16">
       {blocks.map((block, i) => {
         switch (block.type) {
           case 'heading':
@@ -27,20 +24,39 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
           case 'quote':
             return (
               <Reveal key={i}>
-                <blockquote className="border-l-2 pl-5" style={{ borderColor: 'var(--accent)' }}>
-                  <p className="font-condensed text-3xl font-600 leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                <blockquote
+                  className="story-pullquote my-2 border-l-4 py-3 pl-5 md:pl-6"
+                  style={{ borderColor: 'var(--accent)' }}
+                >
+                  <p
+                    className="font-condensed text-[1.35rem] font-600 leading-snug text-text-hi md:text-[1.65rem] md:leading-tight"
+                    style={{ fontFamily: 'var(--font-condensed)' }}
+                  >
                     {block.text}
                   </p>
-                  {block.author ? <cite className="label-caps mt-3 block not-italic text-text-mid">{block.author}</cite> : null}
+                  {block.author ? (
+                    <cite className="label-caps mt-4 block not-italic text-text-mid">
+                      {block.author}
+                    </cite>
+                  ) : null}
                 </blockquote>
               </Reveal>
             );
           case 'image': {
-            const aspect = block.layout === 'portrait' ? 'aspect-[3/4]' : 'aspect-video';
+            // Cap vertical dominance on phone/tablet so images don't eclipse reading flow.
+            const frame =
+              block.layout === 'portrait'
+                ? 'aspect-[3/4] max-h-[min(70vh,36rem)] md:max-h-none'
+                : 'aspect-video max-h-[min(52vh,28rem)] w-full md:max-h-[min(56vh,32rem)] lg:max-h-none';
             return (
               <Reveal key={i}>
                 <figure className="flex flex-col gap-2">
-                  <div className={[aspect, 'relative w-full overflow-hidden rounded-[var(--radius-lg)] border border-hairline'].join(' ')}>
+                  <div
+                    className={[
+                      frame,
+                      'relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline',
+                    ].join(' ')}
+                  >
                     <Image
                       src={block.src ?? '/placeholder.svg'}
                       alt={block.caption ?? ''}
@@ -61,7 +77,12 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
             const isFirst = i === firstParagraphIndex;
             return (
               <Reveal key={i}>
-                <p className={['body-lg text-text', isFirst ? 'first-letter:float-left first-letter:mr-3 first-letter:font-condensed first-letter:text-7xl first-letter:font-700 first-letter:leading-[0.8] first-letter:text-text-hi' : ''].join(' ')}>
+                <p
+                  className={[
+                    'story-prose body-lg text-text',
+                    isFirst ? 'story-dropcap' : '',
+                  ].join(' ')}
+                >
                   {block.text}
                 </p>
               </Reveal>

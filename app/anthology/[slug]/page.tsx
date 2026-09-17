@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
   getStoryBySlug,
@@ -53,19 +53,18 @@ export default async function StoryPage({ params }: PageProps) {
   const next = idx >= 0 ? all[(idx + 1) % all.length] : undefined;
 
   return (
-    <main id="main-content">
+    <main id="main-content" className="pb-mobile-nav">
       <AnthologyHero
         kicker={`The Anthology · ${story.category}${story.year ? ` · ${story.year}` : ''}`}
         title={story.title}
         standfirst={story.subtitle}
-        byline={story.year ? `F1 Anthology · ${story.year}` : 'F1 Anthology'}
         image={story.heroImage}
       />
 
       <StoryBody blocks={story.blocks} />
 
       {next && next.slug !== slug ? (
-        <section className="mx-auto w-full max-w-3xl px-5 pb-20 md:px-8">
+        <section className="mx-auto w-full max-w-3xl px-5 pb-28 pt-16 md:px-8 md:pt-20 md:pb-24">
           <span className="label-caps mb-3 block text-text-mid">Next in the Anthology</span>
           <StoryCard story={next} wide />
         </section>
@@ -73,3 +72,4 @@ export default async function StoryPage({ params }: PageProps) {
     </main>
   );
 }
+
