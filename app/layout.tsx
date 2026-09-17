@@ -38,9 +38,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
     default: SITE_NAME,
-    template: `%s â€” ${SITE_NAME}`,
+    template: `%s | ${SITE_NAME}`,
   },
   description: SITE_TAGLINE,
+  keywords: ['Formula 1 statistics', 'F1 telemetry', 'F1 archive', 'Grand Prix results'],
   applicationName: SITE_NAME,
   appleWebApp: {
     capable: true,
@@ -65,11 +66,13 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: SITE_TAGLINE,
     url: siteUrl(),
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Apex F1 archive' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: SITE_NAME,
     description: SITE_TAGLINE,
+    images: ['/opengraph-image'],
   },
 };
 

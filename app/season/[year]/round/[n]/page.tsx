@@ -13,6 +13,8 @@ import { getTeamByName } from '@/config/team-colors';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { RaceResultsTable, QualifyingTable } from '@/components/season/ResultsTable';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { siteUrl } from '@/lib/seo';
 
 // Same dynamic posture as /season: current-season rounds must pass the
 // staleness→live read path on every request; historical rounds are DB-stable.
@@ -49,8 +51,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     alternates: { canonical: path },
-    openGraph: { title: `${title} — Results`, description, url: path, type: 'website' },
-    twitter: { card: 'summary_large_image', title: `${title} — Results`, description },
+    openGraph: {
+      title: `${title} — Results`,
+      description,
+      url: path,
+      type: 'website',
+      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: raceName }],
+    },
+    twitter: { card: 'summary_large_image', title: `${title} — Results`, description, images: ['/opengraph-image'] },
   };
 }
 
@@ -81,6 +89,27 @@ export default async function RoundPage({ params }: PageProps) {
       style={theme as React.CSSProperties}
       className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12"
     >
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'SportsEvent',
+          name: race?.raceName ?? `Round ${round}`,
+          url: `${siteUrl()}/season/${year}/round/${round}`,
+          startDate: race?.date,
+          location: race?.Circuit?.Location
+            ? {
+                '@type': 'Place',
+                name: race.Circuit.circuitName,
+                address: {
+                  '@type': 'PostalAddress',
+                  addressLocality: race.Circuit.Location.locality,
+                  addressCountry: race.Circuit.Location.country,
+                },
+              }
+            : undefined,
+          sport: 'Formula 1',
+        }}
+      />
       <header className="mb-8 flex flex-col gap-1">
         <span className="label-caps text-text-mid">
           Round {round} · {year}

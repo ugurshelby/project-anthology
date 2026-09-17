@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDriverProfile, getDriverSeasons, getDriverCareer } from '@/lib/data/entities';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
-import { SITE_NAME } from '@/lib/seo';
+import { SITE_NAME, siteUrl } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { driverIconSrc, carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
@@ -16,6 +16,7 @@ import { DriverMachineryCard } from '@/components/profile/DriverMachineryCard';
 import { LoreSection } from '@/components/profile/LoreSection';
 import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -56,8 +57,14 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     title,
     description,
     alternates: { canonical },
-    openGraph: { title: `${title} — ${SITE_NAME}`, description, url: canonical, type: 'profile' },
-    twitter: { card: 'summary_large_image', title: `${title} — ${SITE_NAME}`, description },
+    openGraph: {
+      title: `${title} — ${SITE_NAME}`,
+      description,
+      url: canonical,
+      type: 'profile',
+      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: profile.driverName }],
+    },
+    twitter: { card: 'summary_large_image', title: `${title} — ${SITE_NAME}`, description, images: ['/opengraph-image'] },
   };
 }
 
@@ -100,6 +107,19 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
 
   return (
     <main id="main-content" style={theme as React.CSSProperties} className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 pt-2 pb-8 md:px-8 md:pt-4 lg:px-16 lg:pb-12">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Person',
+          name: profile.driverName,
+          url: `${siteUrl()}/drivers/${profile.driverId}`,
+          jobTitle: 'Formula 1 driver',
+          affiliation: {
+            '@type': 'SportsTeam',
+            name: profile.constructorName,
+          },
+        }}
+      />
       <PageThemeSync vars={theme} />
       {requestedUnsupported ? (
         <p className="label-caps mb-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent/10 px-4 py-2 text-accent">
