@@ -126,7 +126,7 @@ body {
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 18px;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 
 .body-md {
@@ -279,3 +279,30 @@ body {
   .data-tabular { font-size: 13px; }
   .body-sm { font-size: 13px; }
 }
+
+/* Anthology reading — drop cap + prose measure */
+.story-prose {
+  max-width: 68ch;
+}
+.story-dropcap::first-letter {
+  float: left;
+  margin-right: 0.7rem;
+  padding-top: 0.15em;
+  font-family: var(--font-condensed), var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 3.75rem;
+  font-weight: 700;
+  line-height: 0.78;
+  color: var(--text-hi);
+}
+@media (min-width: 768px) {
+  .story-dropcap::first-letter {
+    font-size: 4.25rem;
+    margin-right: 0.85rem;
+  }
+}
+.story-pullquote {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+

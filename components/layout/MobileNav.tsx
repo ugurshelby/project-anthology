@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS } from './nav-items';
 import { NavIcon } from './NavIcons';
@@ -15,12 +15,41 @@ export function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
   const [lastPathname, setLastPathname] = useState(pathname);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Hide floating dock while scrolling down; reveal on scroll up (reading mode).
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - lastScrollY.current;
+        if (y < 24) {
+          setNavHidden(false);
+        } else if (delta > 8) {
+          setNavHidden(true);
+          setMoreOpen(false);
+        } else if (delta < -8) {
+          setNavHidden(false);
+        }
+        lastScrollY.current = y;
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
 
   if (pathname !== lastPathname) {
     setLastPathname(pathname);
@@ -98,7 +127,10 @@ export function MobileNav() {
       ) : null}
 
       <nav
-        className="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(100%-1.5rem,28rem)] -translate-x-1/2 md:hidden"
+        className={[
+          'pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(100%-1.5rem,28rem)] -translate-x-1/2 transition-transform duration-300 ease-out md:hidden',
+          navHidden && !moreOpen ? 'translate-y-[calc(100%+2rem)]' : 'translate-y-0',
+        ].join(' ')}
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
