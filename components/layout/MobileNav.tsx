@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS } from './nav-items';
 import { NavIcon } from './NavIcons';
@@ -17,12 +17,11 @@ export function MobileNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
-  const [lastPathname, setLastPathname] = useState(pathname);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
 
   // Hide floating dock while scrolling down; reveal on scroll up (reading mode).
   useEffect(() => {
@@ -50,11 +49,6 @@ export function MobileNav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-
-  if (pathname !== lastPathname) {
-    setLastPathname(pathname);
-    if (moreOpen) setMoreOpen(false);
-  }
 
   const moreActive = MOBILE_MORE_HREFS.some(
     (href) => pathname === href || pathname.startsWith(href + '/'),
@@ -86,7 +80,7 @@ export function MobileNav() {
         <div
           role="menu"
           aria-label="More"
-          className="fixed inset-0 z-[60] flex flex-col justify-end bg-bg/90 backdrop-blur-2xl md:hidden animate-[fadeIn_180ms_ease-out]"
+          className="fixed inset-0 z-[60] flex min-w-0 flex-col justify-end overscroll-contain bg-bg/90 backdrop-blur-2xl md:hidden animate-[fadeIn_180ms_ease-out]"
         >
           <button
             type="button"
@@ -94,7 +88,7 @@ export function MobileNav() {
             className="absolute inset-0"
             onClick={() => setMoreOpen(false)}
           />
-          <div className="relative z-10 grid grid-cols-2 gap-3 px-5 pb-36">
+          <div className="relative z-10 grid min-w-0 grid-cols-2 gap-3 px-4 pb-[max(8rem,calc(6rem+env(safe-area-inset-bottom)))] sm:px-5">
             {MOBILE_MORE_ITEMS.map((item, i) => {
               const active =
                 pathname === item.href || pathname.startsWith(item.href + '/');
@@ -104,10 +98,11 @@ export function MobileNav() {
                   href={item.href}
                   prefetch={false}
                   onTouchStart={() => router.prefetch(item.href)}
+                  onClick={() => setMoreOpen(false)}
                   role="menuitem"
                   aria-current={active ? 'page' : undefined}
                   className={[
-                    'touch-target group flex min-h-28 flex-col items-center justify-center gap-2.5 rounded-[var(--radius-lg)] border transition-colors',
+                    'touch-target group flex min-h-28 min-w-0 flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[var(--radius-lg)] border transition-colors',
                     active
                       ? 'border-accent/40 bg-accent/15 text-text-hi'
                       : 'border-hairline bg-surface text-text-mid hover:bg-surface-raised hover:text-text-hi',
@@ -118,7 +113,7 @@ export function MobileNav() {
                   }}
                 >
                   <NavIcon icon={item.icon!} className="h-7 w-7" />
-                  <span className="label-caps">{item.label}</span>
+                  <span className="label-caps max-w-full truncate px-2">{item.label}</span>
                 </Link>
               );
             })}
@@ -128,7 +123,7 @@ export function MobileNav() {
 
       <nav
         className={[
-          'pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(100%-1.5rem,28rem)] -translate-x-1/2 transition-transform duration-300 ease-out md:hidden',
+          'pointer-events-none fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-1rem)] max-w-[28rem] -translate-x-1/2 transition-transform duration-300 ease-out md:hidden',
           navHidden && !moreOpen ? 'translate-y-[calc(100%+2rem)]' : 'translate-y-0',
         ].join(' ')}
         style={{
@@ -136,26 +131,27 @@ export function MobileNav() {
         }}
         aria-label="Primary"
       >
-        <ul className="pointer-events-auto flex items-center justify-between gap-0.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)] backdrop-blur-md">
+        <ul className="pointer-events-auto flex min-w-0 items-center justify-between gap-0.5 overflow-hidden rounded-full border border-white/10 bg-black/70 px-1.5 py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)] backdrop-blur-md">
           {MOBILE_NAV_ITEMS.map((item) => {
             const active =
               item.href === '/'
                 ? pathname === '/'
                 : pathname === item.href || pathname.startsWith(item.href + '/');
             return (
-              <li key={item.href} className="flex-1">
+              <li key={item.href} className="min-w-0 flex-1">
                 <Link
                   href={item.href}
                   prefetch={false}
                   onTouchStart={() => router.prefetch(item.href)}
+                  onClick={() => setMoreOpen(false)}
                   aria-current={active ? 'page' : undefined}
                   className={[
-                    'touch-target label-caps mx-auto flex min-h-11 w-full max-w-[4.75rem] flex-col items-center justify-center gap-0.5 rounded-full px-1.5 transition-all duration-150 active:scale-95',
+                    'touch-target label-caps mx-auto flex min-h-11 w-full max-w-[4.75rem] min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-full px-1 transition-all duration-150 active:scale-95',
                     active ? 'bg-accent text-text-hi' : 'text-text-mid',
                   ].join(' ')}
                 >
                   <NavIcon icon={item.icon!} className="h-4 w-4" />
-                  <span className="text-[11px] leading-none tracking-wide">{item.label}</span>
+                  <span className="max-w-full truncate text-[11px] leading-none tracking-wide">{item.label}</span>
                 </Link>
               </li>
             );

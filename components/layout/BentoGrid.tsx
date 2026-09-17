@@ -6,11 +6,7 @@ import type { ReactNode } from 'react';
  * span with `col-span-*` utilities (see BentoCard `span`).
  */
 export function BentoGrid({ children }: { children: ReactNode }) {
-  return (
-    <div className="grid grid-cols-4 gap-4 md:grid-cols-8 md:gap-5 lg:grid-cols-12 lg:gap-6">
-      {children}
-    </div>
-  );
+  return <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-8 md:gap-5 lg:grid-cols-12 lg:gap-6">{children}</div>;
 }
 
 /** Page container — centered, container-max 1440, responsive page margins (§3.2). */
