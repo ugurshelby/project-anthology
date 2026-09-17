@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { getDriverLore } from '@/data/drivers';
@@ -38,15 +38,15 @@ export function SeasonTitleFightHero({
   const challengerNum = challenger ? getDriverLore(challenger.driverId)?.number : null;
 
   return (
-    <section className="relative -mx-5 mb-6 overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface/30 backdrop-blur-sm md:-mx-8 lg:-mx-16">
+    <section className="relative -mx-5 mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface/30 backdrop-blur-sm md:-mx-8 lg:-mx-16">
       <span aria-hidden className="film-grain pointer-events-none absolute inset-0" />
 
-      <div className="relative z-10 flex items-center justify-between px-5 pt-5 md:px-8 lg:px-10">
+      <div className="relative z-10 flex items-center justify-between px-5 pt-4 md:px-8 md:pt-5 lg:px-10">
         <span className="label-caps text-text-mid">Championship</span>
         <YearScrubber year={year} minSeason={minSeason} currentSeason={currentSeason} />
       </div>
 
-      <div className="relative z-10 grid min-h-[280px] grid-cols-1 items-end gap-4 px-5 pb-6 pt-2 md:min-h-[320px] md:grid-cols-[1fr_auto_1fr] md:gap-6 md:px-8 md:pb-8 lg:px-10">
+      <div className="relative z-10 grid grid-cols-1 items-end gap-3 px-5 pb-5 pt-1 md:min-h-[320px] md:grid-cols-[1fr_auto_1fr] md:gap-6 md:px-8 md:pb-8 md:pt-2 lg:px-10">
         <DriverSilhouette
           side="left"
           name={leader.driverName}
@@ -58,13 +58,13 @@ export function SeasonTitleFightHero({
           color={leaderColor}
         />
 
-        <div className="order-first flex flex-col items-center gap-2 py-4 md:order-none md:py-8">
-          <span className="label-caps text-text-low">Points gap</span>
-          <span className="hero-number text-[clamp(32px,5vw,56px)] text-text-hi">
+        <div className="flex flex-col items-center gap-1.5 py-2 md:gap-2 md:py-8">
+          <span className="label-caps text-text-mid">Points gap</span>
+          <span className="hero-number text-[clamp(28px,5vw,56px)] text-text-hi">
             {challenger ? `+${gap}` : leader.points}
           </span>
           <span className="data-tabular text-text-mid">{challenger ? 'PTS GAP' : 'PTS LEAD'}</span>
-          <div className="mt-2 flex w-full max-w-[200px] items-center gap-2">
+          <div className="mt-1 flex w-full max-w-[200px] items-center gap-2 md:mt-2">
             <span className="h-1 flex-1 rounded-full blur-[1px]" style={{ backgroundColor: leaderColor, boxShadow: `0 0 12px ${leaderColor}` }} />
             <span className="h-1 w-1 rounded-full bg-text-low" />
             <span className="h-1 flex-1 rounded-full blur-[1px]" style={{ backgroundColor: challengerColor, boxShadow: `0 0 12px ${challengerColor}` }} />
@@ -127,18 +127,19 @@ function DriverSilhouette({
         </span>
       ) : null}
       {portrait ? (
-        <div className={`relative mb-3 h-36 w-28 sm:h-44 sm:w-32 ${side === 'right' ? 'self-end' : ''}`}>
-          <Image
+        <div className={`relative mb-2 h-28 w-[5.5rem] sm:mb-3 sm:h-44 sm:w-32 ${side === 'right' ? 'self-end' : ''}`}>
+          <ApexImage
             src={portrait}
             alt=""
             fill
+            kind="driver"
             sizes="128px"
             className={`object-contain object-bottom grayscale contrast-125 ${side === 'right' ? 'scale-x-[-1]' : ''}`}
             priority
           />
         </div>
       ) : null}
-      <span className="label-caps text-text-low">{position}</span>
+      <span className="label-caps text-text-mid">{position}</span>
       <span
         className="font-condensed text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
         style={{ fontFamily: 'var(--font-condensed)' }}

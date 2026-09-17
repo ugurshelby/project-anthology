@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { hasRealImage } from '@/lib/news/categories';
 import { NewsImageFallback } from '@/components/news/NewsImageFallback';
@@ -17,10 +17,11 @@ export function WireItem({ item }: { item: NewsItem }) {
     >
       <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-[var(--radius-chip)] md:h-16 md:w-24">
         {hasImage ? (
-          <Image
+          <ApexImage
             src={item.image}
             alt=""
             fill
+            kind="media"
             sizes="(max-width: 768px) 400px, 96px"
             loading="lazy"
             className="object-cover transition-transform duration-200 group-hover:scale-105"
@@ -30,7 +31,7 @@ export function WireItem({ item }: { item: NewsItem }) {
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="data-tabular text-xs uppercase tracking-wider text-text-low">
+        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
           {item.dateLabel} · {item.sourceName}
         </span>
         <span
@@ -71,10 +72,11 @@ export function NewsHero({ item }: { item: NewsItem }) {
       className="group relative flex min-h-64 flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6 md:p-8"
     >
       {hasImage ? (
-        <Image
+        <ApexImage
           src={item.image}
           alt=""
           fill
+          kind="media"
           sizes="(max-width: 768px) 100vw, 768px"
           loading="lazy"
           className="object-cover opacity-50 transition-opacity group-hover:opacity-60"
@@ -102,10 +104,11 @@ export function NewsCard({ item }: { item: NewsItem }) {
       className="group relative flex min-h-56 flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-5"
     >
       {hasImage ? (
-        <Image
+        <ApexImage
           src={item.image}
           alt=""
           fill
+          kind="media"
           sizes="(max-width: 1024px) 92vw, 33vw"
           loading="lazy"
           className="object-cover opacity-60 transition-opacity duration-200 group-hover:opacity-75"

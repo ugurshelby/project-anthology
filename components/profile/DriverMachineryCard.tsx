@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import { BentoCard } from '@/components/bento/BentoCard';
 
 type Span = 4 | 5 | 6 | 7 | 8 | 12;
@@ -31,7 +31,7 @@ export function DriverMachineryCard({
       />
       <div className="relative z-10 flex flex-col gap-3 p-5 sm:p-6">
         {teamLogo ? (
-          <Image src={teamLogo} alt={constructorName} width={48} height={48} className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
+          <ApexImage src={teamLogo} alt={constructorName} width={48} height={48} kind="media" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
         ) : null}
         <span className="label-caps text-text-mid">{season} Machinery</span>
         <span className="font-condensed text-2xl font-700 uppercase text-text-hi sm:text-3xl" style={{ fontFamily: 'var(--font-condensed)' }}>
@@ -39,8 +39,9 @@ export function DriverMachineryCard({
         </span>
       </div>
       <div className="relative z-10 mt-auto h-48 w-full sm:h-56 lg:h-64">
-        <Image
+        <ApexImage
           src={carSrc}
+          kind="car"
           alt={`${constructorName} ${season} car`}
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"

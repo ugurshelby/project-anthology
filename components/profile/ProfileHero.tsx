@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ApexImage } from '@/components/media/ApexImage';
 import type { CSSProperties, ReactNode } from 'react';
 
 const PORTRAIT_MASK: CSSProperties = {
@@ -92,10 +92,11 @@ export function ProfileHero({
                   className="relative z-10 h-full w-full max-w-[min(82vw,380px)] sm:max-w-[min(76vw,420px)] md:max-w-none md:w-full"
                   style={PORTRAIT_MASK}
                 >
-                  <Image
+                  <ApexImage
                     src={imageSrc}
                     alt={imageAlt}
                     fill
+                    kind="driver"
                     sizes="(max-width: 1024px) 82vw, 42vw"
                     className="object-contain object-bottom md:object-right-bottom md:scale-[1.05] lg:scale-[1.08]"
                     priority
@@ -141,7 +142,7 @@ export function ProfileHero({
             />
             {logoSrc ? (
               <div className="relative z-10 h-10 w-10 md:h-14 md:w-14">
-                <Image src={logoSrc} alt="" fill sizes="56px" className="object-contain" />
+                <ApexImage src={logoSrc} alt="" fill kind="media" sizes="56px" className="object-contain" />
               </div>
             ) : null}
             <div className="relative z-10 flex w-full max-w-3xl items-end justify-center gap-3 sm:gap-6 md:gap-10">
@@ -150,10 +151,11 @@ export function ProfileHero({
               </span>
               {imageSrc ? (
                 <div className="relative h-36 w-full sm:h-44 md:h-52" style={CAR_MASK}>
-                  <Image
+                  <ApexImage
                     src={imageSrc}
                     alt={imageAlt}
                     fill
+                    kind="car"
                     sizes="(max-width: 1024px) 90vw, 50vw"
                     className="object-contain object-bottom"
                     priority
