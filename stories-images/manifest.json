@@ -6,9 +6,9 @@
     "caption": "",
     "source": "/stories/senna-monaco/landscape/01.png",
     "export": "the-divine-lap-cover.png",
-    "status": "missing-asset",
-    "bytes": 19031,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 2447216
   },
   {
     "storyTitle": "The Divine Lap",
@@ -17,9 +17,9 @@
     "caption": "MP4/4, Senna 1988.",
     "source": "/stories/senna-monaco/full/01.png",
     "export": "the-divine-lap-body-01-full-giris.png",
-    "status": "missing-asset",
-    "bytes": 18645,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 3163439
   },
   {
     "storyTitle": "Fire & Ice",
@@ -29,8 +29,8 @@
     "source": "/stories/hunt-lauda/landscape/01.png",
     "export": "fire-ice-cover.png",
     "status": "ok",
-    "bytes": 757186,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 757186
   },
   {
     "storyTitle": "Fire & Ice",
@@ -39,9 +39,9 @@
     "caption": "Hunt in the rain, Zandvoort.",
     "source": "/stories/hunt-lauda/landscape/02.png",
     "export": "fire-ice-body-01-landscape-blueprints-and-cigarettes.png",
-    "status": "missing-asset",
-    "bytes": 17849,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1707187
   },
   {
     "storyTitle": "Fire & Ice",
@@ -50,9 +50,9 @@
     "caption": "Lauda Ferrari 312T2.",
     "source": "/stories/hunt-lauda/portrait/01.png",
     "export": "fire-ice-body-02-portrait-the-ring.png",
-    "status": "missing-asset",
-    "bytes": 22547,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1754730
   },
   {
     "storyTitle": "The 39-Second Champion",
@@ -62,8 +62,8 @@
     "source": "/stories/massa-2008/landscape/01.png",
     "export": "the-39-second-champion-cover.png",
     "status": "ok",
-    "bytes": 2275402,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2275402
   },
   {
     "storyTitle": "The 39-Second Champion",
@@ -72,9 +72,9 @@
     "caption": "Interlagos grid in the rain.",
     "source": "/stories/massa-2008/landscape/02.png",
     "export": "the-39-second-champion-body-01-landscape-interlagos-weather-front.png",
-    "status": "missing-asset",
-    "bytes": 18268,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 2081938
   },
   {
     "storyTitle": "The 39-Second Champion",
@@ -83,9 +83,9 @@
     "caption": "Ferrari cutting through spray.",
     "source": "/stories/massa-2008/portrait/01.png",
     "export": "the-39-second-champion-body-02-portrait-the-switch.png",
-    "status": "missing-asset",
-    "bytes": 17596,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1168252
   },
   {
     "storyTitle": "The 39-Second Champion",
@@ -95,8 +95,8 @@
     "source": "/stories/massa-2008/full/01.png",
     "export": "the-39-second-champion-body-03-full-dignity.png",
     "status": "ok",
-    "bytes": 2275402,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2275402
   },
   {
     "storyTitle": "The Red Baron",
@@ -106,8 +106,8 @@
     "source": "/stories/schumacher-ferrari/landscape/01.png",
     "export": "the-red-baron-cover.png",
     "status": "ok",
-    "bytes": 1780378,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1780378
   },
   {
     "storyTitle": "The Red Baron",
@@ -116,9 +116,9 @@
     "caption": "Ferrari F2004 silhouette.",
     "source": "/stories/schumacher-ferrari/landscape/02.png",
     "export": "the-red-baron-body-01-landscape-maranello-bells.png",
-    "status": "missing-asset",
-    "bytes": 17473,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 924156
   },
   {
     "storyTitle": "The Red Baron",
@@ -128,8 +128,8 @@
     "source": "/stories/schumacher-ferrari/portrait/01.png",
     "export": "the-red-baron-body-02-portrait-dynasty.png",
     "status": "ok",
-    "bytes": 3205606,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 3205606
   },
   {
     "storyTitle": "The Red Baron",
@@ -138,9 +138,9 @@
     "caption": "The Tifosi at Monza.",
     "source": "/stories/schumacher-ferrari/full/01.png",
     "export": "the-red-baron-body-03-full-dynasty.png",
-    "status": "missing-asset",
-    "bytes": 17800,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 3524017
   },
   {
     "storyTitle": "The Zonta Overtake",
@@ -149,9 +149,9 @@
     "caption": "",
     "source": "/stories/hakkinen-schumacher/landscape/01.png",
     "export": "the-zonta-overtake-cover.png",
-    "status": "missing-asset",
-    "bytes": 17691,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1204742
   },
   {
     "storyTitle": "The Zonta Overtake",
@@ -160,9 +160,9 @@
     "caption": "Häkkinen, focus through Eau Rouge.",
     "source": "/stories/hakkinen-schumacher/landscape/02.png",
     "export": "the-zonta-overtake-body-01-landscape-knife-edge.png",
-    "status": "missing-asset",
-    "bytes": 17073,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 836057
   },
   {
     "storyTitle": "The Zonta Overtake",
@@ -171,9 +171,9 @@
     "caption": "Schumacher, the constant adversary.",
     "source": "/stories/hakkinen-schumacher/portrait/01.png",
     "export": "the-zonta-overtake-body-02-portrait-the-split.png",
-    "status": "missing-asset",
-    "bytes": 22607,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1367799
   },
   {
     "storyTitle": "Copse Corner",
@@ -183,8 +183,8 @@
     "source": "/stories/hamilton-silverstone/landscape/01.png",
     "export": "copse-corner-cover.png",
     "status": "ok",
-    "bytes": 1375897,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1375897
   },
   {
     "storyTitle": "Copse Corner",
@@ -193,9 +193,9 @@
     "caption": "Hamilton's victory lap, Silverstone 2021.",
     "source": "/stories/hamilton-silverstone/full/01.png",
     "export": "copse-corner-body-01-full-giris.png",
-    "status": "missing-asset",
-    "bytes": 18216,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1784292
   },
   {
     "storyTitle": "The Longest Race",
@@ -205,8 +205,8 @@
     "source": "/stories/button-canada/landscape/01.png",
     "export": "the-longest-race-cover.png",
     "status": "ok",
-    "bytes": 1851035,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1851035
   },
   {
     "storyTitle": "The Longest Race",
@@ -216,8 +216,8 @@
     "source": "/stories/button-canada/landscape/02.png",
     "export": "the-longest-race-body-01-landscape-weather-system.png",
     "status": "ok",
-    "bytes": 1469116,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1469116
   },
   {
     "storyTitle": "The Longest Race",
@@ -226,9 +226,9 @@
     "caption": "Button, soaked and relentless.",
     "source": "/stories/button-canada/portrait/01.png",
     "export": "the-longest-race-body-02-portrait-the-hunt.png",
-    "status": "missing-asset",
-    "bytes": 22712,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1032099
   },
   {
     "storyTitle": "The Green Hell",
@@ -237,9 +237,9 @@
     "caption": "",
     "source": "/stories/fangio-nurburgring/landscape/01.png",
     "export": "the-green-hell-cover.png",
-    "status": "missing-asset",
-    "bytes": 18258,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 2538624
   },
   {
     "storyTitle": "The Green Hell",
@@ -249,8 +249,8 @@
     "source": "/stories/fangio-nurburgring/landscape/02.png",
     "export": "the-green-hell-body-01-landscape-the-pit-gamble.png",
     "status": "ok",
-    "bytes": 2127962,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2127962
   },
   {
     "storyTitle": "The Green Hell",
@@ -260,8 +260,8 @@
     "source": "/stories/fangio-nurburgring/portrait/01.png",
     "export": "the-green-hell-body-02-portrait-the-chase.png",
     "status": "ok",
-    "bytes": 4378362,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 4378362
   },
   {
     "storyTitle": "The Duel",
@@ -270,9 +270,9 @@
     "caption": "",
     "source": "/stories/dijon-1979/landscape/01.png",
     "export": "the-duel-cover.png",
-    "status": "missing-asset",
-    "bytes": 17663,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1564960
   },
   {
     "storyTitle": "The Duel",
@@ -282,8 +282,8 @@
     "source": "/stories/dijon-1979/landscape/02.png",
     "export": "the-duel-body-01-landscape-home-victory-battle-behind.png",
     "status": "ok",
-    "bytes": 2673913,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2673913
   },
   {
     "storyTitle": "The Duel",
@@ -293,8 +293,8 @@
     "source": "/stories/dijon-1979/portrait/01.png",
     "export": "the-duel-body-02-portrait-home-victory-battle-behind.png",
     "status": "ok",
-    "bytes": 1237311,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1237311
   },
   {
     "storyTitle": "The Black Weekend",
@@ -303,9 +303,9 @@
     "caption": "",
     "source": "/stories/imola-1994/landscape/01.png",
     "export": "the-black-weekend-cover.png",
-    "status": "missing-asset",
-    "bytes": 17876,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 2327279
   },
   {
     "storyTitle": "The Black Weekend",
@@ -315,8 +315,8 @@
     "source": "/stories/imola-1994/portrait/01.png",
     "export": "the-black-weekend-body-01-portrait-omen.png",
     "status": "ok",
-    "bytes": 4079715,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 4079715
   },
   {
     "storyTitle": "The Black Weekend",
@@ -325,9 +325,9 @@
     "caption": "Imola, old flow, new scars.",
     "source": "/stories/imola-1994/landscape/01.png",
     "export": "the-black-weekend-body-02-landscape-tamburello.png",
-    "status": "missing-asset",
-    "bytes": 17876,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 2327279
   },
   {
     "storyTitle": "The Phoenix",
@@ -337,8 +337,8 @@
     "source": "/stories/brawn-2009/landscape/01.png",
     "export": "the-phoenix-cover.png",
     "status": "ok",
-    "bytes": 998007,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 998007
   },
   {
     "storyTitle": "The Phoenix",
@@ -348,8 +348,8 @@
     "source": "/stories/brawn-2009/portrait/01.png",
     "export": "the-phoenix-body-01-portrait-buyout-and-belief.png",
     "status": "ok",
-    "bytes": 2051309,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2051309
   },
   {
     "storyTitle": "The Phoenix",
@@ -359,8 +359,8 @@
     "source": "/stories/brawn-2009/landscape/02.png",
     "export": "the-phoenix-body-02-landscape-six-of-seven.png",
     "status": "ok",
-    "bytes": 1250750,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1250750
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
@@ -370,8 +370,8 @@
     "source": "/stories/schumacher-1994-spain/landscape/01.png",
     "export": "the-fifth-gear-symphony-cover.png",
     "status": "ok",
-    "bytes": 2052913,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2052913
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
@@ -381,8 +381,8 @@
     "source": "/stories/schumacher-1994-spain/full/01.png",
     "export": "the-fifth-gear-symphony-body-01-full-the-jam.png",
     "status": "ok",
-    "bytes": 2052913,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2052913
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
@@ -391,9 +391,9 @@
     "caption": "Steering wheel, Spain 1994.",
     "source": "/stories/schumacher-1994-spain/portrait/01.png",
     "export": "the-fifth-gear-symphony-body-02-portrait-the-jam.png",
-    "status": "missing-asset",
-    "bytes": 23525,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1573366
   },
   {
     "storyTitle": "The Fifth Gear Symphony",
@@ -402,9 +402,9 @@
     "caption": "Benetton B194 exhaust flames.",
     "source": "/stories/schumacher-1994-spain/landscape/02.png",
     "export": "the-fifth-gear-symphony-body-03-landscape-the-physics.png",
-    "status": "missing-asset",
-    "bytes": 17709,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1990465
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
@@ -414,8 +414,8 @@
     "source": "/stories/collins-fangio-1956/landscape/01.png",
     "export": "the-ultimate-sacrifice-cover.png",
     "status": "ok",
-    "bytes": 1008265,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1008265
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
@@ -425,8 +425,8 @@
     "source": "/stories/collins-fangio-1956/full/01.png",
     "export": "the-ultimate-sacrifice-body-01-full-monza-final-round.png",
     "status": "ok",
-    "bytes": 1008265,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1008265
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
@@ -436,8 +436,8 @@
     "source": "/stories/collins-fangio-1956/landscape/02.png",
     "export": "the-ultimate-sacrifice-body-02-landscape-monza-final-round.png",
     "status": "ok",
-    "bytes": 1147875,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1147875
   },
   {
     "storyTitle": "The Ultimate Sacrifice",
@@ -446,9 +446,9 @@
     "caption": "Collins giving car to Fangio, 1956.",
     "source": "/stories/collins-fangio-1956/portrait/01.png",
     "export": "the-ultimate-sacrifice-body-03-portrait-the-gift.png",
-    "status": "missing-asset",
-    "bytes": 22769,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1223284
   },
   {
     "storyTitle": "The Chaos Theory",
@@ -458,8 +458,8 @@
     "source": "/stories/monaco-1982/landscape/01.png",
     "export": "the-chaos-theory-cover.png",
     "status": "ok",
-    "bytes": 2194556,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2194556
   },
   {
     "storyTitle": "The Chaos Theory",
@@ -469,8 +469,8 @@
     "source": "/stories/monaco-1982/full/01.png",
     "export": "the-chaos-theory-body-01-full-the-final-lap.png",
     "status": "ok",
-    "bytes": 2194556,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2194556
   },
   {
     "storyTitle": "The Chaos Theory",
@@ -480,8 +480,8 @@
     "source": "/stories/monaco-1982/landscape/02.png",
     "export": "the-chaos-theory-body-02-landscape-the-final-lap.png",
     "status": "ok",
-    "bytes": 1823945,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1823945
   },
   {
     "storyTitle": "The Chaos Theory",
@@ -491,8 +491,8 @@
     "source": "/stories/monaco-1982/portrait/01.png",
     "export": "the-chaos-theory-body-03-portrait-the-winner.png",
     "status": "ok",
-    "bytes": 4209336,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 4209336
   },
   {
     "storyTitle": "The Triple Zero",
@@ -502,8 +502,8 @@
     "source": "/stories/jerez-1997/landscape/01.png",
     "export": "the-triple-zero-cover.png",
     "status": "ok",
-    "bytes": 1950644,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1950644
   },
   {
     "storyTitle": "The Triple Zero",
@@ -512,9 +512,9 @@
     "caption": "Villeneuve Schumacher Frentzen 1:21.072 timing.",
     "source": "/stories/jerez-1997/full/01.png",
     "export": "the-triple-zero-body-01-full-the-mathematical-impossibility.png",
-    "status": "missing-asset",
-    "bytes": 16777,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1826611
   },
   {
     "storyTitle": "The Triple Zero",
@@ -524,8 +524,8 @@
     "source": "/stories/jerez-1997/landscape/02.png",
     "export": "the-triple-zero-body-02-landscape-the-collision.png",
     "status": "ok",
-    "bytes": 2175835,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2175835
   },
   {
     "storyTitle": "The Triple Zero",
@@ -534,9 +534,9 @@
     "caption": "Jacques Villeneuve Williams 1997 Jerez celebration.",
     "source": "/stories/jerez-1997/portrait/01.png",
     "export": "the-triple-zero-body-03-portrait-the-collision.png",
-    "status": "missing-asset",
-    "bytes": 22982,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1483852
   },
   {
     "storyTitle": "The Ghost of Donington",
@@ -546,8 +546,8 @@
     "source": "/stories/senna-donington-1993/landscape/01.png",
     "export": "the-ghost-of-donington-cover.png",
     "status": "ok",
-    "bytes": 1481423,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1481423
   },
   {
     "storyTitle": "The Ghost of Donington",
@@ -557,8 +557,8 @@
     "source": "/stories/senna-donington-1993/full/01.png",
     "export": "the-ghost-of-donington-body-01-full-the-deluge.png",
     "status": "ok",
-    "bytes": 1481423,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1481423
   },
   {
     "storyTitle": "The Ghost of Donington",
@@ -568,8 +568,8 @@
     "source": "/stories/senna-donington-1993/landscape/02.png",
     "export": "the-ghost-of-donington-body-02-landscape-the-deluge.png",
     "status": "ok",
-    "bytes": 2553452,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 2553452
   },
   {
     "storyTitle": "The Ghost of Donington",
@@ -578,9 +578,9 @@
     "caption": "Ayrton Senna Donington 1993 Sonic trophy.",
     "source": "/stories/senna-donington-1993/portrait/01.png",
     "export": "the-ghost-of-donington-body-03-portrait-the-masterpiece.png",
-    "status": "missing-asset",
-    "bytes": 23092,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 1275254
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
@@ -590,8 +590,8 @@
     "source": "/stories/jaguar-monaco-diamond/landscape/01.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-cover.png",
     "status": "ok",
-    "bytes": 1807014,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1807014
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
@@ -601,8 +601,8 @@
     "source": "/stories/jaguar-monaco-diamond/full/01.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-body-01-full-the-publicity-stunt.png",
     "status": "ok",
-    "bytes": 1807014,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1807014
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
@@ -612,8 +612,8 @@
     "source": "/stories/jaguar-monaco-diamond/landscape/02.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-body-02-landscape-the-impact.png",
     "status": "ok",
-    "bytes": 1666910,
-    "note": "Verified or remapped"
+    "note": "Verified or remapped",
+    "bytes": 1666910
   },
   {
     "storyTitle": "The $300,000 Mistake: The Lost Diamond of Monaco",
@@ -622,8 +622,8 @@
     "caption": "Enigma: the lost Steinmetz diamond of Monaco.",
     "source": "/stories/jaguar-monaco-diamond/portrait/01.png",
     "export": "the-300-000-mistake-the-lost-diamond-of-monaco-body-03-portrait-the-mystery.png",
-    "status": "missing-asset",
-    "bytes": 23371,
-    "note": "Dark placeholder; historic source required"
+    "status": "ok",
+    "note": "Ingested from missing-images (2026-09-17)",
+    "bytes": 883447
   }
 ]
