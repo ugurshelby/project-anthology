@@ -108,9 +108,11 @@ export function GlossaryExplorer({
       {visibleTyres.length > 0 ? (
         <section id="tyres" className="scroll-mt-36 flex flex-col gap-4">
           <h2 className="headline-md uppercase text-text-hi">Tyre Compounds</h2>
-          <div className="grid grid-cols-2 gap-3 md:hidden">
+          <div className="snap-row md:hidden">
             {visibleTyres.map((t) => (
-              <TyreCompoundCard key={t.id} tyre={t} compact onOpen={setSheetTyre} />
+              <div key={t.id} className="w-[min(70vw,16rem)]">
+                <TyreCompoundCard tyre={t} compact onOpen={setSheetTyre} />
+              </div>
             ))}
           </div>
           <div className="hidden grid-cols-2 gap-4 md:grid lg:grid-cols-4">
@@ -126,12 +128,17 @@ export function GlossaryExplorer({
         if (!categoryTerms?.length) return null;
         return (
           <section key={category} id={category.toLowerCase().replace(/\s+/g, '-')} className="scroll-mt-36 flex flex-col gap-4">
-            <h2 className="headline-md uppercase text-text-hi">{category}</h2>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4 lg:grid-cols-3">
-              {categoryTerms.map((term) => (
-                <TermDossierCard key={term.slug} term={term} />
-              ))}
-            </div>
+            <details className="group">
+              <summary className="headline-md flex min-h-11 cursor-pointer list-none items-center justify-between uppercase text-text-hi [&::-webkit-details-marker]:hidden md:pointer-events-none">
+                <span>{category}</span>
+                <span className="label-caps text-text-low md:hidden">Toggle</span>
+              </summary>
+              <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4 lg:grid-cols-3">
+                {categoryTerms.map((term) => (
+                  <TermDossierCard key={term.slug} term={term} />
+                ))}
+              </div>
+            </details>
           </section>
         );
       })}

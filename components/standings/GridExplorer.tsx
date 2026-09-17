@@ -44,7 +44,7 @@ export function GridExplorer({
                 aria-pressed={selected}
                 onClick={() => setView(opt.id)}
                 className={[
-                  'label-caps rounded-[var(--radius-pill)] px-3 py-1.5 transition-colors',
+                  'touch-target label-caps flex min-h-11 items-center rounded-[var(--radius-pill)] px-3 py-2 transition-colors',
                   selected ? 'border border-white/20 bg-white/5 text-text-hi' : 'text-text-low hover:text-text-mid',
                 ].join(' ')}
               >

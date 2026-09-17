@@ -34,7 +34,7 @@ function DriverBay({
     <Link
       href={`/drivers/${row.driverId}`}
       className={[
-        'group relative flex min-h-36 flex-1 flex-col justify-end overflow-hidden p-3 md:min-h-52 md:p-4',
+        'group relative flex min-h-24 flex-1 flex-col justify-end overflow-hidden p-3 md:min-h-52 md:p-4',
         divided ? 'border-l border-hairline' : '',
       ].join(' ')}
     >
@@ -98,7 +98,7 @@ function EmptySeat({ divided }: { divided?: boolean }) {
   return (
     <div
       className={[
-        'relative flex min-h-36 flex-1 flex-col items-center justify-center overflow-hidden p-4 md:min-h-52',
+        'relative flex min-h-24 flex-1 flex-col items-center justify-center overflow-hidden p-4 md:min-h-52',
         divided ? 'border-l border-hairline' : '',
       ].join(' ')}
     >
@@ -157,7 +157,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
             <span className="data-tabular shrink-0 text-accent">P{unit.constructorPosition}</span>
           </div>
 
-          <div className="relative h-16 w-full sm:h-20 lg:mt-auto lg:h-28">
+          <div className="relative hidden h-16 w-full sm:block sm:h-20 lg:mt-auto lg:h-28">
             {car ? (
               <ApexImage
                 src={car}

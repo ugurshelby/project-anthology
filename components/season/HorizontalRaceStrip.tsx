@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -40,7 +40,7 @@ export function HorizontalRaceStrip({
         <span className="label-caps text-text-mid">Race calendar</span>
         {selected ? (
           <Link href={`/season/${season}/round/${selected.round}`} className="label-caps text-accent hover:opacity-80">
-            Full weekend →
+            Full weekend â†’
           </Link>
         ) : null}
       </div>
@@ -57,7 +57,7 @@ export function HorizontalRaceStrip({
               onClick={() => setSelectedRound(race.round)}
               className={[
                 'snap-start shrink-0 rounded-[var(--radius-lg)] border px-4 py-3 text-left backdrop-blur-sm transition-[transform,box-shadow,border-color] duration-200',
-                'min-w-[148px] sm:min-w-[168px]',
+                'min-h-11 min-w-[160px] sm:min-w-[168px]',
                 isActive
                   ? 'scale-[1.02] border-accent/50 bg-surface/80 shadow-[0_0_24px_rgba(255,24,1,0.12)]'
                   : isNext
@@ -72,8 +72,8 @@ export function HorizontalRaceStrip({
               <span className="mt-1 block font-condensed text-sm font-600 leading-tight uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                 {gpShortName(race.raceName)}
               </span>
-              <span className="data-tabular mt-1 block text-xs text-text-low">
-                {race.done && race.winnerCode ? race.winnerCode.toUpperCase() : isNext ? 'NEXT' : '—'}
+              <span className="data-tabular mt-1 block text-[13px] text-text-low">
+                {race.done && race.winnerCode ? race.winnerCode.toUpperCase() : isNext ? 'NEXT' : 'â€”'}
               </span>
             </button>
           );
@@ -106,7 +106,7 @@ function RaceMicroSummary({
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <span className="label-caps flex items-center gap-1.5 text-text-mid">
             {flag ? <span aria-hidden>{flag}</span> : null}
-            R{race.round} · {race.country}
+            R{race.round} Â· {race.country}
             {isNext ? (
               <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-accent/40 bg-accent/10 px-2 py-0.5 text-accent">
                 <span aria-hidden className="h-1 w-1 animate-pulse rounded-full bg-accent" />
@@ -128,12 +128,12 @@ function RaceMicroSummary({
           )}
           {race.fastestLapDriver ? (
             <span className="label-caps text-text-low">
-              FL · {race.fastestLapDriver}
-              {race.fastestLapTime ? ` · ${race.fastestLapTime}` : ''}
+              FL Â· {race.fastestLapDriver}
+              {race.fastestLapTime ? ` Â· ${race.fastestLapTime}` : ''}
             </span>
           ) : null}
           <Link href={`/season/${season}/round/${race.round}`} className="label-caps mt-1 w-fit text-accent hover:opacity-80">
-            Open round →
+            Open round â†’
           </Link>
         </div>
         {svg ? (

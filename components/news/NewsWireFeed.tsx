@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import type { NewsItem } from '@/lib/data/types';
 import { detectTeamTag, formatWireTime } from '@/lib/news/categories';
@@ -17,10 +19,11 @@ export function NewsWireFeed({
 
   return (
     <section className="mt-10 border border-hairline bg-surface/40">
-      <div className="flex items-center justify-between border-b border-hairline px-4 py-3 md:px-5">
+      <details className="group">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between border-b border-hairline px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden md:px-5">
         <h2 className="label-caps text-text-mid">{heading}</h2>
-        <span className="data-tabular text-xs text-text-low">{items.length} items</span>
-      </div>
+        <span className="data-tabular text-[13px] text-text-low">{items.length} items</span>
+      </summary>
       <ul className="divide-y divide-hairline">
         {items.map((item) => {
           const team = detectTeamTag(item.title, item.summary);
@@ -30,16 +33,16 @@ export function NewsWireFeed({
                 href={`/news/${item.id}`}
                 className="group flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-white/[0.03] md:flex-row md:items-baseline md:gap-3 md:px-5"
               >
-                <span className="data-tabular shrink-0 text-xs text-text-low">
+                <span className="data-tabular shrink-0 text-[13px] text-text-low">
                   [{formatWireTime(item.publishedTs)}]
                 </span>
-                <span className="data-tabular shrink-0 text-xs text-accent/80">
+                <span className="data-tabular shrink-0 text-[13px] text-accent/80">
                   [{team ?? item.sourceName.toUpperCase().slice(0, 12)}]
                 </span>
                 <span className="min-w-0 flex-1 text-sm leading-snug text-text-hi group-hover:text-white">
                   &ldquo;{item.title}&rdquo;
                 </span>
-                <span className="data-tabular shrink-0 text-xs text-text-low">
+                <span className="data-tabular shrink-0 text-[13px] text-text-low">
                   Source: {item.sourceName}
                 </span>
               </Link>
@@ -47,6 +50,7 @@ export function NewsWireFeed({
           );
         })}
       </ul>
+      </details>
     </section>
   );
 }

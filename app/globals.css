@@ -1,12 +1,12 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
-/* ──────────────────────────────────────────────────────────────────────────
-   Apex — Design tokens + base reset.  Tek tasarım otoritesi: design/design.md.
-   "Karanlık Sinematik Editöryel": nötr taban, sayı kahraman, ölçülü accent.
-   ────────────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Apex â€” Design tokens + base reset.  Tek tasarÄ±m otoritesi: design/design.md.
+   "KaranlÄ±k Sinematik EditÃ¶ryel": nÃ¶tr taban, sayÄ± kahraman, Ã¶lÃ§Ã¼lÃ¼ accent.
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 :root {
-  /* §1.2 Nötr taban (tonal katmanlar) — saf siyah kullanılmaz */
+  /* Â§1.2 NÃ¶tr taban (tonal katmanlar) â€” saf siyah kullanÄ±lmaz */
   --bg: #0a0a0a;
   --surface: #141414;
   --surface-raised: #1c1c1c;
@@ -16,27 +16,27 @@
   --text-mid: #A1A6AE;
   --text-low: #8A8F98;
 
-  /* §1.3 Global accent — Apex Red (tek kaynak: config/team-colors.ts). */
+  /* Â§1.3 Global accent â€” Apex Red (tek kaynak: config/team-colors.ts). */
   --accent: #ff1801;
 
-  /* Takım-temalı sayfalar bu değişkenleri kök <div style> ile ezer (§1.1). */
+  /* TakÄ±m-temalÄ± sayfalar bu deÄŸiÅŸkenleri kÃ¶k <div style> ile ezer (Â§1.1). */
   --team-primary: var(--bg);
   --team-secondary: var(--accent);
   --team-accent: var(--accent);
 
-  /* §4 Radius */
-  --radius-lg: 16px; /* kart / büyük container */
-  --radius: 8px; /* buton / çip */
+  /* Â§4 Radius */
+  --radius-lg: 16px; /* kart / bÃ¼yÃ¼k container */
+  --radius: 8px; /* buton / Ã§ip */
   --radius-pill: 9999px;
 
-  /* §4 Card rhythm */
-  --card-pad: 1.5rem; /* 24px — mobile card padding */
-  --card-pad-md: 2rem; /* 32px — md+ card padding */
+  /* Â§4 Card rhythm */
+  --card-pad: 1.5rem; /* 24px â€” mobile card padding */
+  --card-pad-md: 2rem; /* 32px â€” md+ card padding */
 
-  /* §3.2 Grid & ritim */
+  /* Â§3.2 Grid & ritim */
   --container-max: 1440px;
 
-  /* Fontlar — next/font (app/layout.tsx) */
+  /* Fontlar â€” next/font (app/layout.tsx) */
   --font-condensed: var(--font-barlow-condensed), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -65,7 +65,7 @@
   --radius-pill: 9999px;
 }
 
-/* §4 Reset — box-sizing only (zero-radius reset KALDIRILDI; radius design.md'ye taşındı). */
+/* Â§4 Reset â€” box-sizing only (zero-radius reset KALDIRILDI; radius design.md'ye taÅŸÄ±ndÄ±). */
 *,
 *::before,
 *::after {
@@ -91,13 +91,13 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* §1.4 Focus beyaz (kırmızı değil) */
+/* Â§1.4 Focus beyaz (kÄ±rmÄ±zÄ± deÄŸil) */
 :focus-visible {
   outline: 2px solid var(--text-hi);
   outline-offset: 2px;
 }
 
-/* ─── §2.1 Tip ölçeği yardımcı sınıfları ───────────────────────────────────── */
+/* â”€â”€â”€ Â§2.1 Tip Ã¶lÃ§eÄŸi yardÄ±mcÄ± sÄ±nÄ±flarÄ± â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .display-hero {
   font-family: var(--font-condensed);
@@ -161,7 +161,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Kahraman sayı — büyük rakamda satır yüksekliği boyutla ters (§2.2) */
+/* Kahraman sayÄ± â€” bÃ¼yÃ¼k rakamda satÄ±r yÃ¼ksekliÄŸi boyutla ters (Â§2.2) */
 .hero-number {
   font-family: var(--font-condensed);
   font-weight: 700;
@@ -170,12 +170,12 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Poster Dense — clearance for fixed mobile tab-bar + safe area */
+/* Poster Dense â€” clearance for fixed mobile tab-bar + safe area */
 .pb-mobile-nav {
   padding-bottom: max(5.5rem, calc(72px + env(safe-area-inset-bottom, 0px)));
 }
 
-/* Screen-reader only — used by skip link and loading states */
+/* Screen-reader only â€” used by skip link and loading states */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -201,7 +201,7 @@ body {
   white-space: normal;
 }
 
-/* Mobile nav "+" full-screen menu — overlay fade + staggered card entrance */
+/* Mobile nav "+" full-screen menu â€” overlay fade + staggered card entrance */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -212,7 +212,7 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Analog film grain — subtle texture on season/cockpit surfaces */
+/* Analog film grain â€” subtle texture on season/cockpit surfaces */
 .film-grain {
   opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -235,7 +235,7 @@ body {
   border-radius: 4px;
 }
 
-/* §5 reduced-motion zorunlu */
+/* Â§5 reduced-motion zorunlu */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -245,4 +245,37 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* Floating mobile dock clearance (bottom-6 + pill + safe area) */
+.pb-mobile-nav {
+  padding-bottom: max(6.5rem, calc(88px + env(safe-area-inset-bottom, 0px)));
+}
+.touch-target { position: relative; }
+.touch-target::before {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+.snap-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-inline: 1rem;
+  margin-inline: -1rem;
+}
+.snap-row::-webkit-scrollbar { display: none; }
+.snap-row > * { scroll-snap-align: start; flex: 0 0 auto; }
+@media (max-width: 767px) {
+  .label-caps { font-size: 13px; letter-spacing: 0.08em; }
+  .data-tabular { font-size: 13px; }
+  .body-sm { font-size: 13px; }
 }

@@ -22,12 +22,32 @@ function formatRaceDate(date: string): string {
 export function CircuitCardView({
   card,
   status,
+  compact = false,
 }: {
   card: CircuitCard;
   status: 'done' | 'upcoming';
+  compact?: boolean;
 }) {
   const cover = circuitCoverSrc(card.circuitId);
   const flag = countryFlag(card.country);
+
+  if (compact) {
+    return (
+      <Link
+        href={`/circuits/${card.circuitId}`}
+        className="flex min-h-14 items-center gap-3 rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface/50 px-3 py-2.5"
+      >
+        <span className="label-caps shrink-0 text-text-mid">R{card.round}</span>
+        <span
+          className="min-w-0 flex-1 truncate font-condensed text-base font-600 uppercase text-text-hi"
+          style={{ fontFamily: 'var(--font-condensed)' }}
+        >
+          {card.circuitName}
+        </span>
+        <StatusChip status={status} />
+      </Link>
+    );
+  }
 
   return (
     <Link

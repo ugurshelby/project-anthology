@@ -3,24 +3,25 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS } from './nav-items';
 import { NavIcon } from './NavIcons';
 
 /**
- * Poster Dense mobile tab-bar — 4 primary tabs + a centre "+" that expands
- * into a full-screen grid for the remaining routes (Teams, Circuits, News,
- * Glossary), instead of a cramped list sheet.
+ * Floating mobile dock — portaled to document.body so ancestor
+ * transform/filter/contain never traps `position: fixed` mid-page.
  */
 export function MobileNav() {
   const pathname = usePathname();
-  // Disable eager viewport-based prefetch; use touch-intent instead to avoid
-  // ERR_ABORTED cascade and wasted bandwidth on heavy RSC routes.
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [lastPathname, setLastPathname] = useState(pathname);
+  const [mounted, setMounted] = useState(false);
 
-  // Close the menu on navigation — derived during render (React's recommended
-  // pattern) rather than in an effect, since it only reacts to a prop change.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (pathname !== lastPathname) {
     setLastPathname(pathname);
     if (moreOpen) setMoreOpen(false);
@@ -39,7 +40,6 @@ export function MobileNav() {
     return () => document.removeEventListener('keydown', onKey);
   }, [moreOpen]);
 
-  // Prevent background scroll while the full-screen more menu is open.
   useEffect(() => {
     if (!moreOpen) return;
     const prev = document.body.style.overflow;
@@ -49,13 +49,15 @@ export function MobileNav() {
     };
   }, [moreOpen]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {moreOpen ? (
         <div
           role="menu"
           aria-label="More"
-          className="fixed inset-0 z-40 flex flex-col justify-end bg-bg/90 backdrop-blur-2xl md:hidden animate-[fadeIn_180ms_ease-out]"
+          className="fixed inset-0 z-[60] flex flex-col justify-end bg-bg/90 backdrop-blur-2xl md:hidden animate-[fadeIn_180ms_ease-out]"
         >
           <button
             type="button"
@@ -63,9 +65,10 @@ export function MobileNav() {
             className="absolute inset-0"
             onClick={() => setMoreOpen(false)}
           />
-          <div className="relative z-10 grid grid-cols-2 gap-3 px-5 pb-32">
+          <div className="relative z-10 grid grid-cols-2 gap-3 px-5 pb-36">
             {MOBILE_MORE_ITEMS.map((item, i) => {
-              const active = pathname === item.href || pathname.startsWith(item.href + '/');
+              const active =
+                pathname === item.href || pathname.startsWith(item.href + '/');
               return (
                 <Link
                   key={item.href}
@@ -75,7 +78,7 @@ export function MobileNav() {
                   role="menuitem"
                   aria-current={active ? 'page' : undefined}
                   className={[
-                    'group flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[var(--radius-lg)] border transition-colors',
+                    'touch-target group flex min-h-28 flex-col items-center justify-center gap-2.5 rounded-[var(--radius-lg)] border transition-colors',
                     active
                       ? 'border-accent/40 bg-accent/15 text-text-hi'
                       : 'border-hairline bg-surface text-text-mid hover:bg-surface-raised hover:text-text-hi',
@@ -95,14 +98,13 @@ export function MobileNav() {
       ) : null}
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-white/[0.06] bg-bg/80 backdrop-blur-2xl md:hidden"
+        className="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(100%-1.5rem,28rem)] -translate-x-1/2 md:hidden"
         style={{
-          paddingBottom: 'max(10px, env(safe-area-inset-bottom))',
-          boxShadow: '0 -1px 0 rgba(255,255,255,0.04), 0 -12px 32px -8px rgba(0,0,0,0.5)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
         aria-label="Primary"
       >
-        <ul className="mx-auto flex max-w-lg items-center justify-around px-1 pt-2">
+        <ul className="pointer-events-auto flex items-center justify-between gap-0.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)] backdrop-blur-md">
           {MOBILE_NAV_ITEMS.map((item) => {
             const active =
               item.href === '/'
@@ -116,37 +118,33 @@ export function MobileNav() {
                   onTouchStart={() => router.prefetch(item.href)}
                   aria-current={active ? 'page' : undefined}
                   className={[
-                    'label-caps mx-auto flex h-11 max-w-[4.5rem] flex-col items-center justify-center gap-0.5 rounded-full px-2 transition-all duration-150 active:scale-90',
-                    active ? 'text-text-hi' : 'text-text-mid',
+                    'touch-target label-caps mx-auto flex min-h-11 w-full max-w-[4.75rem] flex-col items-center justify-center gap-0.5 rounded-full px-1.5 transition-all duration-150 active:scale-95',
+                    active ? 'bg-accent text-text-hi' : 'text-text-mid',
                   ].join(' ')}
-                  style={
-                    active
-                      ? { background: 'linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 80%, black))' }
-                      : undefined
-                  }
                 >
-                  <NavIcon icon={item.icon!} className="h-4.5 w-4.5" />
-                  <span className="text-xs">{item.label}</span>
+                  <NavIcon icon={item.icon!} className="h-4 w-4" />
+                  <span className="text-[11px] leading-none tracking-wide">{item.label}</span>
                 </Link>
               </li>
             );
           })}
-          <li className="flex-1">
+          <li className="flex shrink-0 items-center justify-center px-0.5">
             <button
               type="button"
               aria-expanded={moreOpen}
               aria-haspopup="menu"
               aria-label={moreOpen ? 'Close menu' : 'More'}
               onClick={() => setMoreOpen((o) => !o)}
-              className="mx-auto flex h-12 w-12 items-center justify-center rounded-full text-text-hi shadow-lg transition-all duration-200 active:scale-90"
+              className="touch-target flex h-11 w-11 items-center justify-center rounded-full text-text-hi transition-all duration-200 active:scale-95"
               style={{
-                background: moreActive || moreOpen
-                  ? 'linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 80%, black))'
-                  : 'linear-gradient(180deg, var(--surface-raised), var(--surface))',
-                boxShadow: moreActive || moreOpen
-                  ? '0 4px 16px -2px color-mix(in srgb, var(--accent) 50%, transparent)'
-                  : '0 2px 8px -2px rgba(0,0,0,0.4)',
-                transform: 'translateY(-4px)',
+                background:
+                  moreActive || moreOpen
+                    ? 'linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 80%, black))'
+                    : 'linear-gradient(180deg, var(--surface-raised), var(--surface))',
+                boxShadow:
+                  moreActive || moreOpen
+                    ? '0 4px 16px -2px color-mix(in srgb, var(--accent) 50%, transparent)'
+                    : '0 2px 8px -2px rgba(0,0,0,0.4)',
               }}
             >
               <PlusIcon open={moreOpen} />
@@ -154,7 +152,8 @@ export function MobileNav() {
           </li>
         </ul>
       </nav>
-    </>
+    </>,
+    document.body,
   );
 }
 
@@ -172,11 +171,19 @@ function PlusIcon({ open }: { open: boolean }) {
     >
       <path
         d="M12 5v14"
-        style={{ transition: 'transform 220ms cubic-bezier(0.32,0.72,0,1)', transform: open ? 'rotate(45deg)' : 'rotate(0deg)', transformOrigin: 'center' }}
+        style={{
+          transition: 'transform 220ms cubic-bezier(0.32,0.72,0,1)',
+          transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
+          transformOrigin: 'center',
+        }}
       />
       <path
         d="M5 12h14"
-        style={{ transition: 'transform 220ms cubic-bezier(0.32,0.72,0,1)', transform: open ? 'rotate(45deg)' : 'rotate(0deg)', transformOrigin: 'center' }}
+        style={{
+          transition: 'transform 220ms cubic-bezier(0.32,0.72,0,1)',
+          transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
+          transformOrigin: 'center',
+        }}
       />
     </svg>
   );

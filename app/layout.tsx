@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import { Barlow_Condensed, Inter, JetBrains_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -8,28 +8,28 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
 import { MobileNav } from '@/components/layout/MobileNav';
 import './globals.css';
 
-// Critical weights only — one preload per family avoids the
+// Critical weights only â€” one preload per family avoids the
 // "preloaded but not used within a few seconds" console warning.
 // Non-critical variants (e.g. inter-500, jetbrains-500/700) are still
 // available via CSS font-weight matching; the browser downloads them
 // on demand after display:swap shows the page with fallback text.
 const barlowCondensed = Barlow_Condensed({
   variable: '--font-barlow-condensed',
-  weight: ['600', '700'], // nav + headings — the only weights painted above-fold
+  weight: ['600', '700'], // nav + headings â€” the only weights painted above-fold
   subsets: ['latin'],
   display: 'swap',
 });
 
 const inter = Inter({
   variable: '--font-inter',
-  weight: ['400'], // body copy — 500 (labels) loads lazily on first use
+  weight: ['400'], // body copy â€” 500 (labels) loads lazily on first use
   subsets: ['latin'],
   display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
-  weight: ['400'], // code blocks — 500/700 not painted on initial render
+  weight: ['400'], // code blocks â€” 500/700 not painted on initial render
   subsets: ['latin'],
   display: 'swap',
 });
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
     default: SITE_NAME,
-    template: `%s — ${SITE_NAME}`,
+    template: `%s â€” ${SITE_NAME}`,
   },
   description: SITE_TAGLINE,
   applicationName: SITE_NAME,
@@ -88,7 +88,7 @@ export default function RootLayout({
       lang="en"
       className={`${barlowCondensed.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-dvh flex-col">
+      <body className="flex min-h-dvh flex-col pb-mobile-nav">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}

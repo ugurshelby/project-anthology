@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { DriverLeaderCard } from '@/components/standings/StandingsLeaderCard';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
@@ -23,7 +23,7 @@ export function ChampionshipPulse({
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="label-caps text-text-mid">Championship Pulse</h2>
         <Link href="/season" className="label-caps text-accent">
-          Full →
+          Full â†’
         </Link>
       </div>
 
@@ -45,14 +45,14 @@ export function ChampionshipPulse({
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span
-                  className="min-w-0 truncate font-condensed text-sm font-700 uppercase text-text-hi"
+                  className="min-w-0 break-words font-condensed text-sm font-700 uppercase leading-tight text-text-hi"
                   style={{ fontFamily: 'var(--font-condensed)' }}
                 >
                   P{row.position} {row.driverName}
                 </span>
-                <span className="font-mono shrink-0 text-xs text-text-low">+{delta} PTS</span>
+                <span className="font-mono shrink-0 text-[13px] text-text-low">+{delta} PTS</span>
               </div>
-              <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                 <span className="block h-full" style={{ width: `${width}%`, backgroundColor: color }} />
               </div>
             </Link>
@@ -74,10 +74,10 @@ export function ChampionshipPulse({
                 className="flex flex-col gap-1"
               >
                 <div className="flex justify-between gap-2">
-                  <span className="truncate font-mono text-xs uppercase text-text-mid">{row.constructorName}</span>
-                  <span className="font-mono text-xs text-text-low">{row.points}</span>
+                  <span className="min-w-0 break-words font-mono text-[13px] uppercase text-text-mid">{row.constructorName}</span>
+                  <span className="font-mono text-[13px] text-text-low">{row.points}</span>
                 </div>
-                <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                   <span className="block h-full" style={{ width: `${width}%`, backgroundColor: color }} />
                 </div>
               </Link>
