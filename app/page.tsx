@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: HOME_TITLE, description: SITE_TAGLINE },
 };
 
-const paddockCardClass = 'min-h-[320px] min-w-[85vw] shrink-0 snap-start md:min-w-0';
+const paddockCardClass = 'min-h-[320px] min-w-[min(85vw,22rem)] shrink-0 snap-start md:min-w-0';
 
 async function HomeHeroBlock() {
   const calendarData = await fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');

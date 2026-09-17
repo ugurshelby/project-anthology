@@ -12,7 +12,7 @@ export function HomeHeroFallback() {
 export function HomePaddockCardFallback() {
   return (
     <div
-      className="col-span-4 min-h-[320px] min-w-[85vw] shrink-0 snap-start animate-pulse rounded-[var(--radius-lg)] border border-hairline bg-surface md:col-span-4 md:min-w-0 lg:col-span-4"
+      className="min-h-[320px] min-w-[min(85vw,22rem)] shrink-0 snap-start animate-pulse rounded-[var(--radius-lg)] border border-hairline bg-surface md:col-span-4 md:min-w-0 lg:col-span-4"
       aria-hidden
     />
   );

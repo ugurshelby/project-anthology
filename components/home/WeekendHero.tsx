@@ -62,7 +62,7 @@ export function WeekendHero({
             className="mt-0.5 block truncate font-condensed text-sm font-700 uppercase leading-tight text-text-hi"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
-            // {lastWinnerName}
+            {'// '}{lastWinnerName}
           </span>
           {lastRaceName ? <span className="data-tabular text-xs text-text-mid">{lastRaceName}</span> : null}
         </Link>
@@ -82,7 +82,7 @@ export function WeekendHero({
               {bar.map((s) => (
                 <span key={s.id}>
                   <span className="text-text">{s.label}</span>
-                  <span className="text-text-low"> Â· </span>
+                  <span className="text-text-low">{' · '}</span>
                   {s.when}
                 </span>
               ))}

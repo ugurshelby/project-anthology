@@ -25,7 +25,7 @@ export function DriverLineup({
         <Link
           key={d.driverId}
           href={`/drivers/${d.driverId}`}
-          className="group flex flex-col items-center gap-2 px-3 py-2 text-center transition-colors first:pl-0 last:pr-0 hover:opacity-90"
+          className="group flex min-w-0 flex-col items-center gap-2 overflow-hidden px-3 py-2 text-center transition-colors first:pl-0 last:pr-0 hover:opacity-90"
         >
           <DriverAvatar
             driverName={d.driverName}
@@ -35,7 +35,7 @@ export function DriverLineup({
             season={season}
             size={80}
           />
-          <span className="font-condensed text-xl font-600 uppercase leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+          <span className="w-full truncate font-condensed text-xl font-600 uppercase leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
             {d.driverName}
           </span>
           <span className="data-tabular text-text-mid">
