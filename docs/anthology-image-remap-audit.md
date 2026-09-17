@@ -55,3 +55,13 @@ Staging: _remap-staging
 ## Restore
 
 Copy backup folder over public/stories if needed.
+
+## 2026-09-17 invalid-era purge
+
+Purged suspect assets to dark placeholders and added to missing-asset list:
+- /stories/senna-monaco/landscape/01.png (cover)
+- /stories/senna-monaco/full/01.png
+- /stories/dijon-1979/landscape/01.png (cover)
+- /stories/fangio-nurburgring/landscape/01.png (cover)
+- /stories/schumacher-1994-spain/portrait/01.png (cockpit)
+
