@@ -1,0 +1,42 @@
+# Dependencies and generated build output
+node_modules/
+mobile/node_modules/
+.next/
+out/
+build/
+coverage/
+test-results/
+playwright-report/
+
+# Local tooling caches and project graphs
+.cache/
+.turbo/
+.vercel/
+graphify-out/
+.superpowers/
+.claude/**/__pycache__/
+
+# Secrets, local environment and machine-specific files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Large/generated diagnostics and archives
+*.log
+*.har
+*.map
+*.tsbuildinfo
+docs/**/*.har
+old-versions-valuable-files/
+_stories-backup-*/
+_remap-staging/
+_remap-*.ps1
+
+# Mobile and design tool exports not needed for web-agent context
+mobile/.expo/
+mobile/android/.gradle/
+mobile/ios/Pods/
+design/**/exports/

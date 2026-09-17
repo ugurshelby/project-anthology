@@ -11,6 +11,13 @@ const EXPLORE_LINKS = [
   { href: '/tech-glossary', label: 'Tech Glossary' },
 ];
 
+const LEGAL_LINKS = [
+  { href: '/disclaimer', label: 'Disclaimer' },
+  { href: '/privacy', label: 'Privacy' },
+  { href: '/terms', label: 'Terms' },
+  { href: '/dmca', label: 'Copyright / DMCA' },
+];
+
 /** Editorial site footer — brand column, explore links, archive note. */
 export function SiteFooter() {
   return (
@@ -30,16 +37,32 @@ export function SiteFooter() {
             A dark cinematic archive of Formula 1 — seasons, circuits, grid lore,
             and the stories that outlast the chequered flag.
           </p>
+          <p className="max-w-2xl body-sm text-text-low">
+            Apex is an independent, unofficial project. It is not affiliated with
+            or endorsed by Formula 1, Formula One Licensing B.V., the FIA, or any
+            team, driver, circuit or sponsor.
+          </p>
         </div>
 
         <div className="flex flex-col gap-4 md:items-end">
           <span className="label-caps text-text-mid">Explore</span>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label="Footer">
+          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label="Explore">
             {EXPLORE_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
                 className="label-caps text-text-mid transition-colors hover:text-text-hi"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label="Legal">
+            {LEGAL_LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="label-caps text-text-low transition-colors hover:text-text-hi"
               >
                 {l.label}
               </Link>
