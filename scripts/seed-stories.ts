@@ -44,6 +44,9 @@ async function main(): Promise<void> {
       category: s.category,
       heroImage: s.heroImage,
       blocks: s.blocks,
+      titleTr: s.titleTr,
+      subtitleTr: s.subtitleTr,
+      blocksTr: s.blocksTr,
     } as unknown as Json,
   }));
 

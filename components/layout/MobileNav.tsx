@@ -1,11 +1,13 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS } from './nav-items';
 import { NavIcon } from './NavIcons';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
 /**
  * Floating mobile dock — portaled to document.body so ancestor
@@ -13,6 +15,7 @@ import { NavIcon } from './NavIcons';
  */
 export function MobileNav() {
   const pathname = usePathname();
+  const t = useTranslations('nav');
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
@@ -88,35 +91,43 @@ export function MobileNav() {
             className="absolute inset-0"
             onClick={() => setMoreOpen(false)}
           />
-          <div className="relative z-10 grid min-w-0 grid-cols-2 gap-3 px-4 pb-[max(8rem,calc(6rem+env(safe-area-inset-bottom)))] sm:px-5">
-            {MOBILE_MORE_ITEMS.map((item, i) => {
-              const active =
-                pathname === item.href || pathname.startsWith(item.href + '/');
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch={false}
-                  onTouchStart={() => router.prefetch(item.href)}
-                  onClick={() => setMoreOpen(false)}
-                  role="menuitem"
-                  aria-current={active ? 'page' : undefined}
-                  className={[
-                    'touch-target group flex min-h-28 min-w-0 flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[var(--radius-lg)] border transition-colors',
-                    active
-                      ? 'border-accent/40 bg-accent/15 text-text-hi'
-                      : 'border-hairline bg-surface text-text-mid hover:bg-surface-raised hover:text-text-hi',
-                  ].join(' ')}
-                  style={{
-                    animation: `moreItemIn 260ms cubic-bezier(0.32,0.72,0,1) both`,
-                    animationDelay: `${i * 45}ms`,
-                  }}
-                >
-                  <NavIcon icon={item.icon!} className="h-7 w-7" />
-                  <span className="label-caps max-w-full truncate px-2">{item.label}</span>
-                </Link>
-              );
-            })}
+          <div className="relative z-10 flex min-w-0 flex-col gap-3 px-4 pb-[max(8rem,calc(6rem+env(safe-area-inset-bottom)))] sm:px-5">
+            <div className="flex items-center justify-between rounded-[var(--radius-lg)] border border-hairline bg-surface/60 px-4 py-2.5">
+              <span className="label-caps text-xs text-text-mid">Language / Dil</span>
+              <LocaleSwitcher />
+            </div>
+            <div className="grid min-w-0 grid-cols-2 gap-3">
+              {MOBILE_MORE_ITEMS.map((item, i) => {
+                const normalizedPath = pathname.replace(/^\/tr(\/|$)/, '$1') || '/';
+                const active =
+                  normalizedPath === item.href || (item.href !== '/' && normalizedPath.startsWith(item.href + '/'));
+                const label = item.key ? t(item.key) : item.label;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    prefetch={false}
+                    onTouchStart={() => router.prefetch(item.href)}
+                    onClick={() => setMoreOpen(false)}
+                    role="menuitem"
+                    aria-current={active ? 'page' : undefined}
+                    className={[
+                      'touch-target group flex min-h-28 min-w-0 flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[var(--radius-lg)] border transition-colors',
+                      active
+                        ? 'border-accent/40 bg-accent/15 text-text-hi'
+                        : 'border-hairline bg-surface text-text-mid hover:bg-surface-raised hover:text-text-hi',
+                    ].join(' ')}
+                    style={{
+                      animation: `moreItemIn 260ms cubic-bezier(0.32,0.72,0,1) both`,
+                      animationDelay: `${i * 45}ms`,
+                    }}
+                  >
+                    <NavIcon icon={item.icon!} className="h-7 w-7" />
+                    <span className="label-caps max-w-full truncate px-2">{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       ) : null}
@@ -133,10 +144,12 @@ export function MobileNav() {
       >
         <ul className="pointer-events-auto flex min-w-0 items-center justify-between gap-0.5 overflow-hidden rounded-full border border-white/10 bg-black/70 px-1.5 py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)] backdrop-blur-md">
           {MOBILE_NAV_ITEMS.map((item) => {
+            const normalizedPath = pathname.replace(/^\/tr(\/|$)/, '$1') || '/';
             const active =
               item.href === '/'
-                ? pathname === '/'
-                : pathname === item.href || pathname.startsWith(item.href + '/');
+                ? normalizedPath === '/'
+                : normalizedPath === item.href || normalizedPath.startsWith(item.href + '/');
+            const label = item.key ? t(item.key) : item.label;
             return (
               <li key={item.href} className="min-w-0 flex-1">
                 <Link
@@ -151,7 +164,7 @@ export function MobileNav() {
                   ].join(' ')}
                 >
                   <NavIcon icon={item.icon!} className="h-4 w-4" />
-                  <span className="max-w-full truncate text-[11px] leading-none tracking-wide">{item.label}</span>
+                  <span className="max-w-full truncate text-[11px] leading-none tracking-wide">{label}</span>
                 </Link>
               </li>
             );

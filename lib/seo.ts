@@ -21,14 +21,36 @@ export function absoluteUrl(path: string): string {
   return `${base}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
+/**
+ * Locale-aware alternates for Next.js metadata.
+ * Generates canonical according to locale (en prefixless, tr /tr-prefixed)
+ * and hreflang mapping for en, tr, and x-default.
+ */
+export function localizedAlternates(path: string, locale: string = 'en') {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const enUrl = cleanPath === '/' ? siteUrl() : absoluteUrl(cleanPath);
+  const trUrl = cleanPath === '/' ? `${siteUrl()}/tr` : absoluteUrl(`/tr${cleanPath}`);
+  const canonical = locale === 'tr' ? trUrl : enUrl;
+
+  return {
+    canonical,
+    languages: {
+      en: enUrl,
+      tr: trUrl,
+      'x-default': enUrl,
+    },
+  };
+}
+
 /** Organization/WebSite JSON-LD for the site root (rendered in layout). */
-export function websiteJsonLd(): Record<string, unknown> {
+export function websiteJsonLd(locale: string = 'en'): Record<string, unknown> {
   const url = siteUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
     url,
+    inLanguage: locale === 'tr' ? 'tr-TR' : 'en-US',
     description: SITE_TAGLINE,
     publisher: {
       '@type': 'Organization',
@@ -46,6 +68,7 @@ export function articleJsonLd(input: {
   imageUrl?: string;
   year?: string;
   category?: string;
+  locale?: string;
   /** ISO timestamp the story row was created (→ datePublished). */
   publishedAt?: string;
   /** ISO timestamp the story row was last updated (→ dateModified). */
@@ -53,13 +76,14 @@ export function articleJsonLd(input: {
   /** Defaults to the site Organization when stories carry no per-author byline. */
   authorName?: string;
 }): Record<string, unknown> {
-  const url = absoluteUrl(`/anthology/${input.slug}`);
+  const url = absoluteUrl(input.locale === 'tr' ? `/tr/anthology/${input.slug}` : `/anthology/${input.slug}`);
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: input.title,
     description: input.description,
     url,
+    inLanguage: input.locale === 'tr' ? 'tr-TR' : 'en-US',
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     image: input.imageUrl ? [absoluteUrl(input.imageUrl)] : undefined,
     articleSection: input.category || undefined,

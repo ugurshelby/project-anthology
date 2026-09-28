@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "season": "Sezon",
+    "grid": "Grid",
+    "circuits": "Pistler",
+    "news": "Haberler",
+    "anthology": "Antoloji",
+    "glossary": "Sözlük"
+  },
+  "home": {
+    "championshipPulse": "Şampiyona Nabzı",
+    "lastRoundWinner": "Son Yarış Galibi",
+    "seasonProgress": "{done}/{total} Yarış Tamamlandı",
+    "onThisDay": "Tarihte Bugün",
+    "wireFeed": "Padok Telgrafı",
+    "anthology": "Antoloji Arşivi",
+    "seasonArchive": "Sezon Arşivi",
+    "exploreGrid": "Gridi İncele",
+    "exploreCircuits": "Pistleri İncele"
+  },
+  "season": {
+    "driverStandings": "Pilotlar Klasmanı",
+    "constructorStandings": "Takımlar Klasmanı",
+    "schedule": "Yarış Takvimi",
+    "pts": "PUAN",
+    "wins": "GALİBİYET"
+  },
+  "roundDetail": {
+    "raceClassification": "Yarış Sonuçları",
+    "qualifying": "Sıralama Turları",
+    "sprint": "Sprint",
+    "notYetAvailable": "Bu yarış için sonuçlar henüz mevcut değil."
+  },
+  "news": {
+    "loadMore": "Daha Fazla Göster",
+    "allNews": "Tüm Haberler",
+    "source": "Kaynak"
+  },
+  "anthology": {
+    "title": "Hikâyeler ve Telsiz",
+    "kicker": "Antoloji",
+    "longRead": "Derin Okuma",
+    "nextStory": "Antolojideki Sıradaki Hikâye",
+    "teamRadio": "Takım Telsizi",
+    "noStories": "Henüz yayınlanmış bir hikâye bulunmuyor. Yakında tekrar kontrol edin."
+  },
+  "glossary": {
+    "title": "Teknik Sözlük",
+    "searchPlaceholder": "Terim ara…",
+    "allCount": "Tümü ({count})"
+  },
+  "footer": {
+    "archiveTagline": "Arşiv & Antoloji",
+    "description": "Formula 1'in karanlık sinematik arşivi — sezonlar, pistler, grid efsaneleri ve damalı bayrağın ötesinde yaşayan hikâyeler.",
+    "disclaimer": "Apex bağımsız ve resmi olmayan bir projedir. Formula 1, Formula One Licensing B.V., FIA veya herhangi bir takım, pilot, pist ya da sponsor ile bağlantılı değildir veya onaylanmamıştır.",
+    "explore": "Keşfet",
+    "builtFor": "Padok arşivi için inşa edildi",
+    "legalDisclaimer": "Yasal Uyarı",
+    "legalPrivacy": "Gizlilik",
+    "legalTerms": "Kullanım Koşulları",
+    "legalDmca": "Telif / DMCA"
+  },
+  "common": {
+    "loading": "Yükleniyor…",
+    "error": "Bir şeyler ters gitti",
+    "retry": "Yeniden Dene"
+  }
+}

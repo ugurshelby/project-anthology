@@ -1,17 +1,16 @@
-import { NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+import type { NextRequest } from 'next/server';
+
+const handleI18n = createMiddleware(routing);
 
 /**
- * Preview-only noindex (Faz 0 — Lighthouse SEO fix).
- *
- * Vercel preview deployments must never be indexed, but production must be.
- * Earlier the noindex header leaked to the URL Lighthouse audited, dropping the
- * SEO score to 69. We now gate it strictly on VERCEL_ENV === 'preview':
- * production and local development emit no X-Robots-Tag, so they stay indexable.
- *
- * Next.js 16 renamed the `middleware` file convention to `proxy`; same API.
+ * Next.js 16 proxy convention combining:
+ * 1. next-intl locale negotiation (/en prefixless, /tr prefixed)
+ * 2. Preview-only noindex header (VERCEL_ENV === 'preview')
  */
-export function proxy() {
-  const res = NextResponse.next();
+export function proxy(request: NextRequest) {
+  const res = handleI18n(request);
   if (process.env.VERCEL_ENV === 'preview') {
     res.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
@@ -19,7 +18,6 @@ export function proxy() {
 }
 
 export const config = {
-  // Run on pages only; skip Next internals, the monitoring tunnel, and any path
-  // with a file extension (static assets, favicon, og images, feed, sitemap).
-  matcher: ['/((?!_next/|monitoring|.*\\..*).*)'],
+  // Run on pages only; skip Next internals, api, monitoring tunnel, and static files
+  matcher: ['/((?!api|_next|monitoring|.*\\..*).*)'],
 };

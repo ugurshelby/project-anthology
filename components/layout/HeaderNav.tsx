@@ -1,21 +1,24 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { NavItem } from './nav-items';
 
 /** Desktop nav links with active-route highlight (client: needs usePathname). */
 export function HeaderNav({ items, className = 'hidden items-center gap-7 md:flex' }: { items: NavItem[]; className?: string }) {
   const pathname = usePathname();
-  // prefetch={false} on every Link prevents the aggressive viewport-based RSC
-  // pre-fetch that fires on page load and causes ERR_ABORTED + wasted bandwidth.
-  // Intent is signalled on hover instead, which is early enough to feel instant.
+  const t = useTranslations('nav');
   const router = useRouter();
 
   return (
     <nav className={['items-center gap-7', className].join(' ')}>
       {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(item.href + '/');
+        // Strip potential /tr locale prefix when evaluating active link
+        const normalizedPath = pathname.replace(/^\/tr(\/|$)/, '$1') || '/';
+        const active = normalizedPath === item.href || (item.href !== '/' && normalizedPath.startsWith(item.href + '/'));
+        const label = item.key ? t(item.key) : item.label;
+
         return (
           <Link
             key={item.href}
@@ -28,7 +31,7 @@ export function HeaderNav({ items, className = 'hidden items-center gap-7 md:fle
               active ? 'text-text-hi' : 'text-text-mid hover:text-text',
             ].join(' ')}
           >
-            {item.label}
+            {label}
             {active ? (
               <span className="absolute inset-x-0 -bottom-px h-0.5 bg-accent" aria-hidden />
             ) : null}
