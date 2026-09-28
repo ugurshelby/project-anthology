@@ -145,7 +145,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <span className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10">
-                <ApexImage src={logo} alt="" fill kind="media" sizes="40px" className="object-contain" fallbackLabel="TEAM" />
+                <ApexImage src={logo} alt="" fill kind="team" sizes="40px" className="object-contain" fallbackLabel={unit.constructorName} />
               </span>
               <span
                 className="font-condensed truncate text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"

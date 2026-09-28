@@ -79,6 +79,15 @@ Spec: `docs/design/apex-design-language.md`
 - [ ] Gerçek canlı yarışta uçtan-uca doğrulama (OpenF1 canlı seans sırasında manuel test) — sıradaki yarış haftasında yapılmalı
 - [ ] Round detay sayfasına (`app/season/[year]/round/[n]/page.tsx`) da canlı tracker eklenmesi değerlendirilebilir
 
+### 🖼️ GÖRSEL-TELİF — Fotoğrafsız politika (2026-09-28)
+
+- [x] **Kritik telif riski giderildi:** Pilot portreleri (`assets/asset-package/2026-drivers/*`), takım logoları, araç render'ları, pist hava fotoğrafları — hepsi kaynağı/lisansı belgesiz gerçek fotoğraf/marka varlığıydı, prod'da yayındaydı. Tamamı kaldırıldı: `public/drivers`, `public/teams`, `public/cars`, `public/circuit-images`, `public/circuits/*.png` (orphan kopyalar), `assets/asset-package/`, ilgili artık-gereksiz script'ler (`sync-asset-package.mjs`, `generate-drivers.mjs`, `audit-missing-assets.ts`, `normalize-driver-slugs.ps1`).
+- [x] `lib/assets/f1-icons.ts`: `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` artık hep `null` (stabil API, çağıran taraflarda değişiklik gerekmedi). `circuitIconSrc` korundu (MIT lisanslı pist rota geometrisi, fotoğraf değil).
+- [x] `components/media/ApexFallback.tsx` yeni birincil görsel: canlı veriden (isim/kod → baş harf, `--team-secondary` CSS değişkeni) rozet üretir — ek asset/API/maliyet yok, yeni pilot/takım için otomatik çalışır. `kind: 'team'` eklendi.
+- [x] `DriverMachineryCard`, `ProfileHero`, `TeamGarageHero`, `GarageTeamPanel`'deki eski `{logo ? <ApexImage kind="media"/> : null}` null-guard'ları kaldırıldı, `kind="team"` + `fallbackLabel={teamName}` ile her yerde rozet gösteriyor.
+- [ ] Efendim onaylamadı ama değerlendirilebilir: pist "kapak" görseli için `circuitIconSrc`'in gerçek MIT'li rota çizimini hero/kapak olarak kullanmak (şu an sadece küçük "track map" olarak kullanılıyor, kapak tamamen boş/gradient).
+- [ ] **Tasarım takip işi (antigravity):** `DriverProfileHero.tsx`'teki büyük pilot silüeti (tam-bleed, maskeli, 1.2-1.55x ölçekli kesit) fotoğrafa özel tasarlanmış — `imageSrc` artık hep `null` olduğu için o alan boş kalıyor (kırık değil, sadece boş gradient). Küçük rozetlerdeki gibi mekanik bir `kind="driver"` swap'ı burada uygun değil (dev kod büyütülmüş metin garip dururdu); bu, fotoğrafsız pilot hero'su için gerçek bir tasarım kararı gerektiriyor.
+
 ### 📰 HABER-KALİTE — Görsel doğrulama + atıf
 
 - [x] **Görseli çekilemeyen haber artık hiç görünmüyor (2026-09-28):** `lib/news/aggregate.ts`'e `verifyImages()` eklendi — RSS'in verdiği görsel URL'si gerçekten HTTP 2xx + `image/*` content-type dönmüyorsa (404, redirect, silinmiş CDN asset'i) makale tamamen listeden düşüyor, "placeholder" veya boş thumbnail ile gösterilmiyor. Bounded concurrency (10) + 8sn toplam bütçe — `aggregate()`'in mevcut 15dk cache'i içinde çalıştığı için kullanıcı isteği başına maliyet yok. `lib/data/news.ts`'teki DB/statik fallback katmanlarına da aynı kural (defense-in-depth) eklendi.

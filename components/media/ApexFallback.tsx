@@ -1,17 +1,40 @@
 import type { ReactNode } from 'react';
 
-export type ApexFallbackKind = 'car' | 'driver' | 'circuit' | 'media';
+export type ApexFallbackKind = 'car' | 'driver' | 'circuit' | 'media' | 'team';
 
 const KIND_LABEL: Record<ApexFallbackKind, string> = {
-  car: 'CAR RENDER',
+  car: 'CAR',
   driver: 'DRIVER',
   circuit: 'CIRCUIT',
   media: 'MEDIA',
+  team: 'TEAM',
 };
 
 /**
- * Intentional APEX empty-asset surface — technical wireframe, not a broken
- * icon, black void, or accidental number watermark.
+ * Derive a short mark from whatever identity string the caller already has
+ * (driver name, FIA code, constructor name) — no extra data fetch needed.
+ * A pre-existing 2-4 letter uppercase code (e.g. "VER") passes through as-is;
+ * anything else collapses to initials, e.g. "Max Verstappen" → "MV".
+ */
+function markFrom(label: string | undefined, kind: ApexFallbackKind): string {
+  const trimmed = label?.trim();
+  if (!trimmed) return KIND_LABEL[kind].slice(0, 3);
+  if (/^[A-Z]{2,4}$/.test(trimmed)) return trimmed;
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  }
+  return trimmed.slice(0, 3).toUpperCase();
+}
+
+/**
+ * APEX's only visual for drivers/teams/cars/circuits — the site is
+ * intentionally photo-free (no licensed photography or official marks; see
+ * lib/assets/f1-icons.ts). Renders a data-driven mark (initials/code) inside
+ * the existing technical-wireframe surface rather than a generic "missing
+ * asset" placeholder, so this is a first-class visual, not a degrade state.
+ * Colored via --team-secondary (set by lib/theme.ts teamThemeVars wherever a
+ * team context exists) with a graceful CSS fallback to the site accent.
  */
 export function ApexFallback({
   kind = 'media',
@@ -25,6 +48,8 @@ export function ApexFallback({
   children?: ReactNode;
 }) {
   const caption = label ?? KIND_LABEL[kind];
+  const showMark = kind === 'driver' || kind === 'team' || kind === 'car';
+  const mark = showMark ? markFrom(label, kind) : null;
 
   return (
     <div
@@ -36,6 +61,10 @@ export function ApexFallback({
       ]
         .filter(Boolean)
         .join(' ')}
+      style={{
+        background:
+          'linear-gradient(155deg, color-mix(in srgb, var(--team-secondary, var(--accent)) 20%, var(--surface-raised)), var(--surface-raised) 65%)',
+      }}
     >
       <span
         aria-hidden
@@ -57,11 +86,18 @@ export function ApexFallback({
             'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.35) 100%)',
         }}
       />
-      <div className="relative z-10 flex flex-col items-center gap-1.5 px-3 text-center">
+      <div className="relative z-10 flex flex-col items-center gap-1 px-3 text-center">
         {children ?? (
           <>
-            <span className="label-caps text-text-low">{caption}</span>
-            <span className="data-tabular text-xs text-text-mid">ASSET PENDING</span>
+            {mark ? (
+              <span
+                className="font-condensed text-2xl font-700 uppercase leading-none text-text-hi"
+                style={{ fontFamily: 'var(--font-condensed)', color: 'color-mix(in srgb, var(--team-secondary, var(--accent)) 70%, white)' }}
+              >
+                {mark}
+              </span>
+            ) : null}
+            <span className="label-caps text-text-low">{KIND_LABEL[kind]}</span>
           </>
         )}
       </div>

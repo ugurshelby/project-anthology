@@ -30,9 +30,7 @@ export function DriverMachineryCard({
         }}
       />
       <div className="relative z-10 flex flex-col gap-3 p-5 sm:p-6">
-        {teamLogo ? (
-          <ApexImage src={teamLogo} alt={constructorName} width={48} height={48} kind="media" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
-        ) : null}
+        <ApexImage src={teamLogo} alt={constructorName} width={48} height={48} kind="team" fallbackLabel={constructorName} className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
         <span className="label-caps text-text-mid">{season} Machinery</span>
         <span className="font-condensed text-2xl font-700 uppercase text-text-hi sm:text-3xl" style={{ fontFamily: 'var(--font-condensed)' }}>
           {constructorName}

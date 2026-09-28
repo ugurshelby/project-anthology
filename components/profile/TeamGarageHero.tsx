@@ -112,11 +112,9 @@ export function TeamGarageHero({
               <h1 className="display-hero mt-2 italic uppercase leading-[0.86] text-text-hi">{title}</h1>
               {meta ? <p className="data-tabular mt-3 text-text-mid">{meta}</p> : null}
             </div>
-            {logoSrc ? (
-              <div className="relative h-14 w-14 shrink-0 opacity-80">
-                <ApexImage src={logoSrc} alt="" fill kind="media" sizes="56px" className="object-contain" />
-              </div>
-            ) : null}
+            <div className="relative h-14 w-14 shrink-0 opacity-80">
+              <ApexImage src={logoSrc} alt="" fill kind="team" fallbackLabel={title} sizes="56px" className="object-contain" />
+            </div>
           </div>
         </div>
 
