@@ -65,6 +65,11 @@ Spec: `docs/design/apex-design-language.md`
 - [~] Push bildirim cron: endpoint `/api/cron/notify-sessions` canlıda (401 auth OK), `notified_sessions` tablosu uygulandı. Canlı uçtan-uca test Railway cron kurulunca yapılabilir.
 - [x] GitHub Actions `sync-f1-race-aware.yml` saatlik schedule yeniden açıldı (repo secret `CRON_SECRET_KEY` + var `SITE_URL` tanımlandı) — 2026-09-28. FP1/FP2/quali/sprint/race sonrası due-window tetiklemesi artık aktif.
 
+### 🌐 I18N — Çoklu dil mimarisi (EN + TR)
+
+- [x] Mimari plan hazırlandı: `docs/plans/i18n-architecture.md` (next-intl, `/tr` prefix, mesaj sistemi, SEO/hreflang, dil değiştirici gereksinimi, anthology içerik şema önerisi) — 2026-09-28
+- [ ] Uygulama (antigravity) — plan dosyasındaki Faz 0-6 checklist'i
+
 ### 🤖 CANLI-TAKİP — Anlık yarış takip ekranı
 
 - [x] `/api/live-timing`: OpenF1 `session_key=latest` proxy'si (position + interval + driver merge), rate-limited, `live: boolean` hesaplar (session penceresi + 10dk grace). — 2026-09-28
