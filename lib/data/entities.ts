@@ -164,8 +164,14 @@ export interface TeamDriverGroup {
   drivers: DriverGridRow[];
 }
 
-/** Resolve a driver's permanent car number from the lore dataset (no new API call). */
+/**
+ * Resolve a driver's permanent car number. Live Ergast/Jolpica data first — this
+ * makes a brand-new debutant's number appear automatically the moment they enter
+ * standings, no manual `data/drivers` edit required. Falls back to the curated
+ * lore dataset only for older seasons where upstream omits `permanentNumber`.
+ */
 function carNumberFor(row: DriverStandingRow): string | null {
+  if (row.permanentNumber) return row.permanentNumber;
   const lore = getDriverLore(row.driverId);
   return lore?.number != null ? String(lore.number) : null;
 }

@@ -2,7 +2,8 @@
  * One-time historical F1 seed: F1DB → Supabase f1_snapshots (Masterplan Karar E).
  *
  * Downloads the latest F1DB release JSON once into memory, then upserts
- * season + round snapshots for SEED_MIN..SEED_MAX (default 2018..currentYear).
+ * season + round snapshots for SEED_MIN..SEED_MAX (default 1950..currentYear —
+ * full F1 history; F1DB is authoritative back to the first 1950 World Championship).
  *
  * Usage:
  *   npx tsx scripts/seed-f1-history.ts
@@ -39,7 +40,7 @@ import {
 import { F1_SEASON_MIN } from '../lib/f1Calendar';
 import type { SnapshotType, Json } from '../types/database';
 
-const SEED_MIN = Math.max(F1_SEASON_MIN, 2018); // masterplan: seed from 2018
+const SEED_MIN = F1_SEASON_MIN; // full F1 history (1950+) — backfilled 2026-09-28
 const CONCURRENCY = 5;
 
 function parseArgs(): { from: number; to: number; dryRun: boolean } {
