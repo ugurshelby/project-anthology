@@ -17,6 +17,14 @@ export interface DriverStandingRow {
   driverId: string;
   /** Jolpica/Ergast stable constructorId (e.g. 'red_bull'). */
   constructorId: string;
+  /**
+   * Live permanent race number straight from Ergast/Jolpica — present for every
+   * driver the moment they appear in standings, including brand-new debutants.
+   * Prefer this over `data/drivers` lore so a roster change never needs a
+   * manual code edit just to show the right number. Null when upstream omits it
+   * (pre-2014 seasons predate the permanent-number rule).
+   */
+  permanentNumber: string | null;
 }
 
 export function getDriverStandings(data: MrData | null, limit = 22): DriverStandingRow[] {
@@ -27,7 +35,13 @@ export function getDriverStandings(data: MrData | null, limit = 22): DriverStand
           DriverStandings?: Array<{
             position?: string;
             points?: string;
-            Driver?: { driverId?: string; givenName?: string; familyName?: string; code?: string };
+            Driver?: {
+              driverId?: string;
+              givenName?: string;
+              familyName?: string;
+              code?: string;
+              permanentNumber?: string;
+            };
             Constructors?: Array<{ constructorId?: string; name?: string }>;
           }>;
         }>;
@@ -48,6 +62,7 @@ export function getDriverStandings(data: MrData | null, limit = 22): DriverStand
       driverId: (row.Driver?.driverId ?? '').toLowerCase(),
       constructorName: row.Constructors?.[0]?.name ?? '—',
       constructorId: (row.Constructors?.[0]?.constructorId ?? '').toLowerCase(),
+      permanentNumber: row.Driver?.permanentNumber ?? null,
     };
   });
 }

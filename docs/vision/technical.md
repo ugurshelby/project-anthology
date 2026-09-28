@@ -54,6 +54,10 @@ Jolpica · F1DB · OpenF1 · RSS
 
 **Tek temporal kaynak:** `lib/f1Calendar.ts` — `CURRENT_SEASON`, `getF1Context()`
 
+**Tarihsel kapsam:** `f1_snapshots` 1950–güncel sezon tam dolu (77/77 sezon, calendar+results+standings — 2026-09-28 backfill). `scripts/seed-f1-history.ts` varsayılanı `F1_SEASON_MIN` (1950), idempotent — yeniden çalıştırmak güvenli.
+
+**Kadro otomasyonu:** Sezon kadrosu (kim hangi takımda) hiçbir yerde hardcode değil — `getSeasonData(CURRENT_SEASON)` ile canlı Jolpica/DB'den gelir, yeni sezon başladığında kod değişikliği gerekmez. Pilot numarası da `DriverStandingRow.permanentNumber` ile canlı kaynaktan gelir (`lib/f1/mrdata.ts`) — yeni pilot standings'e girer girmez otomatik görünür. Yalnızca **editöryel** içerik (`data/drivers/index.ts` bio/lore, `config/team-colors.ts` marka renkleri) elle güncellenir; bunlar veri değil tasarım/içerik kararı, eksik olsa da UI kırılmaz (graceful fallback).
+
 **Supabase istemcileri:**
 - `getSupabaseClient()` — anon, yalnızca okuma
 - `getSupabaseAdmin()` — service_role, yalnızca server-side yazma
