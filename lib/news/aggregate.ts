@@ -331,6 +331,90 @@ function clusterAndPickPrimary(items: RawNewsItem[]): NewsItem[] {
   return result;
 }
 
+// ── Image reachability verification ───────────────────────────────────────
+// An RSS feed can publish an <enclosure>/<media:content> URL that 404s, times
+// out, or resolves to a non-image response (redirect to an HTML paywall page,
+// a since-deleted CDN asset, etc). Showing that article with a broken image —
+// or with the site's fallback placeholder — reads as unprofessional, so any
+// article whose image doesn't come back as a real image is dropped entirely
+// rather than shown without a thumbnail. This runs once per 15-minute
+// aggregate() cache window (see below), not per page view.
+
+const IMAGE_CHECK_TIMEOUT_MS = 2_000;
+const IMAGE_CHECK_CONCURRENCY = 10;
+const IMAGE_VERIFY_TOTAL_BUDGET_MS = 9_000;
+
+async function imageIsReachable(url: string, signal: AbortSignal): Promise<boolean> {
+  const ctrl = new AbortController();
+  const onParentAbort = () => ctrl.abort();
+  signal.addEventListener('abort', onParentAbort);
+  const timer = setTimeout(() => ctrl.abort(), IMAGE_CHECK_TIMEOUT_MS);
+  try {
+    const headers = { 'User-Agent': 'Mozilla/5.0 (compatible; ProjectAnthology/1.0)' };
+    let res = await fetch(url, { method: 'HEAD', signal: ctrl.signal, headers });
+    if (res.status === 405 || res.status === 501) {
+      // Some CDNs reject HEAD outright — retry with a ranged GET instead of
+      // downloading the full asset.
+      res = await fetch(url, {
+        method: 'GET',
+        signal: ctrl.signal,
+        headers: { ...headers, Range: 'bytes=0-2048' },
+      });
+    }
+    if (!res.ok && res.status !== 206) return false;
+    const contentType = res.headers.get('content-type') || '';
+    return contentType.startsWith('image/');
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+    signal.removeEventListener('abort', onParentAbort);
+  }
+}
+
+/** Bounded-concurrency map that never exceeds `limit` in-flight tasks. */
+async function mapBounded<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+/**
+ * Drop any item with no image, or whose image fails a reachability check.
+ * Bounded by a total time budget — any check still pending when the budget
+ * expires is treated as failed (article dropped), so one slow CDN can never
+ * stall the whole aggregate() cycle.
+ */
+async function verifyImages(items: NewsItem[]): Promise<NewsItem[]> {
+  const withImage = items.filter((it) => it.image);
+  if (withImage.length === 0) return [];
+
+  const budget = new AbortController();
+  const budgetTimer = setTimeout(() => budget.abort(), IMAGE_VERIFY_TOTAL_BUDGET_MS);
+
+  let ok: boolean[];
+  try {
+    ok = await mapBounded(withImage, IMAGE_CHECK_CONCURRENCY, (it) =>
+      imageIsReachable(it.image, budget.signal),
+    );
+  } finally {
+    clearTimeout(budgetTimer);
+  }
+
+  return withImage.filter((_, i) => ok[i]);
+}
+
 // ── RSS feed fetcher ──────────────────────────────────────────────────────
 
 async function fetchRSSFeed(
@@ -452,7 +536,8 @@ async function aggregateUncached(): Promise<NewsItem[]> {
     if (r.status === 'fulfilled') all.push(...r.value);
   });
 
-  return processFeeds(all);
+  const processed = processFeeds(all);
+  return verifyImages(processed);
 }
 
 // ── In-memory cache (per warm instance) ──────────────────────────────────────
