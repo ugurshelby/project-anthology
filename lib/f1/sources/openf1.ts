@@ -147,3 +147,45 @@ export async function fetchMeeting(meetingKey: number): Promise<OpenF1Meeting | 
 export async function fetchCurrentYearRaceSessions(): Promise<OpenF1Session[]> {
   return fetchRaceSessions(new Date().getUTCFullYear());
 }
+
+// ── Live timing (session_key=latest) ────────────────────────────────────────
+// Used by /api/live-timing for the in-progress-session tracker. OpenF1 treats
+// "latest" as the most recently started session regardless of whether it has
+// finished, so callers must check date_start/date_end against now themselves.
+
+export interface OpenF1Position {
+  date: string;
+  driver_number: number;
+  meeting_key: number;
+  position: number;
+  session_key: number;
+}
+
+export interface OpenF1Interval {
+  date: string;
+  driver_number: number;
+  gap_to_leader: number | string | null;
+  interval: number | string | null;
+  session_key: number;
+}
+
+/** The most recently started session (may already be finished). */
+export async function fetchLatestSession(): Promise<OpenF1Session | null> {
+  const results = await openf1Fetch<OpenF1Session>('sessions', { session_key: 'latest' });
+  return results[results.length - 1] ?? null;
+}
+
+/** Full position time-series for a session; callers keep only the last row per driver. */
+export async function fetchLivePositions(sessionKey: number | 'latest' = 'latest'): Promise<OpenF1Position[]> {
+  return openf1Fetch<OpenF1Position>('position', { session_key: sessionKey });
+}
+
+/** Full interval/gap time-series for a session; callers keep only the last row per driver. */
+export async function fetchLiveIntervals(sessionKey: number | 'latest' = 'latest'): Promise<OpenF1Interval[]> {
+  return openf1Fetch<OpenF1Interval>('intervals', { session_key: sessionKey });
+}
+
+/** Driver roster for a session (name/team/color lookup). */
+export async function fetchLiveDrivers(sessionKey: number | 'latest' = 'latest'): Promise<OpenF1Driver[]> {
+  return openf1Fetch<OpenF1Driver>('drivers', { session_key: sessionKey });
+}

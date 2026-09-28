@@ -17,6 +17,7 @@ import {
   isRaceDone,
   getLastFinishedRace,
   getLiveOrNextRace,
+  getRaceCountdownPhase,
   raceStartMs,
   weekendSessionChips,
 } from '@/lib/f1Calendar';
@@ -73,6 +74,7 @@ async function HomeHeroBlock() {
   const nextRaceCircuit = nextRace?.Circuit?.circuitName ?? '';
   const nextRaceDate = nextRace?.date ?? '';
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
+  const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
   const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
 
   const eyebrow = nextRace?.round
@@ -108,6 +110,7 @@ async function HomeHeroBlock() {
         sessions={weekendSessionChips(nextRace)}
         lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
         lastRaceName={lastRaceRecap?.raceName}
+        isLive={isLive}
       />
       <div className="mt-6 md:mt-8">
         <SeasonTicker items={ticker} />

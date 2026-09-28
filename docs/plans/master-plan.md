@@ -63,6 +63,14 @@ Spec: `docs/design/apex-design-language.md`
 - [ ] 2026 sezon snapshot Jolpica ile kalıcı DB doldurması
 - [ ] Production `seed:f1db` — Past Winners 2018–2025 dolu mu?
 - [~] Push bildirim cron: endpoint `/api/cron/notify-sessions` canlıda (401 auth OK), `notified_sessions` tablosu uygulandı. Canlı uçtan-uca test Railway cron kurulunca yapılabilir.
+- [x] GitHub Actions `sync-f1-race-aware.yml` saatlik schedule yeniden açıldı (repo secret `CRON_SECRET_KEY` + var `SITE_URL` tanımlandı) — 2026-09-28. FP1/FP2/quali/sprint/race sonrası due-window tetiklemesi artık aktif.
+
+### 🤖 CANLI-TAKİP — Anlık yarış takip ekranı
+
+- [x] `/api/live-timing`: OpenF1 `session_key=latest` proxy'si (position + interval + driver merge), rate-limited, `live: boolean` hesaplar (session penceresi + 10dk grace). — 2026-09-28
+- [x] `LiveRaceTracker` (client, 12sn polling) — home hero'da `RACE_LIVE_WINDOW_MS` içindeyken `Countdown` yerine gösterilir; pozisyon + takım rengi + interval. — 2026-09-28
+- [ ] Gerçek canlı yarışta uçtan-uca doğrulama (OpenF1 canlı seans sırasında manuel test) — sıradaki yarış haftasında yapılmalı
+- [ ] Round detay sayfasına (`app/season/[year]/round/[n]/page.tsx`) da canlı tracker eklenmesi değerlendirilebilir
 
 ### 🤖 MOBİL-OTA (EAS build sonrası)
 
