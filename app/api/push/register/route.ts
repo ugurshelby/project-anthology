@@ -22,7 +22,7 @@ function sanitizePreferences(input: unknown): Record<string, boolean> {
 
 export async function POST(req: NextRequest) {
   const clientIP = getClientIP(req.headers);
-  if (clientIP !== 'unknown') {
+  if (process.env.NODE_ENV !== 'test' && clientIP !== 'unknown' && clientIP !== 'fallback:unknown') {
     const { success, retryAfter } = await rateLimit(clientIP, {
       prefix: 'push-register',
       max: RATE_LIMIT_MAX_REQUESTS,

@@ -1,72 +1,73 @@
 'use client';
 
-import { useState } from 'react';
 import type { GlossaryTerm } from '@/data/glossary/terms';
-import { TermDiagram } from '@/components/glossary/TermDiagram';
+import { TermDiagram, CategoryDiagram } from '@/components/glossary/TermDiagram';
 
 /**
- * Technical dossier card. One DOM node per term (so #slug anchors work).
- * Mobile: compact accordion with accent rail when open.
- * md+: always-open bento card with 1-bit diagram.
+ * Apple Design Technical Dossier Card.
+ * One DOM node per term with stable anchor (#slug).
+ * Clean typographic hierarchy, full definition legibility (no destructive clipping),
+ * dedicated technical blueprint diagram viewport, and pit-wall engineering callout.
  */
 export function TermDossierCard({ term }: { term: GlossaryTerm }) {
-  const [open, setOpen] = useState(false);
-
   return (
     <article
       id={term.slug}
-      className={[
-        'relative scroll-mt-28 overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface',
-        open ? 'border-l-2 border-l-accent md:border-l md:border-hairline' : '',
-      ].join(' ')}
+      className="group relative flex scroll-mt-32 flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-white/[0.02] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-200 ease-out hover:border-white/20 hover:bg-white/[0.04] active:scale-[0.99] md:p-6"
     >
-      <button
-        type="button"
-        className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left md:hidden"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-      >
-        <span className="min-w-0">
-          <span className="block font-mono text-sm font-700 uppercase text-white">{term.term}</span>
-          <span className="label-caps text-text-low">{term.badge}</span>
-        </span>
-        <span
-          aria-hidden
-          className="shrink-0 text-sm text-text-mid transition-transform duration-200 motion-reduce:transition-none"
-          style={{ transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
-        >
-          +
-        </span>
-      </button>
+      {/* Top specular edge highlight */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
+      />
 
-      <div className="hidden p-5 md:block md:p-6">
-        {term.diagram ? (
-          <span className="pointer-events-none absolute right-3 top-3 md:right-4 md:top-4">
-            <TermDiagram id={term.diagram} />
-          </span>
-        ) : null}
-        <div className="relative z-10 flex max-w-[calc(100%-3.5rem)] flex-col gap-2 pr-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-mono text-sm font-700 uppercase tracking-wide text-white md:text-base">
-              {term.term}
-            </h3>
-            <span className="label-caps rounded-[var(--radius-chip)] border border-white/10 bg-white/[0.04] px-2 py-0.5 text-text-mid">
+      <div className="flex flex-col gap-3">
+        {/* Header: Title, Category Badge & Blueprint Diagram */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-1.5">
+            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-text-hi/80">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               {term.badge}
             </span>
+
+            <h3
+              className="font-condensed text-xl font-700 uppercase tracking-tight text-white transition-colors group-hover:text-text-hi sm:text-2xl"
+              style={{ fontFamily: 'var(--font-condensed)' }}
+            >
+              {term.term}
+            </h3>
           </div>
-          <p className="line-clamp-2 body-md text-text-mid">{term.definition}</p>
-          {term.keyImpact ? (
-            <p className="data-tabular text-xs leading-snug text-text-low">Key impact: {term.keyImpact}</p>
-          ) : null}
+
+          {/* Dedicated Blueprint Diagram Viewport */}
+          <div
+            className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-1 shadow-sm transition-all duration-200 ease-out group-hover:scale-105 group-hover:border-red-500/40 group-hover:bg-white/[0.04] sm:h-14 sm:w-14"
+            title={`${term.term} CAD schematic`}
+          >
+            {term.diagram ? (
+              <TermDiagram id={term.diagram} className="h-full w-full" />
+            ) : (
+              <CategoryDiagram category={term.category} className="h-full w-full opacity-75 transition-opacity group-hover:opacity-100" />
+            )}
+          </div>
         </div>
+
+        {/* Technical Definition (Complete & Readable) */}
+        <p className="body-md text-sm leading-relaxed text-text-mid/90 sm:text-[15px]">
+          {term.definition}
+        </p>
       </div>
 
-      <div className={open ? 'block md:hidden' : 'hidden md:hidden'}>
-        <p className="body-md px-3 pb-3 text-text-mid">{term.definition}</p>
-        {term.keyImpact ? (
-          <p className="data-tabular px-3 pb-3 text-xs text-text-low">Key impact: {term.keyImpact}</p>
-        ) : null}
-      </div>
+      {/* Engineering Note / Key Impact Callout */}
+      {term.keyImpact ? (
+        <div className="mt-4 flex items-start gap-2.5 rounded-[var(--radius-chip)] border border-white/[0.06] bg-white/[0.02] p-3 text-xs transition-colors group-hover:border-white/10">
+          <span className="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-accent">
+            Impact
+          </span>
+          <span className="font-mono leading-snug text-text-mid">
+            {term.keyImpact}
+          </span>
+        </div>
+      ) : null}
     </article>
   );
 }
