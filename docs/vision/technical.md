@@ -74,6 +74,7 @@ Jolpica · F1DB · OpenF1 · RSS
 | `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (Railway cron, 5-10dk) |
 | `/api/push/register` | Expo push token kayıt |
 | `/api/f1-season` | Canlı Jolpica proxy |
+| `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir |
 | `/api/news` | Haber API |
 | `/api/season/[year]` | Sezon snapshot API |
 

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
 import { Countdown } from './Countdown';
+import { LiveRaceTracker } from './LiveRaceTracker';
 
 export function WeekendHero({
   eyebrow,
@@ -12,6 +13,7 @@ export function WeekendHero({
   sessions,
   lastWinnerName,
   lastRaceName,
+  isLive = false,
 }: {
   eyebrow: string;
   title: string;
@@ -21,6 +23,8 @@ export function WeekendHero({
   sessions: WeekendSessionChip[];
   lastWinnerName?: string | null;
   lastRaceName?: string | null;
+  /** True while the current session falls within RACE_LIVE_WINDOW_MS — swaps the countdown for LiveRaceTracker. */
+  isLive?: boolean;
 }) {
   const featuredSessions = sessions.filter((s) =>
     ['fp1', 'qualifying', 'race'].includes(s.id),
@@ -74,7 +78,11 @@ export function WeekendHero({
         {subtitle ? <p className="data-tabular mt-2 text-text-mid">{subtitle}</p> : null}
 
         <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          {countdownTargetMs ? <Countdown targetMs={countdownTargetMs} /> : (
+          {isLive ? (
+            <LiveRaceTracker />
+          ) : countdownTargetMs ? (
+            <Countdown targetMs={countdownTargetMs} />
+          ) : (
             <span className="label-caps text-text-low">Schedule to be confirmed</span>
           )}
           {bar.length > 0 ? (
