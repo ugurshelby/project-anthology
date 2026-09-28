@@ -25,6 +25,12 @@ export interface StoryContentRecord {
   category: string;
   heroImage: string;
   blocks: StoryBlock[];
+  /** Optional Turkish localized title */
+  titleTr?: string;
+  /** Optional Turkish localized standfirst/thesis */
+  subtitleTr?: string;
+  /** Optional Turkish localized editorial blocks */
+  blocksTr?: StoryBlock[];
 }
 
 /** Shape stored in stories.content jsonb (everything except slug/title). */
@@ -34,4 +40,10 @@ export interface StoryContentJson {
   category: string;
   heroImage: string;
   blocks: StoryBlock[];
+  /** Optional Turkish localized title */
+  titleTr?: string;
+  /** Optional Turkish localized standfirst/thesis */
+  subtitleTr?: string;
+  /** Optional Turkish localized editorial blocks */
+  blocksTr?: StoryBlock[];
 }

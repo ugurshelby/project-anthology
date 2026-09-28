@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { NAV_ITEMS_LEFT, NAV_ITEMS_RIGHT } from './nav-items';
 import { HeaderNav } from './HeaderNav';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
 /**
  * Sticky header — desktop/tablet only (md+). Mobile navigation lives entirely
@@ -10,8 +11,7 @@ import { HeaderNav } from './HeaderNav';
  *
  * Desktop layout is symmetric around the APEX logo (2026-07 redesign): three
  * nav items either side — Season · Grid · Circuits | APEX | News · Anthology ·
- * Glossary — so the logo reads as the true center of the page, not a
- * left-aligned corner mark.
+ * Glossary — with LocaleSwitcher placed at the right flank.
  */
 export function SiteHeader() {
   return (
@@ -34,10 +34,16 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <HeaderNav items={NAV_ITEMS_RIGHT} className="hidden lg:flex" />
+        <div className="hidden items-center gap-6 lg:flex">
+          <HeaderNav items={NAV_ITEMS_RIGHT} className="flex" />
+          <LocaleSwitcher />
+        </div>
 
-        {/* md-only (pre-lg) fallback: single flat list, logo stays left. Hidden below md — this header is desktop/tablet-only, mobile uses MobileNav's bottom tab-bar instead. */}
-        <HeaderNav items={[...NAV_ITEMS_LEFT, ...NAV_ITEMS_RIGHT]} className="hidden md:flex lg:hidden" />
+        {/* md-only (pre-lg) fallback: single flat list with switcher */}
+        <div className="flex items-center gap-4 md:flex lg:hidden">
+          <HeaderNav items={[...NAV_ITEMS_LEFT, ...NAV_ITEMS_RIGHT]} className="flex" />
+          <LocaleSwitcher />
+        </div>
       </div>
     </header>
   );

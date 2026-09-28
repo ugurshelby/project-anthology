@@ -1,10 +1,16 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import type { Story } from '@/lib/data/stories';
 import { truncateToWord } from '@/lib/text/truncateToWord';
 import { ApexImage } from '@/components/media/ApexImage';
 
 /** Anthology hub story card — hero image, condensed title, category/year mono. */
 export function StoryCard({ story, wide = false }: { story: Story; wide?: boolean }) {
+  const locale = useLocale();
+  const isTr = locale === 'tr';
+  const title = isTr && story.titleTr ? story.titleTr : story.title;
+  const subtitle = isTr && story.subtitleTr ? story.subtitleTr : story.subtitle;
+
   return (
     <Link
       href={`/anthology/${story.slug}`}
@@ -31,11 +37,11 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
           {story.year ? ` · ${story.year}` : ''}
         </span>
         <h3 className={[wide ? 'headline-lg' : 'headline-md', 'uppercase text-text-hi'].join(' ')}>
-          {story.title}
+          {title}
         </h3>
-        {story.subtitle ? (
+        {subtitle ? (
           <p className="body-md mt-1 line-clamp-2 text-text-mid">
-            {truncateToWord(story.subtitle, wide ? 160 : 100)}
+            {truncateToWord(subtitle, wide ? 160 : 100)}
           </p>
         ) : null}
       </div>

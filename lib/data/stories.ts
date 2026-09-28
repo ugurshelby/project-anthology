@@ -10,6 +10,7 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { StoryRow } from '@/types/database';
 import type { StoryBlock, StoryContentJson } from '@/data/stories/types';
+import { storyContent } from '@/data/stories/content';
 import { logSupabaseCall, timed } from '@/lib/data/logger';
 
 export interface Story {
@@ -20,6 +21,9 @@ export interface Story {
   category: string;
   heroImage: string;
   blocks: StoryBlock[];
+  titleTr?: string;
+  subtitleTr?: string;
+  blocksTr?: StoryBlock[];
   sortOrder: number;
   /** Row timestamps (ISO) — feed Article JSON-LD datePublished/dateModified and RSS. */
   createdAt: string;
@@ -28,17 +32,44 @@ export interface Story {
 
 function parseContent(row: StoryRow): Story {
   const c = (row.content ?? {}) as Partial<StoryContentJson>;
+  const staticRecord = storyContent.find((s) => s.slug === row.slug);
   return {
     slug: row.slug,
     title: row.title,
-    subtitle: typeof c.subtitle === 'string' ? c.subtitle : '',
-    year: typeof c.year === 'string' ? c.year : '',
-    category: typeof c.category === 'string' ? c.category : '',
-    heroImage: typeof c.heroImage === 'string' ? c.heroImage : '/placeholder.svg',
-    blocks: Array.isArray(c.blocks) ? (c.blocks as StoryBlock[]) : [],
+    subtitle: typeof c.subtitle === 'string' ? c.subtitle : (staticRecord?.subtitle ?? ''),
+    year: typeof c.year === 'string' ? c.year : (staticRecord?.year ?? ''),
+    category: typeof c.category === 'string' ? c.category : (staticRecord?.category ?? ''),
+    heroImage: typeof c.heroImage === 'string' ? c.heroImage : (staticRecord?.heroImage ?? '/placeholder.svg'),
+    blocks: Array.isArray(c.blocks) && c.blocks.length > 0 ? (c.blocks as StoryBlock[]) : (staticRecord?.blocks ?? []),
+    titleTr: typeof c.titleTr === 'string' ? c.titleTr : staticRecord?.titleTr,
+    subtitleTr: typeof c.subtitleTr === 'string' ? c.subtitleTr : staticRecord?.subtitleTr,
+    blocksTr: Array.isArray(c.blocksTr) && c.blocksTr.length > 0 ? (c.blocksTr as StoryBlock[]) : staticRecord?.blocksTr,
     sortOrder: row.sort_order,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function staticStoryToStory(slug: string, index: number): Story | null {
+  const record = storyContent.find((s) => s.slug === slug);
+  if (!record) return null;
+  const y = parseInt(record.year, 10);
+  const sortOrder = Number.isFinite(y) ? 9999 - y : 5000 + index;
+  const now = new Date().toISOString();
+  return {
+    slug: record.slug,
+    title: record.title,
+    subtitle: record.subtitle,
+    year: record.year,
+    category: record.category,
+    heroImage: record.heroImage,
+    blocks: record.blocks,
+    titleTr: record.titleTr,
+    subtitleTr: record.subtitleTr,
+    blocksTr: record.blocksTr,
+    sortOrder,
+    createdAt: now,
+    updatedAt: now,
   };
 }
 
@@ -55,11 +86,15 @@ export async function getPublishedStories(): Promise<Story[]> {
         .order('slug', { ascending: true }),
     );
     logSupabaseCall('stories', 'published order sort_order', durationMs);
-    if (result.error || !result.data?.length) return [];
-    return (result.data as StoryRow[]).map(parseContent);
+    if (!result.error && result.data && result.data.length > 0) {
+      return (result.data as StoryRow[]).map(parseContent);
+    }
   } catch {
-    return [];
+    // Supabase unavailable; fall through to static content
   }
+
+  // Fallback to static tracked story records
+  return storyContent.map((s, i) => staticStoryToStory(s.slug, i)!);
 }
 
 /** A single published story by slug, or null. */
@@ -75,11 +110,15 @@ export async function getStoryBySlug(slug: string): Promise<Story | null> {
         .maybeSingle(),
     );
     logSupabaseCall('stories', `slug ${slug}`, durationMs);
-    if (result.error || !result.data) return null;
-    return parseContent(result.data as StoryRow);
+    if (!result.error && result.data) {
+      return parseContent(result.data as StoryRow);
+    }
   } catch {
-    return null;
+    // Supabase unavailable; fall through to static record
   }
+
+  const idx = storyContent.findIndex((s) => s.slug === slug);
+  return idx >= 0 ? staticStoryToStory(slug, idx) : null;
 }
 
 /** All published slugs — for generateStaticParams. */
@@ -89,11 +128,13 @@ export async function getStorySlugs(): Promise<string[]> {
     const { result } = await timed(async () =>
       supabase.from('stories').select('slug').eq('published', true),
     );
-    if (result.error || !result.data?.length) return [];
-    return (result.data as Array<{ slug: string }>).map((r) => r.slug);
+    if (!result.error && result.data && result.data.length > 0) {
+      return (result.data as Array<{ slug: string }>).map((r) => r.slug);
+    }
   } catch {
-    return [];
+    // Fallback to static
   }
+  return storyContent.map((s) => s.slug);
 }
 
 export interface StorySitemapEntry {

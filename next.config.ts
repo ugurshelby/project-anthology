@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import createNextIntlPlugin from 'next-intl/plugin';
 import { CSP } from "./lib/security/csp";
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 // CSP lives in lib/security/csp.ts so tests can assert Toolbar font-src.
 
@@ -68,7 +71,7 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const enableSentrySourceMaps =
   process.env.SENTRY_UPLOAD_SOURCE_MAPS === 'true' && Boolean(sentryAuthToken);
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withNextIntl(nextConfig), {
   org: "anthology-z0",
   project: "project-anthology",
   authToken: sentryAuthToken,
