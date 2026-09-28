@@ -140,11 +140,9 @@ export function ProfileHero({
                   'linear-gradient(to top, color-mix(in srgb, var(--team-secondary) 18%, transparent), transparent)',
               }}
             />
-            {logoSrc ? (
-              <div className="relative z-10 h-10 w-10 md:h-14 md:w-14">
-                <ApexImage src={logoSrc} alt="" fill kind="media" sizes="56px" className="object-contain" />
-              </div>
-            ) : null}
+            <div className="relative z-10 h-10 w-10 md:h-14 md:w-14">
+              <ApexImage src={logoSrc} alt="" fill kind="team" fallbackLabel={title} sizes="56px" className="object-contain" />
+            </div>
             <div className="relative z-10 flex w-full max-w-3xl items-end justify-center gap-3 sm:gap-6 md:gap-10">
               <span className="hero-number hidden shrink-0 text-3xl text-text-hi/20 sm:block md:text-5xl">
                 {flankNumbers?.[0] ?? ''}

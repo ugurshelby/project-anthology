@@ -1,126 +1,22 @@
-import { getTeamByName } from '@/config/team-colors';
-import { CURRENT_SEASON } from '@/lib/f1Calendar';
-
 /**
- * Strip diacritics and normalize punctuation so a driver's display name maps to
- * its ASCII on-disk asset slug. Cursor renames asset files to ASCII basenames
- * (räikkönen→raikkonen, pérez→perez); the resolver must apply the same transform
- * or it generates slugs that 404. Handles: ä→a é→e ü→u ö→o ñ→n etc. (via Unicode
- * NFD decomposition), German ß→ss, and trailing/internal punctuation (jr.→jr).
+ * Visual asset resolution — Apex is photo-free by policy (2026-09-28).
+ *
+ * Driver portraits, team logos, and car renders were previously real
+ * photographs / official marks dropped into `assets/asset-package/` with no
+ * documented license or source — a genuine copyright/likeness risk for a
+ * production site. They've been removed. `driverIconSrc`, `teamIconSrc`, and
+ * `carSrc` now always return null so every caller falls through to
+ * `components/media/ApexFallback`, which renders a data-driven badge (driver
+ * code/number, team colors already in hand from the live standings — no
+ * photo, no external asset, so no missing-asset gap ever exists for a new
+ * driver or team either).
+ *
+ * The one exception is `circuitIconSrc`: track outline geometry from
+ * `assets/f1-circuits/` (MIT-licensed, github.com/svemir/f1-circuits) is not
+ * photography and carries a clear, compatible license, so it stays.
  */
-function normalizeDiacritics(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // combining marks (accents)
-    .replace(/ß/g, 'ss')
-    .replace(/ø/g, 'o')
-    .replace(/đ/g, 'd')
-    .replace(/ł/g, 'l')
-    .replace(/[.'’]/g, '') // drop dots/apostrophes: jr. → jr, o'ward → oward
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, ''); // trim leading/trailing underscores
-}
 
-/** FIA 3-letter driver code → public/drivers SVG basename (surname slug). */
-const DRIVER_CODE_TO_SLUG: Record<string, string> = {
-  ant: 'antonelli',
-  rus: 'russell',
-  lec: 'leclerc',
-  ham: 'hamilton',
-  nor: 'norris',
-  pia: 'piastri',
-  ver: 'verstappen',
-  gas: 'gasly',
-  bea: 'bearman',
-  law: 'lawson',
-  col: 'colapinto',
-  had: 'hadjar',
-  sai: 'sainz',
-  lin: 'lindblad',
-  bor: 'bortoleto',
-  oco: 'ocon',
-  alb: 'albon',
-  hul: 'hulkenberg',
-  bot: 'bottas',
-  per: 'perez',
-  str: 'stroll',
-  alo: 'alonso',
-  tsu: 'tsunoda',
-  doo: 'doohan',
-};
-
-/** Ergast driverId → current-season asset slug (when code alone is insufficient). */
-const DRIVER_ID_TO_SLUG: Record<string, string> = {
-  max_verstappen: 'verstappen',
-  colapinto: 'colapinto',
-  lindblad: 'lindblad',
-};
-
-/** Ergast given_family ids that use a shorter on-disk basename in historical seasons. */
-const ERGAST_SLUG_ALIASES: Record<string, string> = {
-  lewis_hamilton: 'hamilton',
-  carlos_sainz: 'sainz',
-  charles_leclerc: 'leclerc',
-  george_russell: 'russell',
-  fernando_alonso: 'alonso',
-  lance_stroll: 'stroll',
-  pierre_gasly: 'gasly',
-  alexander_albon: 'albon',
-  nico_hulkenberg: 'hulkenberg',
-  valtteri_bottas: 'bottas',
-  sergio_perez: 'perez',
-  lando_norris: 'norris',
-  oscar_piastri: 'piastri',
-  yuki_tsunoda: 'tsunoda',
-  esteban_ocon: 'ocon',
-  daniel_ricciardo: 'ricciardo',
-  zhou_guanyu: 'zhou',
-  logan_sargeant: 'sargeant',
-  // Special-character names: explicit aliases as a safety net for when an upstream
-  // source sends a pre-built ergast id carrying diacritics. The resolver also
-  // normalizes diacritics generically (normalizeDiacritics), but these pin the
-  // exact on-disk surname basename (assets are surname-only: raikkonen.svg etc.).
-  kimi_räikkönen: 'raikkonen',
-  kimi_raikkonen: 'raikkonen',
-  sergio_pérez: 'perez',
-  nico_hülkenberg: 'hulkenberg',
-  'carlos_sainz_jr.': 'sainz',
-  carlos_sainz_jr: 'sainz',
-};
-
-const DRIVER_ASSET_SLUGS = new Set(Object.values(DRIVER_CODE_TO_SLUG));
-
-/** Ergast/Jolpica circuitId → public/circuit-images PNG basename (aerial/live cover). */
-const CIRCUIT_ID_TO_COVER: Record<string, string> = {
-  albert_park: 'albert-park-circuit.png',
-  bahrain: 'bahrain-international-circuit.png',
-  jeddah: 'jeddah-corniche-circuit.png',
-  shanghai: 'shanghai-international-circuit.png',
-  suzuka: 'suzuka-circuit.png',
-  miami: 'miami-international-autodrome.png',
-  monaco: 'circuit-de-monaco.png',
-  villeneuve: 'circuit-gilles-villeneuve.png',
-  catalunya: 'circuit-de-barcelona-catalunya.png',
-  red_bull_ring: 'red-bull-ring.png',
-  silverstone: 'silverstone-circuit.png',
-  spa: 'circuit-de-spa-francorchamps.png',
-  hungaroring: 'hungaroring.png',
-  zandvoort: 'circuit-zandvoort.png',
-  monza: 'autodromo-nazionale-monza.png',
-  baku: 'baku-city-circuit.png',
-  marina_bay: 'marina-bay-street-circuit.png',
-  americas: 'circuit-of-the-americas.png',
-  rodriguez: 'autodromo-hermanos-rodriguez.png',
-  interlagos: 'interlagos-circuit.png',
-  vegas: 'las-vegas-strip-circuit.png',
-  las_vegas: 'las-vegas-strip-circuit.png',
-  losail: 'lusail-international-circuit.png',
-  qatar: 'lusail-international-circuit.png',
-  yas_marina: 'yas-marina-circuit.png',
-  madring: 'circuito-de-madrid.png',
-};
-
-/** Ergast/Jolpica circuitId → public/circuits SVG basename (track map outline). */
+/** Ergast/Jolpica circuitId → public/circuits SVG basename (track map outline, MIT-licensed geometry). */
 const CIRCUIT_ID_TO_SVG: Record<string, string> = {
   albert_park: 'au-1953.svg',
   bahrain: 'bh-2002.svg',
@@ -151,175 +47,21 @@ const CIRCUIT_ID_TO_SVG: Record<string, string> = {
   madring: 'es-2026.svg',
 };
 
-/** Historical constructor display names → public/teams SVG slug (matches assets/data/constructor-palette.json). */
-const CONSTRUCTOR_NAME_TO_SLUG: Record<string, string> = {
-  'alfa romeo': 'alfa-romeo',
-  'alfa romeo racing': 'alfa-romeo',
-  alphatauri: 'alpha-tauri',
-  'alpha tauri': 'alpha-tauri',
-  'scuderia alphatauri': 'alpha-tauri',
-  'aston martin': 'aston-martin',
-  'aston martin cognizant': 'aston-martin',
-  bar: 'bar',
-  benetton: 'benetton',
-  bmw: 'bmw-sauber',
-  'bmw sauber': 'bmw-sauber',
-  brawn: 'brawn',
-  caterham: 'caterham',
-  'force india': 'force-india',
-  'racing point': 'racing-point',
-  'racing point f1 team': 'racing-point',
-  'bwt racing point': 'racing-point',
-  honda: 'honda',
-  hrt: 'hrt',
-  jaguar: 'jaguar',
-  jordan: 'jordan',
-  'kick sauber': 'kick-sauber',
-  'stake f1 team kick sauber': 'kick-sauber',
-  lotus: 'lotus',
-  'lotus f1': 'lotus',
-  'lotus racing': 'lotus-racing',
-  manor: 'manor',
-  marussia: 'marussia',
-  mf1: 'mf1',
-  minardi: 'minardi',
-  prost: 'prost',
-  renault: 'renault',
-  sauber: 'sauber',
-  spyker: 'spyker',
-  'super aguri': 'super-aguri',
-  toro: 'toro-rosso',
-  'toro rosso': 'toro-rosso',
-  'scuderia toro rosso': 'toro-rosso',
-  toyota: 'toyota',
-  virgin: 'virgin',
-  arrows: 'arrows',
-};
-
-function resolveSeason(season?: number): number {
-  return season ?? CURRENT_SEASON;
-}
-
-function slugFromDriverId(driverId: string): string | null {
-  const id = driverId.trim().toLowerCase();
-  if (!id) return null;
-  if (DRIVER_ID_TO_SLUG[id]) return DRIVER_ID_TO_SLUG[id];
-  const collapsed = id.replace(/^max_/, '').replace(/_/g, '');
-  if (DRIVER_ASSET_SLUGS.has(collapsed)) return collapsed;
-  if (DRIVER_ASSET_SLUGS.has(id)) return id;
-  const ascii = normalizeDiacritics(collapsed);
-  if (ascii !== collapsed && DRIVER_ASSET_SLUGS.has(ascii)) return ascii;
-  return null;
-}
-
-function slugFromSurname(driverName: string): string | null {
-  const last = driverName.trim().split(/\s+/).pop()?.toLowerCase();
-  if (!last) return null;
-  if (DRIVER_ASSET_SLUGS.has(last)) return last;
-  const normalized = normalizeDiacritics(last);
-  if (normalized !== last && DRIVER_ASSET_SLUGS.has(normalized)) return normalized;
-  return null;
-}
-
-function ergastIdFromName(driverName: string): string | null {
-  const parts = driverName.trim().split(/\s+/).filter(Boolean);
-  if (parts.length < 2) {
-    const single = parts[0]?.toLowerCase();
-    return single ? normalizeDiacritics(single) : null;
-  }
-  const family = parts[parts.length - 1].toLowerCase();
-  const given = parts.slice(0, -1).join('_').toLowerCase();
-  const ergast = `${given}_${family}`;
-  // Try alias on the raw id first (covers explicit diacritic keys), then fall
-  // back to the ASCII-normalized id (covers files renamed to plain basenames).
-  if (ERGAST_SLUG_ALIASES[ergast]) return ERGAST_SLUG_ALIASES[ergast];
-  const normalized = normalizeDiacritics(ergast);
-  return ERGAST_SLUG_ALIASES[normalized] ?? normalized;
-}
-
-function resolveDriverSlug(
-  driverCode?: string | null,
-  driverIdOrName?: string | null,
-  season?: number,
-): string | null {
-  const effectiveSeason = resolveSeason(season);
-  const isCurrentSeason = effectiveSeason >= CURRENT_SEASON;
-  const code = (driverCode ?? '').trim().toLowerCase();
-  const secondary = (driverIdOrName ?? '').trim();
-
-  if (isCurrentSeason && code && DRIVER_CODE_TO_SLUG[code]) {
-    return DRIVER_CODE_TO_SLUG[code];
-  }
-
-  if (secondary) {
-    const lowered = secondary.toLowerCase();
-    if (lowered.includes('_')) {
-      if (isCurrentSeason) {
-        const fromId = slugFromDriverId(lowered);
-        if (fromId) return fromId;
-      }
-      if (ERGAST_SLUG_ALIASES[lowered]) return ERGAST_SLUG_ALIASES[lowered];
-      const normalized = normalizeDiacritics(lowered);
-      return ERGAST_SLUG_ALIASES[normalized] ?? normalized;
-    }
-
-    const fromId = slugFromDriverId(lowered);
-    if (fromId && isCurrentSeason) return fromId;
-
-    const ergast = ergastIdFromName(secondary);
-    if (ergast) return ergast;
-
-    const fromName = slugFromSurname(secondary);
-    if (fromName) return fromName;
-  }
-
-  if (code && DRIVER_CODE_TO_SLUG[code]) {
-    return DRIVER_CODE_TO_SLUG[code];
-  }
-
-  return null;
-}
-
-function teamSlugFromName(teamName: string): string | null {
-  const key = teamName.trim().toLowerCase();
-  if (!key) return null;
-
-  const current = getTeamByName(teamName);
-  if (current) return current.id;
-
-  const exact = CONSTRUCTOR_NAME_TO_SLUG[key];
-  if (exact) return exact;
-
-  for (const [alias, slug] of Object.entries(CONSTRUCTOR_NAME_TO_SLUG)) {
-    if (key.includes(alias) || alias.includes(key)) return slug;
-  }
-
-  return null;
-}
-
-/**
- * Resolve a driver portrait path. Returns null when no slug can be derived (avoids guessing 404s).
- * Accepts FIA code, Ergast driverId, or full driver name (surname / ergast fallback).
- */
+/** @deprecated Always null — no driver photography is used. Kept as a stable no-op API so call sites don't need to change; ApexFallback renders the badge instead. */
 export function driverIconSrc(
-  driverCode?: string | null,
-  driverIdOrName?: string | null,
-  season?: number,
+  _driverCode?: string | null,
+  _driverIdOrName?: string | null,
+  _season?: number,
 ): string | null {
-  const slug = resolveDriverSlug(driverCode, driverIdOrName, season);
-  if (!slug) return null;
-  return `/drivers/${resolveSeason(season)}/${slug}.svg`;
+  return null;
 }
 
-export function teamIconSrc(
-  teamName: string | undefined | null,
-  season?: number,
-): string | null {
-  const slug = teamSlugFromName((teamName ?? '').trim());
-  if (!slug) return null;
-  return `/teams/${resolveSeason(season)}/${slug}.svg`;
+/** @deprecated Always null — no team marks/logos are used. Kept as a stable no-op API; ApexFallback renders the badge instead. */
+export function teamIconSrc(_teamName: string | undefined | null, _season?: number): string | null {
+  return null;
 }
 
+/** Track map outline (MIT-licensed geometry, not photography) — the one real asset lookup left. */
 export function circuitIconSrc(circuitId: string | undefined | null): string | null {
   const id = (circuitId ?? '').trim().toLowerCase();
   if (!id) return null;
@@ -327,21 +69,12 @@ export function circuitIconSrc(circuitId: string | undefined | null): string | n
   return file ? `/circuits/${file}` : null;
 }
 
-/** Aerial / live circuit photo for marketing surfaces (homepage hero, etc.). */
-export function circuitCoverSrc(circuitId: string | undefined | null): string | null {
-  const id = (circuitId ?? '').trim().toLowerCase();
-  if (!id) return null;
-  const file = CIRCUIT_ID_TO_COVER[id];
-  return file ? `/circuit-images/${file}` : null;
+/** @deprecated Always null — no aerial/photographic circuit covers are used. WeekendHero's existing gradient fallback renders instead. */
+export function circuitCoverSrc(_circuitId: string | undefined | null): string | null {
+  return null;
 }
 
-/** Resolve a team car SVG path. constructorId is used as-is (underscore preserved). */
-export function carSrc(
-  constructorId: string | undefined | null,
-  teamName?: string | null,
-): string | null {
-  const id = (constructorId ?? '').trim().toLowerCase();
-  if (id) return `/cars/${id}.svg`;
-  const slug = teamSlugFromName((teamName ?? '').trim());
-  return slug ? `/cars/${slug.replace(/-/g, '_')}.svg` : null;
+/** @deprecated Always null — no car renders are used. Kept as a stable no-op API; ApexFallback renders the badge instead. */
+export function carSrc(_constructorId: string | undefined | null, _teamName?: string | null): string | null {
+  return null;
 }

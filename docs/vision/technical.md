@@ -40,6 +40,8 @@ anthology/
 
 **Silindi / yok:** `components/` (web UI sıfırlandı, 2026-06-21)
 
+**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz gerçek fotoğraf/marka varlıklarıydı — telif riski nedeniyle kaldırıldı. `lib/assets/f1-icons.ts`'teki `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` artık her zaman `null` döner; `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder (isim/kod baş harfleri + `--team-secondary` rengi — canlı standings verisinden, ek asset gerektirmez, yeni pilot/takım için otomatik çalışır). İstisna: `circuitIconSrc` — pist rota çizimi MIT lisanslı geometri (`assets/f1-circuits/`, fotoğraf değil), kaldırılmadı.
+
 ---
 
 ## Veri Akışı
@@ -133,5 +135,5 @@ cd mobile && npm start
 
 1. Web sayfaları iskelet — veri çağrıları/metadata korundu, JSX boş.
 2. `isSeasonSnapshotContentInvalid()` — boş DB snapshot atlanır, Jolpica fallback.
-3. Asset path'leri sezon alt klasörü: `public/drivers/{season}/`, `teamIconSrc()` kullan.
+3. Pilot/takım/araç görseli **yok artık** — `driverIconSrc()`/`teamIconSrc()`/`carSrc()` hep `null` döner, `ApexFallback` rozet render eder (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
 4. Paralel `npm run build` kilitleme riski — tek build aynı anda.
