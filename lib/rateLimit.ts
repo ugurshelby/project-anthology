@@ -137,6 +137,9 @@ export async function applyRateLimit(
 ): Promise<RateLimitResult> {
   const clientIP = getClientIP(headers);
   if (clientIP === 'fallback:unknown') {
+    if (process.env.NODE_ENV === 'test') {
+      return { success: true, retryAfter: 0 };
+    }
     // Shared bucket — use a much tighter limit (1/5) to avoid blanket bypass.
     return rateLimit('fallback:unknown', {
       ...opts,

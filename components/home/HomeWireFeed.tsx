@@ -1,51 +1,145 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { ApexImage } from '@/components/media/ApexImage';
+import Image from 'next/image';
 import type { NewsItem } from '@/lib/data/types';
 import { detectTeamTag, formatWireTime, hasRealImage } from '@/lib/news/categories';
+import { resolveTeamUiColor } from '@/config/team-colors';
+
+function WireThumbnail({
+  src,
+  teamColor,
+}: {
+  src?: string | null;
+  teamColor?: string;
+}) {
+  const [error, setError] = useState(false);
+  const showImage = Boolean(src) && src !== '/placeholder.svg' && !error;
+
+  return (
+    <div
+      className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-white/[0.08] bg-white/[0.02] shadow-sm transition-colors duration-150 group-hover:border-white/20"
+      style={
+        teamColor
+          ? {
+              background: `radial-gradient(circle at center, color-mix(in srgb, ${teamColor} 16%, transparent), transparent 85%)`,
+            }
+          : undefined
+      }
+    >
+      {showImage ? (
+        <Image
+          src={src as string}
+          alt=""
+          fill
+          unoptimized
+          sizes="44px"
+          loading="lazy"
+          className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+          onError={() => setError(true)}
+        />
+      ) : (
+        <svg
+          className="h-4 w-4 text-text-low/70 transition-colors duration-150 group-hover:text-text-hi"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25a3.75 3.75 0 1 1-7.5 0V4.5Z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 18.75a6 6 0 0 0 6-6M6 12.75a6 6 0 0 0 6 6"
+          />
+        </svg>
+      )}
+    </div>
+  );
+}
 
 export function HomeWireFeed({ items }: { items: NewsItem[] }) {
   const feed = items.slice(0, 6);
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="mb-3 flex items-baseline justify-between gap-2">
-        <h2 className="label-caps text-text-mid">The Wire</h2>
-        <Link href="/news" className="label-caps text-accent">
-          All →
+    <div className="flex h-full flex-col justify-between gap-3">
+      {/* Header with live pulse indicator */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+          </span>
+          <h2 className="label-caps tracking-wider text-text-mid">The Wire</h2>
+        </div>
+        <Link
+          href="/news"
+          className="group/link inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-wider text-text-mid transition-colors duration-150 hover:text-white active:scale-95"
+        >
+          <span>All Dispatches</span>
+          <span
+            aria-hidden="true"
+            className="inline-block transition-transform duration-150 ease-out group-hover/link:translate-x-0.5"
+          >
+            →
+          </span>
         </Link>
       </div>
+
       {feed.length === 0 ? (
         <p className="body-md text-text-mid">No dispatches right now.</p>
       ) : (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col divide-y divide-hairline/60">
           {feed.map((item) => {
             const team = detectTeamTag(item.title, item.summary);
-            const thumb = hasRealImage(item);
+            const teamColor = team ? resolveTeamUiColor(undefined, team) : undefined;
+            const thumb = hasRealImage(item) ? item.image : null;
+            const rawTime = formatWireTime(item.publishedTs).replace(' UTC', '');
+
             return (
-              <li key={item.id}>
+              <li key={item.id} className="first:pt-0">
                 <Link
                   href={`/news/${item.id}`}
-                  className="group flex items-start gap-2.5 border-b border-hairline py-2.5 last:border-b-0"
+                  className="group flex items-start gap-3 rounded-[var(--radius-chip)] px-2 py-2.5 transition-all duration-150 ease-out hover:bg-white/[0.03] active:scale-[0.99]"
                 >
-                  {thumb ? (
-                    <div className="relative hidden h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface md:block">
-                      <ApexImage
-                        src={item.image}
-                        alt=""
-                      kind="media"
-                        fill
-                        sizes="48px"
-                        loading="lazy"
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : null}
+                  <WireThumbnail src={thumb} teamColor={teamColor} />
+
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs uppercase tracking-wider text-text-mid">
-                      <span>[{formatWireTime(item.publishedTs)}]</span>
-                      <span className="text-accent/80">[{team ?? item.sourceName.toUpperCase().slice(0, 10)}]</span>
+                    {/* Sleek Apple-style metadata chips */}
+                    <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-text-low">
+                      <span className="tabular-nums text-text-mid/90 font-medium">
+                        {rawTime}
+                      </span>
+                      <span className="text-white/20">·</span>
+                      {team ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 font-bold tracking-widest text-[10px]"
+                          style={{
+                            backgroundColor: `color-mix(in srgb, ${teamColor} 14%, transparent)`,
+                            color: teamColor,
+                          }}
+                        >
+                          <span
+                            className="h-1 w-1 rounded-full"
+                            style={{ backgroundColor: teamColor }}
+                          />
+                          {team}
+                        </span>
+                      ) : (
+                        <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium text-text-mid">
+                          {item.sourceName.toUpperCase().slice(0, 12)}
+                        </span>
+                      )}
                     </div>
-                    <span className="mt-0.5 line-clamp-2 block text-sm leading-snug text-text-hi group-hover:text-white">
+
+                    {/* Headline */}
+                    <span className="mt-1 line-clamp-2 block text-sm font-medium leading-snug text-text-hi transition-colors duration-150 group-hover:text-white">
                       {item.title}
                     </span>
                   </div>

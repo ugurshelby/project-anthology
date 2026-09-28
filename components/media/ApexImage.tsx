@@ -30,11 +30,14 @@ export function ApexImage({
     return <ApexFallback kind={kind} label={fallbackLabel} className={className} />;
   }
 
+  const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'));
+
   return (
     <Image
       {...rest}
       src={src as string}
       alt={alt}
+      unoptimized={rest.unoptimized ?? isExternal}
       className={className}
       onError={() => setFailed(true)}
     />
