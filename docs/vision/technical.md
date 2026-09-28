@@ -18,7 +18,7 @@
 | Deploy | Vercel (web + 4 cron), EAS (mobil) |
 | Test | Vitest (unit), Playwright (devDep, e2e henüz yok) |
 | İzleme | Sentry, Vercel Analytics + Speed Insights |
-| Rate-limit | Upstash Redis + in-memory fallback |
+| Rate-limit | Upstash Redis + in-memory fallback — Upstash env `.env.local`'de mevcut (muhtemelen prod'da da tanımlı, `vercel env pull` ile senkronize edilmiş olmalı); Vercel dashboard'dan **teyit edilmeli**, çünkü in-memory fallback yalnızca tek serverless instance içinde sayar — trafik artışında yeni instance'lar açıldıkça korumayı zayıflatır |
 | CSP | `lib/security/csp.ts` — `font-src` same-origin + `data:` + `https://vercel.live` (Vercel Toolbar) |
 
 ---
@@ -78,7 +78,7 @@ Jolpica · F1DB · OpenF1 · RSS
 | `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (Railway cron, 5-10dk) |
 | `/api/push/register` | Expo push token kayıt |
 | `/api/f1-season` | Canlı Jolpica proxy |
-| `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir |
+| `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. |
 | `/api/news` | Haber API |
 | `/api/season/[year]` | Sezon snapshot API |
 

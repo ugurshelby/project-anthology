@@ -75,8 +75,14 @@ Spec: `docs/design/apex-design-language.md`
 
 - [x] `/api/live-timing`: OpenF1 `session_key=latest` proxy'si (position + interval + driver merge), rate-limited, `live: boolean` hesaplar (session penceresi + 10dk grace). — 2026-09-28
 - [x] `LiveRaceTracker` (client, 12sn polling) — home hero'da `RACE_LIVE_WINDOW_MS` içindeyken `Countdown` yerine gösterilir; pozisyon + takım rengi + interval. — 2026-09-28
+- [x] **Yük/ölçek denetimi (2026-09-28):** `Cache-Control: no-store` kullanıyordu — 100 eşzamanlı izleyici = 100 ayrı OpenF1 çağrısı riski (OpenF1 limiti 3 req/s TOPLAM). Düzeltildi: edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa adaptörün kendi retry/backoff zinciri worst-case ~130sn'ye kadar fonksiyonu tıkayabilirdi, artık zaman aşımında stale cache'e düşüyor).
 - [ ] Gerçek canlı yarışta uçtan-uca doğrulama (OpenF1 canlı seans sırasında manuel test) — sıradaki yarış haftasında yapılmalı
 - [ ] Round detay sayfasına (`app/season/[year]/round/[n]/page.tsx`) da canlı tracker eklenmesi değerlendirilebilir
+
+### 📰 HABER-KALİTE — Görsel doğrulama + atıf
+
+- [x] **Görseli çekilemeyen haber artık hiç görünmüyor (2026-09-28):** `lib/news/aggregate.ts`'e `verifyImages()` eklendi — RSS'in verdiği görsel URL'si gerçekten HTTP 2xx + `image/*` content-type dönmüyorsa (404, redirect, silinmiş CDN asset'i) makale tamamen listeden düşüyor, "placeholder" veya boş thumbnail ile gösterilmiyor. Bounded concurrency (10) + 8sn toplam bütçe — `aggregate()`'in mevcut 15dk cache'i içinde çalıştığı için kullanıcı isteği başına maliyet yok. `lib/data/news.ts`'teki DB/statik fallback katmanlarına da aynı kural (defense-in-depth) eklendi.
+- [x] Atıf/yönlendirme denetlendi: her haberde kaynak adı + orijinal makale linki (`sourceName`/`url`) RSS'ten doğrudan geliyor, değiştirilmiyor — zaten doğruydu.
 
 ### 🤖 MOBİL-OTA (EAS build sonrası)
 

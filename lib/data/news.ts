@@ -158,7 +158,13 @@ export async function getLatestNews(limit = 20): Promise<NewsItem[]> {
     logSupabaseCall('news_cache', `select order published_at limit ${limit}`, durationMs);
 
     if (!result.error && result.data?.length) {
-      return sortNews((result.data as NewsCacheRow[]).map(newsFromCache)).slice(0, limit);
+      // Defense in depth: news_cache rows written before an image-reachability
+      // check existed (or before a source pulled its asset) shouldn't surface a
+      // broken/placeholder thumbnail — aggregate() already keeps this out of
+      // new rows, this just protects against stale ones until the 30-day
+      // retention cron clears them.
+      const withImages = (result.data as NewsCacheRow[]).map(newsFromCache).filter(hasRealImage);
+      if (withImages.length > 0) return sortNews(withImages).slice(0, limit);
     }
     if (result.error) {
       logFallback('supabase news_cache', '/api/news', result.error.message);
@@ -169,15 +175,17 @@ export async function getLatestNews(limit = 20): Promise<NewsItem[]> {
     logFallback('supabase news_cache', '/api/news', (err as Error).message);
   }
 
-  // 2) live /api/news
+  // 2) live /api/news (aggregate() already dropped no-image/unreachable-image items)
   const apiItems = await fetchSiteJson<ApiNewsItem[]>('/api/news');
   if (apiItems?.length) {
-    return sortNews(apiItems.map(newsFromApiItem)).slice(0, limit);
+    const withImages = apiItems.map(newsFromApiItem).filter(hasRealImage);
+    if (withImages.length > 0) return sortNews(withImages).slice(0, limit);
   }
 
-  // 3) static fallback
+  // 3) static fallback — hand-authored/stale, still enforce the same rule
   logFallback('/api/news', 'public/news-fallback.json');
   const fallback = await readPublicJson<ApiNewsItem[]>('news-fallback.json');
   if (!fallback?.length) return [];
-  return sortNews(fallback.map(newsFromApiItem)).slice(0, limit);
+  const fallbackWithImages = fallback.map(newsFromApiItem).filter(hasRealImage);
+  return sortNews(fallbackWithImages).slice(0, limit);
 }
