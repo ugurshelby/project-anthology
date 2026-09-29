@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { clusterArticles } from '@/lib/news/cluster';
-import { copiesSource, parseRewrite } from '@/lib/news/rewrite';
+import { copiesSource, parseRewriteItem, parseBatch } from '@/lib/news/rewrite';
 import { draftStories, fingerprintOf } from '@/lib/news/stories';
 import type { RawNewsItem } from '@/lib/news/aggregate';
 import type { NewsStoryRow } from '@/types/database';
@@ -60,9 +60,16 @@ describe('copyright guard', () => {
     expect(copiesSource('Mercedes won in Azerbaijan after fending off a late Red Bull charge', src)).toBe(false);
   });
   it('parseRewrite rejects copied output and reports different events as split', () => {
-    const copied = JSON.stringify({ same_story: true, title_en: 'Russell holds off Verstappen to win', summary_en: 'x y z', title_tr: 'a', summary_tr: 'b' });
-    expect(parseRewrite(copied, src)).toBeNull();
-    expect(parseRewrite(JSON.stringify({ same_story: false }), src)).toBe('split');
+    const copied = { same_story: true, title_en: 'Russell holds off Verstappen to win', summary_en: 'x y z', title_tr: 'a', summary_tr: 'b' };
+    expect(parseRewriteItem(copied, src)).toBeNull();
+    expect(parseRewriteItem({ same_story: false }, src)).toBe('split');
+  });
+  it('parseBatch maps array items to stories by index and survives garbage', () => {
+    const ok = { story: 1, same_story: true, title_en: 'Mercedes wins in Azerbaijan', summary_en: 'A calm drive under two safety cars', title_tr: "Mercedes Azerbaycan'da kazandı", summary_tr: 'İki güvenlik aracına rağmen sakin bir sürüş' };
+    const out = parseBatch(JSON.stringify([{ story: 0, same_story: false }, ok]), [src, src]);
+    expect(out[0]).toBe('split');
+    expect(out[1]).toMatchObject({ titleEn: 'Mercedes wins in Azerbaijan' });
+    expect(parseBatch('not json', [src, src])).toEqual([null, null]);
   });
 });
 

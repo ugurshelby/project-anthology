@@ -11,12 +11,13 @@
 
 import { stableId, probeImage, type RawNewsItem } from '@/lib/news/aggregate';
 import { clusterArticles } from '@/lib/news/cluster';
-import { aiRewriteConfigured, rewriteStory, type RewriteSource } from '@/lib/news/rewrite';
+import { aiRewriteConfigured, rewriteBatch, type RewriteSource } from '@/lib/news/rewrite';
 import { translateToTurkish } from '@/lib/news/translate';
 import type { NewsStoryRow, NewsStorySource } from '@/types/database';
 
 export const NEWS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
-const PACE_MS = 6_500; // stay under Gemini free-tier ~10 requests/minute
+const BATCH_SIZE = 4; // stories per AI request (free quotas count requests)
+const PACE_MS = 5_000; // gap between AI requests (free-tier per-minute limits)
 const FALLBACK_TR_PER_RUN = 8; // MyMemory anonymous quota is tiny — titles only
 
 export interface StoryRunStats {
@@ -90,6 +91,15 @@ async function bestImage(members: RawNewsItem[]): Promise<string | null> {
   return ok[0]?.u ?? null;
 }
 
+interface RewriteJob {
+  draft: DraftStory;
+  row: NewsStoryRow;
+}
+
+function sourcesOf(d: DraftStory): RewriteSource[] {
+  return d.members.map((m) => ({ source: m.sourceName, title: m.title, summary: m.summary }));
+}
+
 export async function buildStoryRows(
   raw: RawNewsItem[],
   existing: NewsStoryRow[],
@@ -105,15 +115,14 @@ export async function buildStoryRows(
     pending: 0,
     aiConfigured,
   };
-  const rows: NewsStoryRow[] = [];
-  let lastCall = 0;
 
-  const queue = [...drafts];
-  while (queue.length > 0) {
-    const d = queue.shift() as DraftStory;
+  // Phase 1 — a row per story (fallback text = best source), best image, and the list of rewrite jobs.
+  const rows: NewsStoryRow[] = [];
+  const jobs: RewriteJob[] = [];
+  for (const d of drafts) {
     const unchanged = d.existing !== null && d.existing.fingerprint === d.fingerprint;
     const seed = d.members[0];
-    let row: NewsStoryRow = unchanged
+    const row: NewsStoryRow = unchanged
       ? { ...(d.existing as NewsStoryRow), sources: d.sources }
       : {
           id: d.id,
@@ -130,70 +139,76 @@ export async function buildStoryRows(
           rewritten: d.existing?.rewritten ?? false,
           cached_at: new Date().toISOString(),
         };
-
     if (!unchanged || !row.image_url) {
       const img = await bestImage(d.members);
       if (img) row.image_url = img;
     }
     row.published_at = new Date(d.publishedTs).toISOString();
+    rows.push(row);
+    if (!unchanged || !row.rewritten) jobs.push({ draft: d, row });
+  }
 
-    const needsRewrite = !unchanged || !row.rewritten;
-    if (needsRewrite && aiConfigured && Date.now() + PACE_MS < opts.deadlineMs) {
+  // Phase 2 — AI rewrite in batches. Multi-outlet stories first (most value per request), newest next.
+  const exhausted = new Set<string>();
+  if (aiConfigured) {
+    jobs.sort((a, b) => b.draft.members.length - a.draft.members.length || b.draft.publishedTs - a.draft.publishedTs);
+    let lastCall = 0;
+    for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+      if (Date.now() + PACE_MS >= opts.deadlineMs) break;
       const wait = lastCall + PACE_MS - Date.now();
       if (wait > 0) await new Promise((r) => setTimeout(r, wait));
       lastCall = Date.now();
-      const input: RewriteSource[] = d.members.map((m) => ({
-        source: m.sourceName,
-        title: m.title,
-        summary: m.summary,
-      }));
-      const out = await rewriteStory(input);
-      if (out === 'split' && d.members.length > 1) {
-        // The model says these are different events: re-queue each article as its own story
-        // (the first keeps this story's id so the merged row is overwritten, not orphaned).
-        d.members.forEach((m, i) =>
-          queue.unshift({
-            id: i === 0 ? d.id : stableId(m.canonicalUrl),
-            members: [m],
+      const batch = jobs.slice(i, i + BATCH_SIZE);
+      const { results } = await rewriteBatch(batch.map((j) => sourcesOf(j.draft)), exhausted);
+      results.forEach((out, k) => {
+        const { draft, row } = batch[k];
+        if (out && out !== 'split') {
+          Object.assign(row, {
+            title: out.titleEn,
+            summary: out.summaryEn,
+            title_tr: out.titleTr,
+            summary_tr: out.summaryTr,
+            rewritten: true,
+            fingerprint: draft.fingerprint,
+          });
+          stats.rewritten++;
+        } else if (out === 'split' && draft.members.length > 1) {
+          // Different events: each article becomes its own story (the first keeps this id so the
+          // merged row is overwritten, not orphaned); they are rewritten on a later run.
+          const at = rows.indexOf(row);
+          const singles = draft.members.map((m, n): NewsStoryRow => ({
+            ...row,
+            id: n === 0 ? draft.id : stableId(m.canonicalUrl),
+            title: m.title,
+            summary: m.summary,
+            title_tr: null,
+            summary_tr: null,
+            image_url: m.image || null,
+            published_at: new Date(m.publishedTs).toISOString(),
             sources: [toSource(m)],
             fingerprint: fingerprintOf([m.url]),
-            publishedTs: m.publishedTs,
-            existing: null,
-          }),
-        );
-        continue;
-      }
-      if (out && out !== 'split') {
-        row = {
-          ...row,
-          title: out.titleEn,
-          summary: out.summaryEn,
-          title_tr: out.titleTr,
-          summary_tr: out.summaryTr,
-          rewritten: true,
-          fingerprint: d.fingerprint,
-        };
-        stats.rewritten++;
-      } else {
-        stats.pending++;
-      }
-    } else if (needsRewrite) {
-      stats.pending++;
+            rewritten: false,
+          }));
+          rows.splice(at, 1, ...singles);
+          stats.pending += singles.length;
+        } else {
+          stats.pending++;
+        }
+      });
+      if (exhausted.size >= 3) break; // every provider is out of quota — stop early
     }
+  }
+  stats.pending = Math.max(stats.pending, jobs.length - stats.rewritten);
 
-    if (
-      !row.rewritten &&
-      !row.title_tr &&
-      stats.translatedFallback < FALLBACK_TR_PER_RUN &&
-      Date.now() < opts.deadlineMs
-    ) {
-      const tr = await translateToTurkish(row.title);
-      if (tr) {
-        row.title_tr = tr;
-        stats.translatedFallback++;
-      }
+  // Phase 3 — MyMemory title-only fallback for stories the AI hasn't covered (its anonymous quota is tiny).
+  for (const row of rows) {
+    if (stats.translatedFallback >= FALLBACK_TR_PER_RUN || Date.now() >= opts.deadlineMs) break;
+    if (row.rewritten || row.title_tr) continue;
+    const tr = await translateToTurkish(row.title);
+    if (tr) {
+      row.title_tr = tr;
+      stats.translatedFallback++;
     }
-    rows.push(row);
   }
   return { rows, stats };
 }

@@ -51,9 +51,16 @@ function CompactNewsRow({ item }: { item: NewsItem }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
-          {item.dateLabel} · {item.sourceName}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
+            {item.dateLabel} · {item.sourceName}
+          </span>
+          {item.sources && item.sources.length > 1 ? (
+            <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.2 text-[9px] font-mono text-text-mid">
+              {item.sources.length} {locale === 'tr' ? 'kaynak' : 'sources'}
+            </span>
+          ) : null}
+        </div>
         <span
           className="mt-0.5 line-clamp-2 block font-condensed text-base font-700 uppercase leading-tight text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}

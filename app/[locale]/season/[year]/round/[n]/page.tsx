@@ -8,8 +8,10 @@ import {
   getQualifyingRows,
   getPitStopRows,
 } from '@/lib/f1/mrdata';
-import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, F1_SEASON_MIN, weekendSessionChips } from '@/lib/f1Calendar';
 import { getCircuitWeather } from '@/lib/data/circuits';
+import { getCircuitFacts } from '@/data/circuits/facts';
+import { LocalTime } from '@/components/time/LocalTime';
 import { teamThemeVars } from '@/lib/theme';
 import { getTeamByName } from '@/config/team-colors';
 import { BentoGrid } from '@/components/layout/BentoGrid';
@@ -83,6 +85,8 @@ export default async function RoundPage({ params }: PageProps) {
   const race = getRacesFromCalendar(calendar).find((r) => Number(r.round) === round);
   const circuitId = race?.Circuit?.circuitId;
   const weather = circuitId ? await getCircuitWeather(circuitId) : null;
+  const circuitFacts = circuitId ? getCircuitFacts(circuitId) : null;
+  const sessionChips = weekendSessionChips(race);
 
   const results = getRaceResultRows(resultsData);
   const sprint = getSprintResultRows(sprintData);
@@ -146,6 +150,19 @@ export default async function RoundPage({ params }: PageProps) {
           <p className="data-tabular text-text-mid">
             Winner: <span className="text-text-hi">{winner.driverName}</span> · {winner.constructorName}
           </p>
+        ) : null}
+
+        {sessionChips.length > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-[var(--radius-lg)] border border-hairline bg-surface/30 p-3.5 font-mono text-xs text-text-mid backdrop-blur-sm">
+            <span className="label-caps text-accent shrink-0">Schedule:</span>
+            {sessionChips.map((s) => (
+              <span key={s.id} className="flex items-center gap-1.5">
+                <span className="font-semibold text-text-hi">{s.label}</span>
+                <span className="text-text-low">·</span>
+                <LocalTime startMs={s.startMs} fallback={s.when} circuitTimeZone={circuitFacts?.timeZone} />
+              </span>
+            ))}
+          </div>
         ) : null}
       </header>
 

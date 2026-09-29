@@ -36,9 +36,16 @@ export function WireItem({ item }: { item: NewsItem }) {
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
-          {item.dateLabel} · {item.sourceName}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
+            {item.dateLabel} · {item.sourceName}
+          </span>
+          {item.sources && item.sources.length > 1 ? (
+            <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.2 text-[9px] font-mono text-text-mid">
+              {item.sources.length} {locale === 'tr' ? 'kaynak' : 'sources'}
+            </span>
+          ) : null}
+        </div>
         <span
           className="line-clamp-2 font-condensed text-lg font-700 leading-tight text-text transition-colors group-hover:text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
@@ -129,9 +136,16 @@ export function NewsCard({ item }: { item: NewsItem }) {
       )}
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-bg/20" />
       <div className="relative z-10 flex flex-col gap-1.5">
-        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
-          {item.dateLabel} · {item.sourceName}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
+            {item.dateLabel} · {item.sourceName}
+          </span>
+          {item.sources && item.sources.length > 1 ? (
+            <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.2 text-[9px] font-mono text-text-mid">
+              {item.sources.length} {locale === 'tr' ? 'kaynak' : 'sources'}
+            </span>
+          ) : null}
+        </div>
         <span
           className="line-clamp-3 font-condensed text-xl font-700 uppercase leading-tight text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
