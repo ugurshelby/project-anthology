@@ -15,8 +15,8 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
     <Link
       href={`/anthology/${story.slug}`}
       className={[
-        'group relative flex min-h-56 flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6',
-        wide ? 'md:min-h-72' : '',
+        'group relative flex min-h-[280px] sm:min-h-[320px] flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-6 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out hover:border-white/20 active:scale-[0.99]',
+        wide ? 'md:min-h-[360px]' : '',
       ].join(' ')}
     >
       <ApexImage
@@ -25,22 +25,29 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
         fill
         kind="media"
         sizes={wide ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-        className="object-cover opacity-55 transition-opacity duration-150 group-hover:opacity-70"
+        className="object-cover opacity-80 transition-all duration-500 ease-out group-hover:scale-105 group-hover:opacity-95"
       />
+      {/* Top subtle vignette */}
       <span
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-bg from-25% via-bg/80 via-55% to-transparent"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent"
       />
-      <div className="relative z-10 flex flex-col gap-1">
-        <span className="label-caps text-text-mid">
+      {/* Bottom gradient protecting typography */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-bg/70 via-40% to-transparent"
+      />
+      <div className="relative z-10 flex flex-col gap-1.5">
+        <span className="label-caps flex items-center gap-1.5 text-text-mid">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           {story.category}
           {story.year ? ` · ${story.year}` : ''}
         </span>
-        <h3 className={[wide ? 'headline-lg' : 'headline-md', 'uppercase text-text-hi'].join(' ')}>
+        <h3 className={[wide ? 'headline-lg' : 'headline-md', 'uppercase text-text-hi transition-colors duration-200 group-hover:text-white'].join(' ')}>
           {title}
         </h3>
         {subtitle ? (
-          <p className="body-md mt-1 line-clamp-2 text-text-mid">
+          <p className="body-md mt-0.5 line-clamp-2 text-text-mid/90">
             {truncateToWord(subtitle, wide ? 160 : 100)}
           </p>
         ) : null}

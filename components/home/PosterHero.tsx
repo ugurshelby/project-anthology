@@ -1,4 +1,4 @@
-﻿import { ApexImage } from '@/components/media/ApexImage';
+import { ApexImage } from '@/components/media/ApexImage';
 import Link from 'next/link';
 import { Countdown } from './Countdown';
 
@@ -14,7 +14,7 @@ export interface PosterHeroProps {
 }
 
 /**
- * Sinematik poster hero â€” Poster Dense (mobile ~42dvh) / Split Cinema left panel (lg 60dvh),
+ * Sinematik poster hero — Poster Dense (mobile ~42dvh) / Split Cinema left panel (lg 60dvh),
  * or a bounded bento-tile height when `contained` (homepage asymmetric grid).
  */
 export function PosterHero({

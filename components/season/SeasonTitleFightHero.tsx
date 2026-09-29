@@ -58,7 +58,7 @@ export function SeasonTitleFightHero({
           color={leaderColor}
         />
 
-        <div className="flex flex-col items-center gap-1.5 py-2 md:gap-2 md:py-8">
+        <div className="flex min-w-0 shrink-0 flex-col items-center gap-1.5 py-2 md:gap-2 md:py-8">
           <span className="label-caps text-text-mid">Points gap</span>
           <span className="hero-number text-[clamp(28px,5vw,56px)] text-text-hi">
             {challenger ? `+${gap}` : leader.points}
@@ -112,22 +112,24 @@ function DriverSilhouette({
   const align = side === 'left' ? 'items-start text-left' : 'items-end text-right';
 
   return (
-    <div className={`relative flex flex-col ${align}`}>
+    <div className={`relative flex min-w-0 flex-col ${align}`}>
       <span
         aria-hidden
-        className={`pointer-events-none absolute ${side === 'left' ? '-left-8' : '-right-8'} top-0 h-40 w-40 rounded-full opacity-40 blur-3xl`}
+        className={`pointer-events-none absolute ${side === 'left' ? '-left-8' : '-right-8'} top-0 h-40 w-40 rounded-full opacity-30 blur-3xl`}
         style={{ backgroundColor: color }}
       />
       {number != null ? (
         <span
           aria-hidden
-          className={`hero-number pointer-events-none absolute ${side === 'left' ? 'left-0' : 'right-0'} -top-4 select-none text-[clamp(72px,12vw,120px)] leading-none text-text-hi/[0.06]`}
+          className={`hero-number pointer-events-none absolute -z-10 select-none leading-none ${
+            side === 'left' ? 'left-0 sm:-left-2' : 'right-0 sm:-right-2'
+          } -top-4 sm:-top-6 text-[clamp(56px,8vw,100px)] text-white/[0.035]`}
         >
           {number}
         </span>
       ) : null}
       {portrait ? (
-        <div className={`relative mb-2 h-28 w-[5.5rem] sm:mb-3 sm:h-44 sm:w-32 ${side === 'right' ? 'self-end' : ''}`}>
+        <div className={`relative z-10 mb-2 h-28 w-[5.5rem] sm:mb-3 sm:h-44 sm:w-32 ${side === 'right' ? 'self-end' : ''}`}>
           <ApexImage
             src={portrait}
             alt=""
@@ -139,17 +141,19 @@ function DriverSilhouette({
           />
         </div>
       ) : null}
-      <span className="label-caps text-text-mid">{position}</span>
-      <span
-        className="font-condensed text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
-        style={{ fontFamily: 'var(--font-condensed)' }}
-      >
-        {name.split(' ').pop()}
-      </span>
-      <span className="data-tabular text-sm" style={{ color }}>
-        {team}
-      </span>
-      <span className="hero-number mt-1 text-3xl text-text-hi sm:text-4xl">{points}</span>
+      <div className="relative z-10 flex flex-col gap-0.5">
+        <span className="label-caps text-text-mid">{position}</span>
+        <span
+          className="font-condensed text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
+          style={{ fontFamily: 'var(--font-condensed)' }}
+        >
+          {name.split(' ').pop()}
+        </span>
+        <span className="data-tabular text-sm font-medium" style={{ color }}>
+          {team}
+        </span>
+        <span className="hero-number mt-1 text-3xl text-text-hi sm:text-4xl">{points}</span>
+      </div>
     </div>
   );
 }
