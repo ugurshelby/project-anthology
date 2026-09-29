@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ApexImage } from '@/components/media/ApexImage';
 import { getNewsById } from '@/lib/data/news';
+import { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { SITE_NAME, localizedAlternates } from '@/lib/seo';
 
@@ -17,25 +18,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const item = await getNewsById(id);
   if (!item) return { title: 'Story not found' };
 
-  const description = item.summary || item.title;
+  const title = localizedNewsTitle(item, locale);
+  const description = localizedNewsSummary(item, locale) || title;
   return {
-    title: item.title,
+    title,
     description,
     alternates: localizedAlternates(`/news/${id}`, locale),
     openGraph: {
-      title: `${item.title} — ${SITE_NAME}`,
+      title: `${title} — ${SITE_NAME}`,
       description,
       url: `/news/${id}`,
       type: 'article',
     },
-    twitter: { card: 'summary_large_image', title: `${item.title} — ${SITE_NAME}`, description },
+    twitter: { card: 'summary_large_image', title: `${title} — ${SITE_NAME}`, description },
   };
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const item = await getNewsById(id);
   if (!item) notFound();
+
+  const title = localizedNewsTitle(item, locale);
+  const summary = localizedNewsSummary(item, locale);
 
   return (
     <main id="main-content" className="flex-1">
@@ -54,14 +59,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <span className="label-caps text-accent">
             {item.dateLabel} · {item.sourceName}
           </span>
-          <h1 className="headline-lg uppercase text-text-hi">{item.title}</h1>
+          <h1 className="headline-lg uppercase text-text-hi">{title}</h1>
         </div>
       </section>
 
       <PageShell>
         <article className="mx-auto flex max-w-[680px] flex-col gap-6 py-8">
-          {item.summary ? (
-            <p className="text-lg leading-relaxed text-text">{item.summary}</p>
+          {summary ? (
+            <p className="text-lg leading-relaxed text-text">{summary}</p>
           ) : null}
           <a
             href={item.url}
@@ -69,7 +74,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
             rel="noopener noreferrer"
             className="label-caps inline-flex w-fit items-center gap-2 rounded-[var(--radius)] border border-hairline px-4 py-2.5 text-text-hi transition-colors hover:bg-surface-raised"
           >
-            Read Full Story ↗
+            {locale === 'tr' ? 'Orijinal Kaynağı Oku ↗' : 'Read Full Story ↗'}
           </a>
         </article>
       </PageShell>

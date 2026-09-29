@@ -1,6 +1,8 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
+import { localizedNewsTitle } from '@/lib/news/i18n';
 import { hasRealImage } from '@/lib/news/categories';
 import { NewsImageFallback } from '@/components/news/NewsImageFallback';
 
@@ -9,7 +11,10 @@ import { NewsImageFallback } from '@/components/news/NewsImageFallback';
  * Links to our own /news/[id] detail page rather than the external source.
  */
 export function WireItem({ item }: { item: NewsItem }) {
+  const locale = useLocale();
   const hasImage = hasRealImage(item);
+  const title = localizedNewsTitle(item, locale);
+
   return (
     <Link
       href={`/news/${item.id}`}
@@ -38,7 +43,7 @@ export function WireItem({ item }: { item: NewsItem }) {
           className="line-clamp-2 font-condensed text-lg font-700 leading-tight text-text transition-colors group-hover:text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
-          {item.title}
+          {title}
         </span>
       </div>
     </Link>
@@ -65,7 +70,10 @@ export function NewsList({ items, heading = 'THE WIRE' }: { items: NewsItem[]; h
 
 /** @deprecated Prefer NewsLeadBlock on /news — kept for any residual callers. */
 export function NewsHero({ item }: { item: NewsItem }) {
+  const locale = useLocale();
   const hasImage = hasRealImage(item);
+  const title = localizedNewsTitle(item, locale);
+
   return (
     <Link
       href={`/news/${item.id}`}
@@ -89,7 +97,7 @@ export function NewsHero({ item }: { item: NewsItem }) {
         <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
           {item.dateLabel} · {item.sourceName}
         </span>
-        <h2 className="headline-lg line-clamp-3 text-text-hi">{item.title}</h2>
+        <h2 className="headline-lg line-clamp-3 text-text-hi">{title}</h2>
       </div>
     </Link>
   );
@@ -97,7 +105,10 @@ export function NewsHero({ item }: { item: NewsItem }) {
 
 /** Grid card for the /news listing — desktop 3-col grid item, mobile full-width stack. */
 export function NewsCard({ item }: { item: NewsItem }) {
+  const locale = useLocale();
   const hasImage = hasRealImage(item);
+  const title = localizedNewsTitle(item, locale);
+
   return (
     <Link
       href={`/news/${item.id}`}
@@ -125,7 +136,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
           className="line-clamp-3 font-condensed text-xl font-700 uppercase leading-tight text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
-          {item.title}
+          {title}
         </span>
       </div>
     </Link>

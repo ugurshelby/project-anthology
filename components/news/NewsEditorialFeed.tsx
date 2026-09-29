@@ -1,9 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
+import { localizedNewsTitle } from '@/lib/news/i18n';
 import {
   classifyNewsCategory,
   hasRealImage,
@@ -24,7 +26,10 @@ function matchesFilter(item: NewsItem, filter: NewsCategory): boolean {
 }
 
 function CompactNewsRow({ item }: { item: NewsItem }) {
+  const locale = useLocale();
   const hasImage = hasRealImage(item);
+  const title = localizedNewsTitle(item, locale);
+
   return (
     <Link
       href={`/news/${item.id}`}
@@ -53,7 +58,7 @@ function CompactNewsRow({ item }: { item: NewsItem }) {
           className="mt-0.5 line-clamp-2 block font-condensed text-base font-700 uppercase leading-tight text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
-          {item.title}
+          {title}
         </span>
       </div>
     </Link>

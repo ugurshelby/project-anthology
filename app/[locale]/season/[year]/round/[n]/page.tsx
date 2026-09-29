@@ -6,13 +6,16 @@ import {
   getRaceResultRows,
   getSprintResultRows,
   getQualifyingRows,
+  getPitStopRows,
 } from '@/lib/f1/mrdata';
-import { CURRENT_SEASON } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
+import { getCircuitWeather } from '@/lib/data/circuits';
 import { teamThemeVars } from '@/lib/theme';
 import { getTeamByName } from '@/config/team-colors';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { RaceResultsTable, QualifyingTable } from '@/components/season/ResultsTable';
+import { PitStopsTable } from '@/components/season/PitStopsTable';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { siteUrl, localizedAlternates } from '@/lib/seo';
 
@@ -21,7 +24,7 @@ import { siteUrl, localizedAlternates } from '@/lib/seo';
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
-const MAX_ROUNDS = 30;
+const MAX_ROUNDS = 35;
 
 interface PageProps {
   params: Promise<{ year: string; n: string; locale: string }>;
@@ -30,7 +33,7 @@ interface PageProps {
 function parseParams(raw: { year: string; n: string }): { year: number; round: number } | null {
   const year = Number(raw.year);
   const round = Number(raw.n);
-  if (!Number.isInteger(year) || year !== CURRENT_SEASON) return null;
+  if (!Number.isInteger(year) || year < F1_SEASON_MIN || year > CURRENT_SEASON) return null;
   if (!Number.isInteger(round) || round < 1 || round > MAX_ROUNDS) return null;
   return { year, round };
 }
@@ -69,17 +72,22 @@ export default async function RoundPage({ params }: PageProps) {
   if (!parsed) notFound();
   const { year, round } = parsed;
 
-  const [calendar, resultsData, qualiData, sprintData] = await Promise.all([
+  const [calendar, resultsData, qualiData, sprintData, pitstopsData] = await Promise.all([
     fetchSeasonSnapshotTyped(year, 'calendar'),
     fetchRoundSnapshot(year, round, 'results'),
     fetchRoundSnapshot(year, round, 'qualifying'),
     fetchRoundSnapshot(year, round, 'sprint'),
+    fetchRoundSnapshot(year, round, 'pitstops'),
   ]);
 
   const race = getRacesFromCalendar(calendar).find((r) => Number(r.round) === round);
+  const circuitId = race?.Circuit?.circuitId;
+  const weather = circuitId ? await getCircuitWeather(circuitId) : null;
+
   const results = getRaceResultRows(resultsData);
   const sprint = getSprintResultRows(sprintData);
   const quali = getQualifyingRows(qualiData);
+  const pitstops = getPitStopRows(pitstopsData);
 
   const winner = results[0];
   const winnerTeam = winner ? getTeamByName(winner.constructorName) : undefined;
@@ -112,11 +120,27 @@ export default async function RoundPage({ params }: PageProps) {
           sport: 'Formula 1',
         }}
       />
-      <header className="mb-8 flex flex-col gap-1">
-        <span className="label-caps text-text-mid">
-          Round {round} · {year}
-          {race?.Circuit?.Location?.country ? ` · ${race.Circuit.Location.country}` : ''}
-        </span>
+      <header className="mb-8 flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="label-caps text-text-mid">
+            Round {round} · {year}
+            {race?.Circuit?.Location?.country ? ` · ${race.Circuit.Location.country}` : ''}
+          </span>
+          {weather ? (
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-surface px-3 py-1 text-xs text-text-mid">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-medium text-text-hi">{weather.temperatureC}°C</span>
+              <span>·</span>
+              <span>{weather.summary}</span>
+              {weather.windKmh ? (
+                <>
+                  <span>·</span>
+                  <span>{weather.windKmh} km/h wind</span>
+                </>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
         <h1 className="headline-lg uppercase text-text-hi">{race?.raceName ?? `Round ${round}`}</h1>
         {winner ? (
           <p className="data-tabular text-text-mid">
@@ -127,7 +151,7 @@ export default async function RoundPage({ params }: PageProps) {
 
       <BentoGrid>
         {results.length > 0 ? (
-          <BentoCard span={sprint.length > 0 || quali.length > 0 ? 8 : 12}>
+          <BentoCard span={sprint.length > 0 || quali.length > 0 || pitstops.length > 0 ? 8 : 12}>
             <span className="label-caps mb-3 block text-text-mid">Race Classification</span>
             <RaceResultsTable rows={results} />
           </BentoCard>
@@ -140,6 +164,16 @@ export default async function RoundPage({ params }: PageProps) {
           </BentoCard>
         ) : null}
 
+        {pitstops.length > 0 ? (
+          <BentoCard span={sprint.length > 0 ? 6 : 4}>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="label-caps text-text-mid">Pit Stops Telemetry</span>
+              <span className="data-tabular text-xs text-text-mid">{pitstops.length} STOPS</span>
+            </div>
+            <PitStopsTable rows={pitstops} results={results} />
+          </BentoCard>
+        ) : null}
+
         {sprint.length > 0 ? (
           <BentoCard span={6}>
             <span className="label-caps mb-3 block text-text-mid">Sprint</span>
@@ -147,7 +181,7 @@ export default async function RoundPage({ params }: PageProps) {
           </BentoCard>
         ) : null}
 
-        {results.length === 0 && quali.length === 0 && sprint.length === 0 ? (
+        {results.length === 0 && quali.length === 0 && sprint.length === 0 && pitstops.length === 0 ? (
           <BentoCard span={12}>
             <span className="label-caps text-text-low">Results not yet available for this round.</span>
           </BentoCard>

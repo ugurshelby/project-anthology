@@ -17,6 +17,7 @@ import type { NewsItem } from '@/lib/data/types';
 
 export type { NewsItem } from '@/lib/data/types';
 export { hasRealImage };
+export { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
 
 /** Shape returned by the live /api/news route. */
 interface ApiNewsItem {

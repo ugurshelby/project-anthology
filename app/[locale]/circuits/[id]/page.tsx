@@ -3,13 +3,14 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { ApexImage } from '@/components/media/ApexImage';
 import { localizedAlternates } from '@/lib/seo';
-import { getCircuitDetail, getCurrentSeasonResults } from '@/lib/data/circuits';
+import { getCircuitDetail, getCurrentSeasonResults, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { SeasonResultsPanel } from '@/components/circuit/SeasonResultsPanel';
 import { CircuitCharacter } from '@/components/circuit/CircuitCharacter';
+import { CircuitWeatherCard } from '@/components/circuit/CircuitWeatherCard';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 
 interface PageProps {
@@ -46,9 +47,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CircuitDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const [circuit, results] = await Promise.all([
+  const [circuit, results, weather] = await Promise.all([
     getCircuitDetail(id),
     getCurrentSeasonResults(),
+    getCircuitWeather(id),
   ]);
   if (!circuit) notFound();
 
@@ -115,6 +117,12 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </div>
             </BentoCard>
 
+            {weather ? (
+              <BentoCard span={6}>
+                <CircuitWeatherCard weather={weather} />
+              </BentoCard>
+            ) : null}
+
             {facts ? (
               <BentoCard span={6}>
                 <CircuitCharacter facts={facts} />
@@ -122,7 +130,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
             ) : null}
 
             {circuit.winners.length > 0 ? (
-              <BentoCard span={facts ? 6 : 12}>
+              <BentoCard span={facts || weather ? 6 : 12}>
                 <span className="label-caps mb-3 block text-text-mid">Recent Winners</span>
                 <div className="flex flex-col">
                   {circuit.winners.map((w, i) => (

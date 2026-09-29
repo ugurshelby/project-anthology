@@ -1,12 +1,17 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
+import { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
 import { estimateReadMinutes } from '@/lib/news/categories';
 import { hasRealImage } from '@/lib/news/categories';
 import { NewsImageFallback } from '@/components/news/NewsImageFallback';
 
 function SecondaryStory({ item }: { item: NewsItem }) {
+  const locale = useLocale();
   const hasImage = hasRealImage(item);
+  const title = localizedNewsTitle(item, locale);
+
   return (
     <Link
       href={`/news/${item.id}`}
@@ -34,7 +39,7 @@ function SecondaryStory({ item }: { item: NewsItem }) {
           className="line-clamp-3 font-condensed text-lg font-700 uppercase leading-tight text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
-          {item.title}
+          {title}
         </span>
       </div>
     </Link>
@@ -52,7 +57,10 @@ export function NewsLeadBlock({
   lead: NewsItem;
   secondary: NewsItem[];
 }) {
-  const readMins = estimateReadMinutes(lead.summary, lead.title);
+  const locale = useLocale();
+  const leadTitle = localizedNewsTitle(lead, locale);
+  const leadSummary = localizedNewsSummary(lead, locale);
+  const readMins = estimateReadMinutes(leadSummary, leadTitle);
   const leadHasImage = hasRealImage(lead);
   const side = secondary.slice(0, 2);
 
@@ -77,15 +85,17 @@ export function NewsLeadBlock({
         )}
         <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-transparent" />
         <div className="relative z-10 flex max-w-2xl flex-col gap-2 md:gap-3">
-          <span className="label-caps text-accent">Featured Story</span>
+          <span className="label-caps text-accent">
+            {locale === 'tr' ? 'Öne Çıkan Haber' : 'Featured Story'}
+          </span>
           <h2
             className="line-clamp-3 font-condensed text-2xl font-700 uppercase leading-tight text-text-hi md:text-4xl md:leading-[1.05]"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
-            {lead.title}
+            {leadTitle}
           </h2>
-          {lead.summary ? (
-            <p className="line-clamp-2 max-w-xl body-md text-text-mid">{lead.summary}</p>
+          {leadSummary ? (
+            <p className="line-clamp-2 max-w-xl body-md text-text-mid">{leadSummary}</p>
           ) : null}
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <span className="data-tabular text-xs text-text-mid">

@@ -22,6 +22,7 @@ import {
   weekendSessionChips,
 } from '@/lib/f1Calendar';
 import { getCircuitFacts } from '@/data/circuits/facts';
+import { getCircuitWeather } from '@/lib/data/circuits';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { pickWeekendStory } from '@/lib/home/pickWeekendStory';
 import { WeekendHero } from '@/components/home/WeekendHero';
@@ -92,6 +93,9 @@ async function HomeHeroBlock() {
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
   const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
   const nextRaceFacts = getCircuitFacts(nextRace?.Circuit?.circuitId);
+  const circuitWeather = nextRace?.Circuit?.circuitId
+    ? await getCircuitWeather(nextRace.Circuit.circuitId)
+    : null;
 
   const eyebrow = nextRace?.round
     ? `${CURRENT_SEASON} · Round ${nextRace.round}`
@@ -126,6 +130,7 @@ async function HomeHeroBlock() {
         circuitTimeZone={nextRaceFacts?.timeZone}
         lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
         lastRaceName={lastRaceRecap?.raceName}
+        weather={circuitWeather}
         isLive={isLive}
       />
       <div className="mt-6 md:mt-8">

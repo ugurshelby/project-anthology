@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import type { NewsItem } from '@/lib/data/types';
+import { localizedNewsTitle } from '@/lib/news/i18n';
 import { detectTeamTag, formatWireTime, hasRealImage } from '@/lib/news/categories';
 import { resolveTeamUiColor } from '@/config/team-colors';
 
@@ -65,6 +67,7 @@ function WireThumbnail({
 }
 
 export function HomeWireFeed({ items }: { items: NewsItem[] }) {
+  const locale = useLocale();
   const feed = items.slice(0, 6);
 
   return (
@@ -82,7 +85,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
           href="/news"
           className="group/link inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-wider text-text-mid transition-colors duration-150 hover:text-white active:scale-95"
         >
-          <span>All Dispatches</span>
+          <span>{locale === 'tr' ? 'Tüm Haberler' : 'All Dispatches'}</span>
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-150 ease-out group-hover/link:translate-x-0.5"
@@ -97,6 +100,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
       ) : (
         <ul className="flex flex-col divide-y divide-hairline/60">
           {feed.map((item) => {
+            const title = localizedNewsTitle(item, locale);
             const team = detectTeamTag(item.title, item.summary);
             const teamColor = team ? resolveTeamUiColor(undefined, team) : undefined;
             const thumb = hasRealImage(item) ? item.image : null;
@@ -140,7 +144,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
 
                     {/* Headline */}
                     <span className="mt-1 line-clamp-2 block text-sm font-medium leading-snug text-text-hi transition-colors duration-150 group-hover:text-white">
-                      {item.title}
+                      {title}
                     </span>
                   </div>
                 </Link>

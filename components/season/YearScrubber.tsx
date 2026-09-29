@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 /**
  * Season year scrubber (design.md §3.3) — prev/next chevrons around the big year.
@@ -19,8 +19,14 @@ export function YearScrubber({
   const router = useRouter();
   const go = (y: number) => router.push(y === currentSeason ? '/season' : `/season/${y}`);
 
+  // Array of available seasons from newest to oldest
+  const years = Array.from(
+    { length: currentSeason - minSeason + 1 },
+    (_, i) => currentSeason - i,
+  );
+
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3 md:gap-4">
       <button
         type="button"
         aria-label="Previous season"
@@ -30,7 +36,25 @@ export function YearScrubber({
       >
         <Chevron dir="left" />
       </button>
-      <span className="hero-number text-[clamp(40px,6vw,72px)] text-text-hi">{year}</span>
+
+      <div className="relative group inline-flex items-center cursor-pointer">
+        <span className="hero-number text-[clamp(40px,6vw,72px)] text-text-hi transition-colors group-hover:text-accent">
+          {year}
+        </span>
+        <select
+          aria-label="Select season year"
+          value={year}
+          onChange={(e) => go(Number(e.target.value))}
+          className="absolute inset-0 w-full h-full cursor-pointer opacity-0 bg-transparent text-base"
+        >
+          {years.map((y) => (
+            <option key={y} value={y} className="bg-bg text-text-hi py-1">
+              {y}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <button
         type="button"
         aria-label="Next season"
