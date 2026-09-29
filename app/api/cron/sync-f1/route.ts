@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
 import { CURRENT_SEASON, isRaceWeekend, getLiveOrNextRace, type CalendarRace } from '@/lib/f1Calendar';
 import { getCircuitFacts } from '@/data/circuits/facts';
-import { fetchLiveCircuitWeather, circuitLocationFromCalendar } from '@/lib/data/circuits';
+import { fetchLiveCircuitWeather, circuitLocationFromCalendar, fetchTimeZoneForCoords } from '@/lib/data/circuits';
 import {
   fetchCalendar,
   fetchDriverStandings,
@@ -304,25 +304,28 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           r.data ?? {},
         ]),
       );
-      const rows = races.flatMap((r) => {
+      const pending = races.flatMap((r) => {
         const id = r.Circuit?.circuitId;
         const loc = circuitLocationFromCalendar(r.Circuit);
         if (!id || !loc) return [];
-        const facts = getCircuitFacts(id);
-        return [
-          {
+        const prev = existingById.get(id) as { location?: { timeZone?: string } } | undefined;
+        return [{ id, loc, name: r.Circuit?.circuitName, prevTz: prev?.location?.timeZone }];
+      });
+      // Time zone comes from coordinates (any new circuit works with no static data);
+      // looked up once per circuit, then persisted and reused.
+      const rows = await Promise.all(
+        pending.map(async ({ id, loc, name, prevTz }) => {
+          const timeZone =
+            prevTz ?? (await fetchTimeZoneForCoords(loc.lat, loc.lon)) ?? getCircuitFacts(id)?.timeZone;
+          return {
             id,
             data: {
               ...(existingById.get(id) ?? {}),
-              location: {
-                ...loc,
-                name: r.Circuit?.circuitName,
-                ...(facts?.timeZone ? { timeZone: facts.timeZone } : {}),
-              },
+              location: { ...loc, name, ...(timeZone ? { timeZone } : {}) },
             },
-          },
-        ];
-      });
+          };
+        }),
+      );
       if (rows.length > 0) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (db.from('circuits') as any).upsert(rows, { onConflict: 'id' });

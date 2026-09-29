@@ -347,3 +347,48 @@ export function circuitLocationFromCalendar(
   }
   return { lat, lon, locality: loc.locality, country: loc.country };
 }
+
+/**
+ * Look up an IANA time zone (e.g. "Asia/Kuala_Lumpur") from coordinates.
+ * Open-Meteo's `timezone=auto` resolves it — free, keyless, and works for any
+ * circuit added to the calendar in the future. Used ONLY by the sync-f1 cron.
+ * Returns null on any failure.
+ */
+export async function fetchTimeZoneForCoords(lat: number, lon: number): Promise<string | null> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&forecast_days=1&current=temperature_2m`,
+      { signal: controller.signal },
+    );
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const json = (await res.json()) as { timezone?: string };
+    return typeof json.timezone === 'string' && json.timezone ? json.timezone : null;
+  } catch {
+    return null;
+  }
+}
+
+/** DB-backed circuit location (written by sync-f1 into circuits.data.location). */
+export async function getCircuitLocation(
+  circuitId: string,
+): Promise<(CircuitLocation & { timeZone?: string }) | null> {
+  try {
+    const supabase = getSupabaseClient();
+    const { result, durationMs } = await timed(async () =>
+      supabase.from('circuits').select('data').eq('id', circuitId).maybeSingle<{ data: Json }>(),
+    );
+    logSupabaseCall('circuits', `location id=${circuitId}`, durationMs);
+    const data = result.data?.data;
+    if (result.error || !data || typeof data !== 'object' || Array.isArray(data)) return null;
+    const loc = (data as Record<string, unknown>).location as
+      | (CircuitLocation & { timeZone?: string })
+      | undefined;
+    return loc && Number.isFinite(loc.lat) && Number.isFinite(loc.lon) ? loc : null;
+  } catch {
+    return null;
+  }
+}
