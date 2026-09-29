@@ -91,6 +91,7 @@ async function HomeHeroBlock() {
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
   const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
+  const nextRaceFacts = getCircuitFacts(nextRace?.Circuit?.circuitId);
 
   const eyebrow = nextRace?.round
     ? `${CURRENT_SEASON} · Round ${nextRace.round}`
@@ -103,14 +104,13 @@ async function HomeHeroBlock() {
     ticker.push(`${CURRENT_SEASON} SEASON: ${doneCount}/${races.length} RACES COMPLETED`);
   }
   if (nextRace) {
-    const facts = getCircuitFacts(nextRace.Circuit?.circuitId);
     const nextLabel = (
       nextRace.Circuit?.Location?.locality ??
       nextRace.Circuit?.circuitName ??
       nextRace.raceName ??
       'Next round'
     ).toUpperCase();
-    const km = facts?.lengthKm != null ? ` (${facts.lengthKm} KM)` : '';
+    const km = nextRaceFacts?.lengthKm != null ? ` (${nextRaceFacts.lengthKm} KM)` : '';
     ticker.push(`NEXT: ${nextLabel}${km}`);
   }
 
@@ -123,6 +123,7 @@ async function HomeHeroBlock() {
         countdownTargetMs={nextRaceStart}
         circuitCoverSrc={circuitCover}
         sessions={weekendSessionChips(nextRace)}
+        circuitTimeZone={nextRaceFacts?.timeZone}
         lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
         lastRaceName={lastRaceRecap?.raceName}
         isLive={isLive}

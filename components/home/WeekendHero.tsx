@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
 import { Countdown } from './Countdown';
 import { LiveRaceTracker } from './LiveRaceTracker';
+import { LocalTime } from '@/components/time/LocalTime';
 
 export function WeekendHero({
   eyebrow,
@@ -11,6 +12,7 @@ export function WeekendHero({
   countdownTargetMs,
   circuitCoverSrc,
   sessions,
+  circuitTimeZone,
   lastWinnerName,
   lastRaceName,
   isLive = false,
@@ -21,6 +23,8 @@ export function WeekendHero({
   countdownTargetMs: number | null;
   circuitCoverSrc: string | null;
   sessions: WeekendSessionChip[];
+  /** Circuit's IANA timezone (data/circuits/facts.ts) — shown as secondary reference next to each session's visitor-local time. */
+  circuitTimeZone?: string | null;
   lastWinnerName?: string | null;
   lastRaceName?: string | null;
   /** True while the current session falls within RACE_LIVE_WINDOW_MS — swaps the countdown for LiveRaceTracker. */
@@ -91,7 +95,7 @@ export function WeekendHero({
                 <span key={s.id}>
                   <span className="text-text">{s.label}</span>
                   <span className="text-text-low">{' · '}</span>
-                  {s.when}
+                  <LocalTime startMs={s.startMs} fallback={s.when} circuitTimeZone={circuitTimeZone} />
                 </span>
               ))}
             </div>

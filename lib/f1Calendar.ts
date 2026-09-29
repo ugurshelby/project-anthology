@@ -52,7 +52,10 @@ export interface CalendarRace {
 export interface WeekendSessionChip {
   id: string;
   label: string;
+  /** UTC-formatted fallback ("Friday 04:30") — used for SSR paint before the client swaps to visitor-local time. */
   when: string;
+  /** UTC epoch ms — client components convert this to the viewer's own timezone. */
+  startMs: number;
 }
 
 function formatSessionWhen(slot: SessionSlot): string | null {
@@ -86,8 +89,9 @@ export function weekendSessionChips(race: CalendarRace | null | undefined): Week
   for (const [id, label, slot] of slots) {
     if (!slot) continue;
     const when = formatSessionWhen(slot);
-    if (!when) continue;
-    out.push({ id, label, when });
+    const startMs = sessionStartMs(slot);
+    if (!when || startMs === null) continue;
+    out.push({ id, label, when, startMs });
   }
   return out;
 }
