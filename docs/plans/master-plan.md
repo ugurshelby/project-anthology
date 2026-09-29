@@ -94,6 +94,12 @@ Spec: `docs/design/apex-design-language.md`
 - [x] **Görseli çekilemeyen haber artık hiç görünmüyor (2026-09-28):** `lib/news/aggregate.ts`'e `verifyImages()` eklendi — RSS'in verdiği görsel URL'si gerçekten HTTP 2xx + `image/*` content-type dönmüyorsa (404, redirect, silinmiş CDN asset'i) makale tamamen listeden düşüyor, "placeholder" veya boş thumbnail ile gösterilmiyor. Bounded concurrency (10) + 8sn toplam bütçe — `aggregate()`'in mevcut 15dk cache'i içinde çalıştığı için kullanıcı isteği başına maliyet yok. `lib/data/news.ts`'teki DB/statik fallback katmanlarına da aynı kural (defense-in-depth) eklendi.
 - [x] Atıf/yönlendirme denetlendi: her haberde kaynak adı + orijinal makale linki (`sourceName`/`url`) RSS'ten doğrudan geliyor, değiştirilmiyor — zaten doğruydu.
 
+### 🐛 UI-BUGS — antigravity kuyruğu (2026-09-29, tespit edildi, dokunulmadı)
+
+- [ ] **Season sayfası tablet (768px) kırık:** "2026" başlığı ve P2 kartı ekran dışına taşıyor, kaydırma ile erişilemiyor (içerik DOM'da var, görünmüyor). Race Calendar şeridi (R4-R23) aynı şekilde taşıyor. P1/P2 arka plan "hayalet numara" efekti isim/puan metniyle çakışıp okunmaz oluyor. `app/[locale]/season/page.tsx` + `components/season/HorizontalRaceStrip.tsx`/`SeasonTimeline.tsx` (`md:` sınıfı yok) — masaüstünde/mobilde sorun yok, sadece 768px bandı.
+- [ ] **Mojibake (bozuk karakter) — kesin kaynak bulundu:** `components/season/HorizontalRaceStrip.tsx` satır 76, 109, 131, 132 — kaynak dosyada kelimenin tam ortasına `Â·` ve `â€”` bayt dizisi gömülü (çalışma zamanı hatası değil, dosyaya yanlış encoding ile kaydedilmiş). `·`→`Â·`, `—`→`â€”` olarak düzeltilmeli. (`app/globals.css` ve `PosterHero.tsx:17`'de de var ama onlar sadece kod yorumu, kullanıcıya görünmüyor — düşük öncelik.)
+- [ ] **Anthology kart kapak görselleri siyah görünüyor:** Dosyalar diskte gerçekten var ve doğru path'e işaret ediyor (`public/stories/{slug}/landscape/01.png` — kontrol edildi, eksik asset değil). `components/anthology/StoryCard.tsx`'teki `opacity-55` + gradient overlay yığılması render'da resmi tamamen kapatıyor gibi görünüyor — görsel/CSS hata ayıklaması gerekiyor.
+
 ### 🤖 MOBİL-OTA (EAS build sonrası)
 
 - [ ] Cihazda Expo Go / preview test
