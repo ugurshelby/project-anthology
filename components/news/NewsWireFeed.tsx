@@ -1,7 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import type { NewsItem } from '@/lib/data/types';
+import { localizedNewsTitle } from '@/lib/news/i18n';
 import { detectTeamTag, formatWireTime } from '@/lib/news/categories';
 
 /**
@@ -15,6 +17,7 @@ export function NewsWireFeed({
   items: NewsItem[];
   heading?: string;
 }) {
+  const locale = useLocale();
   if (items.length === 0) return null;
 
   return (
@@ -26,6 +29,7 @@ export function NewsWireFeed({
       </summary>
       <ul className="divide-y divide-hairline">
         {items.map((item) => {
+          const title = localizedNewsTitle(item, locale);
           const team = detectTeamTag(item.title, item.summary);
           return (
             <li key={item.id}>
@@ -40,7 +44,7 @@ export function NewsWireFeed({
                   [{team ?? item.sourceName.toUpperCase().slice(0, 12)}]
                 </span>
                 <span className="min-w-0 flex-1 text-sm leading-snug text-text-hi group-hover:text-white">
-                  &ldquo;{item.title}&rdquo;
+                  &ldquo;{title}&rdquo;
                 </span>
                 <span className="data-tabular shrink-0 text-[13px] text-text-low">
                   Source: {item.sourceName}

@@ -611,7 +611,9 @@ export interface RaceResultRow {
   position: string;
   driverName: string;
   driverCode: string;
+  driverId?: string;
   constructorName: string;
+  constructorId?: string;
   grid: string | null;
   laps: string | null;
   /** Finishing time for the leader / gap for the rest, or the status (+1 Lap, DNF…). */
@@ -628,8 +630,8 @@ interface RawSessionResult {
   status?: string;
   Time?: { time?: string };
   FastestLap?: { rank?: string; Time?: { time?: string } };
-  Driver?: { givenName?: string; familyName?: string; code?: string };
-  Constructor?: { name?: string };
+  Driver?: { driverId?: string; givenName?: string; familyName?: string; code?: string };
+  Constructor?: { constructorId?: string; name?: string };
 }
 
 function toResultRow(r: RawSessionResult): RaceResultRow {
@@ -639,7 +641,9 @@ function toResultRow(r: RawSessionResult): RaceResultRow {
     position: r.position ?? '—',
     driverName: `${given} ${family}`.trim() || '—',
     driverCode: (r.Driver?.code ?? '').toLowerCase(),
+    driverId: r.Driver?.driverId,
     constructorName: r.Constructor?.name ?? '—',
+    constructorId: r.Constructor?.constructorId,
     grid: r.grid ?? null,
     laps: r.laps ?? null,
     timeOrStatus: r.Time?.time ?? r.status ?? '—',

@@ -1,6 +1,8 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
+import { localizedNewsTitle } from '@/lib/news/i18n';
 import { hasRealImage } from '@/lib/news/categories';
 import { formatDispatchAge } from '@/lib/news/time';
 import { NewsImageFallback } from '@/components/news/NewsImageFallback';
@@ -13,6 +15,7 @@ export function RelatedNewsList({
   items: NewsItem[];
   heading?: string;
 }) {
+  const locale = useLocale();
   if (items.length === 0) return null;
 
   return (
@@ -22,6 +25,7 @@ export function RelatedNewsList({
         {items.map((item) => {
           const age = formatDispatchAge(item.publishedTs);
           const hasImage = hasRealImage(item);
+          const title = localizedNewsTitle(item, locale);
           return (
             <li key={item.id}>
               <Link
@@ -51,7 +55,7 @@ export function RelatedNewsList({
                     className="mt-0.5 line-clamp-2 block font-condensed text-base font-700 leading-tight text-text-hi"
                     style={{ fontFamily: 'var(--font-condensed)' }}
                   >
-                    {item.title}
+                    {title}
                   </span>
                 </div>
               </Link>

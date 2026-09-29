@@ -1,6 +1,7 @@
-﻿import { ApexImage } from '@/components/media/ApexImage';
+import { ApexImage } from '@/components/media/ApexImage';
 import Link from 'next/link';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
+import type { CircuitWeather } from '@/lib/data/circuits';
 import { Countdown } from './Countdown';
 import { LiveRaceTracker } from './LiveRaceTracker';
 import { LocalTime } from '@/components/time/LocalTime';
@@ -15,6 +16,7 @@ export function WeekendHero({
   circuitTimeZone,
   lastWinnerName,
   lastRaceName,
+  weather,
   isLive = false,
 }: {
   eyebrow: string;
@@ -27,6 +29,7 @@ export function WeekendHero({
   circuitTimeZone?: string | null;
   lastWinnerName?: string | null;
   lastRaceName?: string | null;
+  weather?: CircuitWeather | null;
   /** True while the current session falls within RACE_LIVE_WINDOW_MS — swaps the countdown for LiveRaceTracker. */
   isLive?: boolean;
 }) {
@@ -77,7 +80,18 @@ export function WeekendHero({
       ) : null}
 
       <div className="relative z-10 flex h-full flex-col justify-end px-5 pb-6 md:px-8 md:pb-10 lg:px-16">
-        <span className="label-caps text-accent">{eyebrow}</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="label-caps text-accent">{eyebrow}</span>
+          {weather ? (
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-xs text-text-mid backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-semibold text-text-hi">{weather.temperatureC}°C</span>
+              <span>·</span>
+              <span>{weather.summary}</span>
+              {weather.windKmh ? <span>· {weather.windKmh} km/h wind</span> : null}
+            </div>
+          ) : null}
+        </div>
         <h1 className="display-hero mt-2 max-w-[18ch] italic uppercase leading-[0.86] text-text-hi">{title}</h1>
         {subtitle ? <p className="data-tabular mt-2 text-text-mid">{subtitle}</p> : null}
 
