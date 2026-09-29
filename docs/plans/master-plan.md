@@ -161,5 +161,6 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 - [ ] **Manuel — Efendim:** `supabase/migrations/20260929000004_news_stories.sql` Supabase SQL Editor'de çalıştırılacak
 - [ ] **Manuel — Efendim:** ücretsiz `GEMINI_API_KEY` (aistudio.google.com/apikey) `.env.local`'e (ve Vercel env'e) eklenecek; yedek: `GROQ_API_KEY`
 - [ ] sync-news'i 30 dk'da bir çalıştıran GitHub Actions workflow'u (Vercel Hobby günde 1 cron) — deploy aşamasında
+- [ ] antigravity devir planı: `docs/plans/news-stories-ui-handoff.md` (arka plan özeti + arayüz görevleri + kalite kapıları)
 - [ ] antigravity: haber detay sayfasında `item.sourceLinks` ile kaynak listesi + linkler; görselsiz hikâyede kapak alanı gizlenir (placeholder yok); `lib/news/voice.ts` tonunu ev sesine göre ince ayar
 

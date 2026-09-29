@@ -180,7 +180,10 @@ export async function getNewsById(id: string): Promise<NewsItem | null> {
 /**
  * Latest news. DB (news_cache) → /api/news → static fallback.
  */
-export async function getLatestNews(limit = 20): Promise<NewsItem[]> {
+export async function getLatestNews(
+  limit = 20,
+  opts: { includeImageless?: boolean } = {},
+): Promise<NewsItem[]> {
   // 0) Merged stories (7-day window). Lists/heroes only show stories that have a
   //    real cover; the detail page still renders imageless ones (getNewsById).
   try {
@@ -194,7 +197,8 @@ export async function getLatestNews(limit = 20): Promise<NewsItem[]> {
     );
     logSupabaseCall('news_stories', `select order published_at limit ${limit * 2}`, durationMs);
     if (!result.error && result.data?.length) {
-      const items = (result.data as NewsStoryRow[]).map(newsFromStory).filter(hasRealImage);
+      const all = (result.data as NewsStoryRow[]).map(newsFromStory);
+      const items = opts.includeImageless ? all : all.filter(hasRealImage);
       if (items.length > 0) return items.slice(0, limit);
     }
   } catch (err) {
