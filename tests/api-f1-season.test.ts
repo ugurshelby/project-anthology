@@ -50,7 +50,9 @@ describe('/api/f1-season — path whitelist (SSRF guard)', () => {
     '2024/5/results',
     '2024/5/qualifying',
     '2024/5/sprint',
+    '2024/5/pitstops',
     '2024/12/results.json',
+    '2024/12/pitstops.json',
   ];
 
   it.each(allowed)('allows %s', async (path) => {
@@ -68,7 +70,7 @@ describe('/api/f1-season — path whitelist (SSRF guard)', () => {
     // path traversal
     '2024/../../../etc/passwd',
     '../2024',
-    // unlisted endpoints
+    // unlisted / wrong-shape endpoints (pitstops is round-scoped, not season-scoped)
     '2024/pitstops',
     '2024/5/laps',
     'drivers',
