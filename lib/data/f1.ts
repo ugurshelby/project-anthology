@@ -227,7 +227,7 @@ async function fetchLiveSeasonSnapshot(
 async function fetchLiveRoundSnapshot(
   season: number,
   round: number,
-  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint'>,
+  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint' | 'pitstops'>,
   reason: string,
 ): Promise<MrData | null> {
   logFallback('supabase f1_snapshots (stale)', '/api/f1-season (proxy)', reason);
@@ -283,7 +283,7 @@ export const fetchSeasonSnapshotTyped = cache(async function fetchSeasonSnapshot
 export async function fetchRoundSnapshot(
   season: number,
   round: number,
-  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint'>,
+  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint' | 'pitstops'>,
 ): Promise<MrData | null> {
   const row = await fetchDbSnapshotRow(season, type, round);
 

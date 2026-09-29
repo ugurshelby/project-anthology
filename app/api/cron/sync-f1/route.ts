@@ -11,7 +11,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
-import { CURRENT_SEASON, isRaceWeekend, type CalendarRace } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, isRaceWeekend, getLiveOrNextRace, type CalendarRace } from '@/lib/f1Calendar';
+import { getCircuitFacts } from '@/data/circuits/facts';
+import { fetchLiveCircuitWeather } from '@/lib/data/circuits';
 import {
   fetchCalendar,
   fetchDriverStandings,
@@ -19,12 +21,14 @@ import {
   fetchResults,
   fetchQualifying,
   fetchSprint,
+  fetchPitStops,
   hasRaces,
   hasDriverStandings,
   hasConstructorStandings,
   hasResults,
   hasQualifyingResults,
   hasSprintResults,
+  hasPitStops,
 } from '@/lib/f1/sources/jolpica';
 import {
   ingestSeasonSnapshot,
@@ -267,11 +271,69 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           stats.errors.push(msg);
           console.warn(`[sync-f1] ${msg}`);
         }
+
+        // Pit stops are only published once the race has run — same trigger as results.
+        try {
+          const pitstops = await fetchPitStops(CURRENT_SEASON, round);
+          if (hasPitStops(pitstops)) {
+            await ingestRoundSnapshot(CURRENT_SEASON, round, 'pitstops', pitstops as unknown as Json, 'jolpica', stats);
+          }
+        } catch (err) {
+          const msg = `R${round} pitstops: ${err instanceof Error ? err.message : String(err)}`;
+          stats.errors.push(msg);
+          console.warn(`[sync-f1] ${msg}`);
+        }
       }
 
       if (!fetchQuali && !fetchSprintData && !fetchRaceResults) {
         stats.skipped++;
       }
+    }
+
+    // 6) Circuit weather — forward-looking only (Open-Meteo forecast for the
+    // live/next race's circuit). Every run refreshes that one row and drops
+    // any other circuit_weather row so a finished race's forecast never
+    // lingers — see migration 20260929000002 for the retention rationale.
+    try {
+      const db = getSupabaseAdmin();
+      const liveOrNext = getLiveOrNextRace(races, now);
+      const round = liveOrNext?.round != null ? Number(liveOrNext.round) : null;
+      const circuitId = liveOrNext?.Circuit?.circuitId;
+
+      if (round != null && Number.isFinite(round) && circuitId) {
+        const facts = getCircuitFacts(circuitId);
+        const weather = await fetchLiveCircuitWeather(facts?.lat, facts?.lon);
+        if (weather) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { error } = await (db.from('circuit_weather') as any).upsert(
+            {
+              circuit_id: circuitId,
+              season: CURRENT_SEASON,
+              round,
+              data: weather,
+              fetched_at: new Date().toISOString(),
+            },
+            { onConflict: 'season,round' },
+          );
+          if (error) stats.errors.push(`circuit_weather upsert: ${error.message}`);
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (db.from('circuit_weather') as any)
+          .delete()
+          .eq('season', CURRENT_SEASON)
+          .neq('round', round);
+      } else {
+        // Season over, nothing live/upcoming — no forward-looking forecast to keep.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (db.from('circuit_weather') as any).delete().eq('season', CURRENT_SEASON);
+      }
+      // Belt-and-braces: drop anything left over from a prior season (year rollover).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (db.from('circuit_weather') as any).delete().neq('season', CURRENT_SEASON);
+    } catch (err) {
+      const msg = `circuit_weather: ${err instanceof Error ? err.message : String(err)}`;
+      stats.errors.push(msg);
+      console.warn(`[sync-f1] ${msg}`);
     }
 
     return NextResponse.json({

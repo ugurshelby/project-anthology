@@ -41,6 +41,9 @@ const SUFFIX_MAP: Record<string, SnapshotType> = {
   sprint: 'sprint',
   // Circuit
   circuit: 'circuit',
+  // Pit stops
+  pitstops: 'pitstops',
+  pit_stops: 'pitstops',
 };
 
 /**

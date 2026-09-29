@@ -119,6 +119,11 @@ export async function fetchSprint(season: number, round: number): Promise<MRData
   return fetchJolpica(`${season}/${round}/sprint.json`);
 }
 
+/** Pit-stop log for a season+round (only meaningful once the race has run). */
+export async function fetchPitStops(season: number, round: number): Promise<MRData> {
+  return fetchJolpica(`${season}/${round}/pitstops.json`);
+}
+
 // ── Shape helpers ──────────────────────────────────────────────────────────
 
 export function hasRaces(data: MRData): boolean {
@@ -151,4 +156,9 @@ export function hasQualifyingResults(data: MRData): boolean {
 export function hasSprintResults(data: MRData): boolean {
   const races = (data.MRData as { RaceTable?: { Races?: Array<{ SprintResults?: unknown[] }> } })?.RaceTable?.Races;
   return Array.isArray(races) && races.length > 0 && Array.isArray(races[0]?.SprintResults) && races[0].SprintResults!.length > 0;
+}
+
+export function hasPitStops(data: MRData): boolean {
+  const races = (data.MRData as { RaceTable?: { Races?: Array<{ PitStops?: unknown[] }> } })?.RaceTable?.Races;
+  return Array.isArray(races) && races.length > 0 && Array.isArray(races[0]?.PitStops) && races[0].PitStops!.length > 0;
 }

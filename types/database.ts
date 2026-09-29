@@ -20,7 +20,8 @@ export type SnapshotType =
   | 'results'
   | 'qualifying'
   | 'sprint'
-  | 'circuit';
+  | 'circuit'
+  | 'pitstops';
 
 /** f1_snapshots.source set (frozen by CHECK constraint). */
 export type SnapshotSource = 'f1db' | 'jolpica' | 'openf1';
@@ -121,6 +122,10 @@ export interface NewsCacheRow {
   published_at: string | null;
   tags: string[] | null;
   cached_at: string;
+  /** Machine-translated (MyMemory) Turkish title — null until translated. */
+  title_tr: string | null;
+  /** Machine-translated (MyMemory) Turkish description — null until translated. */
+  description_tr: string | null;
 }
 export interface NewsCacheInsert {
   url: string;
@@ -132,8 +137,30 @@ export interface NewsCacheInsert {
   published_at?: string | null;
   // tags is text[] in Postgres; typed as unknown to satisfy supabase-js generics
   tags?: unknown;
+  title_tr?: string | null;
+  description_tr?: string | null;
 }
 export type NewsCacheUpdate = Partial<NewsCacheInsert>;
+
+// ── circuit_weather ──────────────────────────────────────────────────────────
+// Forward-looking only — never holds a row for a race that has already
+// finished (sync-f1 cron deletes those). See migration 20260929000002.
+export interface CircuitWeatherRow {
+  id: number;
+  circuit_id: string;
+  season: number;
+  round: number;
+  data: Json;
+  fetched_at: string;
+}
+export interface CircuitWeatherInsert {
+  circuit_id: string;
+  season: number;
+  round: number;
+  data: Json;
+  fetched_at?: string;
+}
+export type CircuitWeatherUpdate = Partial<CircuitWeatherInsert>;
 
 // ── push_subscriptions ───────────────────────────────────────────────────────
 export interface PushSubscriptionRow {
@@ -190,6 +217,12 @@ export interface Database {
         Row: PushSubscriptionRow;
         Insert: PushSubscriptionInsert;
         Update: PushSubscriptionUpdate;
+        Relationships: never[];
+      };
+      circuit_weather: {
+        Row: CircuitWeatherRow;
+        Insert: CircuitWeatherInsert;
+        Update: CircuitWeatherUpdate;
         Relationships: never[];
       };
     };

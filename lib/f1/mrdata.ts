@@ -790,6 +790,37 @@ export function getQualifyingRows(data: MrData | null): QualifyingRow[] {
   });
 }
 
+export interface PitStopRow {
+  driverId: string;
+  lap: string;
+  stop: string;
+  time: string;
+  /** Stationary duration in seconds, e.g. "23.451". */
+  duration: string;
+}
+
+/** Full pit-stop log from a round `pitstops` snapshot, sorted by lap then stop number. */
+export function getPitStopRows(data: MrData | null): PitStopRow[] {
+  const race = firstRace(data);
+  const stops = (race?.PitStops as Array<{
+    driverId?: string;
+    lap?: string;
+    stop?: string;
+    time?: string;
+    duration?: string;
+  }> | undefined) ?? [];
+
+  return stops
+    .map((s) => ({
+      driverId: s.driverId ?? '',
+      lap: s.lap ?? '',
+      stop: s.stop ?? '',
+      time: s.time ?? '',
+      duration: s.duration ?? '',
+    }))
+    .sort((a, b) => Number(a.lap) - Number(b.lap) || Number(a.stop) - Number(b.stop));
+}
+
 /** Collect unique circuit IDs from a calendar race list. */
 export function getCircuitIdsFromRaces(races: CalendarRace[]): string[] {
   const seen = new Set<string>();

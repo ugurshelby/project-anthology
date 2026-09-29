@@ -93,11 +93,13 @@ const WMO_SUMMARY: Record<number, string> = {
 };
 
 /**
- * Live local weather at a circuit via Open-Meteo (no API key, server-side).
- * Returns null on any failure or missing coordinates so the panel can hide
- * gracefully — weather is a nice-to-have, never a hard dependency of the page.
+ * Live fetch from Open-Meteo (no API key). Used ONLY by the sync-f1 cron to
+ * populate `circuit_weather` — page requests never call this directly (that
+ * would mean every visitor triggers an outbound fetch; see project rule on
+ * DB-backed reads). Returns null on any failure so the cron step degrades
+ * gracefully rather than failing the whole sync run.
  */
-export async function getCircuitWeather(
+export async function fetchLiveCircuitWeather(
   lat: number | undefined | null,
   lon: number | undefined | null,
 ): Promise<CircuitWeather | null> {
@@ -112,11 +114,7 @@ export async function getCircuitWeather(
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6000);
-    const res = await fetch(url, {
-      signal: controller.signal,
-      // Cache at the edge for 15 min, serve stale for an hour while revalidating.
-      next: { revalidate: 900 },
-    });
+    const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timeout);
     if (!res.ok) return null;
 
@@ -142,6 +140,33 @@ export async function getCircuitWeather(
       summary: WMO_SUMMARY[code] ?? 'Unknown',
       isDay: c.is_day !== 0,
     };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * DB-backed weather read for a circuit — pages read from here, never from
+ * Open-Meteo directly (avoids every visitor triggering an outbound fetch).
+ * A row only exists for the upcoming/current race weekend's circuit; the
+ * sync-f1 cron writes it and deletes it once that race has finished, so
+ * there is never a "yesterday's weather" row to accidentally serve.
+ */
+export async function getCircuitWeather(circuitId: string): Promise<CircuitWeather | null> {
+  try {
+    const supabase = getSupabaseClient();
+    const { result, durationMs } = await timed(async () =>
+      supabase
+        .from('circuit_weather')
+        .select('data')
+        .eq('circuit_id', circuitId)
+        .order('fetched_at', { ascending: false })
+        .limit(1)
+        .maybeSingle<{ data: Json }>(),
+    );
+    logSupabaseCall('circuit_weather', `circuit_id=${circuitId}`, durationMs);
+    if (result.error || !result.data?.data) return null;
+    return result.data.data as unknown as CircuitWeather;
   } catch {
     return null;
   }

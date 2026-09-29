@@ -69,7 +69,7 @@ export function isStandingsSnapshotStale(
 }
 
 export function isRoundSnapshotStale(
-  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint'>,
+  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint' | 'pitstops'>,
   round: number,
   fetchedAt: string | null | undefined,
   races: CalendarRace[],
@@ -78,6 +78,8 @@ export function isRoundSnapshotStale(
   const race = races.find((r) => Number(r.round) === round);
   if (!race) return false;
 
+  // Pit stops only exist once a race has run, and Jolpica publishes them
+  // alongside results — same due-window as 'results'.
   if (isRoundWeekend(race, now)) {
     if (type === 'qualifying') {
       const due = qualiSyncDueMs(race);
@@ -87,7 +89,7 @@ export function isRoundSnapshotStale(
       const due = sprintSyncDueMs(race);
       return due !== null && now.getTime() >= due && isOlderThan(fetchedAt, due);
     }
-    if (type === 'results') {
+    if (type === 'results' || type === 'pitstops') {
       const due = raceResultsSyncDueMs(race);
       return due !== null && now.getTime() >= due && isOlderThan(fetchedAt, due);
     }
@@ -104,7 +106,7 @@ export function isRoundSnapshotStale(
     const due = sprintSyncDueMs(race);
     return due !== null && now.getTime() >= due && isOlderThan(fetchedAt, due);
   }
-  if (type === 'results') {
+  if (type === 'results' || type === 'pitstops') {
     const start = raceStartMs(race);
     if (start === null || now.getTime() < start) return false;
     const due = raceResultsSyncDueMs(race);

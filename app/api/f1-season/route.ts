@@ -38,10 +38,11 @@ const FETCH_TIMEOUT_MS = 8000;
  *   {year}/{round}/results
  *   {year}/{round}/qualifying
  *   {year}/{round}/sprint
+ *   {year}/{round}/pitstops
  * Trailing `.json` is optional. Anything else is rejected.
  */
 const PATH_WHITELIST =
-  /^\d{4}(?:\/(?:driverStandings|constructorStandings)|\/\d{1,2}\/(?:results|qualifying|sprint))?(?:\.json)?$/;
+  /^\d{4}(?:\/(?:driverStandings|constructorStandings)|\/\d{1,2}\/(?:results|qualifying|sprint|pitstops))?(?:\.json)?$/;
 
 // Map the path's segment keyword to a canonical SnapshotType.
 // Must stay in sync with SUFFIX_MAP in lib/f1Ingest.ts.
@@ -51,6 +52,7 @@ const PATH_SEGMENT_TO_TYPE: Record<string, SnapshotType> = {
   results: 'results',
   qualifying: 'qualifying',
   sprint: 'sprint',
+  pitstops: 'pitstops',
 };
 
 interface ParsedPath {
