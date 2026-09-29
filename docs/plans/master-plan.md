@@ -69,7 +69,8 @@ Spec: `docs/design/apex-design-language.md`
 ### 🌐 I18N — Çoklu dil mimarisi (EN + TR)
 
 - [x] Mimari plan hazırlandı: `docs/plans/i18n-architecture.md` (next-intl, `/tr` prefix, mesaj sistemi, SEO/hreflang, dil değiştirici gereksinimi, anthology içerik şema önerisi) — 2026-09-28
-- [ ] Uygulama (antigravity) — plan dosyasındaki Faz 0-6 checklist'i
+- [x] Uygulama (antigravity) — Faz 0-5 tamam (next-intl, `app/[locale]/` route taşıma, mesaj sistemi, dil değiştirici, SEO/hreflang) — 2026-09-29
+- [ ] Faz 6 (QA — Lighthouse a11y tekrar ölçümü, tam TR/EN manuel gezinme) hâlâ açık
 
 ### 🤖 CANLI-TAKİP — Anlık yarış takip ekranı
 
