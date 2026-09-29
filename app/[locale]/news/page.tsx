@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { aggregate } from '@/lib/news/aggregate';
+import { getLatestNews } from '@/lib/data/news';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { hasRealImage } from '@/lib/news/categories';
 import { NewsLeadBlock } from '@/components/news/NewsLeadBlock';
@@ -30,11 +30,11 @@ export async function generateMetadata({
   };
 }
 
-// Pull live RSS on every request (aggregate() has its own 15-min in-memory cache).
-export const revalidate = 0;
+// DB-backed (news_stories, filled by the sync-news cron) — no live RSS on the request path.
+export const revalidate = 300;
 
 export default async function NewsPage() {
-  const news = await aggregate({ maxItems: 80 });
+  const news = await getLatestNews(80, { includeImageless: true });
   const withImages = news.filter(hasRealImage);
   const withoutImages = news.filter((item) => !hasRealImage(item));
 
