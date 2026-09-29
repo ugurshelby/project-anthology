@@ -121,11 +121,9 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
       (IP-tabanlı değil — daha doğru, ücretsiz), pist yereli varsa küçük ek bilgi olarak gösteriliyor.
       `components/time/LocalTime.tsx` yeniden kullanılabilir; şimdilik yalnızca ana sayfa `WeekendHero`'da
       uygulandı — round detay sayfası gibi diğer saat gösterimlerine antigravity aynı bileşeni takabilir.
-- [ ] **Manuel adım — Efendim:** 3 yeni migration (`20260929000001/2/3`) bu ortamdan Supabase'e uygulanamadı
-      (CLI doğrudan Postgres bağlantısı parola/ağ kısıtı nedeniyle kuramadı — `SUPABASE_DB_PASSWORD`
-      gerekiyor, `db push` "Connection timed out" verdi). Supabase Dashboard → SQL Editor'e üç dosyanın
-      içeriğini sırayla yapıştırıp çalıştırmanız gerekiyor, yoksa yeni kod prod'da sessizce boş veri döner
-      (mevcut sistemler etkilenmez, geriye dönük uyumlu).
+- [x] **Manuel adım — Efendim:** 3 yeni migration (`20260929000001/2/3`) Supabase'e uygulandı ve doğrulandı
+      (2026-09-29): `pitstops` tipi kabul ediliyor, `circuit_weather` tablosu ve `news_cache.title_tr` kolonu mevcut.
+      Tablolar sync-f1 cron'u çalıştıkça dolacak.
 
 ### 🤖 MOBİL-OTA (EAS build sonrası)
 
