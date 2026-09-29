@@ -327,3 +327,23 @@ export async function getCircuitDetail(circuitId: string): Promise<CircuitDetail
 export function nextCircuitIndex(cards: Pick<CircuitCard, 'done'>[]): number {
   return cards.findIndex((c) => !c.done);
 }
+
+export interface CircuitLocation {
+  lat: number;
+  lon: number;
+  locality?: string;
+  country?: string;
+}
+
+/** Parse the Jolpica/Ergast `Circuit.Location` (string lat/long) into numbers; null if unusable. */
+export function circuitLocationFromCalendar(
+  circuit: { Location?: { lat?: string; long?: string; locality?: string; country?: string } } | undefined | null,
+): CircuitLocation | null {
+  const loc = circuit?.Location;
+  const lat = Number(loc?.lat);
+  const lon = Number(loc?.long);
+  if (!loc || loc.lat == null || loc.long == null || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+    return null;
+  }
+  return { lat, lon, locality: loc.locality, country: loc.country };
+}
