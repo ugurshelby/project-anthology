@@ -18,6 +18,7 @@ import type { NewsStoryRow, NewsStorySource } from '@/types/database';
 export const NEWS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 const BATCH_SIZE = 4; // stories per AI request (free quotas count requests)
 const PACE_MS = 5_000; // gap between AI requests (free-tier per-minute limits)
+const IMAGE_CONCURRENCY = 8;
 const FALLBACK_TR_PER_RUN = 8; // MyMemory anonymous quota is tiny — titles only
 
 export interface StoryRunStats {
@@ -139,14 +140,23 @@ export async function buildStoryRows(
           rewritten: d.existing?.rewritten ?? false,
           cached_at: new Date().toISOString(),
         };
-    if (!unchanged || !row.image_url) {
-      const img = await bestImage(d.members);
-      if (img) row.image_url = img;
-    }
     row.published_at = new Date(d.publishedTs).toISOString();
     rows.push(row);
     if (!unchanged || !row.rewritten) jobs.push({ draft: d, row });
   }
+
+  // Image probes run with bounded concurrency (sequential probing made a run take minutes).
+  const needImage = rows.map((row, i) => ({ row, d: drafts[i] })).filter((x) => !x.row.image_url);
+  let nextImg = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(IMAGE_CONCURRENCY, needImage.length) }, async () => {
+      while (nextImg < needImage.length) {
+        const { row, d } = needImage[nextImg++];
+        const img = await bestImage(d.members);
+        if (img) row.image_url = img;
+      }
+    }),
+  );
 
   // Phase 2 — AI rewrite in batches. Multi-outlet stories first (most value per request), newest next.
   const exhausted = new Set<string>();
@@ -201,13 +211,17 @@ export async function buildStoryRows(
   stats.pending = Math.max(stats.pending, jobs.length - stats.rewritten);
 
   // Phase 3 — MyMemory title-only fallback for stories the AI hasn't covered (its anonymous quota is tiny).
+  let trFailures = 0;
   for (const row of rows) {
     if (stats.translatedFallback >= FALLBACK_TR_PER_RUN || Date.now() >= opts.deadlineMs) break;
+    if (trFailures >= 2) break; // quota spent / service down — don't burn minutes retrying every story
     if (row.rewritten || row.title_tr) continue;
     const tr = await translateToTurkish(row.title);
     if (tr) {
       row.title_tr = tr;
       stats.translatedFallback++;
+    } else {
+      trFailures++;
     }
   }
   return { rows, stats };
