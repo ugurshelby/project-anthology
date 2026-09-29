@@ -8,8 +8,9 @@
  * 5-10min cron invocations never double-notify the same session.
  *
  * Auth: Authorization: Bearer ${CRON_SECRET} (same as sync-f1/sync-news).
- * Triggered by a Railway scheduler, NOT a vercel.json cron entry (Vercel
- * Hobby-plan crons are limited to once/day; this needs 5-10min granularity).
+ * Triggered by GitHub Actions (.github/workflows/notify-sessions.yml, every
+ * 10min), NOT a vercel.json cron entry (Vercel Hobby-plan crons are limited
+ * to once/day; this needs 5-10min granularity).
  */
 
 import { NextRequest, NextResponse } from 'next/server';

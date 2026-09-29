@@ -26,7 +26,7 @@
 ### 🔴 Manuel — Efendim aksiyonu
 
 - [x] Vercel production deploy (push bildirim gönderme tarafı) — 2026-07-15, `49bda3f`
-- [ ] **Railway cron kur:** `apex-notify-sessions-cron` servisi (5-10dk schedule, `SITE_URL`+`CRON_SECRET`). Kod/kalıp hazır (`railway/apex-notify-sessions-cron/`); panelden servis oluşturmak Efendim'de. NOT: `vercel.json`'a cron EKLENMEDİ (Hobby = 1 cron/gün).
+- [x] ~~Railway cron kur~~ — **iptal, GitHub Actions'a geçildi** (2026-09-29): `railway/` klasörü kaldırıldı, `.github/workflows/notify-sessions.yml` (10dk schedule) `sync-f1-race-aware.yml` ile aynı repo secret/var'ı (`CRON_SECRET_KEY`+`SITE_URL`) kullanıyor — ayrı hesap/servis kurulumu gerekmiyor.
 - [x] EAS build test: preview APK alındı — 2026-07-15, build `6e9bd8f1`
 
 ### 🟠 EAS Build — Monorepo arşiv boyutu
@@ -63,7 +63,7 @@ Spec: `docs/design/apex-design-language.md`
 - [x] **Tam F1 tarihi backfill (1950–2026):** `seed:f1db` prod Supabase'e karşı 1950–2017 aralığı için çalıştırıldı (2018–2026 zaten doluydu). Doğrulama: 77/77 sezon, her sezonda calendar+results+standings, 0 hata. `scripts/seed-f1-history.ts` varsayılanı artık `F1_SEASON_MIN` (1950), `--from 2018` gibi eski dar aralık değil. — 2026-09-28
 - [x] Pilot numarası otomasyonu: `DriverStandingRow.permanentNumber` artık canlı Ergast/Jolpica'dan geliyor (`lib/f1/mrdata.ts`), `carNumberFor()` önce buna bakıyor — yeni bir pilot standings'e girer girmez numarası otomatik görünüyor, `data/drivers/index.ts`'e elle satır eklemek gerekmiyor (lore/bio metni hâlâ editöryel, opsiyonel). — 2026-09-28
 - [ ] 2026 sezon snapshot Jolpica ile kalıcı DB doldurması
-- [~] Push bildirim cron: endpoint `/api/cron/notify-sessions` canlıda (401 auth OK), `notified_sessions` tablosu uygulandı. Canlı uçtan-uca test Railway cron kurulunca yapılabilir.
+- [~] Push bildirim cron: endpoint `/api/cron/notify-sessions` canlıda (401 auth OK), `notified_sessions` tablosu uygulandı. GitHub Actions (`notify-sessions.yml`) 10dk'da bir tetikliyor — canlı uçtan-uca test (gerçek bir seans penceresinde bildirim gitti mi) sıradaki yarış haftasında yapılmalı.
 - [x] GitHub Actions `sync-f1-race-aware.yml` saatlik schedule yeniden açıldı (repo secret `CRON_SECRET_KEY` + var `SITE_URL` tanımlandı) — 2026-09-28. FP1/FP2/quali/sprint/race sonrası due-window tetiklemesi artık aktif.
 
 ### 🌐 I18N — Çoklu dil mimarisi (EN + TR)

@@ -77,7 +77,7 @@ Jolpica · F1DB · OpenF1 · RSS
 | `/api/cron/sync-news` | RSS → news_cache (06:00 UTC) |
 | `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (07:00 UTC) |
 | `/api/cron/sync-radio` | OpenF1 → radio_moments (08:00 UTC) |
-| `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (Railway cron, 5-10dk) |
+| `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (GitHub Actions `notify-sessions.yml`, 10dk) |
 | `/api/push/register` | Expo push token kayıt |
 | `/api/f1-season` | Canlı Jolpica proxy |
 | `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. |
@@ -85,6 +85,11 @@ Jolpica · F1DB · OpenF1 · RSS
 | `/api/season/[year]` | Sezon snapshot API |
 
 Cron auth: `Authorization: Bearer ${CRON_SECRET_KEY}`
+
+**GitHub Actions (5-10dk granülerlik gereken işler, Vercel Hobby günde-1-cron sınırını aşar):**
+`sync-f1-race-aware.yml` (saatlik, due-window tetikleme) ve `notify-sessions.yml` (10dk, doğrudan çağrı) —
+ikisi de aynı repo secret/var'ı kullanır (`CRON_SECRET_KEY`, `SITE_URL`). Ayrı bir hesap/servis (Railway
+vb.) gerekmiyor.
 
 ---
 
