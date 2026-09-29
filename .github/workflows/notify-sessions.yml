@@ -1,0 +1,30 @@
+name: notify-sessions
+
+# Push-notification trigger for upcoming qualifying/sprint/race sessions.
+# Needs 5-10min granularity (Vercel Hobby crons are limited to once/day), so
+# this runs on GitHub Actions instead — same pattern as sync-f1-race-aware.yml,
+# reusing the same repo secret/var (CRON_SECRET_KEY, SITE_URL). Replaces the
+# earlier Railway-based plan (railway/apex-notify-sessions-cron/, never
+# deployed) — no separate hosting account needed.
+#
+# The route itself dedupes via the notified_sessions table (see
+# app/api/cron/notify-sessions/route.ts), so frequent invocations are safe.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *' # every 10 minutes (UTC)
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Call notify-sessions
+        env:
+          CRON_SECRET_KEY: ${{ secrets.CRON_SECRET_KEY }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          curl -sf -X GET "${SITE_URL%/}/api/cron/notify-sessions" \
+            -H "Authorization: Bearer ${CRON_SECRET_KEY}" \
+            -w "\nHTTP %{http_code}\n"
