@@ -104,6 +104,9 @@ vb.) gerekmiyor.
 | `news_cache` | Agregat haberler |
 | `push_subscriptions` | Mobil push token'ları |
 | `notified_sessions` | Seans bildirimi dedupe guard'ı (season/round/session_type) |
+| `circuit_weather` | **İleriye-dönük SADECE** — yalnızca canlı/gelecek yarışın pisti (unique season+round); sync-f1 her çalıştığında biten yarışların satırını siler. Geçmiş hava durumu asla tutulmaz. |
+
+`f1_snapshots.type` artık `'pitstops'` de kabul ediyor (Jolpica `/pitstops.json`, race sonuçlarıyla aynı anda çekiliyor). `news_cache`'e `title_tr`/`description_tr` eklendi (MyMemory çevirisi, yalnızca eksik olanlar).
 
 Migration kuralı: `YYYYMMDDHHMMSS_*.sql` formatı zorunlu.
 
