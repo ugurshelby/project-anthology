@@ -64,6 +64,7 @@
   "common": {
     "loading": "Yükleniyor…",
     "error": "Bir şeyler ters gitti",
-    "retry": "Yeniden Dene"
+    "retry": "Yeniden Dene",
+    "circuitLocalTime": "Yerel"
   }
 }

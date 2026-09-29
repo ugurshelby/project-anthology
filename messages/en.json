@@ -64,6 +64,7 @@
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong",
-    "retry": "Retry"
+    "retry": "Retry",
+    "circuitLocalTime": "Local"
   }
 }

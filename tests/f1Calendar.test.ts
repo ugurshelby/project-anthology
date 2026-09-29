@@ -79,6 +79,7 @@ describe('weekendSessionChips', () => {
     });
     expect(chips.map((c) => c.id)).toEqual(['fp1', 'qualifying', 'race']);
     expect(chips[0]?.when).toMatch(/Friday/);
+    expect(chips[0]?.startMs).toBe(Date.parse('2026-09-04T11:30:00Z'));
     expect(chips[1]?.label).toBe('Qualifying');
     expect(chips[2]?.label).toBe('Race');
   });
