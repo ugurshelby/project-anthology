@@ -100,6 +100,33 @@ Spec: `docs/design/apex-design-language.md`
 - [x] **Mojibake (bozuk karakter) — düzeltildi (2026-09-29):** `components/season/HorizontalRaceStrip.tsx` içindeki `Â·` → `·`, `â€”` → `—` ve `â†’` → `→` karakterleri temizlendi. Ayrıca `app/globals.css` (Nötr, takım, başlık vb. yorumları) ve `components/home/PosterHero.tsx:17`'deki encoding kalıntıları düzeltildi.
 - [x] **Anthology kart kapak görselleri siyah görünüyor — düzeltildi (2026-09-29):** `components/anthology/StoryCard.tsx`'teki `min-h-56` (224px) darlığı, `opacity-55` solukluğu ve tabandan %55'e kadar katı/yarı-katı koyu gradient yığılması görseli tamamen boğuyordu. Kart yüksekliği editoryal nefes alanına kavuşturuldu (`min-h-[280px] sm:min-h-[320px]`, `wide: md:min-h-[360px]`), görsel opaklığı %80'e çıkarıldı (`group-hover:scale-105` ve `group-hover:opacity-95` eklendi), çift kademeli dengeli vignette + alttan metin koruma gradient'i uygulandı.
 
+### 🌍 VERİ-ZENGİLEŞTİRME — Pit-stop, hava durumu, çeviri, yerel saat (2026-09-29)
+
+Efendim kararı: pit-stop + hava durumu Google Cloud kredisine gerek kalmadan zaten mevcut kaynaklardan
+(Jolpica, Open-Meteo) DB-öncelikli çekilebilir; çeviri için kredi Aralık'ta bittiği için ücretsiz MyMemory
+kullanıldı; konum verisi asıl değerini "ziyaretçinin yerel saati" kuralında buluyor (ayrı bir Google Maps/
+Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + statik IANA tablo yeterli).
+
+- [x] **Pit-stop verisi (`19f3ee1`):** Jolpica `/pitstops.json` zaten mevcut kaynaktan geliyor — yeni API/kredi
+      gerekmedi. `f1_snapshots.type` CHECK constraint'ine `'pitstops'` eklendi, `/api/f1-season` whitelist
+      genişletildi, sync-f1 cron'u race sonuçlarıyla aynı anda çekiyor, `getPitStopRows()` veri katmanında
+      hazır (UI henüz bağlanmadı — antigravity dilerse kullanabilir).
+- [x] **Pist hava durumu (`19f3ee1`):** Yeni `circuit_weather` tablosu — **yalnızca canlı/gelecek yarışın
+      pisti**, geçmiş hava durumu asla tutulmuyor (sync-f1 her çalıştığında biten yarışlara ait satırları
+      siliyor). Open-Meteo'ya doğrudan istek yalnızca cron'da; sayfa okumaları DB'den (`getCircuitWeather`).
+- [x] **Haber TR çevirisi (`7d350d7`):** MyMemory (ücretsiz, anahtarsız) — `news_cache.title_tr`/`description_tr`,
+      yalnızca çevirisi olmayan makaleler çevriliyor (kota israfı yok). `NewsItem.titleTr/summaryTr` hazır,
+      hangi dilde gösterileceği UI tarafının kararı (stories'teki `titleTr` deseniyle tutarlı).
+- [x] **Yerel saat — genel kural (`4a4a8c1`):** Hero saat artık ziyaretçinin tarayıcı saat dilimine göre
+      (IP-tabanlı değil — daha doğru, ücretsiz), pist yereli varsa küçük ek bilgi olarak gösteriliyor.
+      `components/time/LocalTime.tsx` yeniden kullanılabilir; şimdilik yalnızca ana sayfa `WeekendHero`'da
+      uygulandı — round detay sayfası gibi diğer saat gösterimlerine antigravity aynı bileşeni takabilir.
+- [ ] **Manuel adım — Efendim:** 3 yeni migration (`20260929000001/2/3`) bu ortamdan Supabase'e uygulanamadı
+      (CLI doğrudan Postgres bağlantısı parola/ağ kısıtı nedeniyle kuramadı — `SUPABASE_DB_PASSWORD`
+      gerekiyor, `db push` "Connection timed out" verdi). Supabase Dashboard → SQL Editor'e üç dosyanın
+      içeriğini sırayla yapıştırıp çalıştırmanız gerekiyor, yoksa yeni kod prod'da sessizce boş veri döner
+      (mevcut sistemler etkilenmez, geriye dönük uyumlu).
+
 ### 🤖 MOBİL-OTA (EAS build sonrası)
 
 - [ ] Cihazda Expo Go / preview test
@@ -112,9 +139,7 @@ Spec: `docs/design/apex-design-language.md`
 
 | Madde | Tetik |
 |---|---|
-| GitHub Actions race-aware hourly cron | Billing + `CRON_SECRET_KEY` secret |
-| Pit-stop verisi | Ayrı kaynak gerekli |
-| 2025 eksik driver SVG (tsunoda, lawson) | AssetFallback OK |
+| 2025 eksik driver SVG (tsunoda, lawson) | AssetFallback OK (artık zaten fotoğrafsız politika var, madde geçersiz) |
 | `public/stories/` stray klasörler | Silinebilir |
 | Playwright e2e suite | Lighthouse/a11y otomasyonu |
 | Upstash env Vercel'de | `UPSTASH_REDIS_REST_URL` + `_TOKEN` |
