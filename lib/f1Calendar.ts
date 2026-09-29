@@ -24,7 +24,10 @@ export const CURRENT_SEASON: number = new Date().getUTCFullYear();
 export interface CalendarCircuit {
   circuitId?: string;
   circuitName?: string;
+  url?: string;
   Location?: {
+    lat?: string;
+    long?: string;
     locality?: string;
     country?: string;
   };

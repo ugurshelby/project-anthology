@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
 import { CURRENT_SEASON, isRaceWeekend, getLiveOrNextRace, type CalendarRace } from '@/lib/f1Calendar';
 import { getCircuitFacts } from '@/data/circuits/facts';
-import { fetchLiveCircuitWeather } from '@/lib/data/circuits';
+import { fetchLiveCircuitWeather, circuitLocationFromCalendar } from '@/lib/data/circuits';
 import {
   fetchCalendar,
   fetchDriverStandings,
@@ -290,6 +290,50 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       }
     }
 
+    // 5b) Circuit locations — persist each calendar circuit's coordinates into
+    // circuits.data.location (merged, so editorial keys are never overwritten).
+    // Source is the calendar Jolpica already returned — no extra API call.
+    try {
+      const db = getSupabaseAdmin();
+      const ids = races.map((r) => r.Circuit?.circuitId).filter((id): id is string => !!id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: existing } = await (db.from('circuits') as any).select('id, data').in('id', ids);
+      const existingById = new Map<string, Record<string, unknown>>(
+        ((existing ?? []) as Array<{ id: string; data: Record<string, unknown> | null }>).map((r) => [
+          r.id,
+          r.data ?? {},
+        ]),
+      );
+      const rows = races.flatMap((r) => {
+        const id = r.Circuit?.circuitId;
+        const loc = circuitLocationFromCalendar(r.Circuit);
+        if (!id || !loc) return [];
+        const facts = getCircuitFacts(id);
+        return [
+          {
+            id,
+            data: {
+              ...(existingById.get(id) ?? {}),
+              location: {
+                ...loc,
+                name: r.Circuit?.circuitName,
+                ...(facts?.timeZone ? { timeZone: facts.timeZone } : {}),
+              },
+            },
+          },
+        ];
+      });
+      if (rows.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (db.from('circuits') as any).upsert(rows, { onConflict: 'id' });
+        if (error) stats.errors.push(`circuits location upsert: ${error.message}`);
+      }
+    } catch (err) {
+      const msg = `circuits location: ${err instanceof Error ? err.message : String(err)}`;
+      stats.errors.push(msg);
+      console.warn(`[sync-f1] ${msg}`);
+    }
+
     // 6) Circuit weather — forward-looking only (Open-Meteo forecast for the
     // live/next race's circuit). Every run refreshes that one row and drops
     // any other circuit_weather row so a finished race's forecast never
@@ -302,7 +346,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
       if (round != null && Number.isFinite(round) && circuitId) {
         const facts = getCircuitFacts(circuitId);
-        const weather = await fetchLiveCircuitWeather(facts?.lat, facts?.lon);
+        // Coordinates: curated facts first, else the calendar's own Circuit.Location.
+        const fallback = circuitLocationFromCalendar(liveOrNext?.Circuit);
+        const weather = await fetchLiveCircuitWeather(
+          facts?.lat ?? fallback?.lat,
+          facts?.lon ?? fallback?.lon,
+        );
         if (weather) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const { error } = await (db.from('circuit_weather') as any).upsert(
