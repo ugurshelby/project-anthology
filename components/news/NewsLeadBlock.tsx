@@ -32,9 +32,16 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       )}
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-transparent" />
       <div className="relative z-10 flex flex-col gap-1.5">
-        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
-          {item.dateLabel} · {item.sourceName}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
+            {item.dateLabel} · {item.sourceName}
+          </span>
+          {item.sources && item.sources.length > 1 ? (
+            <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.2 text-[9px] font-mono text-text-mid">
+              {item.sources.length} {locale === 'tr' ? 'kaynak' : 'sources'}
+            </span>
+          ) : null}
+        </div>
         <span
           className="line-clamp-3 font-condensed text-lg font-700 uppercase leading-tight text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
@@ -63,6 +70,7 @@ export function NewsLeadBlock({
   const readMins = estimateReadMinutes(leadSummary, leadTitle);
   const leadHasImage = hasRealImage(lead);
   const side = secondary.slice(0, 2);
+  const leadSourcesCount = lead.sources?.length || lead.sourceLinks?.length || 1;
 
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5 lg:min-h-[420px]">
@@ -85,9 +93,16 @@ export function NewsLeadBlock({
         )}
         <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-transparent" />
         <div className="relative z-10 flex max-w-2xl flex-col gap-2 md:gap-3">
-          <span className="label-caps text-accent">
-            {locale === 'tr' ? 'Öne Çıkan Haber' : 'Featured Story'}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="label-caps text-accent">
+              {locale === 'tr' ? 'Öne Çıkan Haber' : 'Featured Story'}
+            </span>
+            {leadSourcesCount > 1 ? (
+              <span className="label-caps rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-text-mid">
+                {leadSourcesCount} {locale === 'tr' ? 'Kaynak' : 'Sources'}
+              </span>
+            ) : null}
+          </div>
           <h2
             className="line-clamp-3 font-condensed text-2xl font-700 uppercase leading-tight text-text-hi md:text-4xl md:leading-[1.05]"
             style={{ fontFamily: 'var(--font-condensed)' }}

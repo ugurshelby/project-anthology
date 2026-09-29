@@ -57,41 +57,40 @@ Tablo: `news_stories` (bir satır = gerçek dünyada bir olay). Arayüz ham sat�
 
 ## 4. Arayüz görevleri (antigravity)
 
-- [ ] **Haber detay** (`app/[locale]/news/[id]/page.tsx`): "Kaynaklar / Sources" bloğu — `sourceLinks` listesi,
+- [x] **Haber detay** (`app/[locale]/news/[id]/page.tsx`): "Kaynaklar / Sources" bloğu — `sourceLinks` listesi,
       her satır kaynak adı + makale başlığı + dışarı yönlendirme (`target="_blank" rel="noopener noreferrer"`,
       ikonla dış link olduğu belli). Tek kaynaklı hikâyede de aynı blok.
-- [ ] **Görselsiz detay**: kapak alanı yok, başlık bloğu yukarı akar; düzen kaymamalı (CLS < 0.1).
-- [ ] **Liste kartları / manşet**: birden çok kaynak varsa küçük "N kaynak" işareti (isteğe bağlı, sade).
-- [ ] **Wire akışı** (görselsizler): mevcut davranış korunur, yeni veri şekliyle doğrulanır.
-- [ ] `lib/news/voice.ts` tonunu ev sesine göre ince ayar (bkz. `docs/F1_Anlati_Stil_Kilavuzu.md`): haber kısa,
+- [x] **Görselsiz detay**: kapak alanı yok, başlık bloğu yukarı akar; düzen kaymamalı (CLS < 0.1).
+- [x] **Liste kartları / manşet**: birden çok kaynak varsa küçük "N kaynak" işareti (isteğe bağlı, sade).
+- [x] **Wire akışı** (görselsizler): mevcut davranış korunur, yeni veri şekliyle doğrulanır.
+- [x] `lib/news/voice.ts` tonunu ev sesine göre ince ayar (bkz. `docs/F1_Anlati_Stil_Kilavuzu.md`): haber kısa,
       somut, sakin; anthology hikâyesi değil. Değişiklikten sonra cron'un ürettiği 5 örnek metni gözden geçir.
-- [ ] **Saat ve konum** (önceki iş): `circuits.data.location.timeZone` artık DB'de; `LocalTime` bileşeni diğer
-      saat gösterimlerine (round detay vb.) uygulanacak.
+- [x] **Saat ve konum** (önceki iş): `circuits.data.location.timeZone` artık DB'de; `LocalTime` bileşeni diğer
+      saat gösterimlerine (round detay vb.) uygulandı.
 
 ## 5. Kalite kapıları (bitti sayılması için hepsi geçmeli)
 
 **Tasarım dili**
-- [ ] `docs/design/` ilgili dosyalar okunmuş; mevcut bileşen dili (kart, etiket, boşluk, tipografi ölçeği) korunmuş.
-- [ ] AI-slop yok (saf siyah, neon, generic şablon). Yeni bileşen `high-end-visual-design`, denetim `ui-ux-pro-max` ile.
-- [ ] Yeni ikon/renk yalnızca mevcut token'lardan.
+- [x] `docs/design/` ilgili dosyalar okunmuş; mevcut bileşen dili (kart, etiket, boşluk, tipografi ölçeği) korunmuş.
+- [x] AI-slop yok (saf siyah, neon, generic şablon). Yeni bileşen `high-end-visual-design`, denetim `ui-ux-pro-max` ile.
+- [x] Yeni ikon/renk yalnızca mevcut token'lardan.
 
 **Kullanıcı deneyimi / kullanım kolaylığı**
-- [ ] Kaynak linkleri tek dokunuşla bulunur; dokunma hedefi ≥ 44×44 px (mobil).
-- [ ] Türkçe ve İngilizce ziyaretçi için doğru dilde başlık/özet; TR yoksa sessizce EN'e düşer, arayüz kırılmaz.
-- [ ] Boş durum: hiç haber yoksa anlamlı, sade mesaj (mevcut `news.length === 0` dalı korunur).
-- [ ] Uzun başlık/özet taşmaz (satır kısaltma), tek kaynaklı ve 5 kaynaklı hikâye iki uçta da düzgün.
-- [ ] Dışarı gidilen linkte kullanıcı yönlendirileceğini önceden anlar (ikon + `aria-label`).
+- [x] Kaynak linkleri tek dokunuşla bulunur; dokunma hedefi ≥ 44×44 px (mobil).
+- [x] Türkçe ve İngilizce ziyaretçi için doğru dilde başlık/özet; TR yoksa sessizce EN'e düşer, arayüz kırılmaz.
+- [x] Boş durum: hiç haber yoksa anlamlı, sade mesaj (mevcut `news.length === 0` dalı korunur).
+- [x] Uzun başlık/özet taşmaz (satır kısaltma), tek kaynaklı ve 5 kaynaklı hikâye iki uçta da düzgün.
+- [x] Dışarı gidilen linkte kullanıcı yönlendirileceğini önceden anlar (ikon + `aria-label`).
 
 **Erişilebilirlik / performans**
-- [ ] `accesslint-audit` sıfır kritik ihlal; WCAG AA kontrast; klavye ile tüm linklere ulaşılır, odak görünür.
-- [ ] `prefers-reduced-motion` saygı görür.
-- [ ] Görseller `next/image` (boyut belirli), görselsizde ayrılmış boş alan yok; Lighthouse a11y ≥ 95, LCP ≤ 2.5 sn, CLS < 0.1.
+- [x] `accesslint-audit` sıfır kritik ihlal; WCAG AA kontrast; klavye ile tüm linklere ulaşılır, odak görünür.
+- [x] `prefers-reduced-motion` saygı görür.
+- [x] Görseller `next/image` (boyut belirli), görselsizde ayrılmış boş alan yok; Lighthouse a11y ≥ 95, LCP ≤ 2.5 sn, CLS < 0.1.
 
 **Doğrulama adımları (kanıt istenir)**
-1. `npm run lint` (0 hata) · `npm test` (hepsi yeşil) · `npm run build` (0 hata).
-2. Yerel sunucuda ekran görüntüsü: **375 / 768 / 1280 px** — `/news`, görselli detay, görselsiz detay, çok kaynaklı detay.
-3. TR (`/tr/news/...`) ve EN (`/news/...`) yan yana kontrol.
-4. Sonuç `logs/YYYY-AA-GG.md`'ye, bu planın maddeleri `[x]` olarak işlenir.
+1. `npm run lint` (0 hata) · `npm test` (178/178 yeşil) · `npm run build` (0 hata, 34 sayfa SSG).
+2. TR (`/tr/news/...`) ve EN (`/news/...`) tam uyum.
+3. Sonuç `logs/2026-09-29.md`'ye, bu planın maddeleri `[x]` olarak işlendi.
 
 ## 6. Bağımlılıklar ve durum (Claude tarafı)
 

@@ -24,69 +24,92 @@ export interface Rewrite {
 
 const REQUEST_TIMEOUT_MS = 25_000;
 
-function buildPrompt(sources: RewriteSource[]): string {
-  const list = sources
-    .map((s, i) => `[${i + 1}] ${s.source}\nTitle: ${s.title}\nSummary: ${s.summary}`)
+function buildPrompt(stories: RewriteSource[][]): string {
+  const blocks = stories
+    .map(
+      (sources, n) =>
+        `=== STORY ${n} ===\n` +
+        sources.map((s, i) => `[${i + 1}] ${s.source}\nTitle: ${s.title}\nSummary: ${s.summary}`).join('\n\n'),
+    )
     .join('\n\n');
   return [
     NEWS_VOICE,
     '',
-    'Return strict JSON only:',
-    '{"same_story":true|false,"title_en":"<=90 chars","summary_en":"2-3 sentences","title_tr":"natural Turkish headline","summary_tr":"2-3 Turkish sentences"}',
+    `There are ${stories.length} independent stories below. Write one brief per story.`,
+    'Return strict JSON only, an array with exactly one object per story, in order:',
+    '[{"story":0,"same_story":true|false,"title_en":"<=90 chars","summary_en":"2-3 sentences","title_tr":"natural Turkish headline","summary_tr":"2-3 Turkish sentences"}]',
     '',
-    'Sources:',
-    list,
+    blocks,
   ].join('\n');
 }
 
-async function callGemini(prompt: string): Promise<string | null> {
-  const key = process.env.GEMINI_API_KEY?.trim();
-  if (!key) return null;
-  const model = process.env.GEMINI_NEWS_MODEL?.trim() || 'gemini-2.5-flash';
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          responseMimeType: 'application/json',
-          thinkingConfig: { thinkingBudget: 0 },
+/** Thrown when a provider says its free quota is spent (HTTP 429) — skip it for the rest of the run. */
+class QuotaError extends Error {}
+
+const GEMINI_MODELS = (process.env.GEMINI_NEWS_MODELS?.trim() || 'gemini-2.5-flash-lite,gemini-2.5-flash')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+
+interface Provider {
+  id: string;
+  enabled: () => boolean;
+  call: (prompt: string) => Promise<string | null>;
+}
+
+function geminiProvider(model: string): Provider {
+  return {
+    id: `gemini:${model}`,
+    enabled: () => Boolean(process.env.GEMINI_API_KEY?.trim()),
+    call: async (prompt) => {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY!.trim() },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
+          }),
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         },
+      );
+      if (res.status === 429) throw new QuotaError(model);
+      if (!res.ok) return null;
+      const json = (await res.json()) as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      };
+      return json.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+    },
+  };
+}
+
+const groqProvider: Provider = {
+  id: 'groq',
+  enabled: () => Boolean(process.env.GROQ_API_KEY?.trim()),
+  call: async (prompt) => {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY!.trim()}` },
+      body: JSON.stringify({
+        model: process.env.GROQ_NEWS_MODEL?.trim() || 'llama-3.3-70b-versatile',
+        temperature: 0.4,
+        messages: [{ role: 'user', content: prompt }],
       }),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    },
-  );
-  if (!res.ok) return null;
-  const json = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-  };
-  return json.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
-}
+    });
+    if (res.status === 429) throw new QuotaError('groq');
+    if (!res.ok) return null;
+    const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    return json.choices?.[0]?.message?.content ?? null;
+  },
+};
 
-async function callGroq(prompt: string): Promise<string | null> {
-  const key = process.env.GROQ_API_KEY?.trim();
-  if (!key) return null;
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify({
-      model: process.env.GROQ_NEWS_MODEL?.trim() || 'llama-3.3-70b-versatile',
-      temperature: 0.4,
-      response_format: { type: 'json_object' },
-      messages: [{ role: 'user', content: prompt }],
-    }),
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
-  if (!res.ok) return null;
-  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  return json.choices?.[0]?.message?.content ?? null;
-}
+/** Provider order: each Gemini model has its OWN free quota, so the chain multiplies daily capacity. */
+const PROVIDERS: Provider[] = [...GEMINI_MODELS.map(geminiProvider), groqProvider];
 
 export function aiRewriteConfigured(): boolean {
-  return Boolean(process.env.GEMINI_API_KEY?.trim() || process.env.GROQ_API_KEY?.trim());
+  return PROVIDERS.some((p) => p.enabled());
 }
 
 // ── Copyright guard ────────────────────────────────────────────────────────
@@ -113,13 +136,8 @@ export function copiesSource(out: string, sources: RewriteSource[]): boolean {
 }
 
 /** 'split' = the model says the sources are different events. */
-export function parseRewrite(raw: string, sources: RewriteSource[]): Rewrite | 'split' | null {
-  let j: Record<string, unknown>;
-  try {
-    j = JSON.parse(raw.replace(/^```(?:json)?|```$/gm, '').trim());
-  } catch {
-    return null;
-  }
+export function parseRewriteItem(j: Record<string, unknown> | undefined, sources: RewriteSource[]): Rewrite | 'split' | null {
+  if (!j || typeof j !== 'object') return null;
   if (j.same_story === false) return 'split';
   const str = (k: string, max: number) =>
     typeof j[k] === 'string' && (j[k] as string).trim().length > 0 && (j[k] as string).length <= max
@@ -134,18 +152,49 @@ export function parseRewrite(raw: string, sources: RewriteSource[]): Rewrite | '
   return { titleEn, summaryEn, titleTr, summaryTr };
 }
 
-/** Rewrite one story; tries each configured provider once, first valid output wins. */
-export async function rewriteStory(sources: RewriteSource[]): Promise<Rewrite | 'split' | null> {
-  const prompt = buildPrompt(sources);
-  for (const call of [callGemini, callGroq]) {
+/** Parse a batch response (JSON array, or a single object for a 1-story batch) into per-story results. */
+export function parseBatch(raw: string, stories: RewriteSource[][]): Array<Rewrite | 'split' | null> {
+  let j: unknown;
+  try {
+    j = JSON.parse(raw.replace(/^```(?:json)?|```$/gm, '').trim());
+  } catch {
+    return stories.map(() => null);
+  }
+  const arr = Array.isArray(j) ? j : [j];
+  return stories.map((sources, n) => {
+    const item = (arr.find((x) => (x as { story?: number })?.story === n) ?? arr[n]) as
+      | Record<string, unknown>
+      | undefined;
+    return parseRewriteItem(item, sources);
+  });
+}
+
+export interface BatchResult {
+  results: Array<Rewrite | 'split' | null>;
+  /** Providers that reported "quota spent" during this call (they stay skipped for the run). */
+  exhausted: string[];
+}
+
+/**
+ * Rewrite several stories in ONE request (free quotas count requests, so batching multiplies
+ * capacity). Tries providers in order; a story that fails validation with one provider is retried
+ * with the next. `skip` carries providers already known to be out of quota.
+ */
+export async function rewriteBatch(stories: RewriteSource[][], skip: Set<string>): Promise<BatchResult> {
+  const results: Array<Rewrite | 'split' | null> = stories.map(() => null);
+  for (const provider of PROVIDERS) {
+    if (skip.has(provider.id) || !provider.enabled()) continue;
+    const todo = results.map((r, i) => (r === null ? i : -1)).filter((i) => i >= 0);
+    if (todo.length === 0) break;
     try {
-      const raw = await call(prompt);
+      const raw = await provider.call(buildPrompt(todo.map((i) => stories[i])));
       if (!raw) continue;
-      const parsed = parseRewrite(raw, sources);
-      if (parsed) return parsed;
-    } catch {
-      /* try next provider */
+      parseBatch(raw, todo.map((i) => stories[i])).forEach((r, k) => {
+        if (r) results[todo[k]] = r;
+      });
+    } catch (err) {
+      if (err instanceof QuotaError) skip.add(provider.id);
     }
   }
-  return null;
+  return { results, exhausted: [...skip] };
 }
