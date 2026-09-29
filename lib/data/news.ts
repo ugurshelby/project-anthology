@@ -7,7 +7,7 @@
  */
 
 import { getSupabaseClient } from '@/lib/supabase';
-import type { NewsCacheRow } from '@/types/database';
+import type { NewsCacheRow, NewsStoryRow } from '@/types/database';
 import { readPublicJson } from '@/lib/data/fs';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
 import { fetchSiteJson } from '@/lib/data/siteUrl';
@@ -68,6 +68,27 @@ function newsFromCache(row: NewsCacheRow): NewsItem {
     dateLabel: formatDateLabel(publishedAt),
     titleTr: row.title_tr,
     summaryTr: row.description_tr,
+  };
+}
+
+function newsFromStory(row: NewsStoryRow): NewsItem {
+  const publishedTs = Date.parse(row.published_at);
+  const links = Array.isArray(row.sources) ? row.sources : [];
+  return {
+    id: row.id,
+    title: row.title,
+    summary: row.summary,
+    url: links[0]?.url ?? '',
+    sourceName: links[0]?.name ?? '',
+    sources: links.map((l) => l.name),
+    // Empty string (never the placeholder) when no outlet had a reachable image.
+    image: row.image_url ?? '',
+    publishedAt: row.published_at,
+    publishedTs: Number.isFinite(publishedTs) ? publishedTs : 0,
+    dateLabel: formatDateLabel(row.published_at),
+    titleTr: row.title_tr,
+    summaryTr: row.summary_tr,
+    sourceLinks: links.map((l) => ({ name: l.name, url: l.url, title: l.title })),
   };
 }
 
@@ -140,6 +161,18 @@ export async function getNewsForEntity(
  * lookups), so this pulls a generous batch and filters in memory.
  */
 export async function getNewsById(id: string): Promise<NewsItem | null> {
+  // Stories are keyed by id — a direct lookup. Imageless stories are valid here
+  // (the detail page simply shows no cover; no placeholder).
+  try {
+    const supabase = getSupabaseClient();
+    const { result, durationMs } = await timed(async () =>
+      supabase.from('news_stories').select('*').eq('id', id).maybeSingle<NewsStoryRow>(),
+    );
+    logSupabaseCall('news_stories', `select id=${id}`, durationMs);
+    if (!result.error && result.data) return newsFromStory(result.data);
+  } catch (err) {
+    logFallback('supabase news_stories (by id)', 'latest-news chain', (err as Error).message);
+  }
   const items = await getLatestNews(100);
   return items.find((item) => item.id === id) ?? null;
 }
@@ -148,7 +181,27 @@ export async function getNewsById(id: string): Promise<NewsItem | null> {
  * Latest news. DB (news_cache) → /api/news → static fallback.
  */
 export async function getLatestNews(limit = 20): Promise<NewsItem[]> {
-  // 1) DB
+  // 0) Merged stories (7-day window). Lists/heroes only show stories that have a
+  //    real cover; the detail page still renders imageless ones (getNewsById).
+  try {
+    const supabase = getSupabaseClient();
+    const { result, durationMs } = await timed(async () =>
+      supabase
+        .from('news_stories')
+        .select('*')
+        .order('published_at', { ascending: false })
+        .limit(limit * 2),
+    );
+    logSupabaseCall('news_stories', `select order published_at limit ${limit * 2}`, durationMs);
+    if (!result.error && result.data?.length) {
+      const items = (result.data as NewsStoryRow[]).map(newsFromStory).filter(hasRealImage);
+      if (items.length > 0) return items.slice(0, limit);
+    }
+  } catch (err) {
+    logFallback('supabase news_stories', 'news_cache', (err as Error).message);
+  }
+
+  // 1) DB (legacy raw table)
   try {
     const supabase = getSupabaseClient();
     const { result, durationMs } = await timed(async () =>

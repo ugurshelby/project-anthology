@@ -16,4 +16,6 @@ export interface NewsItem {
   titleTr?: string | null;
   /** Machine-translated (MyMemory) Turkish summary — null/undefined when not yet translated; UI falls back to `summary`. */
   summaryTr?: string | null;
+  /** Every outlet that covered the story, with a link to its article (detail page attribution). */
+  sourceLinks?: Array<{ name: string; url: string; title: string }>;
 }
