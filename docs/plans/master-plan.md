@@ -86,7 +86,7 @@ Spec: `docs/design/apex-design-language.md`
 - [x] `components/media/ApexFallback.tsx` yeni birincil görsel: canlı veriden (isim/kod → baş harf, `--team-secondary` CSS değişkeni) rozet üretir — ek asset/API/maliyet yok, yeni pilot/takım için otomatik çalışır. `kind: 'team'` eklendi.
 - [x] `DriverMachineryCard`, `ProfileHero`, `TeamGarageHero`, `GarageTeamPanel`'deki eski `{logo ? <ApexImage kind="media"/> : null}` null-guard'ları kaldırıldı, `kind="team"` + `fallbackLabel={teamName}` ile her yerde rozet gösteriyor.
 - [ ] Efendim onaylamadı ama değerlendirilebilir: pist "kapak" görseli için `circuitIconSrc`'in gerçek MIT'li rota çizimini hero/kapak olarak kullanmak (şu an sadece küçük "track map" olarak kullanılıyor, kapak tamamen boş/gradient).
-- [x] **Tasarım brief'i antigravity'ye teslim edildi:** `docs/plans/driver-hero-visual-redesign.md` — `DriverProfileHero.tsx`'teki boş sağ-kesit alanı için 3 yön önerisi (numara-öne-çıkar / dev monogram / doku+numara hibriti), mevcut yeniden kullanılabilir yapı taşları (`team-pattern.ts`, `ApexFallback` initials mantığı), kabul kriterleri. Uygulama antigravity'nin kararı. — 2026-09-29
+- [x] **Tasarım brief'i antigravity'ye teslim edildi ve uygulandı:** `docs/plans/driver-hero-visual-redesign.md` — `DriverProfileHero.tsx` sağ-kesit alanına `DriverHeroGraphic` (takım DNA dokusu, monumental kondanse tipografik heykel, CAD blueprint çerçevesi ve yarış numarası rozeti) eklendi; sıfır telif/AI riskiyle tamamen veri-güdümlü olarak çalışıyor. `tests/driver-hero.test.ts` eklendi, build ve testler yeşil. — 2026-09-29
 
 ### 📰 HABER-KALİTE — Görsel doğrulama + atıf
 
