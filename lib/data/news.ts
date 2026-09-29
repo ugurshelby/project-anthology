@@ -65,6 +65,8 @@ function newsFromCache(row: NewsCacheRow): NewsItem {
     publishedAt,
     publishedTs: Number.isFinite(publishedTs) ? publishedTs : 0,
     dateLabel: formatDateLabel(publishedAt),
+    titleTr: row.title_tr,
+    summaryTr: row.description_tr,
   };
 }
 
