@@ -135,6 +135,9 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
         imageSrc={portrait}
         imageAlt={profile.driverName}
         editorialTagline={lore ? editorialTaglineFromLore(lore) : null}
+        driverCode={profile.driverCode}
+        constructorId={profile.constructorId}
+        constructorName={profile.constructorName}
       />
 
       <div className="mt-4 md:mt-6">
