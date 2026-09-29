@@ -145,6 +145,32 @@ export type NewsCacheUpdate = Partial<NewsCacheInsert>;
 // ── circuit_weather ──────────────────────────────────────────────────────────
 // Forward-looking only — never holds a row for a race that has already
 // finished (sync-f1 cron deletes those). See migration 20260929000002.
+// ── news_stories ─────────────────────────────────────────────────────────────
+// One row per real-world story merged from several outlets (7-day retention).
+// See migration 20260929000004.
+export interface NewsStorySource {
+  name: string;
+  url: string;
+  title: string;
+  published_at: string | null;
+}
+export interface NewsStoryRow {
+  id: string;
+  title: string;
+  summary: string;
+  title_tr: string | null;
+  summary_tr: string | null;
+  image_url: string | null;
+  published_at: string;
+  sources: NewsStorySource[];
+  fingerprint: string;
+  rewritten: boolean;
+  cached_at: string;
+}
+export type NewsStoryInsert = Omit<NewsStoryRow, 'cached_at' | 'title_tr' | 'summary_tr' | 'image_url'> &
+  Partial<Pick<NewsStoryRow, 'cached_at' | 'title_tr' | 'summary_tr' | 'image_url'>>;
+export type NewsStoryUpdate = Partial<NewsStoryInsert>;
+
 export interface CircuitWeatherRow {
   id: number;
   circuit_id: string;
@@ -217,6 +243,12 @@ export interface Database {
         Row: PushSubscriptionRow;
         Insert: PushSubscriptionInsert;
         Update: PushSubscriptionUpdate;
+        Relationships: never[];
+      };
+      news_stories: {
+        Row: NewsStoryRow;
+        Insert: NewsStoryInsert;
+        Update: NewsStoryUpdate;
         Relationships: never[];
       };
       circuit_weather: {

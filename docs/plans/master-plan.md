@@ -154,3 +154,12 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 | `docs/vision/technical.md` | Agent teknik özet |
 | `docs/design/apex-design-language.md` | Apex özel tasarım dili (onaylı kararlar) |
 | `docs/design/design.md/` | Genel tasarım prensipleri |
+
+## Haber hikâyeleri: birleştirme + özgün yazım (2026-09-29)
+- [x] Pist konumu + saat dilimi DB'de (`circuits.data.location`), statik veriden bağımsız
+- [x] Kümeleme (`lib/news/cluster.ts`), yeniden yazım (`rewrite.ts`, telif koruması), pipeline (`stories.ts`), sync-news yeniden yazıldı, okuma katmanı `news_stories`'tan okuyor, testler (177/177)
+- [ ] **Manuel — Efendim:** `supabase/migrations/20260929000004_news_stories.sql` Supabase SQL Editor'de çalıştırılacak
+- [ ] **Manuel — Efendim:** ücretsiz `GEMINI_API_KEY` (aistudio.google.com/apikey) `.env.local`'e (ve Vercel env'e) eklenecek; yedek: `GROQ_API_KEY`
+- [ ] sync-news'i 30 dk'da bir çalıştıran GitHub Actions workflow'u (Vercel Hobby günde 1 cron) — deploy aşamasında
+- [ ] antigravity: haber detay sayfasında `item.sourceLinks` ile kaynak listesi + linkler; görselsiz hikâyede kapak alanı gizlenir (placeholder yok); `lib/news/voice.ts` tonunu ev sesine göre ince ayar
+

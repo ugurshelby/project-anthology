@@ -121,7 +121,8 @@ Migration kuralı: `YYYYMMDDHHMMSS_*.sql` formatı zorunlu.
 | `SUPABASE_SERVICE_ROLE_KEY` | Server yazma (asla client'a sızmaz) |
 | `CRON_SECRET_KEY` | Cron auth |
 | `NEXT_PUBLIC_SITE_URL` | RSC self-fetch |
-| `GEMINI_API_KEY` | Haber özeti (opsiyonel) |
+| `GEMINI_API_KEY` | Haber birleştirme/yeniden yazım (ücretsiz katman, opsiyonel; AI Studio'dan) |
+| `GROQ_API_KEY` | Aynı iş için yedek sağlayıcı (ücretsiz katman, opsiyonel) |
 | `UPSTASH_REDIS_REST_URL/TOKEN` | Rate-limit (opsiyonel) |
 
 ---
@@ -145,3 +146,12 @@ cd mobile && npm start
 2. `isSeasonSnapshotContentInvalid()` — boş DB snapshot atlanır, Jolpica fallback.
 3. Pilot/takım/araç görseli **yok artık** — `driverIconSrc()`/`teamIconSrc()`/`carSrc()` hep `null` döner, `ApexFallback` rozet render eder (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
 4. Paralel `npm run build` kilitleme riski — tek build aynı anda.
+
+
+## Haber hikâyeleri (news_stories)
+
+- `sync-news` → RSS → `lib/news/cluster.ts` (olay bazlı kümeleme, transitif değil) → `lib/news/stories.ts` (kararlı id, en iyi görsel = ulaşılabilir en büyük, AI yeniden yazım EN+TR, parmak izi ile yalnız yeni/değişen) → `news_stories` tablosu.
+- Yeniden yazım `lib/news/rewrite.ts` (Gemini → Groq, ücretsiz katman; telif koruması: kaynakla 5+ ardışık kelime örtüşürse çıktı reddedilir). Ses/ton tek yerden: `lib/news/voice.ts`.
+- AI anahtarı yoksa hikâye en iyi kaynağın kendi başlığı/özetiyle kalır (`rewritten=false`), TR başlık MyMemory ile (günde küçük kota).
+- Saklama: 7 gün (news_stories + news_cache). Sayfalar yalnız DB okur (`lib/data/news.ts`), görseli olmayan hikâye listelerde çıkmaz, detayda kapaksız gösterilir.
+- Pist konumu/saat dilimi: `circuits.data.location` (sync-f1, Jolpica takvimi + Open-Meteo `timezone=auto`).

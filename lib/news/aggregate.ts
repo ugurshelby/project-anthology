@@ -587,3 +587,66 @@ export async function aggregate(opts: AggregateOptions = {}): Promise<NewsItem[]
     throw err;
   }
 }
+
+// ── Raw feed access (story pipeline) ───────────────────────────────────────
+
+/**
+ * F1-filtered, canonical-URL-deduped articles from every source — NOT
+ * clustered and NOT image-filtered. The sync-news story pipeline clusters
+ * them itself (lib/news/cluster.ts) and picks the best reachable image per
+ * story (lib/news/stories.ts).
+ */
+export async function fetchRawNews(): Promise<RawNewsItem[]> {
+  await ensureXMLParser();
+  const totalDeadline = Date.now() + TOTAL_TIMEOUT_MS;
+  const settled = await Promise.allSettled(
+    NEWS_SOURCES.map((source) => {
+      const ctrl = new AbortController();
+      const budget = Math.min(PER_FEED_TIMEOUT_MS, Math.max(1_000, totalDeadline - Date.now()));
+      const timer = setTimeout(() => ctrl.abort(), budget);
+      return fetchRSSFeed(source, ctrl.signal).finally(() => clearTimeout(timer));
+    }),
+  );
+  const all: RawNewsItem[] = [];
+  settled.forEach((r) => {
+    if (r.status === 'fulfilled') all.push(...r.value);
+  });
+  const seen = new Map<string, RawNewsItem>();
+  for (const it of all.filter((x) => isF1Related(x))) {
+    const existing = seen.get(it.canonicalUrl);
+    if (!existing || it.publishedTs > existing.publishedTs) seen.set(it.canonicalUrl, it);
+  }
+  return Array.from(seen.values());
+}
+
+/** Reachability check for one image URL (bounded, never throws). */
+export async function isImageReachable(url: string): Promise<boolean> {
+  const ctrl = new AbortController();
+  try {
+    return await imageIsReachable(url, ctrl.signal);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Probe an image: returns its size in bytes (Content-Length; 1 when the server
+ * doesn't say) if it resolves to a real image, else null. Used to prefer the
+ * highest-resolution reachable cover among a story's outlets.
+ */
+export async function probeImage(url: string): Promise<number | null> {
+  try {
+    const res = await fetch(url, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(IMAGE_CHECK_TIMEOUT_MS),
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ProjectAnthology/1.0)' },
+    });
+    if (!res.ok || !(res.headers.get('content-type') || '').startsWith('image/')) {
+      return (await isImageReachable(url)) ? 1 : null;
+    }
+    const len = Number(res.headers.get('content-length'));
+    return Number.isFinite(len) && len > 0 ? len : 1;
+  } catch {
+    return null;
+  }
+}
