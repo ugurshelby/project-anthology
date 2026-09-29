@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -35,17 +35,17 @@ export function HorizontalRaceStrip({
   const selected = summaries.find((s) => s.round === selectedRound) ?? summaries[0];
 
   return (
-    <div className="mb-8 flex flex-col gap-4">
+    <div className="mb-8 flex w-full max-w-full min-w-0 flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="label-caps text-text-mid">Race calendar</span>
         {selected ? (
           <Link href={`/season/${season}/round/${selected.round}`} className="label-caps text-accent hover:opacity-80">
-            Full weekend â†’
+            Full weekend →
           </Link>
         ) : null}
       </div>
 
-      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex w-full max-w-full min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {summaries.map((race) => {
           const isNext = !race.done && race.round === nextRound;
           const isActive = race.round === selectedRound;
@@ -73,7 +73,7 @@ export function HorizontalRaceStrip({
                 {gpShortName(race.raceName)}
               </span>
               <span className="data-tabular mt-1 block text-[13px] text-text-low">
-                {race.done && race.winnerCode ? race.winnerCode.toUpperCase() : isNext ? 'NEXT' : 'â€”'}
+                {race.done && race.winnerCode ? race.winnerCode.toUpperCase() : isNext ? 'NEXT' : '—'}
               </span>
             </button>
           );
@@ -106,7 +106,7 @@ function RaceMicroSummary({
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <span className="label-caps flex items-center gap-1.5 text-text-mid">
             {flag ? <span aria-hidden>{flag}</span> : null}
-            R{race.round} Â· {race.country}
+            R{race.round} · {race.country}
             {isNext ? (
               <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-accent/40 bg-accent/10 px-2 py-0.5 text-accent">
                 <span aria-hidden className="h-1 w-1 animate-pulse rounded-full bg-accent" />
@@ -128,12 +128,12 @@ function RaceMicroSummary({
           )}
           {race.fastestLapDriver ? (
             <span className="label-caps text-text-low">
-              FL Â· {race.fastestLapDriver}
-              {race.fastestLapTime ? ` Â· ${race.fastestLapTime}` : ''}
+              FL · {race.fastestLapDriver}
+              {race.fastestLapTime ? ` · ${race.fastestLapTime}` : ''}
             </span>
           ) : null}
           <Link href={`/season/${season}/round/${race.round}`} className="label-caps mt-1 w-fit text-accent hover:opacity-80">
-            Open round â†’
+            Open round →
           </Link>
         </div>
         {svg ? (

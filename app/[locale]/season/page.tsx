@@ -57,10 +57,10 @@ export default async function SeasonPage() {
 
   return (
     <PageShell>
-      <div className="relative">
+      <div className="relative w-full max-w-full min-w-0">
         <span aria-hidden className="film-grain pointer-events-none fixed inset-0 z-0" />
 
-        <div className="relative z-10 flex flex-col">
+        <div className="relative z-10 flex w-full max-w-full min-w-0 flex-col">
           <SeasonTitleFightHero
             year={CURRENT_SEASON}
             minSeason={F1_SEASON_MIN}

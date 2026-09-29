@@ -15,14 +15,14 @@ export function SeasonTimeline({
   const total = races.length;
 
   return (
-    <div className="mb-6 flex flex-col gap-3">
+    <div className="mb-6 flex w-full max-w-full min-w-0 flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="label-caps text-text-mid">Season timeline</span>
         <span className="data-tabular text-text-low">
           {races.filter((r) => isRaceDone(r)).length} / {total} rounds
         </span>
       </div>
-      <div className="relative flex h-8 items-center gap-0.5 overflow-x-auto pb-1">
+      <div className="relative flex h-8 w-full max-w-full min-w-0 items-center gap-0.5 overflow-x-auto pb-1">
         {races.map((race) => {
           const round = String(race.round ?? '');
           const done = isRaceDone(race);
