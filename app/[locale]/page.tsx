@@ -22,7 +22,7 @@ import {
   weekendSessionChips,
 } from '@/lib/f1Calendar';
 import { getCircuitFacts } from '@/data/circuits/facts';
-import { getCircuitWeather } from '@/lib/data/circuits';
+import { getCircuitWeather, getCircuitLocation } from '@/lib/data/circuits';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { pickWeekendStory } from '@/lib/home/pickWeekendStory';
 import { WeekendHero } from '@/components/home/WeekendHero';
@@ -96,6 +96,9 @@ async function HomeHeroBlock() {
   const circuitWeather = nextRace?.Circuit?.circuitId
     ? await getCircuitWeather(nextRace.Circuit.circuitId)
     : null;
+  const nextRaceLocation = nextRace?.Circuit?.circuitId
+    ? await getCircuitLocation(nextRace.Circuit.circuitId)
+    : null;
 
   const eyebrow = nextRace?.round
     ? `${CURRENT_SEASON} · Round ${nextRace.round}`
@@ -127,7 +130,7 @@ async function HomeHeroBlock() {
         countdownTargetMs={nextRaceStart}
         circuitCoverSrc={circuitCover}
         sessions={weekendSessionChips(nextRace)}
-        circuitTimeZone={nextRaceFacts?.timeZone}
+        circuitTimeZone={nextRaceLocation?.timeZone ?? nextRaceFacts?.timeZone}
         lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
         lastRaceName={lastRaceRecap?.raceName}
         weather={circuitWeather}
