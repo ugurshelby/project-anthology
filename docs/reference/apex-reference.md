@@ -47,7 +47,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 
 ### Broken or wrong relative to the code and the live host
 
-- `lib/data/siteUrl.ts` still falls back to `https://project-anthology-seven.vercel.app` [VERIFIED: file]. That host returned HTTP 404 [VERIFIED: `Invoke-WebRequest`]. On Vercel the function prefers `NEXT_PUBLIC_SITE_URL`, then `VERCEL_URL`, and only then this constant [VERIFIED: `lib/data/siteUrl.ts`]. The live canonical is the eight host, so production is not currently serving the seven URL [VERIFIED: homepage HTML]. The constant is still a dead fallback.
+- Fixed 2026-10-01: `lib/data/siteUrl.ts` used to fall back to `https://project-anthology-seven.vercel.app`, which returns HTTP 404 [VERIFIED: `curl`]. The single exported constant `PROD_SITE_URL` is now the eight host, and `scripts/sync-f1-scheduled.ts` imports it (`tests/siteUrl.test.ts`). On Vercel the function prefers `NEXT_PUBLIC_SITE_URL`, then `VERCEL_URL`, and only then this constant [VERIFIED: `lib/data/siteUrl.ts`]. The live canonical is the eight host [VERIFIED: homepage HTML].
 - Local `npm run build` warned that `metadataBase` resolved to `http://localhost:3000` [VERIFIED: build log]. `.env.local` does not define `NEXT_PUBLIC_SITE_URL` [VERIFIED: key-name parse of `.env.local`]. A local production build therefore does not match the live canonical host.
 - Sentry source-map upload during this build was skipped. The CLI reported `Project not found` for org `anthology-z0`, project `project-anthology` [VERIFIED: `next.config.ts` and the build log]. Whether production Sentry receives events was not checked.
 - Legal pages link to placeholder mailboxes `privacy@apexstats.example`, `dmca@apexstats.example`, and `contact@apexstats.example` [VERIFIED: `app/[locale]/(legal)/*/page.tsx`].
@@ -444,7 +444,7 @@ Deleted on 2026-10-01 (git history is the archive): `docs/PLAN.md`, `docs/plans/
 Last verified: 2026-10-01
 
 1. **Legal pages claim a real privacy and DMCA process. The mailboxes are `.example` placeholders, and analytics load without the consent the privacy page promises.** [VERIFIED: legal pages, layout, search for a consent component.] `ROADMAP.md` phase 1 and `AGENTS.md` say these surfaces are required before production is acceptable. The pages exist. The mechanism does not.
-2. **The production hostname is not one value.** Live site and most new docs say eight. `lib/data/siteUrl.ts` falls back to seven, which 404s. Local build canonicals fell back to localhost because `NEXT_PUBLIC_SITE_URL` is absent in `.env.local`. Older docs still say five. This class of bug has already shipped once (`6ab76cb`).
+2. **Production hostname drift.** Fixed in code 2026-10-01 (one `PROD_SITE_URL`, eight host). Still open: `NEXT_PUBLIC_SITE_URL` is absent from `.env.local`, so a local production build warns `metadataBase` is localhost; the Vercel and GitHub `SITE_URL` values are owner-side (section 13).
 3. **Anthology still serves a large set of photographs after a written photo-free, license-or-remove policy.** Grid photos were removed. `public/stories` still has 124 files. The ingestion report describes real race photographs. `AGENTS.md` says an asset with an unclear license does not ship. No per-file license ledger was found in this pass [UNVERIFIED: each file’s license was not opened].
 5. **No pull-request gate runs lint, types, tests, or build.** Quality on 2026-10-01 was good only because this analysis ran the commands. `ROADMAP.md` phase 4 says those gates are part of release. They are not installed.
 6. **Rate limiting and cron locking are only as strong as Upstash in production, which is unconfirmed for the current Vercel project.** The code degrades to per-instance memory. The news and F1 crons are also scheduled twice (Vercel daily and GitHub hourly).
@@ -461,8 +461,6 @@ Last verified: 2026-10-01
 
 These items are not done. Order follows section 10.
 
-1. **One public origin.** Remove the seven-host fallback or point it at eight. Set `NEXT_PUBLIC_SITE_URL` in every environment that builds metadata. Update README, lessons, and technical.md in the same change.
-   Done when: a local production build does not warn that `metadataBase` is localhost; `siteUrl.ts` contains no host that returns 404; the live canonical stays `https://project-anthology-eight.vercel.app`.
 2. **Make the privacy page true.** Either gate Analytics and Speed Insights behind an opt-in, or change the privacy copy so it does not say they are off until consent. Replace `privacy@`, `dmca@`, and `contact@apexstats.example` with addresses the owner monitors.
    Done when: a fresh browser session does not send analytics before consent, or the privacy page no longer claims that; each legal page’s mailto is an address the owner has confirmed; a test message to that address is received.
 3. **License ledger for `public/stories` and `stories-images`.** For each file: source, license, author, date, or remove it. Same standard already used for the grid.

@@ -8,7 +8,7 @@
 
 ## 1. Proje özeti
 
-**Project Anthology (marka: APEX)** Formula 1 odaklı bir Next.js 16 (App Router) sitesidir. Canlı adres: `https://project-anthology-five.vercel.app`. Stack: **Next.js + React 19 + Tailwind 4 + Supabase (Postgres) + Vercel Cron**. Veri akışı: dış kaynaklar (Jolpica/Ergast, F1DB, OpenF1, RSS) → **server-side cron** ile Supabase'e yazılır → **RSC** katmanı `lib/data/*` üzerinden okur → UI render. Geçmiş sezon verisi F1DB seed ile DB'de; güncel sezon hem DB hem canlı Jolpica fallback ile beslenir. Haberler `/news` ve home'da canlı RSS aggregate; F1 takvimi/puan durumu için tek temporal kaynak `@/lib/f1Calendar`.
+**Project Anthology (marka: APEX)** Formula 1 odaklı bir Next.js 16 (App Router) sitesidir. Canlı adres: `https://project-anthology-eight.vercel.app`. Stack: **Next.js + React 19 + Tailwind 4 + Supabase (Postgres) + Vercel Cron**. Veri akışı: dış kaynaklar (Jolpica/Ergast, F1DB, OpenF1, RSS) → **server-side cron** ile Supabase'e yazılır → **RSC** katmanı `lib/data/*` üzerinden okur → UI render. Geçmiş sezon verisi F1DB seed ile DB'de; güncel sezon hem DB hem canlı Jolpica fallback ile beslenir. Haberler `/news` ve home'da canlı RSS aggregate; F1 takvimi/puan durumu için tek temporal kaynak `@/lib/f1Calendar`.
 
 ---
 
