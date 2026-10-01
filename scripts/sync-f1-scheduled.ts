@@ -7,7 +7,7 @@
  *
  * Env:
  *   CRON_SECRET_KEY  — Bearer token (required)
- *   SITE_URL         — e.g. https://project-anthology-five.vercel.app (optional)
+ *   SITE_URL         — e.g. https://project-anthology-eight.vercel.app (optional)
  *
  * Usage: npx tsx scripts/sync-f1-scheduled.ts
  */
@@ -20,7 +20,7 @@ import type { CalendarRace } from '../lib/f1Calendar';
 config({ path: '.env.local' });
 
 const JOLPICA_CALENDAR = `https://api.jolpi.ca/ergast/f1/${CURRENT_SEASON}.json`;
-const DEFAULT_SITE_URL = 'https://project-anthology-five.vercel.app';
+const DEFAULT_SITE_URL = 'https://project-anthology-eight.vercel.app';
 const LOOKBACK_MS = 65 * 60 * 1000;
 
 async function fetchCalendarRaces(): Promise<CalendarRace[]> {

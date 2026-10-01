@@ -19,7 +19,7 @@ alwaysApply: true
 
 | Alan | Değer |
 |---|---|
-| Canlı | `project-anthology-five.vercel.app` (Vercel) |
+| Canlı | `project-anthology-eight.vercel.app` (Vercel) |
 | Monorepo | Kök = Next.js web · `mobile/` = Expo 56 |
 | Kritik durum | Web `components/` silindi (2026-06-21); sayfalar iskelet placeholder, backend/veri korundu |
 | Temporal tek kaynak | `lib/f1Calendar.ts` — sezon/pilot/takım hardcode yasak |
