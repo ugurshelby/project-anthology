@@ -191,7 +191,7 @@ GitHub Actions [VERIFIED: the three YAML files]:
 
 | Workflow | Schedule | What it does |
 |---|---|---|
-| `sync-f1-race-aware.yml` | hourly, plus `workflow_dispatch` | `npm ci`, then `scripts/sync-f1-scheduled.ts`, which calls `sync-f1?scope=live` only when a session window is due |
+| `sync-f1-race-aware.yml` | hourly, plus `workflow_dispatch` | `npx tsx@4.22.4 scripts/sync-f1-scheduled.ts` (no `npm ci` since 2026-10-01), which calls `sync-f1?scope=live` only when a session window is due |
 | `sync-news.yml` | minute 7 of every hour, plus dispatch | `curl` to `/api/cron/sync-news` with Bearer `CRON_SECRET_KEY`, 420s max |
 | `notify-sessions.yml` | every 10 minutes, plus dispatch | `curl` to `/api/cron/notify-sessions` |
 
@@ -252,7 +252,7 @@ Cron writes use the service role on the server [VERIFIED: `lib/supabase.ts` comm
 - `f1-season` cannot be turned into an open proxy: the only user input is `path`, matched to a whitelist, appended to a fixed Jolpica host [VERIFIED: route].
 - `live-timing` can still spend OpenF1 quota on a cache miss. The code treats a fan-out as the failure mode it already fixed once [VERIFIED: route comments and `logs/2026-09-28.md`].
 - News rewrite runs on the hourly GitHub cron and can call Groq and Gemini for up to 300s [VERIFIED: `maxDuration` and `sync-news.yml`]. The 2026-10-01 log records one real run of about 200s, 94 stories, 51 original EN+TR rewrites [VERIFIED: log text; this pass did not repeat the cron].
-- `sync-f1-race-aware.yml` runs `npm ci` on every hourly tick, including hours when the script then skips [VERIFIED: YAML step order]. That spends GitHub Actions minutes even when no sync is due [INFERRED].
+- `sync-f1-race-aware.yml` no longer runs `npm ci`: the due-check was run in a copy with no `node_modules` and printed its skip line (2026-10-01). It still wakes hourly; only the install was removed. Not run in GitHub Actions itself.
 - Analytics and Speed Insights load for every page view with no consent gate [VERIFIED: layout]. That is a policy and privacy mismatch, and it is also a vendor call on every visit.
 - Sentry `tracesSampleRate` is 1.0 in development and 0.1 otherwise [VERIFIED: `sentry.server.config.ts`]. Upload of source maps is gated on `SENTRY_UPLOAD_SOURCE_MAPS=true` plus a token [VERIFIED: `next.config.ts`]. This build tried an upload and the project was not found.
 
@@ -469,8 +469,6 @@ These items are not done. Order follows section 10.
    Done when: a commit that fails `npm test` cannot merge to `main`, and the workflow is green on current `main`.
 6. **Confirm production Upstash, cron secrets, Groq, Gemini, and Sentry on the eight project.** Fix the Sentry org/project or stop uploading. Add the missing names to `.env.example` with empty values.
    Done when: the owner confirms those names exist in the Vercel project (values stay secret); a source-map upload either succeeds or is explicitly disabled; `.env.example` lists every name the server reads.
-7. **Stop paying for idle hourly `npm ci`.** The race-aware workflow should skip install when no window is due, or the due-check should be a tiny script that does not install the whole app first.
-   Done when: an hour with no due window finishes without `npm ci`, and a due window still calls `sync-f1` successfully.
 8. **Align Node.** Either run CI and local engines on 22, or install 24 and re-run the four gates.
    Done when: `.nvmrc`, `engines`, and the workflows name the same major version, and the four gates pass on that version.
 9. **Decide the Expo app.** Track `mobile/` in git, or delete the “shipping app” claims from the master plan and technical.md.
