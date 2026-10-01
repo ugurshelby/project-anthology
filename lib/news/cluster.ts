@@ -45,7 +45,10 @@ function similar(a: Set<string>, b: Set<string>): boolean {
 }
 
 /** Newest-first seeds; a cluster holds at most one article per outlet. */
-export function clusterArticles<T extends ClusterInput>(items: T[]): T[][] {
+export function clusterArticles<T extends ClusterInput>(
+  items: T[],
+  canMerge: (a: T, b: T) => boolean = () => true,
+): T[][] {
   const sorted = [...items].sort((x, y) => y.publishedTs - x.publishedTs);
   const tok = sorted.map(tokens);
   const claimed = new Array<boolean>(sorted.length).fill(false);
@@ -58,6 +61,7 @@ export function clusterArticles<T extends ClusterInput>(items: T[]): T[][] {
     for (let j = i + 1; j < sorted.length; j++) {
       if (claimed[j]) continue;
       if (cluster.some((c) => c.source === sorted[j].source)) continue;
+      if (!canMerge(sorted[i], sorted[j])) continue;
       if (Math.abs(sorted[i].publishedTs - sorted[j].publishedTs) > CLUSTER_WINDOW_MS) continue;
       if (similar(tok[i], tok[j])) {
         cluster.push(sorted[j]);

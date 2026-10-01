@@ -122,7 +122,7 @@ Migration kuralı: `YYYYMMDDHHMMSS_*.sql` formatı zorunlu.
 | `CRON_SECRET_KEY` | Cron auth |
 | `NEXT_PUBLIC_SITE_URL` | RSC self-fetch |
 | `GEMINI_API_KEY` | Haber birleştirme/yeniden yazım (ücretsiz katman, opsiyonel; AI Studio'dan) |
-| `GROQ_API_KEY` | Aynı iş için yedek sağlayıcı (ücretsiz katman, opsiyonel) |
+| `GROQ_API_KEY` | Haber yazımı ana sağlayıcı (ücretsiz katman; gpt-oss-120b → 20b). Gemini yedek |
 | `UPSTASH_REDIS_REST_URL/TOKEN` | Rate-limit (opsiyonel) |
 
 ---
@@ -151,7 +151,7 @@ cd mobile && npm start
 ## Haber hikâyeleri (news_stories)
 
 - `sync-news` → RSS → `lib/news/cluster.ts` (olay bazlı kümeleme, transitif değil) → `lib/news/stories.ts` (kararlı id, en iyi görsel = ulaşılabilir en büyük, AI yeniden yazım EN+TR, parmak izi ile yalnız yeni/değişen) → `news_stories` tablosu.
-- Yeniden yazım `lib/news/rewrite.ts` (Gemini → Groq, ücretsiz katman; telif koruması: kaynakla 5+ ardışık kelime örtüşürse çıktı reddedilir). Ses/ton tek yerden: `lib/news/voice.ts`.
+- Yeniden yazım `lib/news/rewrite.ts` (Groq gpt-oss-120b → 20b, yedek Gemini; 4 hikâye tek istekte, ücretsiz katman; telif koruması: kaynakla 7+ ardışık kelime örtüşürse çıktı reddedilir). Ses/ton tek yerden: `lib/news/voice.ts`.
 - AI anahtarı yoksa hikâye en iyi kaynağın kendi başlığı/özetiyle kalır (`rewritten=false`), TR başlık MyMemory ile (günde küçük kota).
 - Saklama: 7 gün (news_stories + news_cache). Sayfalar yalnız DB okur (`lib/data/news.ts`), görseli olmayan hikâye listelerde çıkmaz, detayda kapaksız gösterilir.
 - Pist konumu/saat dilimi: `circuits.data.location` (sync-f1, Jolpica takvimi + Open-Meteo `timezone=auto`).

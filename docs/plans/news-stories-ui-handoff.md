@@ -51,7 +51,7 @@ Tablo: `news_stories` (bir satır = gerçek dünyada bir olay). Arayüz ham sat�
    değişir (cron 30 dk'da bir). Arayüz iki durumu da sorunsuz göstermeli; "çevriliyor/yazılıyor" gibi durum metni gösterme.
 3. **Yeniden yazım yalnızca yeni/değişen hikâyede.** Hikâyeye yeni kaynak eklenirse metin bir kez yenilenir;
    kullanıcı aynı `id` altında güncellenmiş metni görür.
-4. **Telif güvenliği arka planda.** Kaynak cümleleriyle 5+ ardışık kelime örtüşen çıktı reddedilir.
+4. **Telif güvenliği arka planda.** Kaynak cümleleriyle 7+ ardışık kelime örtüşen çıktı reddedilir.
    Arayüz kaynak metnini asla kendisi eklememeli; yalnızca `title/summary` ve `sourceLinks` gösterilir.
 5. **Atıf zorunlu.** Detay sayfasında hangi kaynaklardan derlendiği ve her birine giden link görünür olmalı.
 

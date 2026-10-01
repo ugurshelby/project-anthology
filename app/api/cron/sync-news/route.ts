@@ -51,6 +51,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     // 1) Fetch RSS + load the stories already stored (within retention).
     const raw = await fetchRawNews();
+    console.log(`[sync-news] fetched ${raw.length} articles in ${Date.now() - startedAt}ms`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: existingRows } = await (db.from('news_stories') as any)
       .select('*')
@@ -61,6 +62,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       deadlineMs: startedAt + WORK_BUDGET_MS,
     });
     stats = built.stats;
+    console.log(`[sync-news] built ${built.rows.length} stories (rewritten ${stats.rewritten}) at ${Date.now() - startedAt}ms`);
 
     // 3) Upsert (batched).
     for (let i = 0; i < built.rows.length; i += UPSERT_BATCH_SIZE) {
@@ -85,6 +87,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       merged: stats.merged,
       rewritten: stats.rewritten,
       pending: stats.pending,
+      splits: stats.splits,
       translatedFallback: stats.translatedFallback,
       aiConfigured: stats.aiConfigured,
       deleted,
