@@ -138,7 +138,6 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 | Madde | Tetik |
 |---|---|
 | `public/stories/` 124 dosya, lisans kaydı yok | Sahip kararı (tut / lisansla / sil) |
-| `lib/data/siteUrl.ts` yedek host'u ölü (seven → 404) | Kök neden düzeltmesi (agent/pilot-setup) |
 | PR'da lint/tsc/test/build koşan workflow yok | Aynı dal |
 | Saatlik F1 workflow'u due olmayan saatte de `npm ci` çalıştırıyor | Aynı dal |
 | Analytics onaysız yükleniyor, gizlilik metni "onaya kadar kapalı" diyor | Sahip kararı |
