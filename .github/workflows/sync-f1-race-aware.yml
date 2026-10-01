@@ -20,12 +20,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-
-      - run: npm ci
 
       - name: Race-calendar sync check
         env:
           CRON_SECRET_KEY: ${{ secrets.CRON_SECRET_KEY }}
           SITE_URL: ${{ vars.SITE_URL }}
-        run: npx tsx scripts/sync-f1-scheduled.ts
+        # No `npm ci`: the due-check uses only fetch and repo files (tsconfig paths),
+        # so only tsx is downloaded (pinned to the lockfile version). Idle hours stay cheap.
+        run: npx --yes tsx@4.22.4 scripts/sync-f1-scheduled.ts
