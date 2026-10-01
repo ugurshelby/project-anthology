@@ -206,7 +206,7 @@ Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`.
 - Current shipping branch is `main`, even with `origin/main` [VERIFIED: `git status` at the start of this analysis].
 - No workflow in `.github/workflows/` builds or deploys the site [VERIFIED].
 - Docs say Vercel deploys the web app [VERIFIED: `README.md`]. The git event that triggers that deploy was not read from a Vercel project setting [UNVERIFIED].
-- `feat/apex-frontend-rebuild` still exists locally and on the remote. `docs/PLAN.md` still names that branch as current. `HEAD` is `main` [VERIFIED]. That plan is stale.
+- `feat/apex-frontend-rebuild` still exists locally and on the remote. `HEAD` is `main` [VERIFIED]. Whether the branch is still needed is an owner question (section 13).
 - `railway/` was removed. The 2026-09-29 log says the Railway cron was never deployed and was replaced by GitHub Actions [VERIFIED: log plus `Test-Path railway` is false].
 
 ---
@@ -231,7 +231,7 @@ Names only. No values are recorded here.
 
 Next.js does not load `.env.local.append` by default [INFERRED: Next env file names; the append file is separate]. Sentry DSN names are not in `.env.local`.
 
-Code reads these names that are missing from `.env.example` [VERIFIED: `lib/news/rewrite.ts`, `lib/cronAuth.ts`, `lib/rateLimit.ts`, `sentry.*.config.ts`, `instrumentation-client.ts`, `next.config.ts`, `scripts/sync-f1-scheduled.ts`]: `GROQ_API_KEY`, `GROQ_NEWS_MODELS`, `GEMINI_NEWS_MODELS`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_UPLOAD_SOURCE_MAPS`, `SITE_URL`.
+Until 2026-10-01 these names were read in code but missing from `.env.example`; they were added with empty values [VERIFIED: `lib/news/rewrite.ts`, `lib/cronAuth.ts`, `lib/rateLimit.ts`, `sentry.*.config.ts`, `instrumentation-client.ts`, `next.config.ts`, `scripts/sync-f1-scheduled.ts`]: `GROQ_API_KEY`, `GROQ_NEWS_MODELS`, `GEMINI_NEWS_MODELS`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_UPLOAD_SOURCE_MAPS`, `SITE_URL`.
 
 `REDIS_URL` is in `.env.local` and is not referenced under `lib/` [VERIFIED: search]. It looks unused.
 
@@ -317,7 +317,7 @@ Last verified: 2026-10-01
 | Theme | What went wrong | What fixed it | Evidence |
 |---|---|---|---|
 | Production hostname drift | Docs and code have used `five`, then `seven`, then `eight`. Commit `6ab76cb` (2026-07-05) is `fix: kritik — hardcoded prod URL güncellendi (five → seven)`. `siteUrl.ts` still says seven. Live site is eight. Seven returns 404 | Update every hardcoded host in the same change as the Vercel project move. Prefer env over a constant | [VERIFIED: grep of the three hostnames, commit subject, live HTTP] |
-| Docs frozen at the 2026-06-21 UI wipe | README, `proje-dizini.md`, `technical.md`, and all three constitution files still say `components/` was deleted and pages are placeholders | The UI was rebuilt. The sentence was copied and not removed | [VERIFIED: those files versus 89 component files] |
+| Docs frozen at the 2026-06-21 UI wipe | README, `proje-dizini.md`, `technical.md`, and all three constitution files said `components/` was deleted and pages are placeholders | The UI was rebuilt. The sentence was copied and not removed | [VERIFIED: those files versus 89 component files] |
 | Stale or empty DB snapshots served as fresh | `fetched_at` was new but names were blank, so the UI showed dashes. Home and season also showed different points because revalidate differed | `isSeasonSnapshotContentInvalid()`, historical seasons stay on the DB, current season can fall through to Jolpica, season page is dynamic | [VERIFIED: lessons file; tests for the read fallback passed. Not re-proven against production data in this pass] |
 | NULL in unique keys | `UNIQUE (season, round, type)` treated each `round IS NULL` as distinct, so season rows duplicated | Partial unique index plus update-first ingest | [VERIFIED: lessons file and `20260606000001_partial_unique_index.sql`] |
 | RLS without GRANT | Policies existed and anon still got Postgres `42501` | Explicit `GRANT SELECT` | [VERIFIED: lessons file and the grants in the initial migration] |
@@ -346,7 +346,7 @@ Last verified: 2026-10-01
 
 | File | Purpose | Status |
 |---|---|---|
-| `README.md` | Setup, routes, stack, live URL | Mixed. Live URL and stack match. The 2026-06-21 “frontend reset, pages are placeholders” note is false. Routes omit `/tr`, `/grid`, `/news/[id]`, and the legal pages. Env table omits Groq, Upstash, and Sentry |
+| `README.md` | Setup, routes, env table, stack, live URL | Current (corrected 2026-10-01) |
 | `PRODUCT.md` | Users, purpose, brand, accessibility target | Current as a product statement. Accessibility is a target, not a measured result |
 | `ROADMAP.md` | Four production phases: legal, SEO, UI, release | Aspirational. Several phase-1 pages exist, but placeholder emails and the analytics consent gap mean phase 1 is not met. No phase is checked off |
 | `AGENTS.md` | Single canonical English rule file (rewritten 2026-10-01) | Current |
@@ -367,27 +367,21 @@ Last verified: 2026-10-01
 
 Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They are only in git history.
 
-### docs/plans and docs/PLAN.md
+### docs/plans
 
 | File | Purpose | Status |
 |---|---|---|
-| `docs/plans/master-plan.md` | Agent checklist. Header says last update 2026-07-04; body contains 2026-10-01 items | Living checklist, internally inconsistent. Open checkboxes sit next to completed UI. Header date is stale. This is still the best single plan file |
-| `docs/PLAN.md` | Long production plan. Header 2026-06-26. Says the active branch is `feat/apex-frontend-rebuild` and that components were deleted | **Stale snapshot.** Master plan says this file is the old phase history. Safe to archive. Do not follow it |
-| `docs/plans/i18n-architecture.md` | next-intl plan. Header says implementation has not started and next-intl is not installed | **Applied.** `next-intl` is a dependency and `app/[locale]/` exists. Header is false. Archive or mark done. Do not use it as the current “not built” state |
-| `docs/plans/news-ui-brief.md` | News UI brief. Header says draft, do not implement | **Applied** according to `logs/2026-10-01.md` and the news components on disk. Header is false |
-| `docs/plans/news-stories-ui-handoff.md` | Backend handoff for the story UI, 2026-09-29 | Backend description matches `technical.md`. UI tasks were implemented on 2026-10-01. Archive the UI checklist; keep only if voice tuning is still wanted |
-| `docs/plans/driver-hero-visual-redesign.md` | Brief for a photo-free driver hero | Master plan marks it implemented (`tests/driver-hero.test.ts` passed). Archive as a brief, not an open plan |
+| `docs/plans/master-plan.md` | The single live checklist | Header date and stale rows fixed 2026-10-01; WEB-UI.4-8 and QA boxes stay open (not measured) |
 
 ### docs/reference and docs/vision
 
 | File | Purpose | Status |
 |---|---|---|
 | `docs/reference/mimari.md` | Backend architecture | Useful on stack and the single temporal source. Says Playwright is the e2e tool and that Vercel has 3 crons. Playwright does not run. GitHub crons are easy to miss if this is the only map. Header has no 2026-10 date |
-| `docs/reference/proje-dizini.md` | Directory map. Dated as a rule the agent must read first | **Stale and harmful.** Still says components were deleted and pages render `<main>Sayfa adı</main>`. Do not use as the map |
 | `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` | Incident list and “do not break” rules. Header 2026-06-10. Live URL is the five host | Valuable as history. **Stale as operations.** Open items include a history backfill and a disabled GitHub schedule that later logs say were done. Asset paths it mandates (`public/drivers/{season}/`) were removed. It says the home page calls live RSS; `app/[locale]/page.tsx` calls `getLatestNews` |
 | `docs/reference/anthology-gorsel-temin.md` | How anthology images were obtained | Not fully read. Related to the 124 files still in `public/stories`. Treat as a sourcing note, not a license ledger |
 | `docs/reference/web-iyilestirme-onerileri-2026-07-05.md` | Improvement notes. Describes a `PROD_SITE_URL` bug against the five host | Historical. The fallback bug class still exists, now with the seven host |
-| `docs/vision/technical.md` | Agent technical summary. Header 2026-07-04 | **Mixed in one file.** Top still says pages are skeletons, components were deleted, and there are 3 migration files. Lower sections correctly describe photo-free icons, `news_stories`, Groq, pit stops, and `circuit_weather`. The two halves conflict |
+| `docs/vision/technical.md` | Agent technical summary | Current (top half rewritten 2026-10-01) |
 | `docs/vision/skills.md` | Skill trigger list referenced by the constitutions | Not a product spec. Skill packs under `.agents/skills` and `.claude/skills` are vendored |
 
 ### Other project docs
@@ -426,15 +420,11 @@ The constitutions say `docs/design/` is the single authority, and also say that 
 
 ### docs/superpowers (historical specs and plans)
 
-All of these are dated June or July 2026. They are records of past work, not the current plan. Several still name the five or seven host.
+The web-only June/July specs were deleted on 2026-10-01 after checking that the code implements them. Only the mobile ones remain, waiting on the owner's decision about `mobile/`. They are records, not plans, and name the five or seven host.
 
 - `docs/superpowers/plans/2026-07-13-mobile-bugfix-and-features.md`
 - `docs/superpowers/plans/2026-06-25-mobile-app.md` (hardcodes the five host for the Expo API)
 - `docs/superpowers/specs/2026-07-13-mobile-bugfix-and-features-design.md`
-- `docs/superpowers/specs/2026-07-13-web-redesign-round2-design.md`
-- `docs/superpowers/specs/2026-07-05-boxbox-inspired-improvements-design.md`
-- `docs/superpowers/specs/2026-07-05-hero-redesign-design.md`
-- `docs/superpowers/specs/2026-07-04-apex-web-responsive-design.md`
 - `docs/superpowers/specs/2026-06-25-mobile-app-design.md`
 
 `design/boxbox-mobile/screens-spec.md` and `design/stitch-design-pack/DESIGN.md` are the same class of design exploration.
@@ -443,18 +433,9 @@ All of these are dated June or July 2026. They are records of past work, not the
 
 Dozens of `SKILL.md`, `AGENTS.md`, and `CLAUDE.md` files under `.agents/skills/` and `.claude/skills/` (including `graphify`, `impeccable`, and `taste-skills`) are third-party packs. `.claude/skills/graphify/docs/**` is that tool’s own docs. They are not Apex specifications. ESLint already ignores `.claude`.
 
-### Applied plans that should be archived, not followed
+### Applied plans
 
-Do not delete them in silence. Move them to an archive folder or mark them applied, after the owner agrees:
-
-1. `docs/PLAN.md` — superseded by `docs/plans/master-plan.md`, wrong branch, false frontend status.
-2. `docs/plans/i18n-architecture.md` — implemented; header says it was not.
-3. `docs/plans/news-ui-brief.md` — header forbids implementation; the UI shipped.
-4. `docs/plans/driver-hero-visual-redesign.md` — implemented.
-5. `docs/reference/proje-dizini.md` — false directory map. Replace or delete after this reference exists.
-6. The June–July `docs/superpowers/**` mobile and redesign plans — historical. The mobile app they describe is not in git.
-
-Keep `docs/plans/master-plan.md`, but fix the header date and close or rewrite the checkboxes that the 2026-09-29 log already said were stale. Keep `PROJECT_LESSONS_AND_ROADMAP.md` only as history until someone rewrites the open-item list.
+Deleted on 2026-10-01 (git history is the archive): `docs/PLAN.md`, `docs/plans/i18n-architecture.md`, `docs/plans/news-ui-brief.md`, `docs/plans/news-stories-ui-handoff.md`, `docs/plans/driver-hero-visual-redesign.md`, `docs/reference/proje-dizini.md`, and the four web-only `docs/superpowers` specs. `docs/plans/master-plan.md` is the single live checklist; its header date and list were corrected on the same day. `PROJECT_LESSONS_AND_ROADMAP.md` stays as history only.
 
 ---
 
@@ -465,15 +446,12 @@ Last verified: 2026-10-01
 1. **Legal pages claim a real privacy and DMCA process. The mailboxes are `.example` placeholders, and analytics load without the consent the privacy page promises.** [VERIFIED: legal pages, layout, search for a consent component.] `ROADMAP.md` phase 1 and `AGENTS.md` say these surfaces are required before production is acceptable. The pages exist. The mechanism does not.
 2. **The production hostname is not one value.** Live site and most new docs say eight. `lib/data/siteUrl.ts` falls back to seven, which 404s. Local build canonicals fell back to localhost because `NEXT_PUBLIC_SITE_URL` is absent in `.env.local`. Older docs still say five. This class of bug has already shipped once (`6ab76cb`).
 3. **Anthology still serves a large set of photographs after a written photo-free, license-or-remove policy.** Grid photos were removed. `public/stories` still has 124 files. The ingestion report describes real race photographs. `AGENTS.md` says an asset with an unclear license does not ship. No per-file license ledger was found in this pass [UNVERIFIED: each file’s license was not opened].
-4. **Agent rules contradict each other and contradict the code.** Three constitutions say the UI was deleted and say to commit and push at the end of every task. `AGENTS.md` says not to commit unless asked. A new agent that trusts `proje-dizini.md` will “rebuild” a UI that already exists.
 5. **No pull-request gate runs lint, types, tests, or build.** Quality on 2026-10-01 was good only because this analysis ran the commands. `ROADMAP.md` phase 4 says those gates are part of release. They are not installed.
 6. **Rate limiting and cron locking are only as strong as Upstash in production, which is unconfirmed for the current Vercel project.** The code degrades to per-instance memory. The news and F1 crons are also scheduled twice (Vercel daily and GitHub hourly).
 7. **Sentry is wired and the upload failed** with `Project not found` for the org and project hardcoded in `next.config.ts`. Error monitoring may be dark. [UNVERIFIED: live Sentry ingest.]
 8. **Node 24 is declared and Node 22 is what actually runs** locally and in the F1 sync workflow. The build passed on 22. An engine-strict environment could diverge. [UNVERIFIED: Node 24 was not installed here.]
 9. **Mobile is documented as a shipping Expo app and is absent from git.** Store release items in the master plan cannot be done from `main`.
 10. **Master-plan checkboxes and Lighthouse/QA items are not a reliable backlog.** i18n phase 6, live-race end-to-end, and Lighthouse are still open in the plan and were not measured here. [UNVERIFIED: no browser pass, no Lighthouse run.]
-11. **`.env.example` is behind the code** (no Groq, Upstash, Sentry, `SITE_URL`). A new machine following the README will miss the news writer and the distributed limiter.
-12. **`docs/vision/technical.md` contradicts itself** (skeleton pages at the top, `news_stories` pages at the bottom). Agents that stop at the header will make bad changes.
 
 ---
 
@@ -489,8 +467,6 @@ These items are not done. Order follows section 10.
    Done when: a fresh browser session does not send analytics before consent, or the privacy page no longer claims that; each legal page’s mailto is an address the owner has confirmed; a test message to that address is received.
 3. **License ledger for `public/stories` and `stories-images`.** For each file: source, license, author, date, or remove it. Same standard already used for the grid.
    Done when: every file under `public/stories` is either listed with a license that allows this use, or deleted, and the site still builds.
-4. **Retire the false maps.** Archive the files in section 9’s “applied plans” list. Rewrite the top of `docs/vision/technical.md` and the “components deleted” lines in the three constitutions. Pick one agent rule file (see section 12).
-   Done when: a search for `components/ silindi` and `iskelet placeholder` in agent rules and `docs/reference` returns nothing that describes the current tree.
 5. **CI on pull requests.** One workflow: `npm ci`, `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`, on the Node version the project actually standardizes.
    Done when: a commit that fails `npm test` cannot merge to `main`, and the workflow is green on current `main`.
 6. **Confirm production Upstash, cron secrets, Groq, Gemini, and Sentry on the eight project.** Fix the Sentry org/project or stop uploading. Add the missing names to `.env.example` with empty values.
