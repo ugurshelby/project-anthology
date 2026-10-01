@@ -15,5 +15,5 @@ export const NEWS_VOICE = [
   '- No invented details, no speculation presented as fact, no clickbait, no exclamation marks.',
   '- Quote at most 6 words verbatim, and only if essential.',
   '- Prefer "sürücü/otomobil" in Turkish; keep F1 terms like pole, pit stop, DRS in English.',
-  '- If the sources are about DIFFERENT events, set same_story=false.',
+  '- same_story=false ONLY when the sources are clearly about unrelated events (e.g. a race report and a podcast promo). Different angles, reactions or analysis of the SAME event or topic are the same story: merge them into one brief.',
 ].join('\n');

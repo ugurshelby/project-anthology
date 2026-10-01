@@ -11,13 +11,13 @@
 
 import { stableId, probeImage, type RawNewsItem } from '@/lib/news/aggregate';
 import { clusterArticles } from '@/lib/news/cluster';
-import { aiRewriteConfigured, rewriteBatch, type RewriteSource } from '@/lib/news/rewrite';
+import { aiRewriteConfigured, enabledProviderCount, rewriteBatch, type RewriteSource } from '@/lib/news/rewrite';
 import { translateToTurkish } from '@/lib/news/translate';
 import type { NewsStoryRow, NewsStorySource } from '@/types/database';
 
 export const NEWS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 const BATCH_SIZE = 4; // stories per AI request (free quotas count requests)
-const PACE_MS = 5_000; // gap between AI requests (free-tier per-minute limits)
+const PACE_MS = 15_000; // gap between AI requests (Groq free tier ~8K tokens/min)
 const IMAGE_CONCURRENCY = 8;
 const FALLBACK_TR_PER_RUN = 8; // MyMemory anonymous quota is tiny — titles only
 
@@ -27,6 +27,7 @@ export interface StoryRunStats {
   rewritten: number;
   translatedFallback: number;
   pending: number;
+  splits: number;
   aiConfigured: boolean;
 }
 
@@ -56,7 +57,17 @@ export function draftStories(raw: RawNewsItem[], existing: NewsStoryRow[], now =
   const claimedIds = new Set<string>();
   const drafts: DraftStory[] = [];
 
-  for (const members of clusterArticles(fresh.map((r) => ({ ...r, source: r.sourceName })))) {
+  // Two articles that already live in DIFFERENT stored stories stay apart: that is how an AI
+  // "not the same event" split sticks instead of being re-merged (and re-split) every run.
+  const sameStored = (a: RawNewsItem, b: RawNewsItem) => {
+    const ra = byUrl.get(a.url);
+    const rb = byUrl.get(b.url);
+    return !ra || !rb || ra.id === rb.id;
+  };
+  for (const members of clusterArticles(
+    fresh.map((r) => ({ ...r, source: r.sourceName })),
+    sameStored,
+  )) {
     // Existing story with the most URLs in common wins (and is claimed once).
     const votes = new Map<string, number>();
     for (const m of members) {
@@ -114,6 +125,7 @@ export async function buildStoryRows(
     rewritten: 0,
     translatedFallback: 0,
     pending: 0,
+    splits: 0,
     aiConfigured,
   };
 
@@ -169,7 +181,7 @@ export async function buildStoryRows(
       if (wait > 0) await new Promise((r) => setTimeout(r, wait));
       lastCall = Date.now();
       const batch = jobs.slice(i, i + BATCH_SIZE);
-      const { results } = await rewriteBatch(batch.map((j) => sourcesOf(j.draft)), exhausted);
+      const { results } = await rewriteBatch(batch.map((j) => sourcesOf(j.draft)), exhausted, opts.deadlineMs);
       results.forEach((out, k) => {
         const { draft, row } = batch[k];
         if (out && out !== 'split') {
@@ -200,15 +212,15 @@ export async function buildStoryRows(
             rewritten: false,
           }));
           rows.splice(at, 1, ...singles);
-          stats.pending += singles.length;
+          stats.splits++;
         } else {
           stats.pending++;
         }
       });
-      if (exhausted.size >= 3) break; // every provider is out of quota — stop early
+      if (exhausted.size >= enabledProviderCount()) break; // every provider is out of quota — stop early
     }
   }
-  stats.pending = Math.max(stats.pending, jobs.length - stats.rewritten);
+  stats.pending = Math.max(0, jobs.length - stats.rewritten - stats.splits);
 
   // Phase 3 — MyMemory title-only fallback for stories the AI hasn't covered (its anonymous quota is tiny).
   let trFailures = 0;
@@ -224,5 +236,7 @@ export async function buildStoryRows(
       trFailures++;
     }
   }
-  return { rows, stats };
+  const unique = new Map<string, NewsStoryRow>();
+  for (const r of rows) if (!unique.has(r.id)) unique.set(r.id, r);
+  return { rows: [...unique.values()], stats };
 }

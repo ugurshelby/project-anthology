@@ -158,9 +158,9 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 ## Haber hikâyeleri: birleştirme + özgün yazım (2026-09-29)
 - [x] Pist konumu + saat dilimi DB'de (`circuits.data.location`), statik veriden bağımsız
 - [x] Kümeleme (`lib/news/cluster.ts`), yeniden yazım (`rewrite.ts`, telif koruması), pipeline (`stories.ts`), sync-news yeniden yazıldı, okuma katmanı `news_stories`'tan okuyor, testler (177/177)
-- [ ] **Manuel — Efendim:** `supabase/migrations/20260929000004_news_stories.sql` Supabase SQL Editor'de çalıştırılacak
-- [ ] **Manuel — Efendim:** ücretsiz `GEMINI_API_KEY` (aistudio.google.com/apikey) `.env.local`'e (ve Vercel env'e) eklenecek; yedek: `GROQ_API_KEY`
-- [ ] sync-news'i 30 dk'da bir çalıştıran GitHub Actions workflow'u (Vercel Hobby günde 1 cron) — deploy aşamasında
+- [x] **Manuel — Efendim:** `20260929000004_news_stories.sql` çalıştırıldı (2026-10-01)
+- [x] `GROQ_API_KEY` + `GEMINI_API_KEY` `.env.local`'de; yazım Groq gpt-oss-120b→20b, yedek Gemini 3.5 Flash-Lite→3.8 Flash. Deploy'da ikisi de Vercel env'e girilecek
+- [x] `.github/workflows/sync-news.yml` (saatte bir) yazıldı; `SITE_URL` var + `CRON_SECRET_KEY` secret deploy sonrası bağlanacak
 - [ ] antigravity devir planı: `docs/plans/news-stories-ui-handoff.md` (arka plan özeti + arayüz görevleri + kalite kapıları)
 - [ ] antigravity: haber detay sayfasında `item.sourceLinks` ile kaynak listesi + linkler; görselsiz hikâyede kapak alanı gizlenir (placeholder yok); `lib/news/voice.ts` tonunu ev sesine göre ince ayar
 

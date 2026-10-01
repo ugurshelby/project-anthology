@@ -1,0 +1,27 @@
+name: sync-news
+
+# Hourly news pipeline: RSS -> clustered stories -> AI-written EN+TR brief
+# (see app/api/cron/sync-news/route.ts). Vercel Hobby crons run once a day, so
+# this runs on GitHub Actions like sync-f1-race-aware.yml / notify-sessions.yml,
+# reusing the same repo secret/var (CRON_SECRET_KEY, SITE_URL).
+# The route is idempotent: only new or changed stories are rewritten, and a
+# 60 s minimum interval guards against overlapping invocations.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7 * * * *' # hourly, off the :00 peak (UTC)
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Call sync-news
+        env:
+          CRON_SECRET_KEY: ${{ secrets.CRON_SECRET_KEY }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          curl -sf --max-time 420 -X GET "${SITE_URL%/}/api/cron/sync-news" \
+            -H "Authorization: Bearer ${CRON_SECRET_KEY}" \
+            -w "\nHTTP %{http_code}\n"
