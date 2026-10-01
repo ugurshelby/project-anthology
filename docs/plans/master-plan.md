@@ -138,8 +138,7 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 | Madde | Tetik |
 |---|---|
 | `public/stories/` 124 dosya, lisans kaydı yok | Sahip kararı (tut / lisansla / sil) |
-| PR'da lint/tsc/test/build koşan workflow yok | Aynı dal |
-| Saatlik F1 workflow'u due olmayan saatte de `npm ci` çalıştırıyor | Aynı dal |
+| `ci.yml` (PR kapısı) GitHub'da henüz koşmadı; required check yapılması sahip ayarı | İlk PR |
 | Analytics onaysız yükleniyor, gizlilik metni "onaya kadar kapalı" diyor | Sahip kararı |
 | Yasal sayfalarda `.example` e-posta adresleri | Sahip kararı |
 | Node 24 (engines) vs 22 (workflow) | Sahip kararı |

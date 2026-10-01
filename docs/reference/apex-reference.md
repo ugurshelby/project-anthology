@@ -58,7 +58,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 - `docs/plans/master-plan.md` still has unchecked items: tablet breakpoint (WEB-UI.4), season layout (WEB-UI.5), list template (WEB-UI.6), detail template (WEB-UI.7), Lighthouse (WEB-UI.8), permanent 2026 Jolpica snapshot fill, live-race end-to-end check, i18n phase-6 QA, and mobile store release [VERIFIED: file]. The same file, and the 2026-09-29 log, also say several of those UI pages were already built [VERIFIED: `logs/2026-09-29.md`]. The checkboxes and the code disagree. This analysis did not re-test every breakpoint in a browser.
 - Playwright is a devDependency and is named in docs. There is no `playwright.config` and no Playwright npm script [VERIFIED: `package.json`, file search]. It was not run.
 - `mobile/` exists on disk (Expo ~56, React Native 0.85.3) and is gitignored. `git ls-files mobile` returned 0 tracked files [VERIFIED]. It is not part of the git tree that `main` deploys. Mobile scripts were not run.
-- There is no GitHub Actions workflow for lint, test, or build. The three workflows only call cron endpoints [VERIFIED: `.github/workflows/`].
+- `.github/workflows/ci.yml` (added 2026-10-01) runs `npm ci`, lint, `tsc --noEmit`, `npm test`, `npm run build` on pull requests to `main`, on the Node in `.nvmrc` (24). It has not run on GitHub yet [UNVERIFIED]; the same commands were run locally on Node 22 with placeholder Supabase env. The other three workflows only call cron endpoints.
 - Node: this machine is v22.18.0. `package.json` `engines` and `.nvmrc` say 24. GitHub Actions `sync-f1-race-aware.yml` uses Node 22 [VERIFIED]. Tests and the build passed on Node 22 anyway.
 
 `project-anthology-seven.vercel.app` is down (404). Older docs still name `project-anthology-five.vercel.app` [VERIFIED: `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md`]. The log of 2026-09-29 says the five project was deleted by the owner [VERIFIED: `logs/2026-09-29.md`]. The five host was not requested in this pass.
@@ -204,7 +204,7 @@ Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`.
 ### Deployment and branches
 
 - Current shipping branch is `main`, even with `origin/main` [VERIFIED: `git status` at the start of this analysis].
-- No workflow in `.github/workflows/` builds or deploys the site [VERIFIED].
+- No workflow deploys the site; `ci.yml` only checks pull requests [VERIFIED].
 - Docs say Vercel deploys the web app [VERIFIED: `README.md`]. The git event that triggers that deploy was not read from a Vercel project setting [UNVERIFIED].
 - `feat/apex-frontend-rebuild` still exists locally and on the remote. `HEAD` is `main` [VERIFIED]. Whether the branch is still needed is an owner question (section 13).
 - `railway/` was removed. The 2026-09-29 log says the Railway cron was never deployed and was replaced by GitHub Actions [VERIFIED: log plus `Test-Path railway` is false].
@@ -271,7 +271,7 @@ Last verified: 2026-10-01
 | `npx tsc --noEmit` | No npm script. `tsconfig.json` has `strict` and `noEmit` | Pass. Exit 0 |
 | `npm run build` | Yes. `next build`. `build:vercel` is the same command | Pass. Exit 0. Sentry upload skipped (`Project not found`). `metadataBase` warned as `http://localhost:3000` during this local build. Route table included static legal pages, ISR anthology/circuits/news/teams/glossary, and dynamic home, season, entity, and API routes |
 | Playwright | Dependency only | Not run. No config |
-| CI on pull request | No | Nothing in `.github/workflows/` runs these gates |
+| CI on pull request | Yes, `.github/workflows/ci.yml` (2026-10-01) | Not yet run on GitHub [UNVERIFIED]. Whether branch protection requires it is an owner/GitHub setting |
 | `npm ci` from a clean tree | Not run | [UNVERIFIED] whether a clean install matches the lockfile on Node 24, which is what `engines` asks for |
 
 The build’s own TypeScript step also finished (“Finished TypeScript in 2.2min”) [VERIFIED: build log].
@@ -446,7 +446,7 @@ Last verified: 2026-10-01
 1. **Legal pages claim a real privacy and DMCA process. The mailboxes are `.example` placeholders, and analytics load without the consent the privacy page promises.** [VERIFIED: legal pages, layout, search for a consent component.] `ROADMAP.md` phase 1 and `AGENTS.md` say these surfaces are required before production is acceptable. The pages exist. The mechanism does not.
 2. **Production hostname drift.** Fixed in code 2026-10-01 (one `PROD_SITE_URL`, eight host). Still open: `NEXT_PUBLIC_SITE_URL` is absent from `.env.local`, so a local production build warns `metadataBase` is localhost; the Vercel and GitHub `SITE_URL` values are owner-side (section 13).
 3. **Anthology still serves a large set of photographs after a written photo-free, license-or-remove policy.** Grid photos were removed. `public/stories` still has 124 files. The ingestion report describes real race photographs. `AGENTS.md` says an asset with an unclear license does not ship. No per-file license ledger was found in this pass [UNVERIFIED: each file’s license was not opened].
-5. **No pull-request gate runs lint, types, tests, or build.** Quality on 2026-10-01 was good only because this analysis ran the commands. `ROADMAP.md` phase 4 says those gates are part of release. They are not installed.
+5. **PR gate exists but is unproven and not enforced by the repo.** `ci.yml` was added 2026-10-01; making it a required check is a GitHub setting (owner).
 6. **Rate limiting and cron locking are only as strong as Upstash in production, which is unconfirmed for the current Vercel project.** The code degrades to per-instance memory. The news and F1 crons are also scheduled twice (Vercel daily and GitHub hourly).
 7. **Sentry is wired and the upload failed** with `Project not found` for the org and project hardcoded in `next.config.ts`. Error monitoring may be dark. [UNVERIFIED: live Sentry ingest.]
 8. **Node 24 is declared and Node 22 is what actually runs** locally and in the F1 sync workflow. The build passed on 22. An engine-strict environment could diverge. [UNVERIFIED: Node 24 was not installed here.]
@@ -465,8 +465,8 @@ These items are not done. Order follows section 10.
    Done when: a fresh browser session does not send analytics before consent, or the privacy page no longer claims that; each legal page’s mailto is an address the owner has confirmed; a test message to that address is received.
 3. **License ledger for `public/stories` and `stories-images`.** For each file: source, license, author, date, or remove it. Same standard already used for the grid.
    Done when: every file under `public/stories` is either listed with a license that allows this use, or deleted, and the site still builds.
-5. **CI on pull requests.** One workflow: `npm ci`, `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`, on the Node version the project actually standardizes.
-   Done when: a commit that fails `npm test` cannot merge to `main`, and the workflow is green on current `main`.
+5. **Prove CI.** Open a pull request and see `ci.yml` green on Node 24; then make it a required check (owner).
+   Done when: the workflow is green on a real pull request and a failing `npm test` blocks merge.
 6. **Confirm production Upstash, cron secrets, Groq, Gemini, and Sentry on the eight project.** Fix the Sentry org/project or stop uploading. Add the missing names to `.env.example` with empty values.
    Done when: the owner confirms those names exist in the Vercel project (values stay secret); a source-map upload either succeeds or is explicitly disabled; `.env.example` lists every name the server reads.
 8. **Align Node.** Either run CI and local engines on 22, or install 24 and re-run the four gates.
