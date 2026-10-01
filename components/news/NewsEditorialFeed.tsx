@@ -14,7 +14,6 @@ import {
 import { NewsFilterBar } from '@/components/news/NewsFilterBar';
 import { NewsCard } from '@/components/news/NewsList';
 import { NewsWireFeed } from '@/components/news/NewsWireFeed';
-import { NewsImageFallback } from '@/components/news/NewsImageFallback';
 
 const INITIAL_COUNT = 12;
 const LOAD_STEP = 12;
@@ -33,10 +32,10 @@ function CompactNewsRow({ item }: { item: NewsItem }) {
   return (
     <Link
       href={`/news/${item.id}`}
-      className="group flex items-start gap-3 border-b border-hairline py-3 last:border-b-0"
+      className="group flex items-start gap-3 border-b border-hairline py-3.5 last:border-b-0 transition-colors hover:bg-white/[0.02] px-1 rounded-[var(--radius-chip)]"
     >
-      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface">
-        {hasImage ? (
+      {hasImage ? (
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface">
           <ApexImage
             src={item.image}
             alt=""
@@ -46,23 +45,23 @@ function CompactNewsRow({ item }: { item: NewsItem }) {
             loading="lazy"
             className="object-cover transition-transform duration-200 group-hover:scale-105"
           />
-        ) : (
-          <NewsImageFallback />
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="mt-1 flex h-10 w-1 shrink-0 rounded-full bg-hairline group-hover:bg-accent transition-colors" />
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="data-tabular text-xs uppercase tracking-wider text-text-mid">
+          <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
             {item.dateLabel} · {item.sourceName}
           </span>
           {item.sources && item.sources.length > 1 ? (
-            <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.2 text-[9px] font-mono text-text-mid">
+            <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-mono text-text-mid">
               {item.sources.length} {locale === 'tr' ? 'kaynak' : 'sources'}
             </span>
           ) : null}
         </div>
         <span
-          className="mt-0.5 line-clamp-2 block font-condensed text-base font-700 uppercase leading-tight text-text-hi"
+          className="mt-0.5 line-clamp-2 block font-condensed text-base font-700 uppercase leading-tight text-text-hi group-hover:text-white break-words"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
           {title}
@@ -85,6 +84,7 @@ export function NewsEditorialFeed({
   /** Imageless / agency briefs for telemetry wire. */
   wire: NewsItem[];
 }) {
+  const locale = useLocale();
   const [filter, setFilter] = useState<NewsCategory>('all');
   const [visible, setVisible] = useState(INITIAL_COUNT);
 
@@ -115,8 +115,8 @@ export function NewsEditorialFeed({
       />
 
       {shown.length === 0 && filteredWire.length === 0 ? (
-        <p className="body-md py-8 text-center text-text-mid">
-          No dispatches in this lane right now.
+        <p className="body-md py-8 text-center text-text-mid font-mono">
+          {locale === 'tr' ? 'Bu kategoride henüz bir haber bulunmuyor.' : 'No dispatches in this lane right now.'}
         </p>
       ) : null}
 
@@ -135,8 +135,10 @@ export function NewsEditorialFeed({
           ))}
         </div>
         {mobileCompact.length > 0 ? (
-          <div className="rounded-[var(--radius-lg)] border border-hairline bg-surface/30 px-4">
-            <span className="label-caps block py-3 text-text-low">More dispatches</span>
+          <div className="rounded-[var(--radius-lg)] border border-hairline bg-surface/30 px-4 py-2">
+            <span className="label-caps block py-2 text-text-low font-mono">
+              {locale === 'tr' ? 'Diğer Haberler' : 'More dispatches'}
+            </span>
             {mobileCompact.map((item) => (
               <CompactNewsRow key={item.id} item={item} />
             ))}
@@ -149,9 +151,9 @@ export function NewsEditorialFeed({
           <button
             type="button"
             onClick={() => setVisible((n) => n + LOAD_STEP)}
-            className="label-caps rounded-[var(--radius-pill)] border border-white/15 bg-white/[0.04] px-5 py-2.5 text-text-mid transition-colors hover:border-white/25 hover:text-text-hi"
+            className="touch-target label-caps flex min-h-11 items-center rounded-[var(--radius-pill)] border border-white/15 bg-white/[0.04] px-6 py-2.5 text-text-mid font-mono transition-colors hover:border-white/30 hover:text-text-hi focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
           >
-            Load Older Dispatches
+            {locale === 'tr' ? 'Daha Fazla Haber Göster' : 'Load Older Dispatches'}
           </button>
         </div>
       ) : null}

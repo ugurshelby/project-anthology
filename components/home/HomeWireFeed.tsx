@@ -79,7 +79,9 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
           </span>
-          <h2 className="label-caps tracking-wider text-text-mid">The Wire</h2>
+          <h2 className="label-caps tracking-wider text-text-mid font-mono">
+            {locale === 'tr' ? 'Telgraf Akışı' : 'The Wire'}
+          </h2>
         </div>
         <Link
           href="/news"
@@ -96,7 +98,9 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
       </div>
 
       {feed.length === 0 ? (
-        <p className="body-md text-text-mid">No dispatches right now.</p>
+        <p className="body-md text-text-mid font-mono">
+          {locale === 'tr' ? 'Şu anda yeni bir bülten bulunmuyor.' : 'No dispatches right now.'}
+        </p>
       ) : (
         <ul className="flex flex-col divide-y divide-hairline/60">
           {feed.map((item) => {
@@ -143,7 +147,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
                     </div>
 
                     {/* Headline */}
-                    <span className="mt-1 line-clamp-2 block text-sm font-medium leading-snug text-text-hi transition-colors duration-150 group-hover:text-white">
+                    <span className="mt-1 line-clamp-2 block text-sm font-medium leading-snug text-text-hi transition-colors duration-150 group-hover:text-white break-words">
                       {title}
                     </span>
                   </div>
