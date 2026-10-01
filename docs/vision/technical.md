@@ -1,9 +1,9 @@
 # Teknik Referans — Project Anthology (Apex)
 
-> Agent'ın kalıcı entegrasyon/API/tablo eklerken güncellediği özet.
-> Detay: `docs/reference/mimari.md`
+> Kalıcı entegrasyon/API/tablo eklenince güncellenir. Kural dosyası: `AGENTS.md`.
+> Ölçülmüş durum ve dizin haritası: `docs/reference/apex-reference.md`. Detay: `docs/reference/mimari.md`.
 
-**Son güncelleme:** 2026-07-04
+**Son güncelleme:** 2026-10-01
 
 ---
 
@@ -11,15 +11,17 @@
 
 | Katman | Sürüm / Araç |
 |---|---|
-| Web framework | Next.js **16.2.7**, React **19.2.4**, TypeScript **5** |
-| Stil (web) | Tailwind CSS **4** |
-| Mobil | Expo **~56**, React Native **0.85.3**, Expo Router **~56.2** |
-| Veritabanı | Supabase (PostgreSQL + RLS) |
-| Deploy | Vercel (web + 4 cron), EAS (mobil) |
-| Test | Vitest (unit), Playwright (devDep, e2e henüz yok) |
+| Web framework | Next.js **16.2.7** (App Router), React **19.2.4**, TypeScript **5** (`strict`) |
+| Stil | Tailwind CSS **4**, Framer Motion 12 |
+| i18n | `next-intl` 4 — `en` (önek yok) ve `tr` (`/tr/...`); locale proxy `proxy.ts` (`middleware.ts` değil) |
+| Veritabanı | Supabase (PostgreSQL + RLS); anon okuma, service-role yazma (`lib/supabase.ts`) |
+| Deploy | Vercel (`main` otomatik deploy; `vercel.json` 3 günlük cron) + GitHub Actions (saatlik/10 dk işler) |
+| Test | Vitest (`tests/**/*.test.ts`, node ortamı). Playwright devDependency ama config/script yok, kullanılmıyor |
 | İzleme | Sentry, Vercel Analytics + Speed Insights |
-| Rate-limit | Upstash Redis + in-memory fallback — Upstash env `.env.local`'de mevcut (muhtemelen prod'da da tanımlı, `vercel env pull` ile senkronize edilmiş olmalı); Vercel dashboard'dan **teyit edilmeli**, çünkü in-memory fallback yalnızca tek serverless instance içinde sayar — trafik artışında yeni instance'lar açıldıkça korumayı zayıflatır |
-| CSP | `lib/security/csp.ts` — `font-src` same-origin + `data:` + `https://vercel.live` (Vercel Toolbar) |
+| Rate-limit | Upstash Redis varsa dağıtık, yoksa in-memory (tek instance) — Vercel'de Upstash varlığı repo'dan doğrulanamaz |
+| CSP | `lib/security/csp.ts` — `font-src` same-origin + `data:` + `https://vercel.live` |
+| Node | `package.json` `engines` ve `.nvmrc` 24; GitHub Actions F1 workflow'u Node 22 (sahip kararı bekliyor) |
+| Mobil | `mobile/` (Expo ~56) diskte var, `.gitignore`'da, **git'te yok**; sahip kararı bekliyor |
 
 ---
 
@@ -27,31 +29,32 @@
 
 ```
 anthology/
-├── app/           # Next.js App Router (sayfalar iskelet; API/cron korundu)
-├── lib/           # Veri katmanı, f1Calendar, ingest, supabase
-├── data/          # Metin içerik (drivers, teams, stories, glossary)
-├── config/        # team-colors.ts
-├── public/        # Assetler — DOKUNMA
-├── supabase/migrations/  # DB migration (3 dosya)
-├── mobile/        # Expo monorepo alt projesi
-├── docs/design/   # Tasarım otoritesi
-└── tests/         # Vitest
+├── app/[locale]/   # 20 sayfa (home, season, drivers, teams, grid, circuits, news, anthology, glossary, legal)
+├── app/api/        # 13 route handler (4 cron, f1-season, live-timing, news, push, season, circuit/driver/team career)
+├── components/     # Web UI (89 modül): layout, home, season, news, profile, anthology, glossary, legal, media
+├── lib/            # data/, f1/, news/, api/, security/, seo.ts, cronAuth.ts, rateLimit.ts, supabase.ts, f1Calendar.ts, f1Ingest.ts
+├── data/           # Editoryal içerik (drivers, teams, stories, glossary)
+├── config/         # team-colors.ts
+├── i18n/ messages/ # next-intl routing + en.json/tr.json
+├── supabase/migrations/  # DB migration (8 dosya)
+├── scripts/        # seed ve sync script'leri
+├── docs/           # plans/master-plan.md, reference/, design/, vision/, procedures.md
+└── tests/          # Vitest (22 dosya)
 ```
 
-**Silindi / yok:** `components/` (web UI sıfırlandı, 2026-06-21)
-
-**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz gerçek fotoğraf/marka varlıklarıydı — telif riski nedeniyle kaldırıldı. `lib/assets/f1-icons.ts`'teki `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` artık her zaman `null` döner; `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder (isim/kod baş harfleri + `--team-secondary` rengi — canlı standings verisinden, ek asset gerektirmez, yeni pilot/takım için otomatik çalışır). İstisna: `circuitIconSrc` — pist rota çizimi MIT lisanslı geometri (`assets/f1-circuits/`, fotoğraf değil), kaldırılmadı.
+**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz olduğu için kaldırıldı. `lib/assets/f1-icons.ts`'teki `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` her zaman `null` döner; `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder (isim/kod baş harfleri + `--team-secondary`). İstisna: `circuitIconSrc` — MIT lisanslı pist rota geometrisi (`assets/f1-circuits/`). Anthology görselleri (`public/stories`, 124 dosya) bu kapsamda değildi; lisans durumu sahip kararı bekliyor.
 
 ---
 
 ## Veri Akışı
 
 ```
-Jolpica · F1DB · OpenF1 · RSS
-        ↓  Vercel Cron (service_role)
-    Supabase (f1_snapshots, stories, radio_moments, circuits, news_cache, push_subscriptions)
+Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
+        ↓  yalnız cron (service_role) — tarayıcıdan çağrılmaz
+    Supabase (f1_snapshots, stories, radio_moments, circuits, news_cache, news_stories,
+              circuit_weather, push_subscriptions, notified_sessions)
         ↓  lib/data/* (anon, RLS)
-    app/**/page.tsx (RSC)
+    app/[locale]/**/page.tsx (RSC)
 ```
 
 **Tek temporal kaynak:** `lib/f1Calendar.ts` — `CURRENT_SEASON`, `getF1Context()`
@@ -74,17 +77,18 @@ Jolpica · F1DB · OpenF1 · RSS
 
 | Rota | Amaç |
 |---|---|
-| `/api/cron/sync-news` | RSS → news_cache (06:00 UTC) |
-| `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (07:00 UTC) |
+| `/api/cron/sync-news` | RSS → kümeleme → `news_stories` (+ `news_cache`). Vercel günlük 06:00 UTC + GitHub Actions `sync-news.yml` saatlik (:07) |
+| `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (Vercel 07:00 UTC); `scope=live` GitHub Actions `sync-f1-race-aware.yml` saatlik due-check |
 | `/api/cron/sync-radio` | OpenF1 → radio_moments (08:00 UTC) |
 | `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (GitHub Actions `notify-sessions.yml`, 10dk) |
-| `/api/push/register` | Expo push token kayıt |
+| `/api/push/register` | Expo push token kayıt (rate-limit 10/dk) |
 | `/api/f1-season` | Canlı Jolpica proxy |
 | `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. |
 | `/api/news` | Haber API |
-| `/api/season/[year]` | Sezon snapshot API |
+| `/api/season/[year]`, `/api/season/[year]/last-result` | Sezon snapshot API |
+| `/api/circuits/[id]`, `/api/drivers/[driverId]/career`, `/api/teams/[constructorId]/career` | Detay API'leri |
 
-Cron auth: `Authorization: Bearer ${CRON_SECRET_KEY}`
+Cron auth: `Authorization: Bearer <secret>`; `lib/cronAuth.ts` `isCronAuthorized` hem `CRON_SECRET` (Vercel enjekte eder) hem `CRON_SECRET_KEY` (eski ad) kabul eder, timing-safe, ikisi de yoksa reddeder. Dört cron route'unun hepsi çağırır.
 
 **GitHub Actions (5-10dk granülerlik gereken işler, Vercel Hobby günde-1-cron sınırını aşar):**
 `sync-f1-race-aware.yml` (saatlik, due-window tetikleme) ve `notify-sessions.yml` (10dk, doğrudan çağrı) —
@@ -102,6 +106,7 @@ vb.) gerekmiyor.
 | `radio_moments` | Telsiz anları |
 | `circuits` | Pist verisi |
 | `news_cache` | Agregat haberler |
+| `news_stories` | Kümelenmiş + yeniden yazılmış haber hikâyeleri (7 gün saklama) |
 | `push_subscriptions` | Mobil push token'ları |
 | `notified_sessions` | Seans bildirimi dedupe guard'ı (season/round/session_type) |
 | `circuit_weather` | **İleriye-dönük SADECE** — yalnızca canlı/gelecek yarışın pisti (unique season+round); sync-f1 her çalıştığında biten yarışların satırını siler. Geçmiş hava durumu asla tutulmaz. |
@@ -119,33 +124,33 @@ Migration kuralı: `YYYYMMDDHHMMSS_*.sql` formatı zorunlu.
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client okuma |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server yazma (asla client'a sızmaz) |
-| `CRON_SECRET_KEY` | Cron auth |
-| `NEXT_PUBLIC_SITE_URL` | RSC self-fetch |
+| `CRON_SECRET` / `CRON_SECRET_KEY` | Cron auth (ikisi de kabul edilir) |
+| `NEXT_PUBLIC_SITE_URL` | RSC self-fetch ve canonical; `getSiteUrl()` sırası: bu → `VERCEL_URL` → sabit canlı host |
+| `SITE_URL` | Yalnız GitHub Actions/script'ler (repo variable) |
 | `GEMINI_API_KEY` | Haber birleştirme/yeniden yazım (ücretsiz katman, opsiyonel; AI Studio'dan) |
 | `GROQ_API_KEY` | Haber yazımı ana sağlayıcı (ücretsiz katman; gpt-oss-120b → 20b). Gemini yedek |
-| `UPSTASH_REDIS_REST_URL/TOKEN` | Rate-limit (opsiyonel) |
+| `GROQ_NEWS_MODELS` / `GEMINI_NEWS_MODELS` | Haber yazım model listesi override (opsiyonel) |
+| `UPSTASH_REDIS_REST_URL/TOKEN` | Rate-limit ve cron kilidi (opsiyonel; yoksa in-memory) |
+| `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` / `SENTRY_AUTH_TOKEN` / `SENTRY_UPLOAD_SOURCE_MAPS` | Sentry (opsiyonel) |
 
 ---
 
 ## Komutlar
 
 ```bash
-# Web (kök)
 npm run dev | build | lint | test
 npm run seed:f1db | seed:stories
 
-# Mobil
-cd mobile && npm start
+npx tsc --noEmit   # tip kontrolü (npm script yok)
 ```
 
 ---
 
 ## Brownfield Uyarıları
 
-1. Web sayfaları iskelet — veri çağrıları/metadata korundu, JSX boş.
-2. `isSeasonSnapshotContentInvalid()` — boş DB snapshot atlanır, Jolpica fallback.
-3. Pilot/takım/araç görseli **yok artık** — `driverIconSrc()`/`teamIconSrc()`/`carSrc()` hep `null` döner, `ApexFallback` rozet render eder (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
-4. Paralel `npm run build` kilitleme riski — tek build aynı anda.
+1. `isSeasonSnapshotContentInvalid()` — boş DB snapshot atlanır, Jolpica fallback.
+2. Pilot/takım/araç görseli **yok artık** — `driverIconSrc()`/`teamIconSrc()`/`carSrc()` hep `null` döner, `ApexFallback` rozet render eder (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
+3. Paralel `npm run build` kilitleme riski — tek build aynı anda.
 
 
 ## Haber hikâyeleri (news_stories)

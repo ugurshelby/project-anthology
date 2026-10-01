@@ -131,7 +131,6 @@ Poster Dense kabuk — Split Cinema devre dışı.
 
 | Dosya | İçerik |
 |---|---|
-| `docs/superpowers/specs/2026-07-04-apex-web-responsive-design.md` | Tam spec + kabul kriterleri |
 | `app/globals.css` | Token kaynağı |
 | `config/team-colors.ts` | Takım renk çubukları |
 | `components/layout/` | Header, MobileNav, BentoGrid (refactor hedefi) |
