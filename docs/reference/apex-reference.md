@@ -349,11 +349,11 @@ Last verified: 2026-10-01
 | `README.md` | Setup, routes, stack, live URL | Mixed. Live URL and stack match. The 2026-06-21 “frontend reset, pages are placeholders” note is false. Routes omit `/tr`, `/grid`, `/news/[id]`, and the legal pages. Env table omits Groq, Upstash, and Sentry |
 | `PRODUCT.md` | Users, purpose, brand, accessibility target | Current as a product statement. Accessibility is a target, not a measured result |
 | `ROADMAP.md` | Four production phases: legal, SEO, UI, release | Aspirational. Several phase-1 pages exist, but placeholder emails and the analytics consent gap mean phase 1 is not met. No phase is checked off |
-| `AGENTS.md` | Engineering standard: copyright, Next.js boundaries, no commit unless asked, migrations only under `supabase/migrations/` | Closer to the code than the constitutions. Still says production is not acceptable until legal surfaces exist; those pages exist and are incomplete. Conflicts with the constitutions on commit-and-push |
+| `AGENTS.md` | Single canonical English rule file (rewritten 2026-10-01) | Current |
 | `PROJECT_TREE.md` | Generated tree, including `.next` and tool folders | Snapshot, not a source of truth. Do not treat it as the map |
-| `.cursor/rules/CURSOR.mdc` | Cursor constitution. Turkish, “Jarvis”, log, plan-first, commit and push when finished | Duplicate of `.claude/CLAUDE.md`. **Stale** on “components deleted”. Conflicts with `AGENTS.md` and with a user rule that forbids unsolicited commits |
-| `.claude/CLAUDE.md` | Same constitution for Claude Code | Same duplicate and the same stale sentence |
-| `.agents/rules/apex-anayasa.md` | Third copy of the same constitution | Same |
+| `.cursor/rules/CURSOR.mdc` | Pointer to `AGENTS.md` | Current (2026-10-01) |
+| `.claude/CLAUDE.md` | Pointer to `AGENTS.md` | Current (2026-10-01) |
+| `.agents/rules/apex-anayasa.md` | Pointer to `AGENTS.md` | Current (2026-10-01) |
 | `design/design.md` | Separate design note at repo `design/` | Not read line by line. Not the file the master plan cites as the design authority (`docs/design/apex-design-language.md`) |
 
 ### Logs
@@ -506,24 +506,11 @@ These items are not done. Order follows section 10.
 
 ---
 
-## 12. Proposed agent rules (branch and commit permissions, migration safety checks, forbidden actions, verification before reporting done; written as short enforceable rules)
+## 12. Agent rules
 
 Last verified: 2026-10-01
 
-These are proposals. They are not installed. They follow `AGENTS.md` where it conflicts with the constitutions. The owner still has to say which file wins (section 13).
-
-1. Do not commit, push, deploy, or open a pull request unless the current user message explicitly asks for that action.
-2. Stay on the current branch unless the user asks for a new one. Do not commit to `main` if the user asked for a branch.
-3. Do not edit, rename, or delete application code when the task says analysis only. One new doc is allowed only when the task names that file.
-4. Never print, log, or commit secret values. In docs, list environment variable names only. Do not commit `.env.local`, `.env.local.append`, or `.env.sentry-build-plugin`.
-5. Database changes are new files in `supabase/migrations/` with a timestamp prefix. Do not edit a migration that has already been applied. Do not run `supabase db push` or paste SQL into production without an explicit user request in the current task.
-6. Do not hardcode a season year, a driver roster, or a team roster. Read them through `lib/f1Calendar.ts` and the snapshot layer.
-7. Do not add official Formula 1, team, or sponsor logos, or photographs that have no license record in the same change.
-8. Do not add a second production hostname constant. The only origin is `getSiteUrl()`, and its fallback must be the live host.
-9. Cron handlers must keep `isCronAuthorized` and must fail closed.
-10. Before saying a code change is done, run the smallest related Vitest file, then `npm run lint`. Run `npm run build` when the change touches routes, `next.config.ts`, data-reading pages, or migrations. Report the command and the pass or fail count. Do not start a second `next build` while one is running.
-11. Do not treat `docs/reference/proje-dizini.md`, `docs/PLAN.md`, or the sentence “components were deleted on 2026-06-21” as the current tree.
-12. Do not update git config, do not force-push, and do not skip hooks unless the user explicitly asks.
+Installed. The single canonical rule file is `/AGENTS.md` (permission model, forbidden actions, verification, migration safety, git hygiene, docs self-maintenance, logs, procedure triggers). `.claude/CLAUDE.md`, `.cursor/rules/CURSOR.mdc` and `.agents/rules/apex-anayasa.md` are one-line pointers to it. Procedures live in `docs/procedures.md`.
 
 ---
 
@@ -531,7 +518,7 @@ These are proposals. They are not installed. They follow `AGENTS.md` where it co
 
 Last verified: 2026-10-01
 
-1. Which rule file should agents obey when they disagree: `AGENTS.md` (no commit or push unless asked) or `.cursor/rules/CURSOR.mdc` / `.claude/CLAUDE.md` / `.agents/rules/apex-anayasa.md` (commit and push at the end of every task, and address the user with a fixed persona)?
+1. ~~Which rule file wins?~~ Resolved 2026-10-01: `AGENTS.md`.
 2. Is the current Vercel project still on the Hobby plan? The daily cron design assumes yes. That was not visible from the repo.
 3. After the move to `project-anthology-eight`, are `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET` or `CRON_SECRET_KEY`, Upstash, Groq, Gemini, and Sentry set on that Vercel project? The 2026-10-01 log said the site URL and the GitHub secret/variable were still pending. The public canonical is already eight. The dashboard was not opened.
 4. What is the GitHub Actions `SITE_URL` variable today? If it is still five or seven, hourly sync and push notifications are calling a dead host.
