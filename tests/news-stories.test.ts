@@ -53,14 +53,14 @@ describe('clusterArticles', () => {
 
 describe('copyright guard', () => {
   const src = [{ source: 'A', title: 'Russell holds off Verstappen to win in Baku', summary: 'The Mercedes driver led every lap' }];
-  it('flags 5+ consecutive shared words', () => {
-    expect(copiesSource('Russell holds off Verstappen to win', src)).toBe(true);
+  it('flags 7+ consecutive shared words', () => {
+    expect(copiesSource('Russell holds off Verstappen to win in Baku', src)).toBe(true);
   });
   it('accepts an independent phrasing of the same facts', () => {
     expect(copiesSource('Mercedes won in Azerbaijan after fending off a late Red Bull charge', src)).toBe(false);
   });
   it('parseRewrite rejects copied output and reports different events as split', () => {
-    const copied = { same_story: true, title_en: 'Russell holds off Verstappen to win', summary_en: 'x y z', title_tr: 'a', summary_tr: 'b' };
+    const copied = { same_story: true, title_en: 'Russell holds off Verstappen to win in Baku', summary_en: 'x y z', title_tr: 'a', summary_tr: 'b' };
     expect(parseRewriteItem(copied, src)).toBeNull();
     const two = [...src, { source: 'B', title: 'Unrelated podcast promo', summary: 'Listen now' }];
     expect(parseRewriteItem({ same_story: false }, two)).toBe('split');
