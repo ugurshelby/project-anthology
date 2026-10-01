@@ -2,7 +2,7 @@
 
 Formula 1 odaklı arşiv ve canlı veri sitesi. Sezon takvimi, puan durumu, pilot/takım profilleri, pistler, haberler ve tarihsel hikâyeler tek bir arayüzde birleşir.
 
-**Canlı:** [project-anthology-five.vercel.app](https://project-anthology-five.vercel.app)
+**Canlı:** [project-anthology-eight.vercel.app](https://project-anthology-eight.vercel.app)
 
 ## Özellikler
 

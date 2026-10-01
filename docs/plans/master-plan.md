@@ -3,7 +3,7 @@
 > Agent'ın tek plan kaynağı. Yeni iş buraya madde eklenir, bitince `[x]` işaretlenir.
 > Eski detaylı faz geçmişi: `docs/PLAN.md` (2026-06-26 snapshot).
 >
-> **Canlı:** https://project-anthology-five.vercel.app
+> **Canlı:** https://project-anthology-eight.vercel.app
 > **Son güncelleme:** 2026-07-04
 
 ---

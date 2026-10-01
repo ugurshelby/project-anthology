@@ -3,7 +3,7 @@
 > **Amaç:** Projenin uzun vadeli iş akışını izleyen ana plan. Tamamlananlar kısa özetle korunur;
 > devam eden ve sıradaki fazlar yüksek seviyede tanımlanır.
 >
-> **Canlı URL:** `https://project-anthology-five.vercel.app`
+> **Canlı URL:** `https://project-anthology-eight.vercel.app`
 > **Branch:** `feat/apex-frontend-rebuild`
 >
 > **Son güncelleme:** 2026-06-26
