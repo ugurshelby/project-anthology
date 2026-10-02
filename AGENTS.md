@@ -40,6 +40,8 @@ Done means measured. Before saying a change is done:
 - Run the smallest relevant Vitest file, then `npm run lint`.
 - Run `npx tsc --noEmit` for any TypeScript change.
 - Run `npm run build` when routes, `next.config.ts`, data-reading pages, or migrations changed. Never run two `next build` at once.
+- Never run a script that loads `.env.local` or any real env file. If a script needs env, run it with empty or placeholder values; if it cannot run that way, report it instead.
+- A UI change is not done until the changed screen was used in a browser. If no browser is available, report the check as not verified; never infer it from code.
 - Report each command and its result (pass/fail counts, exit code). Say plainly what was not run and why.
 - Do not claim anything you did not measure. Do not leave a failing gate that you caused.
 

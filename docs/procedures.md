@@ -19,9 +19,9 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 
 - Triggers: "frontend denetim turu", "arayüzü denetle", "frontend audit".
 - Scope: pages under `app/[locale]/` and `components/`.
-- Steps: read `docs/design/apex-design-language.md`; run the dev server and check every page at 375, 768 and 1280 px (overflow, tap targets, safe area); keyboard-only pass and visible focus; the `/tr` locale (missing strings, layout breaks, `tests/i18n-messages.test.ts`); empty and error states; previews and cards match real data (no invented numbers or names); no browser-side request to `/api/cron/*` or to upstream APIs (check network and `grep` in client components); `prefers-reduced-motion`; contrast.
+- Steps: read `docs/design/apex-design-language.md`; run the dev server (placeholder env only, never a real env file) and check every page at 375, 768 and 1280 px (overflow, tap targets, safe area); keyboard-only pass and visible focus; the `/tr` locale (missing strings, layout breaks, `tests/i18n-messages.test.ts`); empty and error states; previews and cards match real data (no invented numbers or names); no browser-side request to `/api/cron/*` or to upstream APIs (check network and `grep` in client components); `prefers-reduced-motion`; contrast.
 - May change: components, styles, messages, tests, inside the existing design language only. No new visual language, no new dependencies.
-- Only report: design-direction questions, anything needing new assets or licensing, performance numbers that need Lighthouse access.
+- Only report: any screen not used in a browser (mark "not verified", never infer from code), design-direction questions, anything needing new assets or licensing, performance numbers that need Lighthouse access.
 - Docs: master-plan boxes only if verified; reference section 2 and 10.
 - Output: list of findings with page, width, fix or reason it was not fixed.
 
@@ -38,7 +38,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 ## 3. Data and pipeline health
 
 - Triggers: "veri hattı kontrolü", "haber hattı kontrolü", "data health".
-- Scope: read-only. Public pages and public JSON routes, public Supabase reads that need no secret, `.github/workflows` state readable without a secret, code of `app/api/cron/*`.
+- Scope: read-only; never run a script that loads `.env.local` or a real env file (placeholder values, or report it). Public pages and public JSON routes, public Supabase reads that need no secret, `.github/workflows` state readable without a secret, code of `app/api/cron/*`.
 - Steps: snapshot freshness and content validity (`isSeasonSnapshotContentInvalid` logic against what pages show); `news_stories` freshness, count, EN/TR fields present, source links present; cron routes answer 401 without a token (`curl` without a secret is allowed); workflow files and last runs if visible via public `gh run list`; schedule overlap between Vercel and GitHub.
 - May change: tests and guards in code when a defect is found and is pure logic.
 - Only report: anything needing a secret, the Vercel/Supabase/Upstash/Sentry dashboards, or a cron call with a token. List these under "Needs owner".
@@ -69,7 +69,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 
 - Triggers: "main'e hazır mı", "merge öncesi kontrol", "ready to merge".
 - Scope: the unpushed commits or the current agent branch compared with `origin/main`.
-- Steps: `git diff --stat origin/main...HEAD`; run `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; list risks (migrations, env names, routes, cron, copyright, docs drift); recommend merge or not.
+- Steps: `git diff --stat origin/main...HEAD`; confirm every changed screen was used in a browser (otherwise list it as not verified); run `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; list risks (migrations, env names, routes, cron, copyright, docs drift); recommend merge or not.
 - May change: nothing except trivial fixes the gates require.
 - Only report: the recommendation. Do not push if a gate fails.
 - Docs: none unless a gate exposes a false doc.
