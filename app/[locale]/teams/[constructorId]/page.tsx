@@ -36,10 +36,11 @@ function parseSeason(raw: string | undefined): number | undefined {
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { constructorId, locale } = await params;
   const view = await getTeamView(constructorId, parseSeason((await searchParams).season));
-  if (!view) return { title: 'Constructor not found' };
+  const tp = await getTranslations({ locale, namespace: 'ui.pages.team' });
+  if (!view) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('team') };
 
   const title = `${view.name} — ${view.year}`;
-  const description = `${view.name} in the ${view.year} F1 season: championship position, points, driver lineup and the team's history.`;
+  const description = tp('description', { name: view.name, year: view.year });
   const canonical = `/teams/${view.headId}`;
   return {
     title,

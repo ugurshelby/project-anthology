@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { getSeasonData } from '@/lib/data/f1';
 import { CURRENT_SEASON, F1_SEASON_MIN, getNextRace } from '@/lib/f1Calendar';
@@ -26,29 +27,32 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { year: yearStr, locale } = await params;
   const year = Number(yearStr);
+  const t = await getTranslations({ locale, namespace: 'ui.pages.seasonYear' });
   if (!Number.isInteger(year) || year < F1_SEASON_MIN || year > CURRENT_SEASON) {
-    return { title: 'Season not found' };
+    return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('season') };
   }
 
-  const title = `Season ${year}`;
-  const description = `Formula 1 ${year} season archive: driver and constructor championship standings, race calendar, and results.`;
+  const title = t('title', { year });
+  const description = t('description', { year });
 
   return {
     title,
     description,
     openGraph: {
-      title: `${title} — F1 Archive`,
+      title: t('og', { title }),
       description,
       url: `/season/${year}`,
       type: 'website',
     },
-    twitter: { card: 'summary_large_image', title: `${title} — F1 Archive`, description },
+    twitter: { card: 'summary_large_image', title: t('og', { title }), description },
     alternates: localizedAlternates(`/season/${year}`, locale),
   };
 }
 
 export default async function HistoricalSeasonPage({ params }: PageProps) {
-  const { year: yearStr } = await params;
+  const { year: yearStr, locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'ui.pages' });
   const year = Number(yearStr);
 
   if (!Number.isInteger(year) || year < F1_SEASON_MIN || year > CURRENT_SEASON) {
@@ -70,7 +74,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
   if (!leader) {
     return (
       <PageShell>
-        <span className="label-caps text-text-mid">No standings data available for {year}</span>
+        <span className="label-caps text-text-mid">{t('seasonYear.noStandings', { year })}</span>
       </PageShell>
     );
   }
@@ -114,7 +118,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
                 <LatestRaceCard recap={recap} season={year} />
               ) : (
                 <span className="label-caps text-text-mid">
-                  {year < CURRENT_SEASON ? 'Season concluded' : 'No completed races yet'}
+                  {year < CURRENT_SEASON ? t('season.concluded') : t('season.noCompleted')}
                 </span>
               )}
             </BentoCard>

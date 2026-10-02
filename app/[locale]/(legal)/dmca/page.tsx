@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LegalPage } from '@/components/legal/LegalPage';
+import { mailTag } from '@/lib/legal-mail';
 import { localizedAlternates } from '@/lib/seo';
 
 export async function generateMetadata({
@@ -8,59 +10,40 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'legal.dmca' });
   return {
-    title: 'Copyright & DMCA',
-    description: 'Copyright notice and takedown process for Apex.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
     alternates: localizedAlternates('/dmca', locale),
   };
 }
 
-export default function DmcaPage() {
+export default async function DmcaPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'legal.dmca' });
+  const tl = await getTranslations({ locale, namespace: 'legal' });
   return (
     <LegalPage
-      eyebrow="Legal / 04"
-      title="Copyright and takedown requests."
-      intro="Apex respects copyright and wants every asset to have a documented source and licence. If you believe content on this site infringes your rights, send a complete notice so we can investigate and act quickly."
-      updated="17 September 2026"
+      eyebrow={t('eyebrow')}
+      title={t('title')}
+      intro={t('intro')}
+      updated={t('updated')}
+      updatedLabel={tl('updatedLabel')}
       sections={[
         {
-          title: 'What to include',
+          title: t('s1Title'),
           body: (
             <ol className="list-decimal space-y-2 pl-5">
-              <li>Your name, contact details and authority to act for the rights holder.</li>
-              <li>A description of the copyrighted work and the exact Apex URL or asset path.</li>
-              <li>A good-faith statement that the use is not authorised by the rights holder, its agent or law.</li>
-              <li>A statement that the information is accurate and, where applicable, a signature.</li>
+              <li>{t('s1i1')}</li>
+              <li>{t('s1i2')}</li>
+              <li>{t('s1i3')}</li>
+              <li>{t('s1i4')}</li>
             </ol>
           ),
         },
-        {
-          title: 'Where to send it',
-          body: (
-            <p>
-              Email the notice to{' '}
-              <a className="text-text-hi underline decoration-accent underline-offset-4" href="mailto:dmca@apexstats.example">
-                dmca@apexstats.example
-              </a>
-              . This address is a pre-launch placeholder and must be replaced by
-              a monitored designated agent address before the service is publicly
-              launched.
-            </p>
-          ),
-        },
-        {
-          title: 'Review process',
-          body: (
-            <p>
-              We acknowledge valid notices, preserve relevant records, restrict or
-              remove the reported material while investigating, and contact the
-              submitting party if clarification is needed. Counter-notices and
-              repeat-infringer decisions are handled under applicable law. A
-              mistaken or abusive notice can cause harm, so provide only
-              truthful, specific information.
-            </p>
-          ),
-        },
+        { title: t('s2Title'), body: <p>{t.rich('s2p1', { mail: mailTag })}</p> },
+        { title: t('s3Title'), body: <p>{t('s3p1')}</p> },
       ]}
     />
   );

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSeasonData } from '@/lib/data/f1';
 import { CURRENT_SEASON, F1_SEASON_MIN, getNextRace } from '@/lib/f1Calendar';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
@@ -15,30 +16,33 @@ import { localizedAlternates } from '@/lib/seo';
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
-const TITLE = 'Season';
-const DESCRIPTION = `Formula 1 ${CURRENT_SEASON} season: driver and constructor standings, race calendar, and race recaps.`;
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ui.pages.season' });
+  const TITLE = t('metaTitle');
+  const DESCRIPTION = t('metaDescription', { season: CURRENT_SEASON });
   return {
     title: TITLE,
     description: DESCRIPTION,
     openGraph: {
-      title: `${TITLE} — F1 ${CURRENT_SEASON}`,
+      title: t('metaOg', { season: CURRENT_SEASON }),
       description: DESCRIPTION,
       url: '/season',
       type: 'website',
     },
-    twitter: { card: 'summary_large_image', title: `${TITLE} — F1 ${CURRENT_SEASON}`, description: DESCRIPTION },
+    twitter: { card: 'summary_large_image', title: t('metaOg', { season: CURRENT_SEASON }), description: DESCRIPTION },
     alternates: localizedAlternates('/season', locale),
   };
 }
 
-export default async function SeasonPage() {
+export default async function SeasonPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'ui.pages.season' });
   const seasonData = await getSeasonData(CURRENT_SEASON);
   const { standings, constructors, races, raceSummaries, highlights, recap } = seasonData;
 
@@ -50,7 +54,7 @@ export default async function SeasonPage() {
   if (!leader) {
     return (
       <PageShell>
-        <span className="label-caps text-text-mid">No standings data for {CURRENT_SEASON}</span>
+        <span className="label-caps text-text-mid">{t('noStandings', { season: CURRENT_SEASON })}</span>
       </PageShell>
     );
   }
@@ -81,7 +85,7 @@ export default async function SeasonPage() {
               {recap ? (
                 <LatestRaceCard recap={recap} season={CURRENT_SEASON} />
               ) : (
-                <span className="label-caps text-text-mid">No completed races yet</span>
+                <span className="label-caps text-text-mid">{t('noCompleted')}</span>
               )}
             </BentoCard>
           </BentoGrid>

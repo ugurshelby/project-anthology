@@ -40,13 +40,14 @@ function taglineFromLore(lore: { lore: string }): string | null {
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { driverId, locale } = await params;
   const view = await getDriverView(driverId, parseSeason((await searchParams).season));
-  if (!view) return { title: 'Driver not found' };
+  const tp = await getTranslations({ locale, namespace: 'ui.pages.driver' });
+  if (!view) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('driver') };
 
   const team = view.teams[view.teams.length - 1]?.name;
   const title = `${view.name} — ${view.year}`;
   const description = team
-    ? `${view.name} in the ${view.year} F1 season with ${team}: championship position, points, wins and career through ${view.year}.`
-    : `${view.name} in the ${view.year} F1 season.`;
+    ? tp('description', { name: view.name, year: view.year, team })
+    : tp('descriptionNoTeam', { name: view.name, year: view.year });
   const canonical = `/drivers/${view.id}`;
   return {
     title,

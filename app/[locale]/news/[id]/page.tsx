@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { ApexImage } from '@/components/media/ApexImage';
 import { getNewsById } from '@/lib/data/news';
-import { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
+import { localizedNewsTitle, localizedNewsSummary, newsDateLabel } from '@/lib/news/i18n';
 import { estimateReadMinutes } from '@/lib/news/categories';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { SITE_NAME, localizedAlternates } from '@/lib/seo';
@@ -18,7 +19,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
   const item = await getNewsById(id);
-  if (!item) return { title: 'Story not found' };
+  if (!item) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('story') };
 
   const title = localizedNewsTitle(item, locale);
   const description = localizedNewsSummary(item, locale) || title;
@@ -79,11 +80,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
             </Link>
             <div className="flex flex-wrap items-center gap-2">
               <span className="label-caps text-accent font-mono">
-                {item.dateLabel} · {item.sourceName}
+                {newsDateLabel(item, locale)} · {item.sourceName}
               </span>
               <span className="text-white/20">·</span>
               <span className="data-tabular text-xs text-text-mid font-mono">
-                {readMins} MIN READ
+                {readMins} {isTr ? 'DK OKUMA' : 'MIN READ'}
               </span>
               {sourcesCount > 1 ? (
                 <span className="label-caps rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-mono text-text-mid">
@@ -109,11 +110,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
               </Link>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="label-caps text-accent font-mono">
-                  {item.dateLabel} · {item.sourceName}
+                  {newsDateLabel(item, locale)} · {item.sourceName}
                 </span>
                 <span className="text-white/20">·</span>
                 <span className="data-tabular text-xs text-text-mid font-mono">
-                  {readMins} MIN READ
+                  {readMins} {isTr ? 'DK OKUMA' : 'MIN READ'}
                 </span>
                 {sourcesCount > 1 ? (
                   <span className="label-caps rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-mono text-text-mid">

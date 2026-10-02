@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 /**
  * Bio + milestones + "deep cut" lore — mirrors mobile's "THE STORY"/"THE TEAM"
  * detail sections (mobile/app/driver/[id].tsx, mobile/app/team/[id].tsx).
@@ -19,6 +21,7 @@ export function LoreSection({
   /** Optional key/value facts row above the bio (e.g. nationality/born, or country/founded). */
   facts?: Array<{ label: string; value: string }>;
 }) {
+  const t = useTranslations('ui.profile');
   return (
     <div className="flex flex-col gap-5">
       <span className="label-caps text-text-mid">{heading}</span>
@@ -49,7 +52,7 @@ export function LoreSection({
 
       {lore ? (
         <div className="rounded-[var(--radius)] border border-hairline border-l-[3px] bg-surface p-4" style={{ borderLeftColor: 'var(--team-secondary, #d4a441)' }}>
-          <span className="label-caps mb-2 block" style={{ color: 'var(--team-secondary, #d4a441)' }}>Deep Cut</span>
+          <span className="label-caps mb-2 block" style={{ color: 'var(--team-secondary, #d4a441)' }}>{t('deepCut')}</span>
           <p className="body-md italic text-text-mid">{lore}</p>
         </div>
       ) : null}

@@ -2,7 +2,7 @@ import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
-import { localizedNewsTitle } from '@/lib/news/i18n';
+import { localizedNewsTitle, newsDateLabel } from '@/lib/news/i18n';
 import { hasRealImage } from '@/lib/news/categories';
 import { formatDispatchAge } from '@/lib/news/time';
 
@@ -51,7 +51,7 @@ export function RelatedNewsList({
                 )}
                 <div className="min-w-0 flex-1">
                   <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-                    {age || item.dateLabel} · {item.sourceName}
+                    {age || newsDateLabel(item, locale)} · {item.sourceName}
                   </span>
                   <span
                     className="mt-0.5 line-clamp-2 block font-condensed text-base font-700 leading-tight text-text-hi group-hover:text-white break-words"
