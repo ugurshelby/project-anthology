@@ -7,20 +7,24 @@
  *
  * Env:
  *   CRON_SECRET_KEY  — Bearer token (required)
- *   SITE_URL         — e.g. https://project-anthology-eight.vercel.app (optional)
+ *   SITE_URL         — site origin (optional; falls back to PROD_SITE_URL in lib/data/siteUrl.ts)
  *
  * Usage: npx tsx scripts/sync-f1-scheduled.ts
  */
 
-import { config } from 'dotenv';
 import { CURRENT_SEASON } from '../lib/f1Calendar';
+import { PROD_SITE_URL } from '../lib/data/siteUrl';
 import { getSyncWindows, getDueSyncWindows } from '../lib/f1/syncSchedule';
 import type { CalendarRace } from '../lib/f1Calendar';
 
-config({ path: '.env.local' });
+// Built-in loader (Node 20.12+) so the CI due-check needs no `npm ci`; absent file is fine.
+try {
+  process.loadEnvFile('.env.local');
+} catch {
+  // no .env.local (CI): values come from the environment
+}
 
 const JOLPICA_CALENDAR = `https://api.jolpi.ca/ergast/f1/${CURRENT_SEASON}.json`;
-const DEFAULT_SITE_URL = 'https://project-anthology-eight.vercel.app';
 const LOOKBACK_MS = 65 * 60 * 1000;
 
 async function fetchCalendarRaces(): Promise<CalendarRace[]> {
@@ -55,7 +59,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const siteUrl = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL).replace(
+  const siteUrl = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? PROD_SITE_URL).replace(
     /\/+$/,
     '',
   );

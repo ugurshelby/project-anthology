@@ -1,95 +1,92 @@
-# Apex Engineering Standards
+# Apex agent rules (canonical)
 
-Bu dosya, Apex (Project Anthology) üzerinde çalışan tüm ajanlar ve
-geliştiriciler için kök çalışma sözleşmesidir. Ayrıntılı teslim sırası ve
-kabul kriterleri `ROADMAP.md` içindedir. Kök web uygulaması Next.js 16 App
-Router, React 19, TypeScript ve Tailwind CSS 4 kullanır; `mobile/` ayrı bir
-Expo uygulamasıdır.
+Apex (package `project-anthology`) is an unofficial Formula 1 archive and live-data site: Next.js 16 App Router, React 19, TypeScript, Tailwind 4, Supabase, deployed on Vercel from `main`.
+Every agent tool (Claude Code, Cursor, others) follows this file. Nothing else is authoritative about rules.
 
-## Değişmez sınırlar
+## Authority order
 
-### Marka, telif ve içerik
+1. The code and the tests.
+2. This file (`AGENTS.md`).
+3. `docs/reference/apex-reference.md` (living reference, each section has a `Last verified` date).
+4. Everything else (plans, logs, design essays, vendored skill packs). If it disagrees with 1-3, it is wrong: fix it or delete it.
 
-- Formula 1, takım veya sponsorların resmi logoları; lisanssız basın,
-  Getty/AFP/Reuters ve benzeri telifli fotoğraflar kullanılmaz.
-- Görsel varsayılanı özgün vektörel/çizim kartları, silüetler, pist SVG/GeoJSON
-  haritaları ve lisansı doğrulanmış Wikimedia Commons varlıklarıdır.
-- Her görselin kaynak URL'si, yazar/üretici, lisans türü, edinme tarihi ve
-  değişiklik bilgisi tutulur. Lisansı belirsiz varlık production'a girmez.
-- F1, FIA, takım ve sponsor adları yalnızca tanımlayıcı/editorial bağlamda
-  kullanılır; resmi ilişki veya endorsement ima edilmez.
-- Tüm public sayfalar ve footer, Apex'in bağımsız/unofficial olduğunu açıkça
-  belirtir. KVKK, Çerez Politikası, Gizlilik, Kullanım Koşulları ve DMCA
-  iletişim yüzeyleri roadmap tamamlanmadan production kabul edilmez.
+Design authority is `docs/design/apex-design-language.md`. The other files under `docs/design/` are a library, not law.
 
-### Next.js ve veri mimarisi
+## Permission model
 
-- Next.js API'si veya davranışı değiştirilmeden önce ilgili güncel kılavuz
-  `node_modules/next/dist/docs/` altından okunur; bu sürümün eski Next.js
-  varsayımlarıyla uygulanmasına izin verilmez.
-- Route Handler, Server Component ve Client Component sınırları korunur.
-  Server-only sırlar (`SUPABASE_SERVICE_ROLE_KEY`, cron secret, Sentry token)
-  client bundle'a taşınmaz.
-- Statik veya nadir değişen içerik ISR/SSG ile; canlı yarış/telemetri verisi
-  server cache, kontrollü revalidation ve client polling stratejisiyle
-  sunulur. Her fetch için tazelik, timeout, retry ve fallback davranışı
-  belirlenir; sessizce sahte başarı üretilmez.
-- F1DB tarihsel veri kaynağı, güncel sezon cron/snapshot akışı ve
-  `lib/f1Calendar.ts` temporal tek kaynak kuralları korunur. Sezon/pilot/takım
-  hardcode'u eklenmez.
-- Dinamik sayfalarda `generateMetadata`, canonical URL ve doğru `og:image`
-  kullanılır. Grand Prix `SportsEvent`, pilot `Person`, takım uygun
-  `Organization`/`SportsTeam` JSON-LD ile işaretlenir; veride olmayan alanlar
-  uydurulmaz.
-- `sitemap.ts` ve `robots.ts` public/crawl edilebilir yüzeyin tek kaynağıdır.
-  Cron ve API yüzeyleri indexlenmez; preview deploy'ları noindex kalır.
+- You may create and delete your own branches named `agent/<short-task>`, and commit and push to them freely.
+- Never merge, push or force-push to `main`. Never open or merge a pull request into `main`. The owner does that. Vercel deploys `main` automatically.
+- Do not touch the live database, do not run `supabase db push`, do not call cron endpoints with a secret, unless the owner asks in the current conversation.
+- Never print, log or commit secret values. Names only.
+- Do not decide owner questions (analytics consent, legal mailbox addresses, `public/stories` licensing, the `mobile/` app, Node version, branch retirement, state of Vercel/Upstash/Sentry/GitHub variables). List them in the report.
+- Start every task with `git status`. If the tree is dirty with work that is not yours, stop and report; do not stash, discard or commit it.
+- Do not skip hooks, do not change git config.
 
-### UI, erişilebilirlik ve performans
+## Forbidden
 
-- Mevcut Apex görsel dili (koyu editorial yüzey, bento grid, typography
-  kontrastı) korunur; yeni bir design system ancak mevcut token'larla uyumluysa
-  eklenir. Generic dashboard, saf siyah, düşük kontrast ve dekoratif
-  karmaşıklık eklenmez.
-- Mobil önce tasarla: küçük ekran kırılmaları, taşan tablolar, safe-area,
-  dokunma hedefleri, klavye/focus görünürlüğü ve `prefers-reduced-motion`
-  her sayfada test edilir. WCAG AA kontrast hedeflenir.
-- `next/image`, doğru boyutlandırma, lazy loading ve sabit aspect-ratio
-  kullanılır. Büyük görsel veya client bundle artışı ölçülmeden eklenmez.
-- Loading, error, not-found, empty ve stale-data durumları kullanıcıya açık
-  ve erişilebilir olmalıdır.
+- Hardcoded season, driver or team lists. Time and season come from `lib/f1Calendar.ts`; data comes from the snapshot layer.
+- Official F1, team or sponsor logos, and photographs without a license record (source, author, license, date) in the same change.
+- A second site-origin constant. The only origin is `getSiteUrl()` in `lib/data/siteUrl.ts` (fallback must be a live host).
+- A cron handler without `isCronAuthorized` (fail closed). Cron and upstream APIs are never called from the browser.
+- Committing `.env*` (except `.env.example`).
+- Editing a migration that has already been applied.
+- A public proxy route that takes a URL instead of a whitelisted path.
+- Silencing lint warnings or using `any`/ts-ignore escapes instead of fixing the cause.
 
-## Güvenlik ve kalite kapıları
+## Verification rule
 
-- Sırlar yalnızca `.env.local`/deployment secret store'da tutulur; commit,
-  log veya dokümana gerçek secret yazılmaz.
-- Kullanıcı/API girdileri mevcut validation ve rate-limit yardımcılarıyla
-  doğrulanır. Cron endpoint'leri `CRON_SECRET_KEY` ile korunur.
-- DB değişiklikleri yalnızca `supabase/migrations/` üzerinden yapılır.
-  RLS, least privilege, backup/restore ve veri silme akışı birlikte incelenir.
-- Bağımlılık veya production config değişikliği gerekçelendirilir; ilgisiz
-  refactor yapılmaz. Kullanıcı istemedikçe commit, push veya deploy yapılmaz.
-- Her kod değişikliğinden sonra en küçük ilgili test, `npm run lint` ve
-  gerektiğinde `npm run build` çalıştırılır. Production öncesi `ROADMAP.md`
-  kabul kriterleri ve smoke test listesi tamamlanır.
-- Kod dokunulmadan önce plan ve mevcut pattern okunur. Kod değişince
-  `graphify-out/` mevcutsa AST güncellemesi yapılır; graph çıktısı kaynak
-  kodun yerine geçmez.
+Done means measured. Before saying a change is done:
 
-## Çalışma protokolü
+- Run the smallest relevant Vitest file, then `npm run lint`.
+- Run `npx tsc --noEmit` for any TypeScript change.
+- Run `npm run build` when routes, `next.config.ts`, data-reading pages, or migrations changed. Never run two `next build` at once.
+- Report each command and its result (pass/fail counts, exit code). Say plainly what was not run and why.
+- Do not claim anything you did not measure. Do not leave a failing gate that you caused.
 
-1. `ROADMAP.md` içindeki faz, bağımlılık ve kabul kriterini belirle.
-2. İlgili `app/`, `components/`, `lib/`, `supabase/` ve test pattern'lerini
-   incele; mevcut davranışı koru.
-3. Küçük, geri alınabilir bir değişiklik yap ve testlerle doğrula.
-4. Hukuki varlık veya veri kaynağı eklediysen lisans/kaynak kaydını aynı
-   değişiklikte güncelle.
-5. Dokümantasyon ile uygulama arasında drift bırakma; eksikse işi tamamlanmış
-   sayma.
+Next.js 16 has breaking changes: read the relevant guide in `node_modules/next/dist/docs/` before changing Next.js behavior. The locale proxy is `proxy.ts`, not `middleware.ts`.
 
-## Next.js sürüm notu
+## Migration safety
 
-<!-- BEGIN:nextjs-agent-rules -->
-Bu sürüm, alışılmış Next.js varsayımlarından farklı kırıcı değişiklikler
-barındırabilir. Kod yazmadan önce `node_modules/next/dist/docs/` altındaki
-ilgili kılavuzu okuyun ve deprecation notlarını uygulayın.
-<!-- END:nextjs-agent-rules -->
+- DB changes are a new timestamped file `supabase/migrations/YYYYMMDDHHMMSS_name.sql`. Include `GRANT`/`REVOKE`, not only RLS policies.
+- Before any live apply: a read-only check of the live state, and an explicit owner go-ahead in the current conversation. Never paste SQL into production on your own.
+
+## Git hygiene
+
+- When a new file type or folder appears, check `.gitignore` before committing.
+- When code starts reading a new env variable, add its name to `.env.example` with an empty value. Never its value.
+- Commits are small, with a clear message. Use pathspec-scoped adds; never blanket-add in a shared working tree.
+
+## Docs self-maintenance
+
+- A change that makes a doc false updates that doc in the same commit (README, `docs/reference/apex-reference.md`, `docs/vision/technical.md`, `docs/plans/master-plan.md`, `.env.example`).
+- When a procedure touches a section of the reference, update its `Last verified` line.
+- A plan whose last step is done is deleted (after its log entry and commit). Git history is the archive. No archive folders.
+- `docs/plans/master-plan.md` is the single live checklist. Tick a box only after verifying it in code or by a measured run.
+
+## Logs
+
+- `logs/YYYY-MM-DD.md`, one section per task: only measured facts (command, result, counts, status codes), what changed, what is still open.
+- No intentions, no unverified claims, no secret values.
+- Delete log files older than 15 days.
+
+## Procedures
+
+When the owner says one of these phrases, follow the matching procedure in `docs/procedures.md`.
+
+| Phrase (TR / EN) | Procedure |
+|---|---|
+| "frontend denetim turu", "arayüzü denetle" / frontend audit | 1. Frontend audit |
+| "güvenlik denetimi", "maliyet kontrolü" / security and cost audit | 2. Security and cost audit |
+| "veri hattı kontrolü", "haber hattı kontrolü" / data health | 3. Data and pipeline health |
+| "doküman taraması", "bayat dokümanları temizle" / docs sweep | 4. Docs freshness sweep |
+| "şu hatayı düzelt: ...", "canlıda şunu gördüm: ..." / bug report | 5. Bug triage |
+| "main'e hazır mı", "merge öncesi kontrol" / merge readiness | 6. Merge readiness |
+| "rutin kontrol", "bakım oturumu" / routine session | 7. Routine session (3, 2, 4) |
+
+## Product and brand limits
+
+- Apex is independent and unofficial; F1/FIA/team names are used descriptively only, never implying endorsement.
+- Server-only secrets never enter client bundles. User and API input uses the existing validation and rate-limit helpers.
+- UI: keep the existing Apex design language, mobile first, keyboard and focus visible, `prefers-reduced-motion`, WCAG AA contrast, explicit loading/error/empty/stale states.
+- News is original text with source links; an overlap of 7 or more consecutive source words is rejected by `lib/news/rewrite.ts`.
+- Skill packs under `.agents/skills` and `.claude/skills` are vendored: do not edit them.

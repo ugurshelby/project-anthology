@@ -1,0 +1,86 @@
+# Procedures
+
+The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.md` apply to all of them: work on an `agent/<short-task>` branch, never touch `main`, never use secrets or the live database, never decide owner questions.
+
+## Common ending (every procedure)
+
+1. Update the docs the work made false, and the `Last verified` lines of the touched sections in `docs/reference/apex-reference.md`.
+2. Write the log entry in `logs/YYYY-MM-DD.md` (log rule below).
+3. Run the gates: smallest relevant test, `npm run lint`, `npx tsc --noEmit`; `npm run build` when routes, config, data pages or migrations changed.
+4. Commit (pathspec-scoped) and push to the agent branch.
+5. Delete any plan file whose last step is now done (after the log entry and the commit, in its own follow-up commit).
+6. Report to the owner in Turkish: found, changed and why, how verified (command + result), commits, not done and why, "Needs owner".
+
+## Log rule
+
+`logs/YYYY-MM-DD.md`. Only measured facts: command, result, counts, status codes. No intentions, no unverified claims, no secret values. Delete log files older than 15 days.
+
+## 1. Frontend audit
+
+- Triggers: "frontend denetim turu", "arayüzü denetle", "frontend audit".
+- Scope: pages under `app/[locale]/` and `components/`.
+- Steps: read `docs/design/apex-design-language.md`; run the dev server and check every page at 375, 768 and 1280 px (overflow, tap targets, safe area); keyboard-only pass and visible focus; the `/tr` locale (missing strings, layout breaks, `tests/i18n-messages.test.ts`); empty and error states; previews and cards match real data (no invented numbers or names); no browser-side request to `/api/cron/*` or to upstream APIs (check network and `grep` in client components); `prefers-reduced-motion`; contrast.
+- May change on its branch: components, styles, messages, tests, inside the existing design language only. No new visual language, no new dependencies.
+- Only report: design-direction questions, anything needing new assets or licensing, performance numbers that need Lighthouse access.
+- Docs: master-plan boxes only if verified; reference section 2 and 10.
+- Output: list of findings with page, width, fix or reason it was not fixed.
+
+## 2. Security and cost audit
+
+- Triggers: "güvenlik denetimi", "maliyet kontrolü", "security audit".
+- Scope: `app/api/**`, `lib/rateLimit.ts`, `lib/cronAuth.ts`, `next.config.ts`, `lib/security/csp.ts`, `.github/workflows`, `vercel.json`, `.gitignore`, `.env.example`.
+- Steps: every public route is rate-limited and validated; every cron route calls `isCronAuthorized`; proxies take whitelisted paths only; quota exposure (OpenF1, Jolpica, Groq, Gemini, MyMemory) per visitor action; `git ls-files` shows no `.env*` except `.env.example`; `.gitignore` covers new file types; env names read in code (`grep process.env`) versus `.env.example`; crons scheduled twice (`vercel.json` vs workflows); idle CI minutes (steps that run when nothing is due); no secret values in code, docs, or logs.
+- May change: `.env.example` (names only), rate-limit or validation code with tests, workflow steps that waste minutes when provably safe.
+- Only report: dashboard or provider state (Vercel plan, Upstash, Sentry, GitHub variables), consent and privacy decisions, anything needing a secret.
+- Docs: reference sections 4 and 5.
+- Output: findings ranked by severity and cost, fixes made, "Needs owner".
+
+## 3. Data and pipeline health
+
+- Triggers: "veri hattı kontrolü", "haber hattı kontrolü", "data health".
+- Scope: read-only. Public pages and public JSON routes, public Supabase reads that need no secret, `.github/workflows` state readable without a secret, code of `app/api/cron/*`.
+- Steps: snapshot freshness and content validity (`isSeasonSnapshotContentInvalid` logic against what pages show); `news_stories` freshness, count, EN/TR fields present, source links present; cron routes answer 401 without a token (`curl` without a secret is allowed); workflow files and last runs if visible via public `gh run list`; schedule overlap between Vercel and GitHub.
+- May change: tests and guards in code when a defect is found and is pure logic.
+- Only report: anything needing a secret, the Vercel/Supabase/Upstash/Sentry dashboards, or a cron call with a token. List these under "Needs owner".
+- Docs: reference sections 4 and 8; master-plan boxes only if verified.
+- Output: table of check, command, result, status.
+
+## 4. Docs freshness sweep
+
+- Triggers: "doküman taraması", "bayat dokümanları temizle", "docs sweep".
+- Scope: `README.md`, `AGENTS.md`, `docs/**` (not vendored skill packs), `logs/`, `.env.example`, `ROADMAP.md`, `PRODUCT.md`.
+- Steps: compare each claim (routes, env names, counts, hosts, branches, commands) with the code; fix false lines; delete fully applied plans and false docs (git history is the archive; no archive folders); keep `docs/plans/master-plan.md` as the only live checklist and make boxes match code; keep the reference current; delete logs older than 15 days.
+- May change: any doc. Never edit `docs/design/` essays beyond the README index, and never vendored skill packs.
+- Only report: docs about mobile or licensing that wait on an owner decision.
+- Docs: reference section 9.
+- Output: list of deleted, fixed, kept files with reason.
+
+## 5. Bug triage from live testing
+
+- Triggers: "şu hatayı düzelt: ...", "canlıda şunu gördüm: ...", "fix this bug".
+- Scope: the reported behavior only.
+- Steps: reproduce first (local dev, test, or read-only live request) and record the exact steps; find the cause; fix minimally; add a regression test when the logic is pure (`tests/*.test.ts`); run the gates; do not refactor around it.
+- May change: the code that causes the bug, its test, and docs it made false.
+- Only report: bugs that need live data changes, secrets, dashboards, or a design decision.
+- Docs: reference section 8 if the bug is a new recurring class.
+- Output: reproduction, cause, fix, test, gate results.
+
+## 6. Merge readiness
+
+- Triggers: "main'e hazır mı", "merge öncesi kontrol", "ready to merge".
+- Scope: the current agent branch compared with `main`.
+- Steps: `git diff --stat main...HEAD`; run `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; list risks (migrations, env names, routes, cron, copyright, docs drift); recommend merge or not.
+- May change: nothing except trivial fixes the gates require.
+- Only report: the recommendation. Never merge, never open or merge a pull request into `main`.
+- Docs: none unless a gate exposes a false doc.
+- Output: diff summary, four gate results, risks, recommendation.
+
+## 7. Routine session
+
+- Triggers: "rutin kontrol", "bakım oturumu", "maintenance session".
+- Scope: procedures 3, 2 and 4, in that order, on one branch.
+- Steps: run each procedure; fix what is safe; collect the rest.
+- May change: what each of those procedures allows.
+- Only report: everything under their "only report" lines.
+- Docs: as in those procedures.
+- Output: one combined report in the common format, with a single "Needs owner" list.
