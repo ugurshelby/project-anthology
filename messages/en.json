@@ -59,12 +59,41 @@
     "legalDisclaimer": "Disclaimer",
     "legalPrivacy": "Privacy",
     "legalTerms": "Terms",
-    "legalDmca": "Copyright / DMCA"
+    "legalDmca": "Copyright / DMCA",
+    "analyticsSettings": "Analytics settings"
   },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Retry",
     "circuitLocalTime": "Local"
+  },
+  "consent": {
+    "title": "Analytics",
+    "body": "Apex can use anonymous analytics and performance measurements. Nothing is loaded unless you accept.",
+    "privacyLink": "Details",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "privacy": {
+    "metaTitle": "Privacy Policy",
+    "metaDescription": "What Apex stores in your browser, what it sends to analytics providers, and your choices.",
+    "eyebrow": "Legal / 02",
+    "title": "Privacy, explained without the small print.",
+    "intro": "This page describes what Apex does with information about your visit. It is written for Turkish users under KVKK and for users in the European Economic Area under GDPR. It is not a substitute for advice from your legal counsel.",
+    "updatedLabel": "Last updated",
+    "updated": "2 October 2026",
+    "s1Title": "Analytics is off until you accept",
+    "s1p1": "Apex uses two optional Vercel services: Web Analytics (anonymous page views) and Speed Insights (page performance measurements). Neither is loaded, and no request is made to them, until you press Accept in the notice shown on your first visit.",
+    "s1p2": "If you press Decline, or do nothing, they stay off. You can change your choice at any time with the Analytics settings link in the footer.",
+    "s2Title": "What is stored in your browser",
+    "s2p1": "Your consent choice is saved in your browser's local storage under the name apex-analytics-consent (value granted or denied). It stays on your device and is not sent to Apex servers. The story reader may also keep your reading-language preference in local storage. The language routing may keep a language cookie so the site opens in the language you chose. If your browser blocks storage, your choice applies only to the current page view.",
+    "s2p2": "Apex does not use advertising cookies, does not sell personal data and does not build advertising profiles.",
+    "s3Title": "Server and provider data",
+    "s3p1": "Like any website, Apex's hosting and security layers process technical request data such as IP address, browser type, requested page and time, to deliver the site, limit abuse and keep it reliable. Hosting, database and error-monitoring providers process data only to provide their service.",
+    "s3p2": "Processing relies on legitimate interest for security and operation, and on your consent for the optional analytics described above. We keep data only as long as the stated purpose needs.",
+    "s4Title": "Your rights",
+    "s4p1": "Subject to applicable law, you may request access, correction, deletion, restriction, portability or objection; withdraw consent; and complain to the Turkish Data Protection Authority (KVKK) or your local supervisory authority. We may need to verify a request before acting on it.",
+    "s4p2": "Send privacy requests to <mail>privacy@apexstats.example</mail>. This address is a placeholder and must be replaced with a monitored mailbox before launch."
   }
 }

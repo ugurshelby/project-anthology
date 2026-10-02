@@ -2,6 +2,7 @@
 
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { reopenConsent } from '@/lib/consent';
 
 const YEAR = new Date().getFullYear();
 
@@ -70,6 +71,13 @@ export function SiteFooter() {
                 {tFooter(l.footerKey)}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={reopenConsent}
+              className="label-caps text-text-low transition-colors hover:text-text-hi"
+            >
+              {tFooter('analyticsSettings')}
+            </button>
           </nav>
         </div>
       </div>

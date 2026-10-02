@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Barlow_Condensed, Inter, JetBrains_Mono } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -10,6 +8,7 @@ import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { MobileNav } from '@/components/layout/MobileNav';
+import { AnalyticsConsent } from '@/components/consent/AnalyticsConsent';
 import '../globals.css';
 
 const barlowCondensed = Barlow_Condensed({
@@ -119,8 +118,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           {children}
           <SiteFooter />
           <MobileNav />
-          <Analytics />
-          <SpeedInsights />
+          <AnalyticsConsent />
         </NextIntlClientProvider>
       </body>
     </html>
