@@ -134,6 +134,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
             ) : null}
           </HistoryCard>
 
+          {view.dna ? (
           <HistoryCard span={5} heading={t('team.lineageHeading', { year: view.year })}>
             <StatTiles
               items={[
@@ -149,6 +150,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
               ]}
             />
           </HistoryCard>
+          ) : null}
 
           {view.lineup.length > 0 ? (
             <HistoryCard span={12} heading={t('team.lineupHeading', { year: view.year })}>
@@ -156,7 +158,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
             </HistoryCard>
           ) : null}
 
-          <TeamDnaSection dna={view.dna} selectedYear={view.year} teamId={view.headId} />
+          {view.dna ? <TeamDnaSection dna={view.dna} selectedYear={view.year} teamId={view.headId} /> : null}
 
           {lore ? (
             <BentoCard span={relatedNews.length > 0 ? 8 : 12}>
