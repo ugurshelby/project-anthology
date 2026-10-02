@@ -7,8 +7,8 @@ Formula 1 odaklı arşiv ve canlı veri sitesi. Sezon takvimi, puan durumu, pilo
 ## Özellikler
 
 - **Ana panel** — Bento dashboard: geri sayım, puan durumu, son yarış, haber özeti, "on this day"
-- **Sezon** — Takvim, yarış detayları
-- **Pilotlar & takımlar** — Grid, profil sayfaları,takım-bazlı renk paleti
+- **Sezon** — 1950'den bugüne her sezon: takvim, puan durumu, şampiyonlar, yarış detayları
+- **Pilotlar & takımlar** — Grid, profil sayfaları; tüm F1 tarihi için sezon seçimi, sezona göre takım renkleri, pilot takım yolculuğu ve takım DNA'sı
 - **Pistler** — Pist listesi ve detay sayfaları
 - **Anthology** — Tarihsel F1 hikâyeleri (Senna, Fangio, Brawn GP vb.)
 - **Haberler** — RSS kaynakları olay bazında kümelenir, her hikâye için özgün EN+TR özet yazılır (kaynak linkleriyle); sayfalar yalnızca veritabanını okur
@@ -85,6 +85,7 @@ Her sayfa `en` (önek yok) ve `tr` (`/tr/...`) olarak vardır.
 |---|---|
 | `/` | Ana sayfa |
 | `/season`, `/season/[year]`, `/season/[year]/round/[n]` | Sezon, yıl ve yarış detayı |
+| `?season=YYYY` | Grid, pilot ve takım sayfalarında sezon seçimi |
 | `/grid` | Pilot ve takım gridi |
 | `/drivers`, `/drivers/[driverId]` | Pilotlar |
 | `/teams`, `/teams/[constructorId]` | Takımlar |
