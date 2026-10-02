@@ -14,8 +14,8 @@ Design authority is `docs/design/apex-design-language.md`. The other files under
 
 ## Permission model
 
-- You may create and delete your own branches named `agent/<short-task>`, and commit and push to them freely.
-- Never merge, push or force-push to `main`. Never open or merge a pull request into `main`. The owner does that. Vercel deploys `main` automatically.
+- Work directly on `main` (owner decision, 2026-10-02). No pull requests. Commit small, run the verification gates, then push. Vercel deploys every push to `main` to production, so never push with a failing gate.
+- Never force-push `main`, never rewrite its history. Risky or large changes (many files, migrations, dependency or config changes): ask the owner first, or use an `agent/<short-task>` branch and let the owner merge it.
 - Do not touch the live database, do not run `supabase db push`, do not call cron endpoints with a secret, unless the owner asks in the current conversation.
 - Never print, log or commit secret values. Names only.
 - Do not decide owner questions (analytics consent, legal mailbox addresses, `public/stories` licensing, the `mobile/` app, Node version, branch retirement, state of Vercel/Upstash/Sentry/GitHub variables). List them in the report.
