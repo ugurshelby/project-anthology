@@ -56,9 +56,9 @@ export function TeamSeasonHero({
           ) : null}
         </div>
 
-        <div aria-hidden className="pointer-events-none absolute bottom-2 right-3 select-none text-right md:right-8 lg:right-16">
+        <div aria-hidden className="pointer-events-none absolute right-3 top-4 select-none text-right md:bottom-2 md:right-8 md:top-auto lg:right-16">
           <span
-            className="hero-number block text-[clamp(6.5rem,24vw,17rem)] leading-[0.8] text-transparent"
+            className="hero-number block text-[clamp(4.5rem,24vw,17rem)] leading-[0.8] text-transparent"
             style={{ WebkitTextStroke: '1.5px color-mix(in srgb, var(--team-secondary) 55%, transparent)' }}
           >
             {year}

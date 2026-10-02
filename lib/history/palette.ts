@@ -1,6 +1,6 @@
 import { LIVERIES, type LiveryEra } from '@/data/history/liveries';
 import { ensureVisible, mix, nudge } from './color';
-import { getConstructorRecord, resolveConstructorId } from './store';
+import { constructorMeta, resolveConstructorId } from './ids';
 
 /**
  * Team colours per season. Compatible with the older SeasonPalette
@@ -74,8 +74,8 @@ export function paletteForConstructorId(constructorId: string, year: number): Te
     const [, , main, accent, ui] = eraFor(eras, year);
     return build(main, accent, ui, true);
   }
-  const record = getConstructorRecord(constructorId);
-  const [main, accent] = (record && NATIONAL[record.c]) || NEUTRAL;
+  const meta = constructorMeta(constructorId);
+  const [main, accent] = (meta && NATIONAL[meta.c]) || NEUTRAL;
   return build(nudge(main, constructorId), accent, undefined, false);
 }
 

@@ -7,11 +7,11 @@ import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata'
 
 /** Driver standings row — position · portrait · name · team · color bar · points. */
 export function DriverRow({ row, season }: { row: DriverStandingRow; season: number }) {
-  const teamColor = resolveTeamUiColor(undefined, row.constructorName);
+  const teamColor = resolveTeamUiColor(undefined, row.constructorName, season);
 
   return (
     <Link
-      href={`/drivers/${row.driverId}`}
+      href={`/drivers/${row.driverId}?season=${season}`}
       className="group flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-2 transition-opacity duration-150 will-change-[opacity] hover:opacity-80"
     >
       <span className="data-tabular w-6 text-right text-text-mid">{row.position}</span>

@@ -14,12 +14,12 @@ import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata'
  * accent colours).
  */
 export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; season: number }) {
-  const teamColor = resolveTeamUiColor(undefined, row.constructorName);
+  const teamColor = resolveTeamUiColor(undefined, row.constructorName, season);
   const portrait = driverIconSrc(row.driverCode, row.driverId, season);
 
   return (
     <Link
-      href={`/drivers/${row.driverId}`}
+      href={`/drivers/${row.driverId}?season=${season}`}
       className="group relative flex min-h-28 items-center gap-4 overflow-hidden rounded-[var(--radius-lg)] px-5 py-4"
       style={{ background: `linear-gradient(120deg, color-mix(in srgb, ${teamColor} 22%, transparent), transparent 70%)` }}
     >

@@ -12,7 +12,7 @@
  * Jolpica is never used for historical seasons. All reads are server-side (RSC).
  */
 
-import { enrichStandingsFromHistory } from '@/lib/history/enrich';
+import { enrichConstructorsFromHistory, enrichStandingsFromHistory } from '@/lib/history/enrich';
 import { cache } from 'react';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json, SnapshotType } from '@/types/database';
@@ -542,7 +542,7 @@ export const getSeasonData = cache(async function getSeasonData(year: number): P
 
   const races = getRacesFromCalendar(calendarData);
   const standings = enrichStandingsFromHistory(year, getDriverStandings(driverData));
-  const constructors = getConstructorStandings(constructorData);
+  const constructors = enrichConstructorsFromHistory(year, getConstructorStandings(constructorData));
 
   const lastRace = getLastFinishedRace(races);
   const lastRound = lastRace?.round != null ? Number(lastRace.round) : null;

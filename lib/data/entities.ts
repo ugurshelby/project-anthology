@@ -183,12 +183,12 @@ function carNumberFor(row: DriverStandingRow): string | null {
  * list (already enriched with car numbers) for the mobile single-column view.
  * Derived entirely from the existing season snapshot — no new API calls.
  */
-export async function getDriversByTeam(): Promise<{
+export async function getDriversByTeam(season: number = CURRENT_SEASON): Promise<{
   season: number;
   groups: TeamDriverGroup[];
   flat: DriverGridRow[];
 }> {
-  const data = await getSeasonData(CURRENT_SEASON);
+  const data = await getSeasonData(season);
 
   const flat: DriverGridRow[] = data.standings.map((row) => ({
     ...row,
@@ -232,17 +232,17 @@ export async function getDriversByTeam(): Promise<{
     group.drivers.sort((a, b) => Number(a.position) - Number(b.position));
   }
 
-  return { season: CURRENT_SEASON, groups, flat };
+  return { season, groups, flat };
 }
 
 /** Current-season constructor grid (for /teams). */
-export async function getCurrentTeams(): Promise<{
+export async function getCurrentTeams(season: number = CURRENT_SEASON): Promise<{
   season: number;
   rows: ConstructorStandingRow[];
   data: SeasonData;
 }> {
-  const data = await getSeasonData(CURRENT_SEASON);
-  return { season: CURRENT_SEASON, rows: data.constructors, data };
+  const data = await getSeasonData(season);
+  return { season, rows: data.constructors, data };
 }
 
 // ── Career aggregate ─────────────────────────────────────────────────────────

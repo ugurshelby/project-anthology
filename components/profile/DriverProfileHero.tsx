@@ -218,7 +218,7 @@ export function DriverProfileHero({
         }}
       />
 
-      <div className="relative min-h-[min(82vh,680px)] md:min-h-[580px] lg:min-h-[620px]">
+      <div className="relative min-h-[min(58vh,460px)] md:min-h-[580px] lg:min-h-[620px]">
         {bigNumber ? (
           <span
             aria-hidden
@@ -231,7 +231,7 @@ export function DriverProfileHero({
           </span>
         ) : null}
 
-        <div className="relative z-10 hidden min-h-[min(82vh,680px)] flex-col justify-end px-5 pb-5 pt-36 md:absolute md:inset-0 md:flex md:min-h-0 md:justify-end md:px-10 md:pb-12 lg:px-16">
+        <div className="relative z-10 hidden min-h-[min(58vh,460px)] flex-col justify-end px-5 pb-5 pt-36 md:absolute md:inset-0 md:flex md:min-h-0 md:justify-end md:px-10 md:pb-12 lg:px-16">
           <div className="relative md:max-w-[min(56%,580px)] lg:max-w-[min(54%,680px)]">
             {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
             {editorialTagline ? (

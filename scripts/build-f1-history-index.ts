@@ -7,6 +7,7 @@
  *
  * Output:
  *   data/history/meta.json          release tag, build time, newest season, checksum
+ *   data/history/constructor-index.json  light team index (names, country, active years) for the browser
  *   data/history/constructors.json  teams, lineage (chronology), per-season rows
  *   data/history/drivers.json       drivers with per-season rows (teams, numbers, results)
  *   data/history/seasons.json       per-season champions and race counts
@@ -221,6 +222,19 @@ async function main(): Promise<void> {
   }
 
   mkdirSync(OUT_DIR, { recursive: true });
+  // Light index (names, country, active year ranges) that is safe to ship to the browser.
+  const constructorIndex: Record<string, unknown> = {};
+  for (const [id, c] of Object.entries(constructorsOut) as [string, Any][]) {
+    const years: number[] = c.s.map((r: Any) => r.y);
+    const ranges: [number, number][] = [];
+    for (const y of years) {
+      const last = ranges[ranges.length - 1];
+      if (last && y - last[1] <= 1) last[1] = y;
+      else ranges.push([y, y]);
+    }
+    constructorIndex[id] = { n: c.n, fn: c.fn, c: c.c, r: ranges };
+  }
+  writeEntities('constructor-index.json', constructorIndex);
   writeEntities('constructors.json', constructorsOut);
   writeEntities('drivers.json', driversOut);
   writeEntities('seasons.json', seasonsOut);
