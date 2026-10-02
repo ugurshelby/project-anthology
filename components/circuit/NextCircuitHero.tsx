@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
+import { countryName, formatDate, raceName as localRaceName } from '@/lib/i18n/format';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
 import { Link } from '@/i18n/routing';
@@ -9,11 +11,11 @@ import { getCircuitFacts } from '@/data/circuits/facts';
 import { CURRENT_SEASON, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
 import type { CircuitCard } from '@/lib/data/circuits';
 
-function formatRaceDate(date: string): string {
-  if (!date || date === '—') return '—';
+function formatRaceDate(date: string, locale: string): string {
+  if (!date || date === '—') return '';
   const t = Date.parse(`${date}T12:00:00Z`);
   if (!Number.isFinite(t)) return date;
-  return new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).format(t);
+  return formatDate(t, locale, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 }
 
 /**
@@ -30,18 +32,20 @@ export function NextCircuitHero({
   race: CalendarRace;
   totalRounds: number;
 }) {
+  const t = useTranslations('ui.circuit');
+  const locale = useLocale();
   const cover = circuitCoverSrc(card.circuitId);
   const flag = countryFlag(card.country);
-  const facts = getCircuitFacts(card.circuitId);
+  const facts = getCircuitFacts(card.circuitId, locale);
   const targetMs = raceStartMs(race);
-  const raceName = race.raceName ?? 'Grand Prix';
+  const raceName = localRaceName(race.raceName ?? 'Grand Prix', locale);
   const round = card.round;
 
   const stats = [
-    facts?.lengthKm != null ? { label: 'Length', value: `${facts.lengthKm} km` } : null,
-    facts?.corners != null ? { label: 'Corners', value: String(facts.corners) } : null,
-    facts?.drsZones != null ? { label: 'DRS', value: `${facts.drsZones} zones` } : null,
-    facts?.lapRecord ? { label: 'Lap record', value: facts.lapRecord } : null,
+    facts?.lengthKm != null ? { label: t('length'), value: t('km', { value: facts.lengthKm }) } : null,
+    facts?.corners != null ? { label: t('corners'), value: String(facts.corners) } : null,
+    facts?.drsZones != null ? { label: t('drs'), value: t('zones', { count: facts.drsZones }) } : null,
+    facts?.lapRecord ? { label: t('lapRecordShort'), value: facts.lapRecord } : null,
   ].filter((s): s is { label: string; value: string } => s !== null);
 
   return (
@@ -50,20 +54,20 @@ export function NextCircuitHero({
         <div className="flex flex-col gap-5 p-6 md:gap-6 md:p-8 lg:p-10">
           <div className="flex flex-wrap items-center gap-2">
             <span className="label-caps text-text-mid">
-              Round {round} / {totalRounds}
+              {t('roundOf', { round, total: totalRounds })}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
               <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-              <span className="label-caps text-accent">Upcoming</span>
+              <span className="label-caps text-accent">{t('upcoming')}</span>
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
             <p className="data-tabular flex items-center gap-1.5 text-text-mid">
               {flag ? <span aria-hidden>{flag}</span> : null}
-              {card.country}
+              {countryName(card.country, locale)}
               <span aria-hidden className="text-text-low">·</span>
-              {formatRaceDate(card.date)}
+              {formatRaceDate(card.date, locale)}
             </p>
             <p className="label-caps text-accent">{raceName}</p>
             <h2 className="headline-lg uppercase text-text-hi">{card.circuitName}</h2>
@@ -71,7 +75,7 @@ export function NextCircuitHero({
 
           {targetMs ? (
             <div className="flex flex-col gap-2">
-              <span className="label-caps text-text-low">Race start</span>
+              <span className="label-caps text-text-low">{t('raceStart')}</span>
               <Countdown targetMs={targetMs} />
             </div>
           ) : null}
@@ -92,14 +96,14 @@ export function NextCircuitHero({
               href={`/circuits/${card.circuitId}`}
               className="label-caps inline-flex items-center rounded-[var(--radius)] border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-text-hi transition-colors hover:border-accent/40 hover:bg-accent/10"
             >
-              Circuit Guide
+              {t('guide')}
             </Link>
             {round !== '—' ? (
               <Link
                 href={`/season/${CURRENT_SEASON}/round/${round}`}
                 className="label-caps inline-flex items-center rounded-[var(--radius)] border border-hairline px-4 py-2 text-text-mid transition-colors hover:border-white/20 hover:text-text-hi"
               >
-                Weekend Schedule
+                {t('weekend')}
               </Link>
             ) : null}
           </div>

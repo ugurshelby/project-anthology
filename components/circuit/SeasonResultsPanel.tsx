@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from 'next-intl';
+import { raceName } from '@/lib/i18n/format';
 import type { SeasonRoundResult } from '@/lib/data/circuits';
 
 const MEDAL: Record<string, string> = { '1': '#d4a441', '2': '#a8a8a8', '3': '#a3653f' };
@@ -9,8 +11,10 @@ const MEDAL: Record<string, string> = { '1': '#d4a441', '2': '#a8a8a8', '3': '#a
  * relationship to the circuit being viewed).
  */
 export function SeasonResultsPanel({ results }: { results: SeasonRoundResult[] }) {
+  const t = useTranslations('ui.circuit');
+  const locale = useLocale();
   if (results.length === 0) {
-    return <span className="label-caps text-text-low">No completed races yet</span>;
+    return <span className="label-caps text-text-low">{t('noRaces')}</span>;
   }
 
   return (
@@ -19,7 +23,7 @@ export function SeasonResultsPanel({ results }: { results: SeasonRoundResult[] }
         <div key={r.round} className="flex flex-col gap-2 rounded-[var(--radius)] border border-hairline bg-surface-raised/40 p-3">
           <div className="flex items-baseline justify-between gap-2">
             <span className="font-condensed text-sm font-600 uppercase leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
-              R{r.round} · {r.raceName}
+              {t('roundLine', { round: r.round, name: raceName(r.raceName, locale) })}
             </span>
           </div>
           <div className="flex flex-col gap-1">

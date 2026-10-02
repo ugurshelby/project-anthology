@@ -1,16 +1,13 @@
-type Status = 'done' | 'next' | 'upcoming';
+import { useTranslations } from 'next-intl';
 
-const STATUS_LABEL: Record<Status, string> = {
-  done: 'DONE',
-  next: 'NEXT',
-  upcoming: 'UPCOMING',
-};
+type Status = 'done' | 'next' | 'upcoming';
 
 /**
  * Status chip (design.md §6) — icon + text, never color alone. NEXT carries the
  * single accent cue; DONE/UPCOMING stay neutral. Inline SVG icons (no emoji).
  */
 export function StatusChip({ status }: { status: Status }) {
+  const t = useTranslations('ui.status');
   const styles: Record<Status, string> = {
     done: 'border-white/10 bg-white/[0.06] text-text-mid',
     next: 'border-accent/50 bg-accent/10 text-accent',
@@ -25,7 +22,7 @@ export function StatusChip({ status }: { status: Status }) {
       ].join(' ')}
     >
       <StatusIcon status={status} />
-      {STATUS_LABEL[status]}
+      {t(status)}
     </span>
   );
 }

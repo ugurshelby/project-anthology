@@ -24,6 +24,8 @@ export interface TyreCompound {
   warmup: number;
 }
 
+import { TYRE_COMPOUNDS_TR } from './tyres.tr';
+
 export const TYRE_COMPOUNDS: TyreCompound[] = [
   {
     id: 'c1',
@@ -110,3 +112,12 @@ export const TYRE_COMPOUNDS: TyreCompound[] = [
     warmup: 5,
   },
 ];
+
+/** Tyre compounds in the visitor's language (English is the base text). */
+export function getTyreCompounds(locale?: string): TyreCompound[] {
+  if (locale !== 'tr') return TYRE_COMPOUNDS;
+  return TYRE_COMPOUNDS.map((t) => {
+    const tr = TYRE_COMPOUNDS_TR[t.id];
+    return tr ? { ...t, name: tr.name, kicker: tr.kicker, blurb: tr.blurb, description: tr.description } : t;
+  });
+}

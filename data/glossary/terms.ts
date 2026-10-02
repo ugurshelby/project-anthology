@@ -43,6 +43,8 @@ export interface GlossaryTerm {
   diagram?: TermDiagramId;
 }
 
+import { GLOSSARY_TERMS_TR } from './terms.tr';
+
 export const glossaryTerms: GlossaryTerm[] = [
   {
     slug: 'active-suspension',
@@ -165,3 +167,12 @@ export const glossaryTerms: GlossaryTerm[] = [
 export const glossaryBySlug: Record<string, GlossaryTerm> = Object.fromEntries(
   glossaryTerms.map((t) => [t.slug, t]),
 );
+
+/** Glossary terms in the visitor's language (English is the base text). */
+export function getGlossaryTerms(locale?: string): GlossaryTerm[] {
+  if (locale !== 'tr') return glossaryTerms;
+  return glossaryTerms.map((t) => {
+    const tr = GLOSSARY_TERMS_TR[t.slug];
+    return tr ? { ...t, term: tr.term, badge: tr.badge, keyImpact: tr.keyImpact ?? t.keyImpact, definition: tr.definition, aliases: [...(t.aliases ?? []), ...(tr.aliases ?? [])] } : t;
+  });
+}
