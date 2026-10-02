@@ -16,7 +16,7 @@ const MEDAL: Record<1 | 2 | 3, string> = {
  */
 export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season: number }) {
   const winner = recap.podium.find((p) => p.position === '1');
-  const winnerColor = winner ? resolveTeamUiColor(undefined, winner.constructorName) : undefined;
+  const winnerColor = winner ? resolveTeamUiColor(undefined, winner.constructorName, season) : undefined;
   const winnerPortrait = winner ? driverIconSrc(winner.driverCode, winner.driverName, season) : null;
 
   return (

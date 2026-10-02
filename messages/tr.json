@@ -60,7 +60,8 @@
     "legalPrivacy": "Gizlilik",
     "legalTerms": "Kullanım Koşulları",
     "legalDmca": "Telif / DMCA",
-    "analyticsSettings": "Analitik ayarları"
+    "analyticsSettings": "Analitik ayarları",
+    "dataCredit": "Tarihsel veri"
   },
   "common": {
     "loading": "Yükleniyor…",
@@ -95,5 +96,94 @@
     "s4Title": "Haklarınız",
     "s4p1": "Geçerli hukuk çerçevesinde erişim, düzeltme, silme, kısıtlama, taşınabilirlik veya itiraz talep edebilir; onayınızı geri çekebilir; Kişisel Verileri Koruma Kurumu'na (KVKK) ya da yerel denetim otoritenize şikâyette bulunabilirsiniz. Talebe işlem yapmadan önce kimliğinizi doğrulamamız gerekebilir.",
     "s4p2": "Gizlilik taleplerinizi <mail>privacy@apexstats.example</mail> adresine gönderin. Bu adres geçici bir yer tutucudur; yayına almadan önce izlenen bir posta kutusuyla değiştirilmelidir."
+  },
+  "history": {
+    "rail": {
+      "label": "Sezon seç",
+      "prev": "Önceki sezon",
+      "next": "Sonraki sezon",
+      "champion": "Şampiyon",
+      "decade": "{decade}'ler"
+    },
+    "stats": {
+      "position": "Şampiyona",
+      "points": "Puan",
+      "wins": "Galibiyet",
+      "podiums": "Podyum",
+      "poles": "Pole",
+      "starts": "Yarış",
+      "fastestLaps": "En hızlı tur",
+      "titles": "Şampiyonluk",
+      "seasons": "Sezon",
+      "number": "Yarış numarası",
+      "bestFinish": "En iyi sıralama"
+    },
+    "driver": {
+      "kicker": "{team} · {year}",
+      "seasonHeading": "{year} sezonu",
+      "careerHeading": "{year} sonuna kadar kariyer",
+      "journeyHeading": "Takım yolculuğu",
+      "journeyLead": "Sırasıyla tüm takımlar. Bir döneme dokunarak o sezona geçin.",
+      "champion": "{year} Dünya Şampiyonu",
+      "titlesInline": "Şampiyonluklar: {years}",
+      "bornLine": "Doğum: {born}",
+      "nationality": "{nationality}",
+      "teamAndNumber": "#{number}",
+      "storyHeading": "Hikâye",
+      "newsHeading": "İlgili Haberler",
+      "yearsLabel": "{from}–{to}",
+      "stintSeasons": "{count, plural, one {# sezon} other {# sezon}}",
+      "nationalityLabel": "Uyruk",
+      "bornLabel": "Doğum"
+    },
+    "team": {
+      "kicker": "Takım // {year}",
+      "seasonHeading": "{year} sezonu",
+      "lineageHeading": "{year} sonuna kadar takım",
+      "lineupHeading": "{year} pilotları",
+      "entrant": "Katılım adı",
+      "engine": "Motor",
+      "champion": "{year} Markalar Şampiyonu",
+      "storyHeading": "Takım",
+      "newsHeading": "İlgili Haberler",
+      "base": "Merkez",
+      "founded": "Kuruluş",
+      "lineupNumber": "#{number}"
+    },
+    "dna": {
+      "heading": "Takım DNA'sı",
+      "lead": "Bu takımın Formula 1'e nasıl girdiği ve o günden beri yarıştığı tüm adlar.",
+      "founderBadge": "Kurucu üye",
+      "founderLine": "{year}'den beri her sezon. Hiçbir yarış yılını kaçırmadı.",
+      "enteredLine": "Formula 1'e {year}'de girdi",
+      "stillRacing": "Hâlâ yarışıyor",
+      "now": "günümüz",
+      "years": "{from}–{to}",
+      "seasons": "{count, plural, one {# sezon} other {# sezon}}",
+      "wins": "{count, plural, one {# galibiyet} other {# galibiyet}}",
+      "titles": "{count, plural, one {# şampiyonluk} other {# şampiyonluk}}",
+      "engines": "Motorlar: {names}",
+      "entrants": "Katılım adı: {names}",
+      "priorHeading": "Önceki katılımlar",
+      "priorLine": "{name}, yukarıdaki soyağacından ayrı olarak {from}–{to} arasında yarıştı.",
+      "current": "Seçili sezon",
+      "later": "Sonraki bölüm",
+      "totalsHeading": "Soyağacı toplamı",
+      "totalSeasons": "Sezon",
+      "totalWins": "Galibiyet",
+      "totalTitles": "Şampiyonluk",
+      "ticksLabel": "Takımın yarıştığı her sezon",
+      "tickTitle": "{year}: {name}",
+      "chapter": "Bölüm {n}"
+    },
+    "season": {
+      "heading": "{year} sezonu",
+      "railHeading": "Sezon seçin",
+      "champions": "Şampiyonlar",
+      "driverChampion": "Pilotlar şampiyonu",
+      "constructorChampion": "Markalar şampiyonu",
+      "ongoing": "Sezon sürüyor",
+      "decadeLine": "{year} · {decade}'ler"
+    }
   }
 }

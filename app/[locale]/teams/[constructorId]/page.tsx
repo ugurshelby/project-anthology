@@ -1,24 +1,23 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTeamProfile, getTeamSeasons, getTeamCareer } from '@/lib/data/entities';
-import { CURRENT_SEASON } from '@/lib/f1Calendar';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getTeamView } from '@/lib/data/profiles';
+import { getTeamLore } from '@/data/teams';
 import { SITE_NAME, siteUrl, localizedAlternates } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
-import { carSrc, teamIconSrc } from '@/lib/assets/f1-icons';
-import { getDriverLore } from '@/data/drivers';
-import { getTeamLore } from '@/data/teams';
 import { getNewsForEntity } from '@/lib/data/news';
-import { powerUnitLabel } from '@/lib/f1/power-units';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { TeamGarageHero } from '@/components/profile/TeamGarageHero';
-import { TeamConstructorPulse } from '@/components/profile/TeamConstructorPulse';
-import { TeamLineupDuel } from '@/components/profile/TeamLineupDuel';
-import { TeamTechnicalCard } from '@/components/profile/TeamTechnicalCard';
+import { TeamSeasonHero } from '@/components/history/TeamSeasonHero';
 import { LoreSection } from '@/components/profile/LoreSection';
 import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { SeasonRail } from '@/components/history/SeasonRail';
+import { HistoryCard } from '@/components/history/HistoryCard';
+import { StatTiles } from '@/components/history/StatTiles';
+import { TeamLineup } from '@/components/history/TeamLineup';
+import { TeamDnaSection } from '@/components/history/TeamDnaSection';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -28,22 +27,20 @@ type PageProps = {
   searchParams: Promise<{ season?: string }>;
 };
 
-function parseSeason(raw: string | undefined): { season: number; requestedUnsupported: boolean } {
-  if (raw === undefined) return { season: CURRENT_SEASON, requestedUnsupported: false };
+function parseSeason(raw: string | undefined): number | undefined {
+  if (raw === undefined) return undefined;
   const parsed = Number(raw);
-  const requestedUnsupported = !Number.isFinite(parsed) || parsed !== CURRENT_SEASON;
-  return { season: CURRENT_SEASON, requestedUnsupported };
+  return Number.isInteger(parsed) ? parsed : undefined;
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { constructorId, locale } = await params;
-  const { season } = parseSeason((await searchParams).season);
-  const profile = await getTeamProfile(constructorId, season);
-  if (!profile) return { title: 'Constructor not found' };
+  const view = await getTeamView(constructorId, parseSeason((await searchParams).season));
+  if (!view) return { title: 'Constructor not found' };
 
-  const title = `${profile.constructorName} — ${season}`;
-  const description = `${profile.constructorName} in the ${season} F1 season: championship position, points, and driver lineup.`;
-  const canonical = `/teams/${constructorId}`;
+  const title = `${view.name} — ${view.year}`;
+  const description = `${view.name} in the ${view.year} F1 season: championship position, points, driver lineup and the team's history.`;
+  const canonical = `/teams/${view.headId}`;
   return {
     title,
     description,
@@ -53,36 +50,29 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
       description,
       url: canonical,
       type: 'profile',
-      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: profile.constructorName }],
+      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: view.name }],
     },
     twitter: { card: 'summary_large_image', title: `${title} — ${SITE_NAME}`, description, images: ['/opengraph-image'] },
   };
 }
 
 export default async function TeamProfilePage({ params, searchParams }: PageProps) {
-  const { constructorId } = await params;
-  const { season, requestedUnsupported } = parseSeason((await searchParams).season);
+  const { constructorId, locale } = await params;
+  setRequestLocale(locale);
+  const view = await getTeamView(constructorId, parseSeason((await searchParams).season));
+  if (!view) notFound();
 
-  const [profile, seasons, career] = await Promise.all([
-    getTeamProfile(constructorId, season),
-    getTeamSeasons(constructorId),
-    getTeamCareer(constructorId),
-  ]);
+  const t = await getTranslations({ locale, namespace: 'history' });
+  const theme = teamThemeVars(view.id, view.year);
+  const relatedNews = view.isCurrentSeason ? await getNewsForEntity(view.name, 4) : [];
+  const lore = getTeamLore(view.headId) ?? getTeamLore(view.headId.replace(/-/g, '_'));
 
-  if (!profile) notFound();
+  const s = view.season;
+  const metaParts: string[] = [];
+  if (s.position != null) metaParts.push(`P${s.position}`);
+  if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} PTS`);
 
-  const relatedNews = await getNewsForEntity(profile.constructorName, 4);
-  void seasons;
-
-  const theme = teamThemeVars(profile.constructorId, season);
-  const car = carSrc(profile.constructorId, profile.constructorName);
-  const logo = teamIconSrc(profile.constructorName);
-  const lore = getTeamLore(profile.constructorId);
-  const [d1, d2] = profile.drivers;
-  const flankNumbers: [string | null, string | null] = [
-    d1 ? (getDriverLore(d1.driverId)?.number != null ? String(getDriverLore(d1.driverId)!.number) : null) : null,
-    d2 ? (getDriverLore(d2.driverId)?.number != null ? String(getDriverLore(d2.driverId)!.number) : null) : null,
-  ];
+  const asOf = view.asOf;
 
   return (
     <main
@@ -94,86 +84,98 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         data={{
           '@context': 'https://schema.org',
           '@type': 'SportsTeam',
-          name: profile.constructorName,
-          url: `${siteUrl()}/teams/${profile.constructorId}`,
+          name: view.name,
+          url: `${siteUrl()}/teams/${view.headId}`,
           sport: 'Formula 1',
-          member: profile.drivers.map((driver) => ({
-            '@type': 'Person',
-            name: driver.driverName,
-          })),
+          member: view.lineup.map((d) => ({ '@type': 'Person', name: d.name })),
         }}
       />
       <PageThemeSync vars={theme} />
-      {requestedUnsupported ? (
-        <p className="label-caps mb-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent/10 px-4 py-2 text-accent">
-          Only the {season} season is available right now — showing current data instead.
-        </p>
-      ) : null}
 
-      <TeamGarageHero
-        kicker={`Constructor // ${season}`}
-        title={profile.constructorName}
-        meta={`P${profile.position} · ${profile.points} PTS`}
-        imageSrc={car}
-        imageAlt={profile.constructorName}
-        logoSrc={logo}
-        flankNumbers={flankNumbers}
+      <SeasonRail years={view.years} selected={view.year} hrefTemplate={`/teams/${view.headId}?season={year}`} className="mb-4 md:mb-6" />
+
+      <TeamSeasonHero
+        kicker={t('team.kicker', { year: view.year })}
+        name={view.name}
+        year={view.year}
+        meta={metaParts.length ? metaParts.join(' · ') : undefined}
+        entrant={view.entrants[0] && view.entrants[0] !== view.name ? view.entrants[0] : null}
+        badge={s.champion ? t('team.champion', { year: view.year }) : null}
+        numbers={view.lineup.map((d) => d.number).filter((n): n is string => !!n).slice(0, 3)}
+        constructorId={view.id}
       />
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <TeamConstructorPulse
-            season={season}
-            position={profile.position}
-            points={profile.points}
-            wins={profile.wins}
-            championships={career.championships}
-          />
+          <HistoryCard span={7} eyebrow={s.champion ? t('team.champion', { year: view.year }) : undefined} heading={t('team.seasonHeading', { year: view.year })}>
+            <StatTiles
+              items={[
+                { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
+                { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
+                { label: t('stats.wins'), value: s.wins },
+                { label: t('stats.podiums'), value: s.podiums },
+                { label: t('stats.poles'), value: s.poles },
+              ]}
+            />
+            {view.entrants.length > 0 || view.engines.length > 0 ? (
+              <p className="body-sm mt-6 border-t border-hairline pt-4 text-text-mid">
+                {view.entrants.length > 0 ? (
+                  <>
+                    {t('team.entrant')}: <span className="text-text-hi">{view.entrants.slice(0, 2).join(', ')}</span>
+                  </>
+                ) : null}
+                {view.entrants.length > 0 && view.engines.length > 0 ? <span className="mx-2 text-text-low">·</span> : null}
+                {view.engines.length > 0 ? (
+                  <>
+                    {t('team.engine')}: <span className="text-text-hi">{view.engines.join(', ')}</span>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
+          </HistoryCard>
 
-          <TeamLineupDuel
-            drivers={profile.drivers}
-            season={season}
-            constructorName={profile.constructorName}
-          />
+          <HistoryCard span={5} heading={t('team.lineageHeading', { year: view.year })}>
+            <StatTiles
+              items={[
+                { label: t('stats.seasons'), value: asOf.seasons },
+                { label: t('stats.wins'), value: asOf.wins },
+                { label: t('stats.podiums'), value: asOf.podiums },
+                { label: t('stats.poles'), value: asOf.poles },
+                {
+                  label: t('stats.titles'),
+                  value: asOf.titles.length > 0 ? asOf.titles.length : null,
+                  sub: asOf.titles.length > 0 ? asOf.titles.join(' · ') : undefined,
+                },
+              ]}
+            />
+          </HistoryCard>
 
-          <TeamTechnicalCard
-            powerUnit={powerUnitLabel(profile.constructorId)}
-            entries={[
-              { label: 'Championships', value: String(career.championships) },
-              { label: 'Seasons', value: String(career.seasons) },
-              { label: 'Career Wins', value: String(career.wins) },
-              { label: 'Best Finish', value: career.bestPosition != null ? `P${career.bestPosition}` : '—' },
-            ]}
-          />
+          {view.lineup.length > 0 ? (
+            <HistoryCard span={12} heading={t('team.lineupHeading', { year: view.year })}>
+              <TeamLineup lineup={view.lineup} year={view.year} ui={view.palette.ui} />
+            </HistoryCard>
+          ) : null}
+
+          <TeamDnaSection dna={view.dna} selectedYear={view.year} teamId={view.headId} />
 
           {lore ? (
-            <BentoCard span={relatedNews.length > 0 ? 8 : 12} className="relative">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                style={{ backgroundColor: 'var(--team-secondary)', opacity: 0.7 }}
-              />
+            <BentoCard span={relatedNews.length > 0 ? 8 : 12}>
               <LoreSection
-                heading="The Team"
+                heading={t('team.storyHeading')}
                 bio={lore.bio}
                 milestones={lore.milestones}
                 lore={lore.lore}
                 facts={[
-                  { label: 'Base', value: lore.hq.label },
-                  { label: 'Founded', value: String(lore.founded) },
+                  { label: t('team.base'), value: lore.hq.label },
+                  { label: t('team.founded'), value: String(lore.founded) },
                 ]}
               />
             </BentoCard>
           ) : null}
 
           {relatedNews.length > 0 ? (
-            <BentoCard span={lore ? 4 : 12} className="relative">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                style={{ backgroundColor: 'var(--team-secondary)', opacity: 0.7 }}
-              />
-              <RelatedNewsList items={relatedNews} heading="Related News" />
+            <BentoCard span={lore ? 4 : 12}>
+              <RelatedNewsList items={relatedNews} heading={t('team.newsHeading')} />
             </BentoCard>
           ) : null}
         </BentoGrid>

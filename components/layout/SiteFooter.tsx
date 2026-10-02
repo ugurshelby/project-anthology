@@ -89,6 +89,17 @@ export function SiteFooter() {
           </p>
           <p className="data-tabular text-xs text-text-mid">
             {tFooter('builtFor')}
+            <span className="mx-2 text-text-low">·</span>
+            {tFooter('dataCredit')}:{' '}
+            <a
+              href="https://github.com/f1db/f1db"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-white/30 underline-offset-4 transition-colors hover:text-text-hi"
+            >
+              F1DB
+            </a>{' '}
+            (CC BY 4.0)
           </p>
         </div>
       </div>

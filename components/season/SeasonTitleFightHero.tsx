@@ -22,9 +22,9 @@ export function SeasonTitleFightHero({
   leader: DriverStandingRow;
   challenger: DriverStandingRow | null;
 }) {
-  const leaderColor = resolveTeamUiColor(leader.constructorId, leader.constructorName);
+  const leaderColor = resolveTeamUiColor(leader.constructorId, leader.constructorName, year);
   const challengerColor = challenger
-    ? resolveTeamUiColor(challenger.constructorId, challenger.constructorName)
+    ? resolveTeamUiColor(challenger.constructorId, challenger.constructorName, year)
     : leaderColor;
   const leaderPortrait = driverIconSrc(leader.driverCode, leader.driverId, year);
   const challengerPortrait = challenger
