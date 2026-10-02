@@ -9,6 +9,9 @@
  * @see .cursor/rules/CURSOR.md — "F1 takım renkleri" bölümü
  */
 
+import { paletteFor } from '@/lib/history/palette';
+import { resolveConstructorId } from '@/lib/history/store';
+
 export const F1_TEAM_COLORS_SEASON = 2026;
 
 /**
@@ -260,8 +263,15 @@ export function getTeamByName(name: string): TeamColorSet | undefined {
   return best?.team;
 }
 
-/** Resolve the best UI accent color from live API hex and/or team name. */
-export function resolveTeamUiColor(apiColor: unknown, teamName?: string): string {
+/**
+ * Resolve the best UI accent color from live API hex and/or team name.
+ * With a `season`, the team's livery colour for THAT season wins (history
+ * palette, see lib/history/palette.ts); without one the behaviour is unchanged.
+ */
+export function resolveTeamUiColor(apiColor: unknown, teamName?: string, season?: number): string {
+  if (season !== undefined && teamName && resolveConstructorId(teamName, season)) {
+    return paletteFor(teamName, season).ui;
+  }
   const fromApi = normalizeHex(String(apiColor ?? ''));
   if (fromApi) return fromApi;
 
@@ -283,6 +293,11 @@ export function getSeasonPalette(
   season: number,
 ): SeasonPalette {
   if (!teamIdOrName) return DEFAULT_SEASON_PALETTE;
+  // Any team in F1 history resolves through the season-aware livery palette.
+  if (resolveConstructorId(teamIdOrName, season)) {
+    const p = paletteFor(teamIdOrName, season);
+    return { primary: p.primary, secondary: p.secondary, accent: p.accent };
+  }
   const team = getTeamById(teamIdOrName) ?? getTeamByName(teamIdOrName);
   if (!team) return DEFAULT_SEASON_PALETTE;
 
