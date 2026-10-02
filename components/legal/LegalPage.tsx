@@ -10,10 +10,11 @@ type Props = {
   title: string;
   intro: string;
   updated: string;
+  updatedLabel?: string;
   sections: LegalSection[];
 };
 
-export function LegalPage({ eyebrow, title, intro, updated, sections }: Props) {
+export function LegalPage({ eyebrow, title, intro, updated, updatedLabel = 'Last updated', sections }: Props) {
   return (
     <main
       id="main-content"
@@ -24,7 +25,7 @@ export function LegalPage({ eyebrow, title, intro, updated, sections }: Props) {
           <p className="label-caps mb-4 text-accent">{eyebrow}</p>
           <h1 className="headline-lg max-w-3xl text-balance text-text-hi">{title}</h1>
           <p className="body-lg mt-6 max-w-3xl text-text">{intro}</p>
-          <p className="data-tabular mt-6 text-text-low">Last updated: {updated}</p>
+          <p className="data-tabular mt-6 text-text-low">{updatedLabel}: {updated}</p>
         </header>
 
         <div className="mt-10 space-y-10 md:mt-14 md:space-y-14">

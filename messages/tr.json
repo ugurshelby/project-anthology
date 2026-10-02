@@ -59,12 +59,41 @@
     "legalDisclaimer": "Yasal Uyarı",
     "legalPrivacy": "Gizlilik",
     "legalTerms": "Kullanım Koşulları",
-    "legalDmca": "Telif / DMCA"
+    "legalDmca": "Telif / DMCA",
+    "analyticsSettings": "Analitik ayarları"
   },
   "common": {
     "loading": "Yükleniyor…",
     "error": "Bir şeyler ters gitti",
     "retry": "Yeniden Dene",
     "circuitLocalTime": "Yerel"
+  },
+  "consent": {
+    "title": "Analitik",
+    "body": "Apex anonim analitik ve performans ölçümü kullanabilir. Siz kabul etmedikçe hiçbir şey yüklenmez.",
+    "privacyLink": "Ayrıntılar",
+    "accept": "Kabul et",
+    "decline": "Reddet"
+  },
+  "privacy": {
+    "metaTitle": "Gizlilik Politikası",
+    "metaDescription": "Apex'in tarayıcınızda neleri sakladığı, analitik sağlayıcılarına neleri gönderdiği ve tercihleriniz.",
+    "eyebrow": "Yasal / 02",
+    "title": "Gizlilik, ince ayrıntılara gömülmeden anlatıldı.",
+    "intro": "Bu sayfa, Apex'in ziyaretinizle ilgili bilgilerle ne yaptığını açıklar. Türkiye'deki kullanıcılar için KVKK, Avrupa Ekonomik Alanı'ndaki kullanıcılar için GDPR gözetilerek yazılmıştır. Hukuk danışmanınızın görüşünün yerine geçmez.",
+    "updatedLabel": "Son güncelleme",
+    "updated": "2 Ekim 2026",
+    "s1Title": "Siz kabul edene kadar analitik kapalıdır",
+    "s1p1": "Apex iki isteğe bağlı Vercel hizmeti kullanır: Web Analytics (anonim sayfa görüntülemeleri) ve Speed Insights (sayfa performans ölçümleri). İlk ziyaretinizde görünen bildirimde Kabul et'e basana kadar ikisi de yüklenmez ve onlara hiçbir istek gönderilmez.",
+    "s1p2": "Reddet'e basarsanız veya hiçbir şey yapmazsanız kapalı kalırlar. Tercihinizi istediğiniz zaman alt bilgideki Analitik ayarları bağlantısından değiştirebilirsiniz.",
+    "s2Title": "Tarayıcınızda neler saklanır",
+    "s2p1": "Onay tercihiniz tarayıcınızın yerel depolamasında apex-analytics-consent adıyla (değer granted veya denied) saklanır. Cihazınızda kalır, Apex sunucularına gönderilmez. Hikâye okuyucu okuma dili tercihinizi de yerel depolamada tutabilir. Dil yönlendirmesi, site seçtiğiniz dilde açılsın diye bir dil çerezi tutabilir. Tarayıcınız depolamayı engelliyorsa tercihiniz yalnızca o sayfa görüntülemesi için geçerli olur.",
+    "s2p2": "Apex reklam çerezi kullanmaz, kişisel veri satmaz ve reklam profili oluşturmaz.",
+    "s3Title": "Sunucu ve sağlayıcı verileri",
+    "s3p1": "Her web sitesi gibi Apex'in barındırma ve güvenlik katmanları da siteyi sunmak, kötüye kullanımı sınırlamak ve güvenilir tutmak için IP adresi, tarayıcı türü, istenen sayfa ve zaman gibi teknik istek verilerini işler. Barındırma, veritabanı ve hata izleme sağlayıcıları verileri yalnızca hizmetlerini sunmak için işler.",
+    "s3p2": "İşleme, güvenlik ve işletim için meşru menfaate; yukarıda açıklanan isteğe bağlı analitik için ise onayınıza dayanır. Verileri yalnızca belirtilen amacın gerektirdiği süre kadar saklarız.",
+    "s4Title": "Haklarınız",
+    "s4p1": "Geçerli hukuk çerçevesinde erişim, düzeltme, silme, kısıtlama, taşınabilirlik veya itiraz talep edebilir; onayınızı geri çekebilir; Kişisel Verileri Koruma Kurumu'na (KVKK) ya da yerel denetim otoritenize şikâyette bulunabilirsiniz. Talebe işlem yapmadan önce kimliğinizi doğrulamamız gerekebilir.",
+    "s4p2": "Gizlilik taleplerinizi <mail>privacy@apexstats.example</mail> adresine gönderin. Bu adres geçici bir yer tutucudur; yayına almadan önce izlenen bir posta kutusuyla değiştirilmelidir."
   }
 }
