@@ -3,7 +3,7 @@
 > Kalıcı entegrasyon/API/tablo eklenince güncellenir. Kural dosyası: `AGENTS.md`.
 > Ölçülmüş durum ve dizin haritası: `docs/reference/apex-reference.md`. Detay: `docs/reference/mimari.md`.
 
-**Son güncelleme:** 2026-10-01
+**Son güncelleme:** 2026-10-02
 
 ---
 
@@ -152,6 +152,13 @@ npx tsc --noEmit   # tip kontrolü (npm script yok)
 2. Pilot/takım/araç görseli **yok artık** — `driverIconSrc()`/`teamIconSrc()`/`carSrc()` hep `null` döner, `ApexFallback` rozet render eder (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
 3. Paralel `npm run build` kilitleme riski — tek build aynı anda.
 
+
+## Tarih indeksi (F1DB) ve sezon seçimi
+
+- `scripts/build-f1-history-index.ts`: F1DB GitHub sürümünü indirir (zip sağlama toplamı doğrulanır), `data/history/` altına yazar: `constructor-index.json` (hafif, tarayıcıya gidebilir), `constructors.json` (takımlar, soyağacı/chronology, sezon satırları), `drivers.json` (pilot sezon satırları: takım, numara, sıra, puan, galibiyet…), `seasons.json` (şampiyonlar), `meta.json` (sürüm, sağlama). Gizli anahtar ve veritabanı gerekmez. Lisans: **F1DB CC BY 4.0** — alt bilgide atıf var, kaldırılamaz.
+- Kod: `lib/history/` — `ids.ts` (tarayıcı-güvenli kimlik çözümleme), `palette.ts` + `color.ts` (dönem renkleri; tek giriş `paletteFor`), `store.ts` (ağır indeks, yalnız sunucu), `career.ts` (o yıl itibarıyla toplamlar, takım durakları), `dna.ts` (takım soyağacı), `lineup.ts`, `enrich.ts` (arşiv puan durumuna takım/numara/galibiyet), `seasons.ts` (şampiyonlar, sezon seçici). Sunucu tarafı görünüm modelleri: `lib/data/profiles.ts`. Güncel sezon indekste kısmi olduğundan canlı veriyle üzerine yazılır.
+- Sayfalar: `/drivers/[id]?season=`, `/teams/[id]?season=`, `/grid?season=`, `/season/[year]`. Kimlikler F1DB kebab-case (`lewis-hamilton`) ya da Ergast (`hamilton`, `red_bull`) olabilir; ikisi de çözülür.
+- Renkler editoryal yaklaşıklıktır (`data/history/liveries.ts`, resmî kaynak yok, logo yok); listede olmayan takımlar ülke yarış rengi alır. İstemci paketine ağır JSON girmemesi için `tests/history-palette.test.ts` içinde koruma testi var.
 
 ## Haber hikâyeleri (news_stories)
 

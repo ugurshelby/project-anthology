@@ -101,3 +101,10 @@ describe('client bundle safety', () => {
     }
   });
 });
+
+describe('driver id edge cases', () => {
+  it('maps a name with a Jr. suffix from an Ergast style id', () => {
+    expect(resolveDriverId('sainz')).toBe('carlos-sainz-jr');
+    expect(resolveDriverId('x', { name: 'Carlos Sainz' })).toBe('carlos-sainz-jr');
+  });
+});

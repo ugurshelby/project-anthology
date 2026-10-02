@@ -4,7 +4,7 @@
 > Ölçülmüş durum: `docs/reference/apex-reference.md`. Tamamlanan plan dosyaları silinir (geçmiş git'te).
 >
 > **Canlı:** https://project-anthology-eight.vercel.app
-> **Son güncelleme:** 2026-10-01
+> **Son güncelleme:** 2026-10-02
 
 ---
 
@@ -137,10 +137,14 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 
 Karar özeti: `?season=` adres biçimi; kariyer/kimlik verisi F1DB'den üretilen ve depoya konan indeks dosyaları (gizli anahtar yok, migration yok); sezon içinde takım değiştiren pilotta ana renk son takımdan, ikisi de gösterilir; eksik veri arayüzde hissettirilmez (asla "null" yazılmaz); renkler editoryal yaklaşıktır, sahip gözden geçirir. Dal: `agent/season-history` (sahip test edip onaylayınca main'e alınır).
 
-- [ ] **Dilim 1 — Veri ve renk:** F1DB indeksi (takımlar + soyağacı, pilotlar + sezon satırları, sezon özetleri), dönem bazlı renk sistemi (`getSeasonPalette` tek giriş), kapsama + kontrast testleri
-- [ ] **Dilim 2 — Sezon sayfası:** her sezon o yılın verisiyle dolar, o yılın renkleri, kronoloji (önceki/sonraki, on yıl şeridi), veri yoksa zarif boş durum
-- [ ] **Dilim 3 — Pilot ve takım sayfaları:** sezon seçici, sezona göre renk/numara/istatistik, "o yıl itibarıyla" kümülatif görünüm, pilot takım zaman çizgisi, takım **DNA bölümü** (kuruluş adı ve vizyonundan bugüne; soyağacı: Stewart → Jaguar → Red Bull; Ferrari gibi kuruluşundan beri süren takımlar için özel vurgu)
-- [ ] **Dilim 4 — Grid ve diğer sayfalar:** grid sezon seçilebilir, renk kullanan bileşenler tek giriş noktasına geçer, seçili sezon sayfalar arası taşınır
+- [x] **Dilim 1 — Veri ve renk:** `scripts/build-f1-history-index.ts` F1DB'den `data/history/*.json` üretir (77 sezon, 187 takım, 858 pilot; sağlama toplamı doğrulanır, gizli anahtar yok). Dönem bazlı renk: `data/history/liveries.ts` (elle 67 takım) + ülke renkli yedek, tek giriş `paletteFor()` / `resolveTeamUiColor(..., sezon)`. Testler: `tests/history-*.test.ts` (kapsama + kontrast + kimlik çözümleme + istemci paketi koruması)
+- [x] **Dilim 2 — Sezon sayfası:** `/season/[year]` sezon seçici (on yıllara göre, takım rengiyle), şampiyonlar şeridi, arşiv puan durumuna takım/numara eklendi, o yılın renkleri
+- [x] **Dilim 3 — Pilot ve takım sayfaları:** `?season=` ile sezon seçimi; sezona göre renk/numara/takım/istatistik; "o yıl itibarıyla" kariyer; pilot takım yolculuğu; takım **DNA bölümü** (soyağacı, sezon çubuğu, kurucu üye vurgusu); eksik veri gösterilmez, "null" yazılmaz
+- [x] **Dilim 4 — Grid ve diğer sayfalar:** `/grid?season=` seçilebilir (motor tedarikçisi ve galibiyetler o sezondan), standings bileşenleri sezon rengi ve `?season=` bağlantıları kullanıyor
+- [ ] Sahip incelemesi: renk listesi (`data/history/liveries.ts`, editoryal yaklaşıklık), DNA metinleri (`data/history/team-dna.ts`)
+- [ ] Tarayıcıda gerçek işaretçiyle tıklama ve masaüstü/mobil görsel gözden geçirme (sahip testi)
+- [ ] Ana sayfa bileşenleri (HomeWireFeed vb.) şimdilik güncel sezon rengi kullanıyor; haber ↔ takım rengi geçmiş sezona bağlanmadı
+- [ ] F1DB yeni sürüm çıkınca `npx tsx scripts/build-f1-history-index.ts` ile indeks yenilenir (güncel sezon canlı veriden okunur)
 
 ## Teknik Borç
 

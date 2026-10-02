@@ -39,7 +39,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 
 - Triggers: "veri hattı kontrolü", "haber hattı kontrolü", "data health".
 - Scope: read-only; never run a script that loads `.env.local` or a real env file (placeholder values, or report it). Public pages and public JSON routes, public Supabase reads that need no secret, `.github/workflows` state readable without a secret, code of `app/api/cron/*`.
-- Steps: snapshot freshness and content validity (`isSeasonSnapshotContentInvalid` logic against what pages show); `news_stories` freshness, count, EN/TR fields present, source links present; cron routes answer 401 without a token (`curl` without a secret is allowed); workflow files and last runs if visible via public `gh run list`; schedule overlap between Vercel and GitHub.
+- Steps: history index (`data/history/meta.json`) release versus the latest F1DB release (public GitHub API, read-only); snapshot freshness and content validity (`isSeasonSnapshotContentInvalid` logic against what pages show); `news_stories` freshness, count, EN/TR fields present, source links present; cron routes answer 401 without a token (`curl` without a secret is allowed); workflow files and last runs if visible via public `gh run list`; schedule overlap between Vercel and GitHub.
 - May change: tests and guards in code when a defect is found and is pure logic.
 - Only report: anything needing a secret, the Vercel/Supabase/Upstash/Sentry dashboards, or a cron call with a token. List these under "Needs owner".
 - Docs: reference sections 4 and 8; master-plan boxes only if verified.
