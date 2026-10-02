@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Countdown } from '@/components/home/Countdown';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { countryFlag } from '@/lib/data/countryFlags';

@@ -2,13 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
+import { countryName, raceName } from '@/lib/i18n/format';
+import { Link } from '@/i18n/routing';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
 import { countryFlag } from '@/lib/data/countryFlags';
 import type { SeasonRaceSummary } from '@/lib/f1/mrdata';
 
-function gpShortName(raceName: string): string {
-  return raceName.replace(/ Grand Prix$/i, '').toUpperCase();
+function gpShortName(name: string, locale: string): string {
+  return raceName(name, locale).replace(/ Grand Prix$/i, '').toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-GB');
 }
 
 /**
@@ -24,6 +26,9 @@ export function HorizontalRaceStrip({
   nextRound?: string;
   season: number;
 }) {
+  const t = useTranslations('ui.season');
+  const tc = useTranslations('ui.common');
+  const locale = useLocale();
   const defaultRound = useMemo(() => {
     const next = summaries.find((s) => !s.done && s.round === nextRound);
     if (next) return next.round;
@@ -37,10 +42,10 @@ export function HorizontalRaceStrip({
   return (
     <div className="mb-8 flex w-full max-w-full min-w-0 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="label-caps text-text-mid">Race calendar</span>
+        <span className="label-caps text-text-mid">{t('raceCalendar')}</span>
         {selected ? (
           <Link href={`/season/${season}/round/${selected.round}`} className="label-caps text-accent hover:opacity-80">
-            Full weekend →
+            {t('fullWeekend')}
           </Link>
         ) : null}
       </div>
@@ -70,10 +75,10 @@ export function HorizontalRaceStrip({
                 {flag ? <span aria-hidden className="text-sm">{flag}</span> : null}
               </div>
               <span className="mt-1 block font-condensed text-sm font-600 leading-tight uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
-                {gpShortName(race.raceName)}
+                {gpShortName(race.raceName, locale)}
               </span>
               <span className="data-tabular mt-1 block text-[13px] text-text-low">
-                {race.done && race.winnerCode ? race.winnerCode.toUpperCase() : isNext ? 'NEXT' : '—'}
+                {race.done && race.winnerCode ? race.winnerCode.toUpperCase() : isNext ? tc('next') : '—'}
               </span>
             </button>
           );
@@ -94,6 +99,9 @@ function RaceMicroSummary({
   season: number;
   isNext: boolean;
 }) {
+  const t = useTranslations('ui.season');
+  const tc = useTranslations('ui.common');
+  const locale = useLocale();
   const svg = circuitIconSrc(race.circuitId);
   const flag = countryFlag(race.country);
 
@@ -106,15 +114,15 @@ function RaceMicroSummary({
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <span className="label-caps flex items-center gap-1.5 text-text-mid">
             {flag ? <span aria-hidden>{flag}</span> : null}
-            R{race.round} · {race.country}
+            {t('roundShort', { round: race.round })} · {countryName(race.country, locale)}
             {isNext ? (
               <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-accent/40 bg-accent/10 px-2 py-0.5 text-accent">
                 <span aria-hidden className="h-1 w-1 animate-pulse rounded-full bg-accent" />
-                NEXT
+                {tc('next')}
               </span>
             ) : null}
           </span>
-          <h3 className="headline-md uppercase text-text-hi">{race.raceName}</h3>
+          <h3 className="headline-md uppercase text-text-hi">{raceName(race.raceName, locale)}</h3>
           {race.done && race.podium.length > 0 ? (
             <div className="flex flex-wrap gap-3">
               {race.podium.map((p) => (
@@ -124,16 +132,16 @@ function RaceMicroSummary({
               ))}
             </div>
           ) : (
-            <span className="data-tabular text-text-low">Weekend schedule available</span>
+            <span className="data-tabular text-text-low">{t('scheduleAvailable')}</span>
           )}
           {race.fastestLapDriver ? (
             <span className="label-caps text-text-low">
-              FL · {race.fastestLapDriver}
+              {tc('fastestLapShort')} · {race.fastestLapDriver}
               {race.fastestLapTime ? ` · ${race.fastestLapTime}` : ''}
             </span>
           ) : null}
           <Link href={`/season/${season}/round/${race.round}`} className="label-caps mt-1 w-fit text-accent hover:opacity-80">
-            Open round →
+            {t('openRound')}
           </Link>
         </div>
         {svg ? (

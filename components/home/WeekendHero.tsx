@@ -1,5 +1,7 @@
+import { useLocale, useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
-import Link from 'next/link';
+import { weatherSummary } from '@/lib/i18n/labels';
+import { Link } from '@/i18n/routing';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
 import type { CircuitWeather } from '@/lib/data/circuits';
 import { Countdown } from './Countdown';
@@ -33,6 +35,8 @@ export function WeekendHero({
   /** True while the current session falls within RACE_LIVE_WINDOW_MS — swaps the countdown for LiveRaceTracker. */
   isLive?: boolean;
 }) {
+  const t = useTranslations('ui.home');
+  const locale = useLocale();
   const featuredSessions = sessions.filter((s) =>
     ['fp1', 'qualifying', 'race'].includes(s.id),
   );
@@ -68,7 +72,7 @@ export function WeekendHero({
           href="/season"
           className="absolute right-4 top-4 z-20 max-w-[min(70%,280px)] rounded-[var(--radius-chip)] border border-white/15 bg-black/45 px-3 py-2 backdrop-blur-md md:right-8 md:top-8 lg:right-16"
         >
-          <span className="label-caps block text-text-mid">Last Round Winner</span>
+          <span className="label-caps block text-text-mid">{t('lastRoundWinner')}</span>
           <span
             className="mt-0.5 block truncate font-condensed text-sm font-700 uppercase leading-tight text-text-hi"
             style={{ fontFamily: 'var(--font-condensed)' }}
@@ -87,8 +91,8 @@ export function WeekendHero({
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-semibold text-text-hi">{weather.temperatureC}°C</span>
               <span>·</span>
-              <span>{weather.summary}</span>
-              {weather.windKmh ? <span>· {weather.windKmh} km/h wind</span> : null}
+              <span>{weatherSummary(weather.weatherCode, weather.summary, locale)}</span>
+              {weather.windKmh ? <span>· {t('wind', { kmh: weather.windKmh })}</span> : null}
             </div>
           ) : null}
         </div>
@@ -101,7 +105,7 @@ export function WeekendHero({
           ) : countdownTargetMs ? (
             <Countdown targetMs={countdownTargetMs} />
           ) : (
-            <span className="label-caps text-text-low">Schedule to be confirmed</span>
+            <span className="label-caps text-text-low">{t('scheduleTbc')}</span>
           )}
           {bar.length > 0 ? (
             <div className="flex max-w-xl flex-col gap-2 font-mono text-[13px] uppercase tracking-wide text-text-mid sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-2">

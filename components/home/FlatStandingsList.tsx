@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { DriverAvatar } from '@/components/bento/DriverAvatar';
 import { DriverLeaderCard } from '@/components/standings/StandingsLeaderCard';
@@ -19,6 +20,7 @@ export function FlatStandingsList({
   limit?: number;
   avatarSize?: number;
 }) {
+  const t = useTranslations('ui.home.flat');
   const [leader, ...rest] = rows;
   const visible = rest.slice(0, Math.max(0, limit - 1));
   const rowMinHeight = avatarSize >= 44 ? 'min-h-16' : 'min-h-11';
@@ -52,7 +54,7 @@ export function FlatStandingsList({
             </span>
             <span aria-hidden className="h-4 w-0.5 shrink-0 rounded-full" style={{ backgroundColor: teamColor }} />
             <span className="data-tabular w-10 shrink-0 text-right text-text">
-              <span className="sr-only">Points: </span>
+              <span className="sr-only">{t('points')}</span>
               {row.points}
             </span>
           </Link>

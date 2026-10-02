@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { LiveTimingResponse } from '@/app/api/live-timing/route';
 
 const POLL_INTERVAL_MS = 12_000;
@@ -12,6 +13,7 @@ const MAX_ROWS = 8;
  * only mounts this during lib/f1Calendar's RACE_LIVE_WINDOW_MS.
  */
 export function LiveRaceTracker() {
+  const t = useTranslations('ui.home.live');
   const [data, setData] = useState<LiveTimingResponse | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -41,15 +43,15 @@ export function LiveRaceTracker() {
   }, []);
 
   if (failed && !data) {
-    return <span className="label-caps text-text-low">Live timing unavailable</span>;
+    return <span className="label-caps text-text-low">{t('unavailable')}</span>;
   }
 
   if (!data) {
-    return <span className="label-caps text-text-low">Connecting to live timing…</span>;
+    return <span className="label-caps text-text-low">{t('connecting')}</span>;
   }
 
   if (!data.live || data.rows.length === 0) {
-    return <span className="label-caps text-accent">Session in progress — classification pending</span>;
+    return <span className="label-caps text-accent">{t('pending')}</span>;
   }
 
   const rows = data.rows.slice(0, MAX_ROWS);
@@ -58,7 +60,7 @@ export function LiveRaceTracker() {
     <div className="flex flex-col gap-2">
       <span className="label-caps flex items-center gap-2 text-accent">
         <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-        Live · {data.sessionName ?? 'Session'}
+        {t('live')} · {data.sessionName ?? t('session')}
       </span>
       <ol className="flex max-w-md flex-col gap-1 font-mono text-[13px]">
         {rows.map((row) => (

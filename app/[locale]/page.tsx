@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { SITE_NAME, SITE_TAGLINE } from '@/lib/seo';
 import { fetchSeasonSnapshotTyped, fetchRoundSnapshot, getOnThisDay } from '@/lib/data/f1';
 import { getPublishedStories } from '@/lib/data/stories';
@@ -40,7 +40,8 @@ import {
 import { PageShell } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { formatDate, raceName } from '@/lib/i18n/format';
 import { localizedAlternates } from '@/lib/seo';
 
 export const revalidate = 0;
@@ -71,7 +72,8 @@ export async function generateMetadata({
 
 const paddockCardClass = 'min-h-[320px] min-w-[min(85vw,22rem)] shrink-0 snap-start md:min-w-0';
 
-async function HomeHeroBlock() {
+async function HomeHeroBlock({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'ui.home' });
   const calendarData = await fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
   const renderNowMs = nowMs();
   const now = new Date(renderNowMs);
@@ -86,9 +88,9 @@ async function HomeHeroBlock() {
       : null;
   const lastRaceRecap = getLastRaceResult(previousResults);
 
-  const nextRaceTitle = nextRace?.raceName ?? nextRace?.Circuit?.Location?.country ?? 'Season';
+  const nextRaceTitle = raceName(nextRace?.raceName ?? nextRace?.Circuit?.Location?.country ?? t('seasonFallback'), locale);
   const nextRaceCircuit = nextRace?.Circuit?.circuitName ?? '';
-  const nextRaceDate = nextRace?.date ?? '';
+  const nextRaceDate = nextRace?.date ? formatDate(`${nextRace.date}T12:00:00Z`, locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
   const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
@@ -101,24 +103,24 @@ async function HomeHeroBlock() {
     : null;
 
   const eyebrow = nextRace?.round
-    ? `${CURRENT_SEASON} · Round ${nextRace.round}`
-    : `Next Race · ${CURRENT_SEASON}`;
+    ? t('eyebrowRound', { season: CURRENT_SEASON, round: nextRace.round })
+    : t('eyebrowNext', { season: CURRENT_SEASON });
   const subtitle = [nextRaceCircuit, nextRaceDate].filter(Boolean).join(' · ');
 
   const doneCount = races.filter((r) => isRaceDone(r, now)).length;
   const ticker: string[] = [];
   if (races.length > 0) {
-    ticker.push(`${CURRENT_SEASON} SEASON: ${doneCount}/${races.length} RACES COMPLETED`);
+    ticker.push(t('tickerSeason', { season: CURRENT_SEASON, done: doneCount, total: races.length }));
   }
   if (nextRace) {
     const nextLabel = (
       nextRace.Circuit?.Location?.locality ??
       nextRace.Circuit?.circuitName ??
       nextRace.raceName ??
-      'Next round'
-    ).toUpperCase();
-    const km = nextRaceFacts?.lengthKm != null ? ` (${nextRaceFacts.lengthKm} KM)` : '';
-    ticker.push(`NEXT: ${nextLabel}${km}`);
+      t('nextRound')
+    ).toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-GB');
+    const km = nextRaceFacts?.lengthKm != null ? t('tickerKm', { km: nextRaceFacts.lengthKm }) : '';
+    ticker.push(t('tickerNext', { label: nextLabel, km }));
   }
 
   return (
@@ -129,10 +131,10 @@ async function HomeHeroBlock() {
         subtitle={subtitle || undefined}
         countdownTargetMs={nextRaceStart}
         circuitCoverSrc={circuitCover}
-        sessions={weekendSessionChips(nextRace)}
+        sessions={weekendSessionChips(nextRace, locale)}
         circuitTimeZone={nextRaceLocation?.timeZone ?? nextRaceFacts?.timeZone}
         lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
-        lastRaceName={lastRaceRecap?.raceName}
+        lastRaceName={raceName(lastRaceRecap?.raceName, locale)}
         weather={circuitWeather}
         isLive={isLive}
       />
@@ -166,7 +168,8 @@ async function HomeWireColumn() {
   );
 }
 
-async function HomeAnthologyColumn() {
+async function HomeAnthologyColumn({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'ui.home' });
   const [calendarData, stories] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
     getPublishedStories(),
@@ -185,14 +188,14 @@ async function HomeAnthologyColumn() {
         <HomeAnthologyCard story={featuredStory} />
       ) : (
         <Link href="/anthology" className="flex h-full min-h-[280px] flex-col justify-end p-6">
-          <span className="label-caps text-accent">Anthology</span>
+          <span className="label-caps text-accent">{t('anthologyKicker')}</span>
           <span
             className="mt-2 font-condensed text-2xl font-700 uppercase italic text-text-hi"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
-            Long reads
+            {t('longReads')}
           </span>
-          <span className="mt-2 body-md text-text-mid">Open the archive →</span>
+          <span className="mt-2 body-md text-text-mid">{t('openArchive')}</span>
         </Link>
       )}
     </BentoCard>
@@ -216,7 +219,7 @@ export default async function HomePage({
   return (
     <PageShell className="!pt-0 lg:!pt-0">
       <Suspense fallback={<HomeHeroFallback />}>
-        <HomeHeroBlock />
+        <HomeHeroBlock locale={locale} />
       </Suspense>
 
       <div className="mt-6 flex flex-col gap-6 md:mt-8 md:gap-8">
@@ -228,7 +231,7 @@ export default async function HomePage({
             <HomeWireColumn />
           </Suspense>
           <Suspense fallback={<HomePaddockCardFallback />}>
-            <HomeAnthologyColumn />
+            <HomeAnthologyColumn locale={locale} />
           </Suspense>
         </HomePaddockRail>
 

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { intlTag } from '@/lib/i18n/format';
 
 /**
  * Visitor-local wall-clock time display — the general rule for showing any
@@ -12,10 +13,10 @@ import { useTranslations } from 'next-intl';
  * local time once mounted in the browser.
  */
 
-function formatIn(ms: number, timeZone?: string): string {
+function formatIn(ms: number, locale: string, timeZone?: string): string {
   const d = new Date(ms);
-  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long', timeZone });
-  const clock = d.toLocaleTimeString('en-GB', {
+  const weekday = d.toLocaleDateString(intlTag(locale), { weekday: 'long', timeZone });
+  const clock = d.toLocaleTimeString(intlTag(locale), {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -39,6 +40,7 @@ export function LocalTime({
   className?: string;
 }) {
   const t = useTranslations('common');
+  const locale = useLocale();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     // Deferred via setTimeout (not called synchronously in the effect body)
@@ -51,8 +53,8 @@ export function LocalTime({
     return <span className={className}>{fallback}</span>;
   }
 
-  const local = formatIn(startMs);
-  const circuitLocal = circuitTimeZone ? formatIn(startMs, circuitTimeZone) : null;
+  const local = formatIn(startMs, locale);
+  const circuitLocal = circuitTimeZone ? formatIn(startMs, locale, circuitTimeZone) : null;
   // Skip the secondary line entirely when it would just repeat the primary
   // (viewer happens to share the circuit's timezone).
   const showCircuitLocal = circuitLocal && circuitLocal !== local;

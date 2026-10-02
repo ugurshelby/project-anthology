@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
@@ -12,6 +13,7 @@ export function GridDriverStandings({
   rows: DriverGridRow[];
   season: number;
 }) {
+  const t = useTranslations('ui.common');
   return (
     <ol className="flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-hairline">
       {rows.map((row) => {
@@ -64,7 +66,7 @@ export function GridDriverStandings({
                 </span>
                 <span className="data-tabular text-xs text-text-low">{row.constructorName}</span>
               </div>
-              <span className="data-tabular shrink-0 text-text-hi">{row.points} PTS</span>
+              <span className="data-tabular shrink-0 text-text-hi">{row.points} {t('pts')}</span>
             </Link>
           </li>
         );

@@ -185,5 +185,155 @@
       "ongoing": "Season in progress",
       "decadeLine": "{year} · {decade}s"
     }
+  },
+  "system": {
+    "skipToContent": "Skip to content",
+    "changeLanguage": "Change language",
+    "archive": "ARCHIVE",
+    "loading": "Loading page content…",
+    "notFound": {
+      "eyebrow": "404",
+      "title": "Off Track",
+      "body": "This page doesn't exist. The driver, team or race you are looking for may have been renamed, or never made the grid.",
+      "home": "Back to Home"
+    },
+    "error": {
+      "eyebrow": "Error",
+      "title": "Retired",
+      "body": "Something went wrong while loading this page. The pit crew has been notified.",
+      "retry": "Try Again"
+    },
+    "entityNotFound": {
+      "driver": "Driver not found",
+      "team": "Constructor not found",
+      "season": "Season not found",
+      "round": "Round not found",
+      "circuit": "Circuit not found",
+      "story": "Story not found"
+    }
+  },
+  "ui": {
+    "home": {
+      "eyebrowRound": "{season} · Round {round}",
+      "eyebrowNext": "Next Race · {season}",
+      "tickerSeason": "{season} SEASON: {done}/{total} RACES COMPLETED",
+      "tickerNext": "NEXT: {label}{km}",
+      "tickerKm": " ({km} KM)",
+      "nextRound": "Next round",
+      "seasonFallback": "Season",
+      "anthologyKicker": "Anthology",
+      "longReads": "Long reads",
+      "openArchive": "Open the archive →",
+      "scheduleTbc": "Schedule to be confirmed",
+      "lastRoundWinner": "Last Round Winner",
+      "wind": "{kmh} km/h wind",
+      "pulse": {
+        "heading": "Championship Pulse",
+        "standings": "Standings",
+        "leader": "P1 Leader",
+        "pts": "PTS",
+        "unavailable": "Standings unavailable.",
+        "constructors": "Constructors",
+        "points": "Points"
+      },
+      "countdown": {
+        "lightsOut": "Lights out",
+        "aria": "{d} days, {h} hours, {m} minutes, {s} seconds until race start",
+        "d": "D",
+        "h": "H",
+        "m": "M",
+        "s": "S"
+      },
+      "flat": {
+        "points": "Points: "
+      },
+      "latest": {
+        "heading": "Latest Race",
+        "round": "Round {round}",
+        "winner": "Winner",
+        "fastestLap": "Fastest Lap",
+        "fullResults": "Full results →"
+      },
+      "live": {
+        "unavailable": "Live timing unavailable",
+        "connecting": "Connecting to live timing…",
+        "pending": "Session in progress — classification pending",
+        "live": "Live",
+        "session": "Session"
+      },
+      "otd": {
+        "badge": "On This Day · {date}",
+        "flashback": "Historical Flashback · {season}",
+        "wonGp": "{winner} won the {race} for {team} in {season}.",
+        "wonAt": "{winner} won at {race} for {team} in {season}.",
+        "also": "Also on this day:"
+      }
+    },
+    "common": {
+      "pts": "PTS",
+      "driver": "Driver",
+      "drivers": "Drivers",
+      "teams": "Teams",
+      "constructors": "Constructors",
+      "leader": "Leader",
+      "next": "NEXT",
+      "championship": "Championship",
+      "seatTbc": "TBA // Seat unconfirmed",
+      "fastestLapShort": "FL",
+      "winsShort": "W",
+      "moreMenu": "More",
+      "closeMenu": "Close menu",
+      "language": "Language / Dil",
+      "primary": "Primary",
+      "explore": "Explore",
+      "legal": "Legal"
+    },
+    "season": {
+      "pointsGap": "Points gap",
+      "ptsGap": "PTS GAP",
+      "ptsLead": "PTS LEAD",
+      "driversChampionship": "Drivers · Championship",
+      "constructorsTelemetry": "Constructors · Telemetry",
+      "fastestLapKing": "Fastest Lap King",
+      "fastestLaps": "fastest laps",
+      "noData": "No data yet",
+      "hardship": "Season Hardship",
+      "dnfRate": "DNF rate",
+      "retirements": "{dnf} retirements · {classified} classified entries",
+      "timeline": "Season timeline",
+      "roundsProgress": "{done} / {total} rounds",
+      "roundState": "R{round} {name} {state}",
+      "stateDone": "completed",
+      "stateNext": "next",
+      "stateUpcoming": "upcoming",
+      "raceCalendar": "Race calendar",
+      "fullWeekend": "Full weekend →",
+      "scheduleAvailable": "Weekend schedule available",
+      "openRound": "Open round →",
+      "roundShort": "R{round}",
+      "prev": "Previous season",
+      "pick": "Select season year",
+      "nextSeason": "Next season"
+    },
+    "table": {
+      "lap": "Lap",
+      "stop": "Stop",
+      "driverTeam": "Driver & Team",
+      "duration": "Duration",
+      "time": "Time",
+      "fastest": "Fastest",
+      "timeStatus": "Time / Status",
+      "best": "Best"
+    },
+    "grid": {
+      "championship": "{season} Championship",
+      "title": "Grid",
+      "viewLabel": "Grid view",
+      "byConstructor": "By Constructor",
+      "byDriver": "By Driver Standings",
+      "unavailable": "Grid data unavailable right now.",
+      "metaTitle": "Grid",
+      "metaDescription": "Every Formula 1 grid since 1950: each constructor with its driver line-up, championship standings and points. Pick any season."
+    }
   }
 }

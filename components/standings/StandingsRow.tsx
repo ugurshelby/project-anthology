@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { DriverAvatar } from '@/components/bento/DriverAvatar';

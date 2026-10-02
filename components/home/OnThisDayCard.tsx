@@ -1,17 +1,19 @@
+import { useLocale, useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
+import { formatDate, raceName } from '@/lib/i18n/format';
 import type { OnThisDayEntry } from '@/lib/data/f1';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 
 export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
+  const t = useTranslations('ui.home.otd');
+  const locale = useLocale();
   if (entries.length === 0) return null;
 
   const featured = entries[0];
   const cover = circuitCoverSrc(featured.circuitId);
-  const dateLabel = new Date().toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    timeZone: 'UTC',
-  });
+  const dateLabel = formatDate(new Date(), locale, { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  const featuredRace = raceName(featured.raceName, locale);
+  const isGp = /grand prix/i.test(featured.raceName);
 
   return (
     <article className="group relative grid overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface/90 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.8)] backdrop-blur-md md:grid-cols-12 md:items-stretch">
@@ -49,7 +51,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
         {/* Floating Date Badge */}
         <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1 font-mono text-xs uppercase tracking-wider text-white shadow-sm backdrop-blur-md">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          <span>On This Day · {dateLabel}</span>
+          <span>{t('badge', { date: dateLabel })}</span>
         </div>
 
         {/* Historical Year Watermark */}
@@ -67,7 +69,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">
-              Historical Flashback · {featured.season}
+              {t('flashback', { season: featured.season })}
             </span>
           </div>
 
@@ -75,7 +77,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
             className="font-condensed text-2xl font-700 uppercase italic leading-tight tracking-tight text-white sm:text-3xl md:text-4xl"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
-            {featured.season} · {featured.raceName}
+            {featured.season} · {featuredRace}
           </h2>
 
           {/* Podium Finisher Badges */}
@@ -99,12 +101,12 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
           </div>
 
           <p className="max-w-prose text-sm leading-relaxed text-text-mid/90 sm:text-base">
-            {featured.winnerName}{' '}
-            {/grand prix/i.test(featured.raceName)
-              ? `won the ${featured.raceName}`
-              : `won at ${featured.raceName}`}{' '}
-            for <span className="font-medium text-text-hi">{featured.winnerConstructor}</span>
-            {featured.season ? ` in ${featured.season}` : ''}.
+            {t(isGp ? 'wonGp' : 'wonAt', {
+              winner: featured.winnerName,
+              race: featuredRace,
+              team: featured.winnerConstructor,
+              season: featured.season,
+            })}
           </p>
         </div>
 
@@ -112,7 +114,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
         {entries.length > 1 ? (
           <div className="flex flex-wrap items-center gap-2 border-t border-hairline/60 pt-3 font-mono text-xs">
             <span className="uppercase tracking-wider text-text-low">
-              Also on this day:
+              {t('also')}
             </span>
             <div className="flex flex-wrap gap-1.5">
               {entries.slice(1, 5).map((e) => (
@@ -120,7 +122,7 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
                   key={`${e.season}-${e.raceName}`}
                   className="inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 text-text-mid transition-colors hover:border-white/20 hover:text-white"
                 >
-                  {e.season} {e.raceName.replace(/ Grand Prix/i, '')}
+                  {e.season} {raceName(e.raceName, locale).replace(/ Grand Prix/i, '')}
                 </span>
               ))}
             </div>

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 
 type Span = 4 | 6 | 8 | 12;
@@ -22,10 +23,11 @@ export function BentoSkeleton({
   /** Span of each card placeholder below the hero. */
   cards?: Span[];
 }) {
+  const t = useTranslations('system');
   return (
     <PageShell>
       <span className="sr-only" role="status">
-        Loading page content…
+        {t('loading')}
       </span>
       {heroSpan > 0 ? (
         <div

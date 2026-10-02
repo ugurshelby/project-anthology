@@ -10,6 +10,17 @@
  * without a cycle.
  */
 
+/** Locale tag + session names kept inline so this module stays dependency-free. */
+function intlTag(locale?: string): string {
+  return locale === 'tr' ? 'tr-TR' : 'en-GB';
+}
+function sessionLabel(id: string, fallback: string, locale?: string): string {
+  if (locale !== 'tr') return fallback;
+  if (id === 'qualifying') return 'Sıralama';
+  if (id === 'race') return 'Yarış';
+  return fallback;
+}
+
 /** Earliest season we backfill (F1DB historical seed lower bound). */
 export const F1_SEASON_MIN = 1950;
 
@@ -61,14 +72,14 @@ export interface WeekendSessionChip {
   startMs: number;
 }
 
-function formatSessionWhen(slot: SessionSlot): string | null {
+function formatSessionWhen(slot: SessionSlot, locale?: string): string | null {
   if (!slot.date) return null;
   const iso = slot.time ? `${slot.date}T${slot.time}` : `${slot.date}T12:00:00Z`;
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return null;
   const d = new Date(t);
-  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
-  const clock = d.toLocaleTimeString('en-GB', {
+  const weekday = d.toLocaleDateString(intlTag(locale), { weekday: 'long', timeZone: 'UTC' });
+  const clock = d.toLocaleTimeString(intlTag(locale), {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -78,7 +89,7 @@ function formatSessionWhen(slot: SessionSlot): string | null {
 }
 
 /** Practice / quali / race chips for the homepage weekend telemetry bar. */
-export function weekendSessionChips(race: CalendarRace | null | undefined): WeekendSessionChip[] {
+export function weekendSessionChips(race: CalendarRace | null | undefined, locale?: string): WeekendSessionChip[] {
   if (!race) return [];
   const slots: Array<[string, string, SessionSlot | undefined]> = [
     ['fp1', 'FP1', race.FirstPractice],
@@ -91,10 +102,10 @@ export function weekendSessionChips(race: CalendarRace | null | undefined): Week
   const out: WeekendSessionChip[] = [];
   for (const [id, label, slot] of slots) {
     if (!slot) continue;
-    const when = formatSessionWhen(slot);
+    const when = formatSessionWhen(slot, locale);
     const startMs = sessionStartMs(slot);
     if (!when || startMs === null) continue;
-    out.push({ id, label, when, startMs });
+    out.push({ id, label: sessionLabel(id, label, locale), when, startMs });
   }
   return out;
 }

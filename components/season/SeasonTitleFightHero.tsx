@@ -1,3 +1,4 @@
+import { useLocale, useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
@@ -22,6 +23,8 @@ export function SeasonTitleFightHero({
   leader: DriverStandingRow;
   challenger: DriverStandingRow | null;
 }) {
+  const t = useTranslations('ui.common');
+  const ts = useTranslations('ui.season');
   const leaderColor = resolveTeamUiColor(leader.constructorId, leader.constructorName, year);
   const challengerColor = challenger
     ? resolveTeamUiColor(challenger.constructorId, challenger.constructorName, year)
@@ -42,7 +45,7 @@ export function SeasonTitleFightHero({
       <span aria-hidden className="film-grain pointer-events-none absolute inset-0" />
 
       <div className="relative z-10 flex items-center justify-between px-5 pt-4 md:px-8 md:pt-5 lg:px-10">
-        <span className="label-caps text-text-mid">Championship</span>
+        <span className="label-caps text-text-mid">{t('championship')}</span>
         <YearScrubber year={year} minSeason={minSeason} currentSeason={currentSeason} />
       </div>
 
@@ -59,11 +62,11 @@ export function SeasonTitleFightHero({
         />
 
         <div className="flex min-w-0 shrink-0 flex-col items-center gap-1.5 py-2 md:gap-2 md:py-8">
-          <span className="label-caps text-text-mid">Points gap</span>
+          <span className="label-caps text-text-mid">{ts('pointsGap')}</span>
           <span className="hero-number text-[clamp(28px,5vw,56px)] text-text-hi">
             {challenger ? `+${gap}` : leader.points}
           </span>
-          <span className="data-tabular text-text-mid">{challenger ? 'PTS GAP' : 'PTS LEAD'}</span>
+          <span className="data-tabular text-text-mid">{challenger ? ts('ptsGap') : ts('ptsLead')}</span>
           <div className="mt-1 flex w-full max-w-[200px] items-center gap-2 md:mt-2">
             <span className="h-1 flex-1 rounded-full blur-[1px]" style={{ backgroundColor: leaderColor, boxShadow: `0 0 12px ${leaderColor}` }} />
             <span className="h-1 w-1 rounded-full bg-text-low" />

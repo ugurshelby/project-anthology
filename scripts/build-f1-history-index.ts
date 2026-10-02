@@ -7,6 +7,7 @@
  *
  * Output:
  *   data/history/meta.json          release tag, build time, newest season, checksum
+ *   data/history/countries.json     country id -> name + ISO alpha-2
  *   data/history/constructor-index.json  light team index (names, country, active years) for the browser
  *   data/history/constructors.json  teams, lineage (chronology), per-season rows
  *   data/history/drivers.json       drivers with per-season rows (teams, numbers, results)
@@ -235,6 +236,10 @@ async function main(): Promise<void> {
     constructorIndex[id] = { n: c.n, fn: c.fn, c: c.c, r: ranges };
   }
   writeEntities('constructor-index.json', constructorIndex);
+  // Country id -> name and ISO alpha-2 (used to show country names in the visitor's language).
+  const countriesOut: Record<string, unknown> = {};
+  for (const c of db.countries as Any[]) countriesOut[c.id] = { n: c.name, a: c.alpha2Code };
+  writeEntities('countries.json', countriesOut);
   writeEntities('constructors.json', constructorsOut);
   writeEntities('drivers.json', driversOut);
   writeEntities('seasons.json', seasonsOut);

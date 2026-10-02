@@ -185,5 +185,155 @@
       "ongoing": "Sezon sürüyor",
       "decadeLine": "{year} · {decade}'ler"
     }
+  },
+  "system": {
+    "skipToContent": "İçeriğe geç",
+    "changeLanguage": "Dili değiştir",
+    "archive": "ARŞİV",
+    "loading": "Sayfa içeriği yükleniyor…",
+    "notFound": {
+      "eyebrow": "404",
+      "title": "Pist Dışı",
+      "body": "Bu sayfa yok. Aradığınız sürücü, takım ya da yarış yeniden adlandırılmış olabilir veya hiç gride çıkmamıştır.",
+      "home": "Ana sayfaya dön"
+    },
+    "error": {
+      "eyebrow": "Hata",
+      "title": "Yarış Dışı",
+      "body": "Bu sayfa yüklenirken bir şey ters gitti. Pit ekibine haber verildi.",
+      "retry": "Tekrar dene"
+    },
+    "entityNotFound": {
+      "driver": "Sürücü bulunamadı",
+      "team": "Takım bulunamadı",
+      "season": "Sezon bulunamadı",
+      "round": "Yarış bulunamadı",
+      "circuit": "Pist bulunamadı",
+      "story": "Hikâye bulunamadı"
+    }
+  },
+  "ui": {
+    "home": {
+      "eyebrowRound": "{season} · {round}. Yarış",
+      "eyebrowNext": "Sıradaki Yarış · {season}",
+      "tickerSeason": "{season} SEZONU: {done}/{total} YARIŞ TAMAMLANDI",
+      "tickerNext": "SIRADA: {label}{km}",
+      "tickerKm": " ({km} KM)",
+      "nextRound": "Sıradaki yarış",
+      "seasonFallback": "Sezon",
+      "anthologyKicker": "Antoloji",
+      "longReads": "Uzun okumalar",
+      "openArchive": "Arşivi aç →",
+      "scheduleTbc": "Program henüz belli değil",
+      "lastRoundWinner": "Son Yarışın Kazananı",
+      "wind": "{kmh} km/sa rüzgâr",
+      "pulse": {
+        "heading": "Şampiyona Nabzı",
+        "standings": "Sıralama",
+        "leader": "P1 Lider",
+        "pts": "PUAN",
+        "unavailable": "Sıralama şu an yok.",
+        "constructors": "Takımlar",
+        "points": "Puan"
+      },
+      "countdown": {
+        "lightsOut": "Işıklar söndü",
+        "aria": "Yarışın başlamasına {d} gün, {h} saat, {m} dakika, {s} saniye",
+        "d": "G",
+        "h": "S",
+        "m": "D",
+        "s": "SN"
+      },
+      "flat": {
+        "points": "Puan: "
+      },
+      "latest": {
+        "heading": "Son Yarış",
+        "round": "{round}. Yarış",
+        "winner": "Kazanan",
+        "fastestLap": "En Hızlı Tur",
+        "fullResults": "Tüm sonuçlar →"
+      },
+      "live": {
+        "unavailable": "Canlı zamanlama şu an yok",
+        "connecting": "Canlı zamanlamaya bağlanılıyor…",
+        "pending": "Seans sürüyor, sıralama bekleniyor",
+        "live": "Canlı",
+        "session": "Seans"
+      },
+      "otd": {
+        "badge": "Tarihte Bugün · {date}",
+        "flashback": "Tarihten Bir Kesit · {season}",
+        "wonGp": "{winner}, {season} yılında {race} yarışını {team} adına kazandı.",
+        "wonAt": "{winner}, {season} yılında {race} pistinde {team} adına kazandı.",
+        "also": "Aynı günde:"
+      }
+    },
+    "common": {
+      "pts": "PUAN",
+      "driver": "Sürücü",
+      "drivers": "Sürücüler",
+      "teams": "Takımlar",
+      "constructors": "Takımlar",
+      "leader": "Lider",
+      "next": "SIRADA",
+      "championship": "Şampiyona",
+      "seatTbc": "TBA // Koltuk belli değil",
+      "fastestLapShort": "EHT",
+      "winsShort": "G",
+      "moreMenu": "Daha fazla",
+      "closeMenu": "Menüyü kapat",
+      "language": "Dil / Language",
+      "primary": "Ana menü",
+      "explore": "Keşfet",
+      "legal": "Yasal"
+    },
+    "season": {
+      "pointsGap": "Puan farkı",
+      "ptsGap": "PUAN FARKI",
+      "ptsLead": "PUAN",
+      "driversChampionship": "Sürücüler · Şampiyona",
+      "constructorsTelemetry": "Takımlar · Telemetri",
+      "fastestLapKing": "En Hızlı Tur Kralı",
+      "fastestLaps": "en hızlı tur",
+      "noData": "Henüz veri yok",
+      "hardship": "Sezonun Zorluğu",
+      "dnfRate": "Yarış dışı kalma oranı",
+      "retirements": "{dnf} yarış dışı · {classified} sıralı bitiriş",
+      "timeline": "Sezon zaman çizgisi",
+      "roundsProgress": "{done} / {total} yarış",
+      "roundState": "{round}. yarış {name} {state}",
+      "stateDone": "tamamlandı",
+      "stateNext": "sıradaki",
+      "stateUpcoming": "yaklaşan",
+      "raceCalendar": "Yarış takvimi",
+      "fullWeekend": "Tüm hafta sonu →",
+      "scheduleAvailable": "Hafta sonu programı mevcut",
+      "openRound": "Yarışı aç →",
+      "roundShort": "{round}. Y",
+      "prev": "Önceki sezon",
+      "pick": "Sezon yılını seç",
+      "nextSeason": "Sonraki sezon"
+    },
+    "table": {
+      "lap": "Tur",
+      "stop": "Duruş",
+      "driverTeam": "Sürücü ve Takım",
+      "duration": "Süre",
+      "time": "Zaman",
+      "fastest": "En hızlı",
+      "timeStatus": "Süre / Durum",
+      "best": "En iyi"
+    },
+    "grid": {
+      "championship": "{season} Şampiyonası",
+      "title": "Grid",
+      "viewLabel": "Grid görünümü",
+      "byConstructor": "Takıma Göre",
+      "byDriver": "Sürücü Sıralamasına Göre",
+      "unavailable": "Grid verisi şu an yok.",
+      "metaTitle": "Grid",
+      "metaDescription": "1950'den beri her Formula 1 gridi: her takımın sürücü kadrosu, şampiyona sıralaması ve puanları. İstediğiniz sezonu seçin."
+    }
   }
 }

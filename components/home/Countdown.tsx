@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -8,6 +9,7 @@ function pad(n: number): string {
 
 /** Telemetry-style race countdown — days · hrs · min · sec in mono. */
 export function Countdown({ targetMs }: { targetMs: number }) {
+  const t = useTranslations('ui.home.countdown');
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export function Countdown({ targetMs }: { targetMs: number }) {
 
   const diff = targetMs - now;
   if (diff <= 0) {
-    return <span className="label-caps text-accent">Lights out</span>;
+    return <span className="label-caps text-accent">{t('lightsOut')}</span>;
   }
 
   const d = Math.floor(diff / 86_400_000);
@@ -40,13 +42,13 @@ export function Countdown({ targetMs }: { targetMs: number }) {
       role="timer"
       aria-live="polite"
       aria-atomic="true"
-      aria-label={`${d} days, ${h} hours, ${m} minutes, ${s} seconds until race start`}
+      aria-label={t('aria', { d, h, m, s })}
     >
       {[
-        { v: d, l: 'D' },
-        { v: h, l: 'H' },
-        { v: m, l: 'M' },
-        { v: s, l: 'S' },
+        { v: d, l: t('d') },
+        { v: h, l: t('h') },
+        { v: m, l: t('m') },
+        { v: s, l: t('s') },
       ].map((u) => (
         <span key={u.l} className="flex items-baseline gap-0.5">
           <span className="text-[clamp(1.4rem,3.5vw,2.25rem)] leading-none">{pad(u.v)}</span>

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Barlow_Condensed, Inter, JetBrains_Mono } from 'next/font/google';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
-import { getMessages, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { SITE_NAME, SITE_TAGLINE, siteUrl, websiteJsonLd } from '@/lib/seo';
@@ -96,6 +96,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const tSystem = await getTranslations({ locale, namespace: 'system' });
 
   return (
     <html
@@ -112,7 +113,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
             href="#main-content"
             className="label-caps sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-chip)] focus:bg-surface focus:px-4 focus:py-2 focus:text-text-hi"
           >
-            Skip to content
+            {tSystem('skipToContent')}
           </a>
           <SiteHeader />
           {children}

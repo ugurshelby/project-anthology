@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
 import { resolveTeamUiColor } from '@/config/team-colors';
@@ -14,6 +15,7 @@ import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata'
  * accent colours).
  */
 export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; season: number }) {
+  const t = useTranslations('ui.common');
   const teamColor = resolveTeamUiColor(undefined, row.constructorName, season);
   const portrait = driverIconSrc(row.driverCode, row.driverId, season);
 
@@ -31,7 +33,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
       <span aria-hidden className="pointer-events-none absolute inset-0" style={teamPatternStyle(row.constructorId, teamColor)} />
       <span className="hero-number relative z-10 shrink-0 text-2xl text-text-hi/25">01</span>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="label-caps text-text-mid">Leader</span>
+        <span className="label-caps text-text-mid">{t('leader')}</span>
         <span
           className="font-condensed truncate text-2xl font-700 uppercase leading-none text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
@@ -44,7 +46,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
       </div>
       <div className="relative z-10 flex shrink-0 flex-col items-end">
         <span className="hero-number text-[clamp(36px,5vw,64px)] text-text-hi">{row.points}</span>
-        <span className="label-caps text-text-low">PTS</span>
+        <span className="label-caps text-text-low">{t('pts')}</span>
       </div>
       <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-36 sm:block">
         <ApexImage
@@ -67,6 +69,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
 
 /** Same treatment for the constructor standings leader — no portrait, team colour only. */
 export function TeamLeaderCard({ row }: { row: ConstructorStandingRow }) {
+  const t = useTranslations('ui.common');
   const teamColor = resolveTeamUiColor(undefined, row.constructorName);
 
   return (
@@ -83,7 +86,7 @@ export function TeamLeaderCard({ row }: { row: ConstructorStandingRow }) {
       <span aria-hidden className="pointer-events-none absolute inset-0" style={teamPatternStyle(row.constructorId, teamColor)} />
       <span className="hero-number relative z-10 shrink-0 text-2xl text-text-hi/25">01</span>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="label-caps text-text-mid">Leader</span>
+        <span className="label-caps text-text-mid">{t('leader')}</span>
         <span
           className="font-condensed truncate text-2xl font-700 uppercase leading-none text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
@@ -93,7 +96,7 @@ export function TeamLeaderCard({ row }: { row: ConstructorStandingRow }) {
       </div>
       <div className="relative z-10 flex shrink-0 flex-col items-end">
         <span className="hero-number text-[clamp(36px,5vw,64px)] text-text-hi">{row.points}</span>
-        <span className="label-caps text-text-low">PTS</span>
+        <span className="label-caps text-text-low">{t('pts')}</span>
       </div>
     </Link>
   );
