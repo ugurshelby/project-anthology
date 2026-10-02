@@ -8,6 +8,8 @@
  * circuit isn't listed.
  */
 
+import { CIRCUIT_FACTS_TR } from './facts.tr';
+
 export interface CircuitFacts {
   /** Latitude of the circuit (decimal degrees) — used for the live weather panel. */
   lat?: number;
@@ -235,8 +237,10 @@ export const CIRCUIT_FACTS: Record<string, CircuitFacts> = {
   },
 };
 
-export function getCircuitFacts(circuitId: string | undefined | null): CircuitFacts | null {
+export function getCircuitFacts(circuitId: string | undefined | null, locale?: string): CircuitFacts | null {
   const id = (circuitId ?? '').trim().toLowerCase();
   if (!id) return null;
-  return CIRCUIT_FACTS[id] ?? null;
+  const facts = CIRCUIT_FACTS[id] ?? null;
+  if (!facts || locale !== 'tr') return facts;
+  return { ...facts, ...(CIRCUIT_FACTS_TR[id] ?? {}) };
 }

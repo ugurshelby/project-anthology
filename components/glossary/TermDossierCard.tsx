@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { GlossaryTerm } from '@/data/glossary/terms';
 import { TermDiagram, CategoryDiagram } from '@/components/glossary/TermDiagram';
 
@@ -10,6 +11,7 @@ import { TermDiagram, CategoryDiagram } from '@/components/glossary/TermDiagram'
  * dedicated technical blueprint diagram viewport, and pit-wall engineering callout.
  */
 export function TermDossierCard({ term }: { term: GlossaryTerm }) {
+  const t = useTranslations('ui.glossary');
   return (
     <article
       id={term.slug}
@@ -41,7 +43,7 @@ export function TermDossierCard({ term }: { term: GlossaryTerm }) {
           {/* Dedicated Blueprint Diagram Viewport */}
           <div
             className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-1 shadow-sm transition-all duration-200 ease-out group-hover:scale-105 group-hover:border-red-500/40 group-hover:bg-white/[0.04] sm:h-14 sm:w-14"
-            title={`${term.term} CAD schematic`}
+            title={t('cadSchematic', { name: term.term })}
           >
             {term.diagram ? (
               <TermDiagram id={term.diagram} className="h-full w-full" />
@@ -61,7 +63,7 @@ export function TermDossierCard({ term }: { term: GlossaryTerm }) {
       {term.keyImpact ? (
         <div className="mt-4 flex items-start gap-2.5 rounded-[var(--radius-chip)] border border-white/[0.06] bg-white/[0.02] p-3 text-xs transition-colors group-hover:border-white/10">
           <span className="shrink-0 rounded bg-accent/15 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-accent">
-            Impact
+            {t('impact')}
           </span>
           <span className="font-mono leading-snug text-text-mid">
             {term.keyImpact}

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { GlossaryCategory, TermDiagramId } from '@/data/glossary/terms';
 
 export const CATEGORY_SLUG_MAP: Record<GlossaryCategory, string> = {
@@ -17,11 +18,12 @@ export function TermDiagram({
   id: TermDiagramId;
   className?: string;
 }) {
+  const t = useTranslations('ui.glossary');
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       <Image
         src={`/glossary-icons/diagrams/${id}.webp`}
-        alt={`${id} CAD schematic`}
+        alt={t('cadSchematic', { name: id })}
         fill
         sizes="96px"
         unoptimized
@@ -38,12 +40,13 @@ export function CategoryDiagram({
   category: GlossaryCategory;
   className?: string;
 }) {
+  const t = useTranslations('ui.glossary');
   const slug = CATEGORY_SLUG_MAP[category] || 'aerodynamics';
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       <Image
         src={`/glossary-icons/categories/${slug}.webp`}
-        alt={`${category} CAD blueprint`}
+        alt={t('cadBlueprintOf', { name: category })}
         fill
         sizes="96px"
         unoptimized
@@ -60,11 +63,12 @@ export function TyreCadDiagram({
   type: 'slick' | 'intermediate' | 'wet';
   className?: string;
 }) {
+  const t = useTranslations('ui.glossary');
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       <Image
         src={`/glossary-icons/tyres/${type}.webp`}
-        alt={`${type} tyre CAD blueprint`}
+        alt={t('cadTyre', { name: type })}
         fill
         sizes="96px"
         unoptimized

@@ -1,4 +1,6 @@
+import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { countryName, formatDate } from '@/lib/i18n/format';
 import Image from 'next/image';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
@@ -7,11 +9,11 @@ import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { countryFlag } from '@/lib/data/countryFlags';
 import { StatusChip } from '@/components/bento/StatusChip';
 
-function formatRaceDate(date: string): string {
-  if (!date || date === '—') return '—';
+function formatRaceDate(date: string, locale: string): string {
+  if (!date || date === '—') return '';
   const t = Date.parse(`${date}T12:00:00Z`);
   if (!Number.isFinite(t)) return date;
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(t);
+  return formatDate(t, locale, { day: 'numeric', month: 'short', timeZone: 'UTC' });
 }
 
 /**
@@ -28,6 +30,7 @@ export function CircuitCardView({
   status: 'done' | 'upcoming';
   compact?: boolean;
 }) {
+  const locale = useLocale();
   const cover = circuitCoverSrc(card.circuitId);
   const flag = countryFlag(card.country);
 
@@ -93,9 +96,9 @@ export function CircuitCardView({
             {flag ? <span aria-hidden>{flag}</span> : null}
             R{card.round}
             <span aria-hidden className="text-text-low">·</span>
-            {card.country}
+            {countryName(card.country, locale)}
             <span aria-hidden className="text-text-low">·</span>
-            {formatRaceDate(card.date)}
+            {formatRaceDate(card.date, locale)}
           </span>
           <h3
             className="mt-1 font-condensed text-lg font-600 leading-[1.05] tracking-tight text-text-hi uppercase md:text-xl"

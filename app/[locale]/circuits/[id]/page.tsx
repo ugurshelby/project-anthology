@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { countryName, raceName } from '@/lib/i18n/format';
 import Image from 'next/image';
 import { ApexImage } from '@/components/media/ApexImage';
 import { localizedAlternates } from '@/lib/seo';
@@ -23,30 +25,33 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
   const circuit = await getCircuitDetail(id);
+  const t = await getTranslations({ locale, namespace: 'ui.circuit' });
   if (!circuit) {
-    return { title: 'Circuit not found' };
+    return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('circuit') };
   }
-  const description = `${circuit.circuitName} — ${circuit.country}. Round ${circuit.round} of the Formula 1 calendar.`;
+  const description = t('detailMeta', { name: circuit.circuitName, country: countryName(circuit.country, locale), round: circuit.round });
   return {
     title: circuit.circuitName,
     description,
     alternates: localizedAlternates(`/circuits/${id}`, locale),
     openGraph: {
-      title: `${circuit.circuitName} — F1 Circuit`,
+      title: t('detailOg', { name: circuit.circuitName }),
       description,
       url: `/circuits/${id}`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${circuit.circuitName} — F1 Circuit`,
+      title: t('detailOg', { name: circuit.circuitName }),
       description,
     },
   };
 }
 
 export default async function CircuitDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'ui.circuit' });
   const [circuit, results, weather] = await Promise.all([
     getCircuitDetail(id),
     getCurrentSeasonResults(),
@@ -54,31 +59,31 @@ export default async function CircuitDetailPage({ params }: PageProps) {
   ]);
   if (!circuit) notFound();
 
-  const facts = getCircuitFacts(id);
+  const facts = getCircuitFacts(id, locale);
   const cover = circuitCoverSrc(id);
 
   const dossier = [
-    { label: 'Round', value: circuit.round ? `R${circuit.round}` : '—' },
-    { label: 'Locality', value: circuit.locality || '—' },
-    { label: 'Country', value: circuit.country || '—' },
-    { label: 'Laps', value: circuit.laps ?? '—' },
-    { label: 'Lap Length', value: circuit.editorial.lapLengthKm ? `${circuit.editorial.lapLengthKm} km` : '—' },
-    { label: 'DRS Zones', value: circuit.editorial.drsZones ?? '—' },
-  ];
+    { label: t('round'), value: circuit.round ? String(circuit.round) : '' },
+    { label: t('locality'), value: circuit.locality ?? '' },
+    { label: t('country'), value: countryName(circuit.country, locale) },
+    { label: t('laps'), value: circuit.laps != null ? String(circuit.laps) : '' },
+    { label: t('lapLength'), value: circuit.editorial.lapLengthKm ? t('km', { value: circuit.editorial.lapLengthKm }) : '' },
+    { label: t('drsZones'), value: circuit.editorial.drsZones != null ? String(circuit.editorial.drsZones) : '' },
+  ].filter((e) => e.value !== '');
 
   return (
     <PageShell>
       <header className="mb-8 flex flex-col gap-1">
-        <span className="label-caps text-text-mid">{circuit.country}</span>
+        <span className="label-caps text-text-mid">{countryName(circuit.country, locale)}</span>
         <h1 className="headline-lg uppercase text-text-hi">{circuit.circuitName}</h1>
-        {circuit.raceName ? <p className="data-tabular text-text-mid">{circuit.raceName}</p> : null}
+        {circuit.raceName ? <p className="data-tabular text-text-mid">{raceName(circuit.raceName, locale)}</p> : null}
       </header>
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="min-w-0 flex-1">
           <BentoGrid>
             <BentoCard span={4} className="order-2 md:order-1">
-              <span className="label-caps mb-3 block text-text-mid">Circuit Data</span>
+              <span className="label-caps mb-3 block text-text-mid">{t('data')}</span>
               <TechnicalDossier entries={dossier} />
             </BentoCard>
 
@@ -109,10 +114,10 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               >
                 {circuit.svgSrc ? (
                   <div className="relative h-56 w-full md:h-72">
-                    <Image src={circuit.svgSrc} alt={`${circuit.circuitName} track map`} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-contain" />
+                    <Image src={circuit.svgSrc} alt={t('mapAlt', { name: circuit.circuitName })} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-contain" />
                   </div>
                 ) : (
-                  <span className="label-caps text-text-low">No track map available</span>
+                  <span className="label-caps text-text-low">{t('noMap')}</span>
                 )}
               </div>
             </BentoCard>
@@ -131,7 +136,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
             {circuit.winners.length > 0 ? (
               <BentoCard span={facts || weather ? 6 : 12}>
-                <span className="label-caps mb-3 block text-text-mid">Recent Winners</span>
+                <span className="label-caps mb-3 block text-text-mid">{t('recentWinners')}</span>
                 <div className="flex flex-col">
                   {circuit.winners.map((w, i) => (
                     <div
@@ -160,7 +165,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
         </div>
 
         <aside className="hidden w-full shrink-0 flex-col gap-3 lg:flex lg:w-[300px]">
-          <span className="label-caps text-text-mid">Results</span>
+          <span className="label-caps text-text-mid">{t('results')}</span>
           <SeasonResultsPanel results={results} />
         </aside>
       </div>

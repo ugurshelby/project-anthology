@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { GlossaryTerm } from '@/data/glossary/terms';
 import type { TyreCompound } from '@/data/glossary/tyres';
 import {
@@ -22,6 +23,7 @@ export function GlossaryExplorer({
   terms: GlossaryTerm[];
   tyres: TyreCompound[];
 }) {
+  const t = useTranslations('ui.glossary');
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<GlossaryFilter>('all');
   const [sheetTyre, setSheetTyre] = useState<TyreCompound | null>(null);
@@ -108,7 +110,7 @@ export function GlossaryExplorer({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search F1 technical terms, aero, engines, tyres… (Press /)"
+            placeholder={t('search')}
             className="w-full rounded-full border border-white/10 bg-white/[0.03] py-2.5 pl-10 pr-24 font-mono text-sm text-text-hi placeholder:text-text-low outline-none transition-all focus:border-white/25 focus:bg-white/[0.05]"
           />
 
@@ -119,7 +121,7 @@ export function GlossaryExplorer({
                 type="button"
                 onClick={() => setQuery('')}
                 className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-xs text-text-mid transition-colors hover:bg-white/20 hover:text-white"
-                aria-label="Clear search"
+                aria-label={t('clear')}
               >
                 ✕
               </button>
@@ -149,7 +151,7 @@ export function GlossaryExplorer({
                     : 'border border-white/[0.06] bg-white/[0.02] text-text-mid hover:border-white/15 hover:bg-white/[0.05] hover:text-white',
                 ].join(' ')}
               >
-                <span>{chip.label}</span>
+                <span>{t(`cat.${chip.id}`)}</span>
                 <span
                   className={[
                     'rounded-full px-1.5 py-0.2 text-[10px] tabular-nums',
@@ -171,10 +173,10 @@ export function GlossaryExplorer({
             ∅
           </span>
           <h3 className="font-condensed text-xl font-700 uppercase tracking-tight text-white">
-            No matching terms found
+            {t('noMatch')}
           </h3>
           <p className="body-md max-w-sm text-text-mid">
-            No technical definitions match &ldquo;{query}&rdquo; in this category.
+            {t('noMatchBody', { query })}
           </p>
           <button
             type="button"
@@ -184,7 +186,7 @@ export function GlossaryExplorer({
             }}
             className="mt-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-text-hi transition-colors hover:bg-white/10"
           >
-            Reset filters
+            {t('reset')}
           </button>
         </div>
       ) : null}
@@ -198,10 +200,10 @@ export function GlossaryExplorer({
                 <CategoryDiagram category="Tyres" className="h-full w-full" />
               </div>
               <h2 className="headline-md uppercase tracking-tight text-text-hi">
-                Tyre Compounds ({visibleTyres.length})
+                {t('tyreCompounds', { count: visibleTyres.length })}
               </h2>
             </div>
-            <span className="font-mono text-xs text-text-low">Pirelli Slick & Wet Range</span>
+            <span className="font-mono text-xs text-text-low">{t('pirelliRange')}</span>
           </div>
 
           {/* Mobile Snap Row / Desktop 4-Column Grid */}
@@ -239,7 +241,7 @@ export function GlossaryExplorer({
                 </div>
                 <div className="flex items-baseline gap-2">
                   <h2 className="headline-md uppercase tracking-tight text-text-hi">
-                    {category}
+                    {category === 'Aerodynamics' ? t('cat.AerodynamicsFull') : t(`cat.${category}`)}
                   </h2>
                   <span className="font-mono text-xs text-text-low">
                     ({categoryTerms.length})
@@ -268,7 +270,7 @@ export function GlossaryExplorer({
           <button
             type="button"
             className="absolute inset-0 cursor-default"
-            aria-label="Close tyre detail"
+            aria-label={t('closeTyre')}
             onClick={() => setSheetTyre(null)}
           />
 
@@ -302,7 +304,7 @@ export function GlossaryExplorer({
 
                 <div
                   className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-white/[0.04] p-1 shadow-sm"
-                  title="CAD tread blueprint"
+                  title={t('cadBlueprint')}
                 >
                   <TyreCadDiagram
                     type={sheetTyre.id === 'intermediate' ? 'intermediate' : sheetTyre.id === 'wet' ? 'wet' : 'slick'}
@@ -345,19 +347,19 @@ export function GlossaryExplorer({
             {/* Telemetry Breakdown */}
             <div className="mt-6 flex flex-col gap-2.5 rounded-[var(--radius-chip)] border border-white/[0.08] bg-white/[0.02] p-4">
               <div className="flex items-center justify-between font-mono text-xs text-text-low border-b border-hairline/60 pb-1.5">
-                <span className="uppercase tracking-wider">Compound Telemetry</span>
-                <span>Operating Index</span>
+                <span className="uppercase tracking-wider">{t('telemetry')}</span>
+                <span>{t('operatingIndex')}</span>
               </div>
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-text-mid">Grip Potential:</span>
+                <span className="text-text-mid">{t('gripPotential')}</span>
                 <span className="font-bold text-text-hi">{sheetTyre.grip} / 10</span>
               </div>
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-text-mid">Durability / Life:</span>
+                <span className="text-text-mid">{t('durabilityLife')}</span>
                 <span className="font-bold text-text-hi">{sheetTyre.durability} / 10</span>
               </div>
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-text-mid">Warm-up Speed:</span>
+                <span className="text-text-mid">{t('warmupSpeed')}</span>
                 <span className="font-bold text-text-hi">{sheetTyre.warmup} / 10</span>
               </div>
             </div>

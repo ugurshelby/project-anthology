@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   getCurrentSeasonCircuitCards,
   getCurrentSeasonRaces,
@@ -11,31 +12,33 @@ import { localizedAlternates } from '@/lib/seo';
 
 export const revalidate = 900;
 
-const TITLE = 'Circuits';
-const DESCRIPTION =
-  'Track maps of the Formula 1 calendar — every circuit rendered as a clean vector layout.';
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ui.circuit' });
+  const TITLE = t('metaTitle');
+  const DESCRIPTION = t('metaDescription');
   return {
     title: TITLE,
     description: DESCRIPTION,
     openGraph: {
-      title: `${TITLE} — F1 Track Maps`,
+      title: t('metaOg', { title: TITLE }),
       description: DESCRIPTION,
       url: '/circuits',
       type: 'website',
     },
-    twitter: { card: 'summary_large_image', title: `${TITLE} — F1 Track Maps`, description: DESCRIPTION },
+    twitter: { card: 'summary_large_image', title: t('metaOg', { title: TITLE }), description: DESCRIPTION },
     alternates: localizedAlternates('/circuits', locale),
   };
 }
 
-export default async function CircuitsPage() {
+export default async function CircuitsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'ui.circuit' });
   const [races, cards] = await Promise.all([getCurrentSeasonRaces(), getCurrentSeasonCircuitCards()]);
   const nextIndex = nextCircuitIndex(cards);
   const nextRace = nextIndex >= 0 ? races[nextIndex] : null;
@@ -45,8 +48,8 @@ export default async function CircuitsPage() {
   return (
     <PageShell>
       <header className="mb-6 flex flex-col gap-1 md:mb-8">
-        <span className="label-caps text-text-mid">Track Maps</span>
-        <h1 className="headline-lg uppercase text-text-hi">Circuits</h1>
+        <span className="label-caps text-text-mid">{t('listEyebrow')}</span>
+        <h1 className="headline-lg uppercase text-text-hi">{t('listTitle')}</h1>
       </header>
 
       {nextCard && nextRace ? (

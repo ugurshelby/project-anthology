@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { TyreCompound } from '@/data/glossary/tyres';
 import { TyreCadDiagram } from '@/components/glossary/TermDiagram';
 
@@ -11,6 +12,7 @@ function TelemetryGauge({
   value: number;
   color: string;
 }) {
+  const t = useTranslations('ui.glossary');
   const percentage = Math.max(8, Math.min(100, (value / 10) * 100));
   return (
     <div className="flex flex-col gap-1">
@@ -33,7 +35,7 @@ function TelemetryGauge({
         />
       </div>
       <span className="sr-only">
-        {label} {value} of 10
+        {t('gauge', { label, value })}
       </span>
     </div>
   );
@@ -52,6 +54,7 @@ export function TyreCompoundCard({
   compact?: boolean;
   onOpen?: (tyre: TyreCompound) => void;
 }) {
+  const t = useTranslations('ui.glossary');
   const treadType: 'slick' | 'intermediate' | 'wet' =
     tyre.id === 'intermediate'
       ? 'intermediate'
@@ -119,7 +122,7 @@ export function TyreCompoundCard({
             {/* CAD Tread Blueprint Badge */}
             <div
               className="hidden h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded border border-white/10 bg-white/[0.03] p-0.5 shadow-inner sm:flex"
-              title={`${treadType} CAD tread blueprint`}
+              title={t('cadTyre', { name: treadType })}
             >
               <TyreCadDiagram type={treadType} className="h-full w-full" />
             </div>
@@ -136,9 +139,9 @@ export function TyreCompoundCard({
 
         {/* Telemetry Performance Gauges */}
         <div className="flex flex-col gap-2 pt-1">
-          <TelemetryGauge label="Grip" value={tyre.grip} color={tyre.color} />
-          <TelemetryGauge label="Durability" value={tyre.durability} color={tyre.color} />
-          <TelemetryGauge label="Warm-up" value={tyre.warmup} color={tyre.color} />
+          <TelemetryGauge label={t('grip')} value={tyre.grip} color={tyre.color} />
+          <TelemetryGauge label={t('durability')} value={tyre.durability} color={tyre.color} />
+          <TelemetryGauge label={t('warmup')} value={tyre.warmup} color={tyre.color} />
         </div>
       </div>
     </>
