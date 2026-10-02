@@ -1,13 +1,13 @@
 # Procedures
 
-The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.md` apply to all of them: work on an `agent/<short-task>` branch, never touch `main`, never use secrets or the live database, never decide owner questions.
+The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.md` apply to all of them: work on `main` (small commits, gates green before every push; risky changes go on an `agent/<short-task>` branch for the owner to merge), never force-push, never use secrets or the live database, never decide owner questions.
 
 ## Common ending (every procedure)
 
 1. Update the docs the work made false, and the `Last verified` lines of the touched sections in `docs/reference/apex-reference.md`.
 2. Write the log entry in `logs/YYYY-MM-DD.md` (log rule below).
 3. Run the gates: smallest relevant test, `npm run lint`, `npx tsc --noEmit`; `npm run build` when routes, config, data pages or migrations changed.
-4. Commit (pathspec-scoped) and push to the agent branch.
+4. Commit (pathspec-scoped) and push to `main` once the gates pass (or to the agent branch for risky changes).
 5. Delete any plan file whose last step is now done (after the log entry and the commit, in its own follow-up commit).
 6. Report to the owner in Turkish: found, changed and why, how verified (command + result), commits, not done and why, "Needs owner".
 
@@ -20,7 +20,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 - Triggers: "frontend denetim turu", "arayüzü denetle", "frontend audit".
 - Scope: pages under `app/[locale]/` and `components/`.
 - Steps: read `docs/design/apex-design-language.md`; run the dev server and check every page at 375, 768 and 1280 px (overflow, tap targets, safe area); keyboard-only pass and visible focus; the `/tr` locale (missing strings, layout breaks, `tests/i18n-messages.test.ts`); empty and error states; previews and cards match real data (no invented numbers or names); no browser-side request to `/api/cron/*` or to upstream APIs (check network and `grep` in client components); `prefers-reduced-motion`; contrast.
-- May change on its branch: components, styles, messages, tests, inside the existing design language only. No new visual language, no new dependencies.
+- May change: components, styles, messages, tests, inside the existing design language only. No new visual language, no new dependencies.
 - Only report: design-direction questions, anything needing new assets or licensing, performance numbers that need Lighthouse access.
 - Docs: master-plan boxes only if verified; reference section 2 and 10.
 - Output: list of findings with page, width, fix or reason it was not fixed.
@@ -68,17 +68,17 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 ## 6. Merge readiness
 
 - Triggers: "main'e hazır mı", "merge öncesi kontrol", "ready to merge".
-- Scope: the current agent branch compared with `main`.
-- Steps: `git diff --stat main...HEAD`; run `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; list risks (migrations, env names, routes, cron, copyright, docs drift); recommend merge or not.
+- Scope: the unpushed commits or the current agent branch compared with `origin/main`.
+- Steps: `git diff --stat origin/main...HEAD`; run `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; list risks (migrations, env names, routes, cron, copyright, docs drift); recommend merge or not.
 - May change: nothing except trivial fixes the gates require.
-- Only report: the recommendation. Never merge, never open or merge a pull request into `main`.
+- Only report: the recommendation. Do not push if a gate fails.
 - Docs: none unless a gate exposes a false doc.
 - Output: diff summary, four gate results, risks, recommendation.
 
 ## 7. Routine session
 
 - Triggers: "rutin kontrol", "bakım oturumu", "maintenance session".
-- Scope: procedures 3, 2 and 4, in that order, on one branch.
+- Scope: procedures 3, 2 and 4, in that order, in one pass.
 - Steps: run each procedure; fix what is safe; collect the rest.
 - May change: what each of those procedures allows.
 - Only report: everything under their "only report" lines.
