@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { countryName, raceName as localRaceName } from '@/lib/i18n/format';
+import { weatherSummary } from '@/lib/i18n/labels';
 import { notFound } from 'next/navigation';
 import { fetchRoundSnapshot, fetchSeasonSnapshotTyped } from '@/lib/data/f1';
 import {
@@ -13,7 +16,6 @@ import { getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { LocalTime } from '@/components/time/LocalTime';
 import { teamThemeVars } from '@/lib/theme';
-import { getTeamByName } from '@/config/team-colors';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { RaceResultsTable, QualifyingTable } from '@/components/season/ResultsTable';
@@ -43,15 +45,16 @@ function parseParams(raw: { year: string; n: string }): { year: number; round: n
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const parsed = parseParams(resolvedParams);
-  if (!parsed) return { title: 'Round not found' };
-  const { year, round } = parsed;
   const { locale } = resolvedParams;
+  const t = await getTranslations({ locale, namespace: 'ui.pages.round' });
+  if (!parsed) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('round') };
+  const { year, round } = parsed;
 
   const calendar = await fetchSeasonSnapshotTyped(year, 'calendar');
   const race = getRacesFromCalendar(calendar).find((r) => Number(r.round) === round);
-  const raceName = race?.raceName ?? `Round ${round}`;
-  const title = `${raceName} ${year}`;
-  const description = `${raceName} — round ${round} of the ${year} Formula 1 season: race result, qualifying and sprint classification.`;
+  const raceName = localRaceName(race?.raceName ?? t('fallbackName', { round }), locale);
+  const title = t('title', { name: raceName, year });
+  const description = t('description', { name: raceName, round, year });
   const path = `/season/${year}/round/${round}`;
 
   return {
@@ -59,18 +62,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description,
     alternates: localizedAlternates(path, locale),
     openGraph: {
-      title: `${title} — Results`,
+      title: t('og', { title }),
       description,
       url: path,
       type: 'website',
       images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: raceName }],
     },
-    twitter: { card: 'summary_large_image', title: `${title} — Results`, description, images: ['/opengraph-image'] },
+    twitter: { card: 'summary_large_image', title: t('og', { title }), description, images: ['/opengraph-image'] },
   };
 }
 
 export default async function RoundPage({ params }: PageProps) {
-  const parsed = parseParams(await params);
+  const resolved = await params;
+  const { locale } = resolved;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'ui.pages.round' });
+  const tc = await getTranslations({ locale, namespace: 'ui.circuit' });
+  const parsed = parseParams(resolved);
   if (!parsed) notFound();
   const { year, round } = parsed;
 
@@ -85,8 +93,8 @@ export default async function RoundPage({ params }: PageProps) {
   const race = getRacesFromCalendar(calendar).find((r) => Number(r.round) === round);
   const circuitId = race?.Circuit?.circuitId;
   const weather = circuitId ? await getCircuitWeather(circuitId) : null;
-  const circuitFacts = circuitId ? getCircuitFacts(circuitId) : null;
-  const sessionChips = weekendSessionChips(race);
+  const circuitFacts = circuitId ? getCircuitFacts(circuitId, locale) : null;
+  const sessionChips = weekendSessionChips(race, locale);
 
   const results = getRaceResultRows(resultsData);
   const sprint = getSprintResultRows(sprintData);
@@ -94,8 +102,7 @@ export default async function RoundPage({ params }: PageProps) {
   const pitstops = getPitStopRows(pitstopsData);
 
   const winner = results[0];
-  const winnerTeam = winner ? getTeamByName(winner.constructorName) : undefined;
-  const theme = teamThemeVars(winnerTeam?.id, year);
+  const theme = teamThemeVars(winner?.constructorName, year);
 
   return (
     <main
@@ -107,7 +114,7 @@ export default async function RoundPage({ params }: PageProps) {
         data={{
           '@context': 'https://schema.org',
           '@type': 'SportsEvent',
-          name: race?.raceName ?? `Round ${round}`,
+          name: race?.raceName ?? t('fallbackName', { round }),
           url: `${siteUrl()}/season/${year}/round/${round}`,
           startDate: race?.date,
           location: race?.Circuit?.Location
@@ -127,34 +134,34 @@ export default async function RoundPage({ params }: PageProps) {
       <header className="mb-8 flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="label-caps text-text-mid">
-            Round {round} · {year}
-            {race?.Circuit?.Location?.country ? ` · ${race.Circuit.Location.country}` : ''}
+            {t('header', { round, year })}
+            {race?.Circuit?.Location?.country ? ` · ${countryName(race.Circuit.Location.country, locale)}` : ''}
           </span>
           {weather ? (
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-surface px-3 py-1 text-xs text-text-mid">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-medium text-text-hi">{weather.temperatureC}°C</span>
               <span>·</span>
-              <span>{weather.summary}</span>
+              <span>{weatherSummary(weather.weatherCode, weather.summary, locale)}</span>
               {weather.windKmh ? (
                 <>
                   <span>·</span>
-                  <span>{weather.windKmh} km/h wind</span>
+                  <span>{tc('kmh', { value: weather.windKmh })}</span>
                 </>
               ) : null}
             </div>
           ) : null}
         </div>
-        <h1 className="headline-lg uppercase text-text-hi">{race?.raceName ?? `Round ${round}`}</h1>
+        <h1 className="headline-lg uppercase text-text-hi">{localRaceName(race?.raceName ?? t('fallbackName', { round }), locale)}</h1>
         {winner ? (
           <p className="data-tabular text-text-mid">
-            Winner: <span className="text-text-hi">{winner.driverName}</span> · {winner.constructorName}
+            {t('winner')} <span className="text-text-hi">{winner.driverName}</span> · {winner.constructorName}
           </p>
         ) : null}
 
         {sessionChips.length > 0 ? (
           <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-[var(--radius-lg)] border border-hairline bg-surface/30 p-3.5 font-mono text-xs text-text-mid backdrop-blur-sm">
-            <span className="label-caps text-accent shrink-0">Schedule:</span>
+            <span className="label-caps text-accent shrink-0">{t('schedule')}</span>
             {sessionChips.map((s) => (
               <span key={s.id} className="flex items-center gap-1.5">
                 <span className="font-semibold text-text-hi">{s.label}</span>
@@ -169,14 +176,14 @@ export default async function RoundPage({ params }: PageProps) {
       <BentoGrid>
         {results.length > 0 ? (
           <BentoCard span={sprint.length > 0 || quali.length > 0 || pitstops.length > 0 ? 8 : 12}>
-            <span className="label-caps mb-3 block text-text-mid">Race Classification</span>
+            <span className="label-caps mb-3 block text-text-mid">{t('classification')}</span>
             <RaceResultsTable rows={results} />
           </BentoCard>
         ) : null}
 
         {quali.length > 0 ? (
           <BentoCard span={4}>
-            <span className="label-caps mb-3 block text-text-mid">Qualifying</span>
+            <span className="label-caps mb-3 block text-text-mid">{t('qualifying')}</span>
             <QualifyingTable rows={quali} />
           </BentoCard>
         ) : null}
@@ -184,8 +191,8 @@ export default async function RoundPage({ params }: PageProps) {
         {pitstops.length > 0 ? (
           <BentoCard span={sprint.length > 0 ? 6 : 4}>
             <div className="mb-3 flex items-center justify-between">
-              <span className="label-caps text-text-mid">Pit Stops Telemetry</span>
-              <span className="data-tabular text-xs text-text-mid">{pitstops.length} STOPS</span>
+              <span className="label-caps text-text-mid">{t('pitStops')}</span>
+              <span className="data-tabular text-xs text-text-mid">{t('stopsCount', { count: pitstops.length })}</span>
             </div>
             <PitStopsTable rows={pitstops} results={results} />
           </BentoCard>
@@ -193,14 +200,14 @@ export default async function RoundPage({ params }: PageProps) {
 
         {sprint.length > 0 ? (
           <BentoCard span={6}>
-            <span className="label-caps mb-3 block text-text-mid">Sprint</span>
+            <span className="label-caps mb-3 block text-text-mid">{t('sprint')}</span>
             <RaceResultsTable rows={sprint} />
           </BentoCard>
         ) : null}
 
         {results.length === 0 && quali.length === 0 && sprint.length === 0 && pitstops.length === 0 ? (
           <BentoCard span={12}>
-            <span className="label-caps text-text-low">Results not yet available for this round.</span>
+            <span className="label-caps text-text-low">{t('notAvailable')}</span>
           </BentoCard>
         ) : null}
       </BentoGrid>

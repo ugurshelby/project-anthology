@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { CSSProperties } from 'react';
@@ -35,6 +36,7 @@ export function DriverHeroGraphic({
   constructorId?: string | null;
   constructorName?: string | null;
 }) {
+  const t = useTranslations('ui.profile');
   const pattern = teamPatternStyle(constructorId, 'var(--team-secondary, var(--accent))', 0.12);
 
   return (
@@ -88,9 +90,9 @@ export function DriverHeroGraphic({
           </div>
           <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-text-low">
             {bigNumber ? (
-              <span>CAR NO. {bigNumber.padStart(2, '0')}</span>
+              <span>{t('carNo', { n: bigNumber.padStart(2, '0') })}</span>
             ) : (
-              <span>ACTIVE SPEC</span>
+              <span>{t('activeSpec')}</span>
             )}
             <span className="text-hairline">/</span>
             <span>FIA F1</span>
@@ -139,7 +141,7 @@ export function DriverHeroGraphic({
                   background: 'color-mix(in srgb, var(--team-secondary, var(--accent)) 12%, rgba(0,0,0,0.65))',
                 }}
               >
-                <span className="text-text-low font-normal">NO.</span>
+                <span className="text-text-low font-normal">{t('no')}</span>
                 <span
                   className="font-condensed text-sm font-700 leading-none text-text-hi"
                   style={{ fontFamily: 'var(--font-condensed)' }}
@@ -149,15 +151,15 @@ export function DriverHeroGraphic({
               </span>
             ) : null}
             <span className="truncate font-mono text-[10px] uppercase tracking-[0.18em] text-text-low">
-              {constructorName || 'PADDOCK SPEC'}
+              {constructorName || t('paddock')}
             </span>
           </div>
         </div>
 
         {/* Bottom Technical Archive Footer Bar */}
         <div className="relative z-10 flex items-center justify-between border-t border-hairline/40 pt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-text-low/70">
-          <span>APEX ARCHIVE // TELEMETRY</span>
-          <span>SYSTEM CHASSIS</span>
+          <span>{t('archiveFooter')}</span>
+          <span>{t('systemChassis')}</span>
         </div>
       </div>
     </div>

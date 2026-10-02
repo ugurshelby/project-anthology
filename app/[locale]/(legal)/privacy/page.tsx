@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LegalPage } from '@/components/legal/LegalPage';
+import { mailTag } from '@/lib/legal-mail';
 import { localizedAlternates } from '@/lib/seo';
 
 export async function generateMetadata({
@@ -63,16 +64,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
             <>
               <p>{t('s4p1')}</p>
               <p>
-                {t.rich('s4p2', {
-                  mail: (chunks) => (
-                    <a
-                      className="text-text-hi underline decoration-accent underline-offset-4"
-                      href="mailto:privacy@apexstats.example"
-                    >
-                      {chunks}
-                    </a>
-                  ),
-                })}
+                {t.rich('s4p2', { mail: mailTag })}
               </p>
             </>
           ),

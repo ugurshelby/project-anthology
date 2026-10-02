@@ -2,7 +2,7 @@ import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
-import { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
+import { localizedNewsTitle, localizedNewsSummary, newsDateLabel } from '@/lib/news/i18n';
 import { hasRealImage, estimateReadMinutes } from '@/lib/news/categories';
 
 /**
@@ -37,7 +37,7 @@ export function WireItem({ item }: { item: NewsItem }) {
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-            {item.dateLabel} · {item.sourceName}
+            {newsDateLabel(item, locale)} · {item.sourceName}
           </span>
           {item.sources && item.sources.length > 1 ? (
             <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-mono text-text-mid">
@@ -109,7 +109,7 @@ export function NewsHero({ item }: { item: NewsItem }) {
       ) : null}
       <div className="relative z-10 flex flex-col gap-2">
         <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-          {item.dateLabel} · {item.sourceName}
+          {newsDateLabel(item, locale)} · {item.sourceName}
         </span>
         <h2 className="headline-lg line-clamp-3 text-text-hi break-words">{title}</h2>
       </div>
@@ -144,7 +144,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
         <div className="relative z-10 flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-              {item.dateLabel} · {item.sourceName}
+              {newsDateLabel(item, locale)} · {item.sourceName}
             </span>
             {item.sources && item.sources.length > 1 ? (
               <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-mono text-text-mid">
@@ -172,7 +172,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
       <div className="flex flex-col gap-2.5">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-            {item.dateLabel} · {item.sourceName}
+            {newsDateLabel(item, locale)} · {item.sourceName}
           </span>
           {item.sources && item.sources.length > 1 ? (
             <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-mono text-text-mid">
@@ -194,7 +194,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-hairline/60 pt-2.5 text-[11px] text-text-low font-mono">
-        <span>{readMins} MIN READ</span>
+        <span>{readMins} {locale === 'tr' ? 'DK OKUMA' : 'MIN READ'}</span>
         <span className="text-text-mid transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-white">
           ↗
         </span>

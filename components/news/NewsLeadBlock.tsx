@@ -2,7 +2,7 @@ import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
-import { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
+import { localizedNewsTitle, localizedNewsSummary, newsDateLabel } from '@/lib/news/i18n';
 import { estimateReadMinutes } from '@/lib/news/categories';
 import { hasRealImage } from '@/lib/news/categories';
 
@@ -36,7 +36,7 @@ function SecondaryStory({ item }: { item: NewsItem }) {
       <div className="relative z-10 flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
           <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-            {item.dateLabel} · {item.sourceName}
+            {newsDateLabel(item, locale)} · {item.sourceName}
           </span>
           {item.sources && item.sources.length > 1 ? (
             <span className="label-caps rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-mono text-text-mid">
@@ -126,11 +126,11 @@ export function NewsLeadBlock({
           ) : null}
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <span className="data-tabular text-xs text-text-mid font-mono">
-              {readMins} MIN READ
+              {readMins} {locale === 'tr' ? 'DK OKUMA' : 'MIN READ'}
             </span>
             <span className="text-text-low">·</span>
             <span className="data-tabular text-xs text-text-mid font-mono">
-              {lead.dateLabel} · {lead.sourceName}
+              {newsDateLabel(lead, locale)} · {lead.sourceName}
             </span>
           </div>
         </div>

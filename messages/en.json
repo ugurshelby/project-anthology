@@ -430,6 +430,112 @@
         "Strategy": "Strategy",
         "Regulations": "Regulations"
       }
+    },
+    "pages": {
+      "season": {
+        "metaTitle": "Season",
+        "metaDescription": "Formula 1 {season} season: driver and constructor standings, race calendar, and race recaps.",
+        "metaOg": "Season — F1 {season}",
+        "noStandings": "No standings data for {season}",
+        "noCompleted": "No completed races yet",
+        "concluded": "Season concluded"
+      },
+      "seasonYear": {
+        "title": "Season {year}",
+        "description": "Formula 1 {year} season archive: driver and constructor championship standings, race calendar, and results.",
+        "og": "{title} — F1 Archive",
+        "noStandings": "No standings data available for {year}"
+      },
+      "round": {
+        "fallbackName": "Round {round}",
+        "title": "{name} {year}",
+        "description": "{name} — round {round} of the {year} Formula 1 season: race result, qualifying and sprint classification.",
+        "og": "{title} — Results",
+        "header": "Round {round} · {year}",
+        "winner": "Winner:",
+        "schedule": "Schedule:",
+        "classification": "Race Classification",
+        "qualifying": "Qualifying",
+        "pitStops": "Pit Stops Telemetry",
+        "stopsCount": "{count} STOPS",
+        "sprint": "Sprint",
+        "notAvailable": "Results not yet available for this round."
+      },
+      "driver": {
+        "description": "{name} in the {year} F1 season with {team}: championship position, points, wins and career through {year}.",
+        "descriptionNoTeam": "{name} in the {year} F1 season."
+      },
+      "team": {
+        "description": "{name} in the {year} F1 season: championship position, points, driver lineup and the team's history."
+      },
+      "gridPage": {
+        "og": "Grid — Apex"
+      }
+    },
+    "news": {
+      "minRead": "MIN READ",
+      "opensInTab": "Opens in new tab"
+    },
+    "profile": {
+      "carNo": "CAR NO. {n}",
+      "activeSpec": "ACTIVE SPEC",
+      "no": "NO.",
+      "paddock": "PADDOCK SPEC",
+      "archiveFooter": "APEX ARCHIVE // TELEMETRY",
+      "systemChassis": "SYSTEM CHASSIS",
+      "deepCut": "Deep Cut"
+    }
+  },
+  "legal": {
+    "updatedLabel": "Last updated",
+    "disclaimer": {
+      "metaTitle": "Unofficial Disclaimer",
+      "metaDescription": "Apex is an independent, unofficial Formula 1 data and archive project.",
+      "eyebrow": "Legal / 01",
+      "title": "Independent, unofficial and unaffiliated.",
+      "intro": "Apex is an independent statistics, telemetry and editorial archive project for motorsport fans. It is not an official Formula 1 website and has no commercial, licensing, sponsorship or endorsement relationship with Formula 1, Formula One Licensing B.V., the FIA, any team, driver, circuit, sponsor or rights holder.",
+      "updated": "17 September 2026",
+      "s1Title": "Trade marks and names",
+      "s1p1": "“Formula 1”, “F1”, “FORMULA ONE”, “FIA FORMULA ONE WORLD CHAMPIONSHIP”, “Grand Prix” and related marks belong to their respective owners, including Formula One Licensing B.V. References to these names, teams, drivers and circuits are made only for identification, commentary and historical context.",
+      "s1p2": "Apex does not use official Formula 1 branding, team marks or sponsor marks as its own identity. A name appearing in a data record does not imply partnership, approval or affiliation.",
+      "s2Title": "Data, media and sources",
+      "s2p1": "Results and timing information are presented for informational purposes and may be delayed, incomplete or corrected. Source attribution is provided where applicable; source providers remain responsible for their own data and terms.",
+      "s2p2": "Apex prefers original vector illustrations, silhouettes, circuit diagrams and assets with a documented permissive licence. No Getty, AFP, Reuters or other unlicensed press photography is intentionally commissioned or presented as Apex-owned media.",
+      "s3Title": "Questions or concerns",
+      "s3p1": "For a brand, attribution or affiliation concern, contact <mail>contact@apexstats.example</mail>. This address must be replaced with a monitored production mailbox before public launch."
+    },
+    "terms": {
+      "metaTitle": "Terms of Use",
+      "metaDescription": "Terms for using the independent Apex F1 archive and statistics service.",
+      "eyebrow": "Legal / 03",
+      "title": "Terms for using Apex.",
+      "intro": "By accessing Apex, you agree to use this independent service lawfully and responsibly. Apex is an informational archive, not an official timing, betting, safety, engineering or professional advice service.",
+      "updated": "17 September 2026",
+      "s1Title": "Permitted use",
+      "s1p1": "You may browse, link to and quote reasonable portions of public editorial content with clear attribution. You may not scrape, overload, reverse engineer, impersonate Apex, bypass access controls or use the service for unlawful, abusive, misleading or commercial resale purposes without written permission.",
+      "s2Title": "Accuracy and availability",
+      "s2p1": "Data can be delayed, unavailable or corrected. Do not rely on Apex for decisions involving safety, wagering, finance or contractual obligations. We may change, suspend or remove content and features when needed for security, maintenance, source corrections or legal compliance.",
+      "s3Title": "Content and reports",
+      "s3p1": "Community or source material must respect copyright, privacy, publicity and trade-mark rights. To report an unlawful, inaccurate or infringing item, contact <mail>contact@apexstats.example</mail>. We review good-faith reports and may request supporting details.",
+      "s4Title": "Disclaimer of warranties",
+      "s4p1": "To the extent permitted by law, Apex is provided “as is” without guarantees of uninterrupted availability, completeness, suitability or error-free data. Nothing here limits rights that cannot lawfully be excluded under applicable consumer or data-protection law."
+    },
+    "dmca": {
+      "metaTitle": "Copyright & DMCA",
+      "metaDescription": "Copyright notice and takedown process for Apex.",
+      "eyebrow": "Legal / 04",
+      "title": "Copyright and takedown requests.",
+      "intro": "Apex respects copyright and wants every asset to have a documented source and licence. If you believe content on this site infringes your rights, send a complete notice so we can investigate and act quickly.",
+      "updated": "17 September 2026",
+      "s1Title": "What to include",
+      "s1i1": "Your name, contact details and authority to act for the rights holder.",
+      "s1i2": "A description of the copyrighted work and the exact Apex URL or asset path.",
+      "s1i3": "A good-faith statement that the use is not authorised by the rights holder, its agent or law.",
+      "s1i4": "A statement that the information is accurate and, where applicable, a signature.",
+      "s2Title": "Where to send it",
+      "s2p1": "Email the notice to <mail>dmca@apexstats.example</mail>. This address is a pre-launch placeholder and must be replaced by a monitored designated agent address before the service is publicly launched.",
+      "s3Title": "Review process",
+      "s3p1": "We acknowledge valid notices, preserve relevant records, restrict or remove the reported material while investigating, and contact the submitting party if clarification is needed. Counter-notices and repeat-infringer decisions are handled under applicable law. A mistaken or abusive notice can cause harm, so provide only truthful, specific information."
     }
   }
 }

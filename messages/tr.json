@@ -430,6 +430,112 @@
         "Strategy": "Strateji",
         "Regulations": "Yönetmelik"
       }
+    },
+    "pages": {
+      "season": {
+        "metaTitle": "Sezon",
+        "metaDescription": "Formula 1 {season} sezonu: sürücü ve takım sıralaması, yarış takvimi ve yarış özetleri.",
+        "metaOg": "Sezon — F1 {season}",
+        "noStandings": "{season} için sıralama verisi yok",
+        "noCompleted": "Henüz tamamlanan yarış yok",
+        "concluded": "Sezon tamamlandı"
+      },
+      "seasonYear": {
+        "title": "{year} Sezonu",
+        "description": "Formula 1 {year} sezonu arşivi: sürücü ve takım şampiyonası sıralaması, yarış takvimi ve sonuçlar.",
+        "og": "{title} — F1 Arşivi",
+        "noStandings": "{year} için sıralama verisi bulunmuyor"
+      },
+      "round": {
+        "fallbackName": "{round}. Yarış",
+        "title": "{name} {year}",
+        "description": "{name}: {year} Formula 1 sezonunun {round}. yarışı. Yarış sonucu, sıralama ve sprint sınıflandırması.",
+        "og": "{title} — Sonuçlar",
+        "header": "{round}. Yarış · {year}",
+        "winner": "Kazanan:",
+        "schedule": "Program:",
+        "classification": "Yarış Sınıflandırması",
+        "qualifying": "Sıralama Turları",
+        "pitStops": "Pit Duruşu Telemetrisi",
+        "stopsCount": "{count} DURUŞ",
+        "sprint": "Sprint",
+        "notAvailable": "Bu yarışın sonuçları henüz yok."
+      },
+      "driver": {
+        "description": "{name}, {year} F1 sezonunda {team} ile: şampiyona sırası, puanlar, galibiyetler ve {year} sonuna kadar kariyer.",
+        "descriptionNoTeam": "{name}, {year} F1 sezonunda."
+      },
+      "team": {
+        "description": "{name}, {year} F1 sezonunda: şampiyona sırası, puanlar, sürücü kadrosu ve takımın tarihi."
+      },
+      "gridPage": {
+        "og": "Grid — Apex"
+      }
+    },
+    "news": {
+      "minRead": "DK OKUMA",
+      "opensInTab": "Yeni sekmede açılır"
+    },
+    "profile": {
+      "carNo": "ARAÇ NO. {n}",
+      "activeSpec": "AKTİF SÜRÜCÜ",
+      "no": "NO.",
+      "paddock": "PADOK",
+      "archiveFooter": "APEX ARŞİVİ // TELEMETRİ",
+      "systemChassis": "SİSTEM ŞASİ",
+      "deepCut": "Derin Not"
+    }
+  },
+  "legal": {
+    "updatedLabel": "Son güncelleme",
+    "disclaimer": {
+      "metaTitle": "Resmî Olmayan Sorumluluk Reddi",
+      "metaDescription": "Apex, bağımsız ve resmî olmayan bir Formula 1 veri ve arşiv projesidir.",
+      "eyebrow": "Yasal / 01",
+      "title": "Bağımsız, resmî olmayan ve hiçbir kurumla bağlantısız.",
+      "intro": "Apex, motor sporları hayranları için hazırlanmış bağımsız bir istatistik, telemetri ve editoryal arşiv projesidir. Resmî bir Formula 1 sitesi değildir; Formula 1, Formula One Licensing B.V., FIA, herhangi bir takım, sürücü, pist, sponsor veya hak sahibiyle ticari, lisans, sponsorluk ya da onay ilişkisi yoktur.",
+      "updated": "17 Eylül 2026",
+      "s1Title": "Ticari markalar ve adlar",
+      "s1p1": "“Formula 1”, “F1”, “FORMULA ONE”, “FIA FORMULA ONE WORLD CHAMPIONSHIP”, “Grand Prix” ve ilgili markalar, Formula One Licensing B.V. dahil, kendi sahiplerine aittir. Bu adlara, takımlara, sürücülere ve pistlere yapılan göndermeler yalnızca tanımlama, yorum ve tarihsel bağlam amacıyla yapılır.",
+      "s1p2": "Apex, resmî Formula 1 markalarını, takım işaretlerini veya sponsor işaretlerini kendi kimliği olarak kullanmaz. Bir veri kaydında bir adın geçmesi; ortaklık, onay ya da bağlantı anlamına gelmez.",
+      "s2Title": "Veri, medya ve kaynaklar",
+      "s2p1": "Sonuç ve zamanlama bilgileri bilgilendirme amacıyla sunulur; gecikmeli, eksik olabilir veya düzeltilebilir. Uygun olduğunda kaynak belirtilir; kaynak sağlayıcılar kendi verilerinden ve koşullarından kendileri sorumludur.",
+      "s2p2": "Apex özgün vektör çizimleri, siluetler, pist diyagramları ve belgelenmiş izin veren lisansa sahip varlıkları tercih eder. Getty, AFP, Reuters veya başka lisanssız basın fotoğrafları bilerek temin edilmez ya da Apex'e ait medya olarak sunulmaz.",
+      "s3Title": "Soru ve kaygılar",
+      "s3p1": "Marka, atıf veya bağlantı konusundaki kaygılar için <mail>contact@apexstats.example</mail> adresine yazın. Bu adres, kamuya açılmadan önce izlenen gerçek bir posta kutusuyla değiştirilmelidir."
+    },
+    "terms": {
+      "metaTitle": "Kullanım Koşulları",
+      "metaDescription": "Bağımsız Apex F1 arşiv ve istatistik hizmetini kullanma koşulları.",
+      "eyebrow": "Yasal / 03",
+      "title": "Apex'i kullanma koşulları.",
+      "intro": "Apex'e eriştiğinizde, bu bağımsız hizmeti yasalara uygun ve sorumlu biçimde kullanmayı kabul edersiniz. Apex bilgilendirici bir arşivdir; resmî zamanlama, bahis, güvenlik, mühendislik ya da profesyonel danışmanlık hizmeti değildir.",
+      "updated": "17 Eylül 2026",
+      "s1Title": "İzin verilen kullanım",
+      "s1p1": "Kamuya açık editoryal içeriğe göz atabilir, bağlantı verebilir ve makul bölümlerini açık atıfla alıntılayabilirsiniz. Yazılı izin olmadan hizmeti kazıyamaz, aşırı yükleyemez, tersine mühendislik yapamaz, Apex'i taklit edemez, erişim kontrollerini aşamaz; hizmeti yasa dışı, kötüye kullanıma yönelik, yanıltıcı ya da ticari yeniden satış amaçlarıyla kullanamazsınız.",
+      "s2Title": "Doğruluk ve erişilebilirlik",
+      "s2p1": "Veriler gecikebilir, erişilemez olabilir veya düzeltilebilir. Güvenlik, bahis, finans ya da sözleşmesel yükümlülükleri ilgilendiren kararlarda Apex'e güvenmeyin. Güvenlik, bakım, kaynak düzeltmeleri veya yasal uyum için gerektiğinde içerikleri ve özellikleri değiştirebilir, askıya alabilir ya da kaldırabiliriz.",
+      "s3Title": "İçerik ve bildirimler",
+      "s3p1": "Topluluk ya da kaynak materyali; telif, gizlilik, kişilik hakları ve marka haklarına saygı göstermelidir. Hukuka aykırı, hatalı veya hak ihlali içeren bir öğeyi bildirmek için <mail>contact@apexstats.example</mail> adresine yazın. İyi niyetli bildirimleri inceler, gerekirse destekleyici ayrıntı isteyebiliriz.",
+      "s4Title": "Garanti reddi",
+      "s4p1": "Yasaların izin verdiği ölçüde Apex “olduğu gibi” sunulur; kesintisiz erişim, eksiksizlik, uygunluk veya hatasız veri garantisi verilmez. Buradaki hiçbir hüküm, geçerli tüketici veya veri koruma hukuku uyarınca hukuken hariç tutulamayacak hakları sınırlamaz."
+    },
+    "dmca": {
+      "metaTitle": "Telif ve DMCA",
+      "metaDescription": "Apex için telif bildirimi ve içerik kaldırma süreci.",
+      "eyebrow": "Yasal / 04",
+      "title": "Telif ve içerik kaldırma talepleri.",
+      "intro": "Apex telif haklarına saygı duyar ve her varlığın belgelenmiş bir kaynağı ve lisansı olmasını ister. Bu sitedeki bir içeriğin haklarınızı ihlal ettiğini düşünüyorsanız, inceleyip hızla işlem yapabilmemiz için eksiksiz bir bildirim gönderin.",
+      "updated": "17 Eylül 2026",
+      "s1Title": "Neler yazılmalı",
+      "s1i1": "Adınız, iletişim bilgileriniz ve hak sahibi adına hareket etme yetkiniz.",
+      "s1i2": "Telif konusu eserin açıklaması ve Apex'teki tam adres ya da varlık yolu.",
+      "s1i3": "Kullanımın hak sahibi, vekili veya hukuk tarafından yetkilendirilmediğine dair iyi niyetli bir beyan.",
+      "s1i4": "Bilgilerin doğru olduğuna dair bir beyan ve uygunsa imza.",
+      "s2Title": "Nereye gönderilir",
+      "s2p1": "Bildirimi <mail>dmca@apexstats.example</mail> adresine e-postayla gönderin. Bu adres yayın öncesi bir yer tutucudur; hizmet kamuya açılmadan önce izlenen, atanmış bir temsilci adresiyle değiştirilmelidir.",
+      "s3Title": "İnceleme süreci",
+      "s3p1": "Geçerli bildirimleri teyit eder, ilgili kayıtları saklar, inceleme sürerken bildirilen materyali kısıtlar veya kaldırır ve açıklama gerekirse bildirimi yapan tarafla iletişime geçeriz. Karşı bildirimler ve tekrarlayan ihlalci kararları geçerli hukuka göre ele alınır. Hatalı ya da kötü niyetli bir bildirim zarar verebilir; bu yüzden yalnızca doğru ve somut bilgi verin."
     }
   }
 }

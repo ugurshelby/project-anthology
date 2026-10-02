@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getDriversByTeam, getCurrentTeams } from '@/lib/data/entities';
 import { powerUnitLabel } from '@/lib/f1/power-units';
 import { PageShell } from '@/components/layout/BentoGrid';
@@ -12,24 +13,27 @@ import { enginesFor } from '@/lib/history/enrich';
 
 export const dynamic = 'force-dynamic';
 
-const DESCRIPTION = 'The current Formula 1 grid — every constructor with its driver line-up, championship standings, and points.';
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ui.grid' });
+  const tp = await getTranslations({ locale, namespace: 'ui.pages.gridPage' });
+  const DESCRIPTION = t('metaDescription');
   return {
-    title: 'Grid',
+    title: t('metaTitle'),
     description: DESCRIPTION,
     alternates: localizedAlternates('/grid', locale),
-    openGraph: { title: 'Grid — Apex', description: DESCRIPTION, url: '/grid', type: 'website' },
-    twitter: { card: 'summary_large_image', title: 'Grid — Apex', description: DESCRIPTION },
+    openGraph: { title: tp('og'), description: DESCRIPTION, url: '/grid', type: 'website' },
+    twitter: { card: 'summary_large_image', title: tp('og'), description: DESCRIPTION },
   };
 }
 
-export default async function GridPage({ searchParams }: { searchParams: Promise<{ season?: string }> }) {
+export default async function GridPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ season?: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const raw = Number((await searchParams).season);
   const requested = Number.isInteger(raw) && raw >= F1_SEASON_MIN && raw <= CURRENT_SEASON ? raw : CURRENT_SEASON;
   const [{ season, groups, flat }, { rows: teamRows }] = await Promise.all([

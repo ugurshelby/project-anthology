@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   getStoryBySlug,
   getPublishedStories,
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale, slug } = await params;
   const story = await getStoryBySlug(slug);
   if (!story) {
-    return { title: 'Story not found' };
+    return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('story') };
   }
   const isTr = locale === 'tr';
   const title = isTr && story.titleTr ? story.titleTr : story.title;
