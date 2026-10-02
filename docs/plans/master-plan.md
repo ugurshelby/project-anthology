@@ -133,6 +133,15 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 
 ---
 
+### 🏁 SEZON-TARİHİ — Tüm F1 tarihi: sezon seçilebilir sayfalar, dönem renkleri, takım DNA'sı (2026-10-02, sahip onaylı)
+
+Karar özeti: `?season=` adres biçimi; kariyer/kimlik verisi F1DB'den üretilen ve depoya konan indeks dosyaları (gizli anahtar yok, migration yok); sezon içinde takım değiştiren pilotta ana renk son takımdan, ikisi de gösterilir; eksik veri arayüzde hissettirilmez (asla "null" yazılmaz); renkler editoryal yaklaşıktır, sahip gözden geçirir. Dal: `agent/season-history` (sahip test edip onaylayınca main'e alınır).
+
+- [ ] **Dilim 1 — Veri ve renk:** F1DB indeksi (takımlar + soyağacı, pilotlar + sezon satırları, sezon özetleri), dönem bazlı renk sistemi (`getSeasonPalette` tek giriş), kapsama + kontrast testleri
+- [ ] **Dilim 2 — Sezon sayfası:** her sezon o yılın verisiyle dolar, o yılın renkleri, kronoloji (önceki/sonraki, on yıl şeridi), veri yoksa zarif boş durum
+- [ ] **Dilim 3 — Pilot ve takım sayfaları:** sezon seçici, sezona göre renk/numara/istatistik, "o yıl itibarıyla" kümülatif görünüm, pilot takım zaman çizgisi, takım **DNA bölümü** (kuruluş adı ve vizyonundan bugüne; soyağacı: Stewart → Jaguar → Red Bull; Ferrari gibi kuruluşundan beri süren takımlar için özel vurgu)
+- [ ] **Dilim 4 — Grid ve diğer sayfalar:** grid sezon seçilebilir, renk kullanan bileşenler tek giriş noktasına geçer, seçili sezon sayfalar arası taşınır
+
 ## Teknik Borç
 
 | Madde | Tetik |
