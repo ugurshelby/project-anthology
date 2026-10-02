@@ -6,6 +6,7 @@ import {
   driverStints,
   driverTotalsAsOf,
   lastTeamOf,
+  emptyTotals,
   numberOf,
   type Totals,
 } from '@/lib/history/career';
@@ -19,7 +20,7 @@ import {
   type TeamDna,
 } from '@/lib/history/dna';
 import { lineupFor, type LineupEntry } from '@/lib/history/lineup';
-import { paletteForConstructorId, type TeamPalette } from '@/lib/history/palette';
+import { paletteFor, paletteForConstructorId, type TeamPalette } from '@/lib/history/palette';
 import {
   getConstructorRecord,
   getDriverRecord,
@@ -147,6 +148,40 @@ function overlayDriver(rec: DriverRecord, row: DriverSeasonRow | null, live: Ret
   };
 }
 
+/**
+ * A driver who is in the live standings but not (yet) in the history index,
+ * e.g. a mid-season debutant after the index was built. Shows what the live
+ * snapshot knows; history sections are simply absent.
+ */
+function liveOnlyDriver(param: string, data: SeasonData | null): DriverView | null {
+  const row = data?.standings.find((r) => r.driverId === param.toLowerCase());
+  if (!row) return null;
+  const teamId = resolveConstructorId(row.constructorId || row.constructorName, CURRENT_SEASON);
+  const teamKey = teamId ?? row.constructorName;
+  const palette = paletteFor(teamKey, CURRENT_SEASON);
+  const stats = data?.driverStats?.[row.driverName] ?? { wins: 0, podiums: 0 };
+  const points = num(row.points) ?? 0;
+  const position = num(row.position);
+  const totals: Totals = { ...emptyTotals(), seasons: 1, wins: stats.wins, podiums: stats.podiums, points, bestPosition: position };
+  return {
+    id: param.toLowerCase(),
+    name: row.driverName,
+    code: row.driverCode ? row.driverCode.toUpperCase() : null,
+    nationality: null,
+    born: null,
+    year: CURRENT_SEASON,
+    isCurrentSeason: true,
+    years: [{ year: CURRENT_SEASON, ui: palette.ui, label: row.constructorName, champion: false }],
+    teams: row.constructorName ? [{ id: teamKey, name: row.constructorName, ui: palette.ui, number: row.permanentNumber }] : [],
+    palette,
+    season: { position, points, wins: stats.wins, podiums: stats.podiums, poles: 0, starts: 0, fastestLaps: 0, champion: false },
+    asOf: totals,
+    stints: [],
+    number: row.permanentNumber,
+    lore: getDriverLore(param.toLowerCase()),
+  };
+}
+
 export async function getDriverView(param: string, requestedYear?: number): Promise<DriverView | null> {
   let live: ReturnType<typeof liveStandingFor> = null;
   let data: SeasonData | null = null;
@@ -161,9 +196,11 @@ export async function getDriverView(param: string, requestedYear?: number): Prom
     const row = data?.standings.find((r) => r.driverId === param.toLowerCase()) ?? null;
     if (row) id = resolveDriverId(param, { name: row.driverName, code: row.driverCode });
   }
-  if (!id) return null;
+  if (!id) {
+    return liveOnlyDriver(param, data);
+  }
   const rec = getDriverRecord(id);
-  if (!rec) return null;
+  if (!rec) return liveOnlyDriver(param, data);
 
   if (mayUseLive && !data) {
     try {
@@ -276,7 +313,8 @@ export interface TeamView {
   season: { position: number | null; points: number; wins: number; podiums: number; poles: number; champion: boolean };
   lineup: TeamLineupView[];
   stage: DnaStage | null;
-  dna: TeamDna;
+  /** Null for a team that is only in the live standings (not yet in the history index). */
+  dna: TeamDna | null;
   asOf: { seasons: number; wins: number; podiums: number; poles: number; titles: number[] };
 }
 
@@ -293,11 +331,56 @@ function lineupView(entries: LineupEntry[]): TeamLineupView[] {
   }));
 }
 
+/** A team in the live standings that the history index does not know yet. */
+async function liveOnlyTeam(param: string): Promise<TeamView | null> {
+  let data: SeasonData;
+  try {
+    data = await getSeasonData(CURRENT_SEASON);
+  } catch {
+    return null;
+  }
+  const row = data.constructors.find((c) => c.constructorId === param.toLowerCase());
+  if (!row) return null;
+  const palette = paletteFor(row.constructorName || row.constructorId, CURRENT_SEASON);
+  const lineup: TeamLineupView[] = data.standings
+    .filter((d) => d.constructorId === row.constructorId)
+    .slice(0, 4)
+    .map((d) => ({
+      driverId: d.driverId,
+      name: d.driverName,
+      code: d.driverCode ? d.driverCode.toUpperCase() : null,
+      number: d.permanentNumber,
+      position: num(d.position),
+      points: num(d.points) ?? 0,
+      wins: data.driverStats?.[d.driverName]?.wins ?? 0,
+      champion: false,
+    }));
+  return {
+    id: row.constructorId,
+    headId: row.constructorId,
+    name: row.constructorName,
+    fullName: row.constructorName,
+    country: '',
+    year: CURRENT_SEASON,
+    isCurrentSeason: true,
+    years: [{ year: CURRENT_SEASON, ui: palette.ui, label: row.constructorName, champion: false }],
+    palette,
+    entrants: [],
+    engines: [],
+    season: { position: num(row.position), points: num(row.points) ?? 0, wins: num(row.wins) ?? 0, podiums: 0, poles: 0, champion: false },
+    lineup,
+    stage: null,
+    dna: null,
+    asOf: { seasons: 0, wins: 0, podiums: 0, poles: 0, titles: [] },
+  };
+}
+
 export async function getTeamView(param: string, requestedYear?: number): Promise<TeamView | null> {
+  const mayUseLive = requestedYear === undefined || requestedYear === CURRENT_SEASON;
   const id = resolveConstructorId(param, requestedYear ?? CURRENT_SEASON) ?? resolveConstructorId(param);
-  if (!id) return null;
+  if (!id) return mayUseLive ? liveOnlyTeam(param) : null;
   const dna = buildTeamDna(id);
-  if (!dna) return null;
+  if (!dna) return mayUseLive ? liveOnlyTeam(param) : null;
 
   const years = lineageYears(dna);
   if (years.length === 0) return null;

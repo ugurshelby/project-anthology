@@ -148,9 +148,11 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             />
           </HistoryCard>
 
-          <HistoryCard span={12} heading={t('driver.journeyHeading')}>
-            <DriverJourney stints={view.stints} driverId={view.id} selectedYear={view.year} />
-          </HistoryCard>
+          {view.stints.length > 0 ? (
+            <HistoryCard span={12} heading={t('driver.journeyHeading')}>
+              <DriverJourney stints={view.stints} driverId={view.id} selectedYear={view.year} />
+            </HistoryCard>
+          ) : null}
 
           {view.lore ? (
             <BentoCard span={relatedNews.length > 0 ? 8 : 12}>
