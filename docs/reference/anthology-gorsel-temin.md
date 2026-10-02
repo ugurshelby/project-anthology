@@ -46,6 +46,8 @@ content.ts:420-425'teki istisna yorumunu da kaldırırım.
 
 ## 3. Mevcut durum — hangi hikayede kaç görsel var
 
+> 2026-10-02: hiçbir yerde kullanılmayan 68 dosya silindi; aşağıdaki adetler bu tarihten önceki hâli gösterir. Güncel envanter: `docs/reference/stories-assets-ledger.md`.
+
 17 hikaye. imola-1994 hariç hepsi tam (her `layout` klasöründe eşit sayıda
 dosya). Sayılar = her hikayenin `landscape/`=`full/`=`portrait/` dosya adedi:
 
