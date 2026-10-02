@@ -46,6 +46,12 @@ function tally(values: string[]): string[] {
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([v]) => v);
 }
 
+/** Entrant names, the team's own name first (privateers running its cars come after). */
+export function preferNamed(entrants: string[], name: string): string[] {
+  const key = name.toLowerCase();
+  return [...entrants].sort((a, b) => Number(b.toLowerCase().includes(key)) - Number(a.toLowerCase().includes(key)));
+}
+
 function stageFrom(
   constructorId: string,
   rows: ConstructorSeasonRow[],
@@ -62,7 +68,7 @@ function stageFrom(
     fullName: rec.fn,
     from: first,
     to: open ? null : last,
-    entrants: tally(rows.flatMap((r) => r.e)).slice(0, 3),
+    entrants: preferNamed(tally(rows.flatMap((r) => r.e)), rec.n).slice(0, 3),
     engines: tally(rows.flatMap((r) => r.en)).slice(0, 3),
     seasons: rows.length,
     wins: rows.reduce((s, r) => s + r.w, 0),

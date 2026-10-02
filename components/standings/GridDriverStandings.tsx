@@ -15,13 +15,13 @@ export function GridDriverStandings({
   return (
     <ol className="flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-hairline">
       {rows.map((row) => {
-        const color = resolveTeamUiColor(undefined, row.constructorName);
+        const color = resolveTeamUiColor(undefined, row.constructorName, season);
         const portrait = driverIconSrc(row.driverCode, row.driverId, season);
         const number = row.carNumber ?? row.position;
         return (
           <li key={row.driverId} className="border-b border-hairline last:border-b-0">
             <Link
-              href={`/drivers/${row.driverId}`}
+              href={`/drivers/${row.driverId}?season=${season}`}
               className="group relative flex items-center gap-3 overflow-hidden px-3 py-2.5 md:gap-4 md:px-4 md:py-3"
             >
               <span

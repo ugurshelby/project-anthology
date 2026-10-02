@@ -32,7 +32,7 @@ function DriverBay({
 
   return (
     <Link
-      href={`/drivers/${row.driverId}`}
+      href={`/drivers/${row.driverId}?season=${season}`}
       className={[
         'group relative flex min-h-24 flex-1 flex-col justify-end overflow-hidden p-3 md:min-h-52 md:p-4',
         divided ? 'border-l border-hairline' : '',
@@ -121,7 +121,7 @@ function EmptySeat({ divided }: { divided?: boolean }) {
  * One constructor = one paddock garage panel (team identity + both seats).
  */
 export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: number }) {
-  const color = resolveTeamUiColor(undefined, unit.constructorName);
+  const color = resolveTeamUiColor(undefined, unit.constructorName, season);
   const logo = teamIconSrc(unit.constructorName);
   const car = carSrc(unit.constructorId, unit.constructorName);
   const [d1, d2] = unit.drivers;
@@ -139,7 +139,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
 
       <div className="relative z-10 flex flex-col lg:flex-row">
         <Link
-          href={`/teams/${unit.constructorId}`}
+          href={`/teams/${unit.constructorId}?season=${season}`}
           className="relative flex flex-col gap-3 border-b border-hairline p-4 lg:w-[38%] lg:border-b-0 lg:p-5"
         >
           <div className="flex items-start justify-between gap-3">

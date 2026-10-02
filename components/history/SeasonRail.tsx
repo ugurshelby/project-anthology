@@ -40,7 +40,12 @@ export function SeasonRail({ years, selected, hrefTemplate, className = '' }: Pr
     const el = active.current;
     if (!box || !el) return;
     // centre the selected year inside the rail only (never scroll the page)
-    box.scrollLeft = el.offsetLeft - (box.clientWidth - el.clientWidth) / 2;
+    const centre = () => {
+      box.scrollLeft = el.offsetLeft - (box.clientWidth - el.clientWidth) / 2;
+    };
+    centre();
+    const raf = requestAnimationFrame(centre);
+    return () => cancelAnimationFrame(raf);
   }, [selected]);
 
   const index = years.findIndex((y) => y.year === selected);

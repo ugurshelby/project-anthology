@@ -10,7 +10,7 @@
  */
 
 import { paletteFor } from '@/lib/history/palette';
-import { resolveConstructorId } from '@/lib/history/store';
+import { resolveConstructorId } from '@/lib/history/ids';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
 export const F1_TEAM_COLORS_SEASON = 2026;

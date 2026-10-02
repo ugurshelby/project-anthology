@@ -11,6 +11,7 @@ import {
 } from '@/lib/history/career';
 import {
   buildTeamDna,
+  preferNamed,
   lineageTotalsAsOf,
   lineageYears,
   stageForYear,
@@ -328,7 +329,7 @@ export async function getTeamView(param: string, requestedYear?: number): Promis
     isCurrentSeason: year === CURRENT_SEASON,
     years: chips,
     palette: paletteForConstructorId(stage.constructorId, year),
-    entrants: row.e,
+    entrants: preferNamed(row.e, rec.n),
     engines: row.en,
     season: { position: row.p, points: row.pts, wins: row.w, podiums: row.pd, poles: row.pl, champion: row.ch === 1 },
     lineup: lineupView(lineupFor(stage.constructorId, year)),

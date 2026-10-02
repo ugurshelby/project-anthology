@@ -90,3 +90,14 @@ describe('team palettes', () => {
     expect(typeof b).toBe('string');
   });
 });
+
+describe('client bundle safety', () => {
+  it('keeps the heavy history store out of the colour code that ships to the browser', async () => {
+    const { readFileSync } = await import('node:fs');
+    for (const file of ['lib/history/palette.ts', 'lib/history/ids.ts', 'lib/history/color.ts', 'config/team-colors.ts']) {
+      const src = readFileSync(file, 'utf8');
+      expect(src, `${file} must not import lib/history/store`).not.toMatch(/history\/store|from '\.\/store'/);
+      expect(src, `${file} must not import the big JSON files`).not.toMatch(/data\/history\/(drivers|constructors|seasons)\.json/);
+    }
+  });
+});
