@@ -42,7 +42,7 @@ anthology/
 └── tests/          # Vitest (22 dosya)
 ```
 
-**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz olduğu için kaldırıldı. `lib/assets/f1-icons.ts`'teki `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` her zaman `null` döner; `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder (isim/kod baş harfleri + `--team-secondary`). İstisna: `circuitIconSrc` — MIT lisanslı pist rota geometrisi (`assets/f1-circuits/`). Anthology görselleri (`public/stories`, 124 dosya) bu kapsamda değildi; lisans durumu sahip kararı bekliyor.
+**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz olduğu için kaldırıldı. `lib/assets/f1-icons.ts`'teki `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` her zaman `null` döner; `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder (isim/kod baş harfleri + `--team-secondary`). İstisna: `circuitIconSrc` — MIT lisanslı pist rota geometrisi (`assets/f1-circuits/`). Anthology görselleri (`public/stories`, 56 dosya; kullanılmayan 68 dosya 2026-10-02'de silindi) bu kapsamda değildi; lisans durumu sahip kararı bekliyor.
 
 ---
 
