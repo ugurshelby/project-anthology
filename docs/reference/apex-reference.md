@@ -45,6 +45,10 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 | Database reachability from this machine | The build logged successful Supabase reads of `news_stories`, `stories`, `radio_moments`, and `f1_snapshots` for season 2026, including round 15 results and qualifying [VERIFIED: build log] |
 | Git | Branch `main` tracked `origin/main` at `c23acc2`. `git status` was clean before this file. 247 commits. A second branch `feat/apex-frontend-rebuild` exists at `330db35` [VERIFIED: `git status`, `git rev-list`, `git branch -vv`] |
 
+### Season history (added 2026-10-02)
+
+- Driver, team, season and grid pages are selectable by season for 1950 onward (`?season=`), with era colours, career-to-date, driver team journey and a team DNA section. Measured on the dev server: 377 pages (all 187 teams, 170 drivers, 20 seasons) and all 22 current drivers and 11 current teams answered HTTP 200 with no `undefined`/`NaN`/`null` text. Colours in `data/history/liveries.ts` (67 curated teams) are editorial approximations, owner review open; other teams use national racing colours.
+
 ### Broken or wrong relative to the code and the live host
 
 - Fixed 2026-10-01: `lib/data/siteUrl.ts` used to fall back to `https://project-anthology-seven.vercel.app`, which returns HTTP 404 [VERIFIED: `curl`]. The single exported constant `PROD_SITE_URL` is now the eight host, and `scripts/sync-f1-scheduled.ts` imports it (`tests/siteUrl.test.ts`). On Vercel the function prefers `NEXT_PUBLIC_SITE_URL`, then `VERCEL_URL`, and only then this constant [VERIFIED: `lib/data/siteUrl.ts`]. The live canonical is the eight host [VERIFIED: homepage HTML].
@@ -122,6 +126,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-01.
 | `components/` | UI. 89 modules: layout, home, season, news, profile, anthology, glossary, legal, media |
 | `lib/` | `data/`, `f1/`, `news/`, `api/`, `security/csp.ts`, `seo.ts`, `cronAuth.ts`, `rateLimit.ts`, `supabase.ts`, `f1Calendar.ts`, `f1Ingest.ts` |
 | `data/` | Editorial content: drivers, teams, stories, glossary, circuit facts |
+| `data/history/` | F1 history index generated from F1DB (CC BY 4.0): `constructor-index.json`, `constructors.json`, `drivers.json`, `seasons.json`, `meta.json`; editorial `liveries.ts`, `team-dna.ts` |
 | `config/team-colors.ts` | Team color tokens |
 | `i18n/`, `messages/en.json`, `messages/tr.json` | Locale routing and UI strings |
 | `supabase/migrations/` | 8 SQL migrations. `supabase/config.toml` exists |
@@ -140,7 +145,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-01.
 
 ## 4. Data and infrastructure (DB, schema, migrations, external APIs, cron jobs, deployment, branch and deploy triggers)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
 ### Tables
 
@@ -167,7 +172,7 @@ Whether the remote migration history matches these eight files one-for-one was n
 | Source | Where it is used | Notes in code |
 |---|---|---|
 | Jolpica / Ergast | `lib/f1/sources/jolpica.ts`, `app/api/f1-season/route.ts`, `scripts/sync-f1-scheduled.ts` | Proxy path is a whitelist regex. Host is hardcoded. Snapshot is returned before a live call [VERIFIED: `app/api/f1-season/route.ts`] |
-| F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db` | Historical seed. Not re-run in this analysis |
+| F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db`, and `scripts/build-f1-history-index.ts` (committed history index). **License CC BY 4.0: attribution is shown in the footer** | Historical seed. Not re-run in this analysis |
 | OpenF1 | `lib/f1/sources/openf1.ts`, `app/api/live-timing/route.ts`, `sync-radio` | Code comment: 3 requests/second shared, not per visitor. Live route uses 5s edge cache, an in-memory stampede guard, and an 8s timeout [VERIFIED: route comments] |
 | Open-Meteo | circuit weather cron path described in `docs/plans/master-plan.md` and `20260929000002_circuit_weather.sql` | Page reads are documented as DB-only |
 | RSS | `lib/news/aggregate.ts`, `sync-news` | Clustered into `news_stories` |

@@ -51,6 +51,9 @@ export function historyYears(): number[] {
 /* id resolution                                                       */
 /* ------------------------------------------------------------------ */
 
+/** Name suffixes that are not part of the family name ("Carlos Sainz Jr."). */
+const SUFFIXES = new Set(['jr', 'sr', 'ii', 'iii']);
+
 let driverByName: Map<string, string[]> | null = null;
 let driverByLast: Map<string, string[]> | null = null;
 
@@ -60,7 +63,7 @@ function buildDriverMaps(): void {
   for (const [id, d] of Object.entries(DRIVERS)) {
     const full = normalizeText(d.n);
     driverByName.set(full, [...(driverByName.get(full) ?? []), id]);
-    const parts = full.split(' ');
+    const parts = full.split(' ').filter((p, i, all) => !(i === all.length - 1 && SUFFIXES.has(p) && all.length > 2));
     const last = parts[parts.length - 1];
     driverByLast.set(last, [...(driverByLast.get(last) ?? []), id]);
   }
@@ -88,7 +91,12 @@ export function resolveDriverId(
   if (kebab && DRIVERS[kebab]) return kebab;
 
   const byName = (name: string): string | null => {
-    const hits = driverByName!.get(normalizeText(name));
+    const key = normalizeText(name);
+    let hits = driverByName!.get(key);
+    if (!hits?.length) {
+      // "Carlos Sainz" -> "Carlos Sainz Jr."
+      hits = [...driverByName!.entries()].filter(([full]) => full.startsWith(`${key} `) && SUFFIXES.has(full.slice(key.length + 1))).flatMap(([, ids]) => ids);
+    }
     if (!hits?.length) return null;
     return [...hits].sort((a, b) => newestSeason(b) - newestSeason(a))[0];
   };
