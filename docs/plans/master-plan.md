@@ -137,11 +137,11 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 
 | Madde | Tetik |
 |---|---|
-| `public/stories/` 124 dosya, lisans kaydı yok | Sahip kararı (tut / lisansla / sil) |
+| `public/stories/` 124 dosya, lisans kaydı yok (envanter: `docs/reference/stories-assets-ledger.md`; 68 dosya hiçbir yerde kullanılmıyor) | Sahip kararı (tut / lisansla / sil) |
 | `ci.yml` (PR kapısı) GitHub'da henüz koşmadı; required check yapılması sahip ayarı | İlk PR |
-| Analytics onaysız yükleniyor, gizlilik metni "onaya kadar kapalı" diyor | Sahip kararı |
 | Yasal sayfalarda `.example` e-posta adresleri | Sahip kararı |
 | Node 24 (engines) vs 22 (workflow) | Sahip kararı |
+| `app/not-found.tsx` + `global-error.tsx` `metadataBase` uyarısı (build'de 2 uyarı), dev'de bilinmeyen URL 500 | Küçük düzeltme |
 | Playwright e2e suite yok | Lighthouse/a11y otomasyonu |
 | Upstash, cron secret, Groq/Gemini, Sentry değişkenlerinin Vercel'deki durumu | Sahip teyidi |
 
