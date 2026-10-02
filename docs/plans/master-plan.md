@@ -1,10 +1,10 @@
 # Anthology (Apex) — Master Plan
 
-> Agent'ın tek plan kaynağı. Yeni iş buraya madde eklenir, bitince `[x]` işaretlenir.
-> Eski detaylı faz geçmişi: `docs/PLAN.md` (2026-06-26 snapshot).
+> Tek canlı iş listesi. Yeni iş buraya madde eklenir; kutu yalnızca kodda veya ölçümle doğrulanınca `[x]` olur.
+> Ölçülmüş durum: `docs/reference/apex-reference.md`. Tamamlanan plan dosyaları silinir (geçmiş git'te).
 >
 > **Canlı:** https://project-anthology-eight.vercel.app
-> **Son güncelleme:** 2026-07-04
+> **Son güncelleme:** 2026-10-01
 
 ---
 
@@ -12,9 +12,9 @@
 
 | Alan | Durum |
 |---|---|
-| Web backend + veri katmanı | ✅ Çalışıyor (Supabase, 3 cron + notify) |
-| Web frontend | 🟡 Bileşenler var; tasarım dili onaylandı — mobil responsive fix + home refactor sırada |
-| Mobil (Expo 56) | ✅ 5 tab + detay ekranları; EAS build boyutu sorunu açık |
+| Web backend + veri katmanı | ✅ Çalışıyor (Supabase; Vercel 3 günlük cron + GitHub Actions saatlik/10 dk) |
+| Web frontend | ✅ 20 sayfa, 89 bileşen, EN + `/tr`; tablet/Lighthouse/QA kutuları aşağıda açık (ölçülmedi) |
+| Mobil (Expo 56) | ⚠️ `mobile/` diskte var ama `.gitignore`'da, git'te yok — sahip kararı bekliyor |
 | Tasarım otoritesi | ✅ `docs/design/apex-design-language.md` + `docs/design/design.md/` |
 
 **Kritik kısıt:** `lib/f1Calendar.ts` tek temporal kaynak; sezon/pilot/takım hardcode yok.
@@ -44,9 +44,9 @@ Spec: `docs/design/apex-design-language.md`
 - [x] WEB-UI.2: `SplitHomeLayout` + `PosterHero` bileşenleri
 - [x] WEB-UI.3: Home refactor (`app/page.tsx`) — Split Cinema desktop / Poster Dense mobile
 - [x] WEB-UI.3b: Home cinematic Grand Prix Weekend (full-bleed hero, Live Paddock bento, archive On This Day)
-- [ ] WEB-UI.4: Tablet breakpoint (md)
-- [ ] WEB-UI.5: Season sayfası layout (Visual Companion Faz 3)
-- [ ] WEB-UI.6: Liste şablonu (drivers, teams, circuits, news, anthology, glossary)
+- [ ] WEB-UI.4: Tablet breakpoint (md) — kod var, tarayıcıda ölçülmedi
+- [ ] WEB-UI.5: Season sayfası layout — kod var (UI-BUGS tablet fix'i yapıldı), ölçülmedi
+- [ ] WEB-UI.6: Liste şablonu (drivers, teams, circuits, news, anthology, glossary) — sayfalar var, ölçülmedi
 - [x] WEB-UI.6b: News editoryal redesign (1+2 manşet, sticky filtre, Wire telemetry, Load More)
 - [x] WEB-UI.6c: Tech Glossary dossier redesign (arama, lastik telemetry, bento terimler)
 - [x] WEB-UI.6d: Grid paddock garage (tek takım paneli, TBA koltuk, constructor/driver görünüm)
@@ -68,7 +68,7 @@ Spec: `docs/design/apex-design-language.md`
 
 ### 🌐 I18N — Çoklu dil mimarisi (EN + TR)
 
-- [x] Mimari plan hazırlandı: `docs/plans/i18n-architecture.md` (next-intl, `/tr` prefix, mesaj sistemi, SEO/hreflang, dil değiştirici gereksinimi, anthology içerik şema önerisi) — 2026-09-28
+- [x] Mimari plan hazırlandı (next-intl, `/tr` prefix, mesaj sistemi, SEO/hreflang, dil değiştirici); uygulandığı için plan dosyası silindi — 2026-09-28
 - [x] Uygulama (antigravity) — Faz 0-5 tamam (next-intl, `app/[locale]/` route taşıma, mesaj sistemi, dil değiştirici, SEO/hreflang) — 2026-09-29
 - [ ] Faz 6 (QA — Lighthouse a11y tekrar ölçümü, tam TR/EN manuel gezinme) hâlâ açık
 
@@ -78,7 +78,7 @@ Spec: `docs/design/apex-design-language.md`
 - [x] `LiveRaceTracker` (client, 12sn polling) — home hero'da `RACE_LIVE_WINDOW_MS` içindeyken `Countdown` yerine gösterilir; pozisyon + takım rengi + interval. — 2026-09-28
 - [x] **Yük/ölçek denetimi (2026-09-28):** `Cache-Control: no-store` kullanıyordu — 100 eşzamanlı izleyici = 100 ayrı OpenF1 çağrısı riski (OpenF1 limiti 3 req/s TOPLAM). Düzeltildi: edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa adaptörün kendi retry/backoff zinciri worst-case ~130sn'ye kadar fonksiyonu tıkayabilirdi, artık zaman aşımında stale cache'e düşüyor).
 - [ ] Gerçek canlı yarışta uçtan-uca doğrulama (OpenF1 canlı seans sırasında manuel test) — sıradaki yarış haftasında yapılmalı
-- [ ] Round detay sayfasına (`app/season/[year]/round/[n]/page.tsx`) da canlı tracker eklenmesi değerlendirilebilir
+- [ ] Round detay sayfasına (`app/[locale]/season/[year]/round/[n]/page.tsx`) da canlı tracker eklenmesi değerlendirilebilir
 
 ### 🖼️ GÖRSEL-TELİF — Fotoğrafsız politika (2026-09-28)
 
@@ -87,7 +87,7 @@ Spec: `docs/design/apex-design-language.md`
 - [x] `components/media/ApexFallback.tsx` yeni birincil görsel: canlı veriden (isim/kod → baş harf, `--team-secondary` CSS değişkeni) rozet üretir — ek asset/API/maliyet yok, yeni pilot/takım için otomatik çalışır. `kind: 'team'` eklendi.
 - [x] `DriverMachineryCard`, `ProfileHero`, `TeamGarageHero`, `GarageTeamPanel`'deki eski `{logo ? <ApexImage kind="media"/> : null}` null-guard'ları kaldırıldı, `kind="team"` + `fallbackLabel={teamName}` ile her yerde rozet gösteriyor.
 - [ ] Efendim onaylamadı ama değerlendirilebilir: pist "kapak" görseli için `circuitIconSrc`'in gerçek MIT'li rota çizimini hero/kapak olarak kullanmak (şu an sadece küçük "track map" olarak kullanılıyor, kapak tamamen boş/gradient).
-- [x] **Tasarım brief'i antigravity'ye teslim edildi ve uygulandı:** `docs/plans/driver-hero-visual-redesign.md` — `DriverProfileHero.tsx` sağ-kesit alanına `DriverHeroGraphic` (takım DNA dokusu, monumental kondanse tipografik heykel, CAD blueprint çerçevesi ve yarış numarası rozeti) eklendi; sıfır telif/AI riskiyle tamamen veri-güdümlü olarak çalışıyor. `tests/driver-hero.test.ts` eklendi, build ve testler yeşil. — 2026-09-29
+- [x] **Tasarım brief'i antigravity'ye teslim edildi ve uygulandı (brief dosyası silindi):** `DriverProfileHero.tsx` sağ-kesit alanına `DriverHeroGraphic` (takım DNA dokusu, monumental kondanse tipografik heykel, CAD blueprint çerçevesi ve yarış numarası rozeti) eklendi; sıfır telif/AI riskiyle tamamen veri-güdümlü olarak çalışıyor. `tests/driver-hero.test.ts` eklendi, build ve testler yeşil. — 2026-09-29
 
 ### 📰 HABER-KALİTE — Görsel doğrulama + atıf
 
@@ -137,10 +137,13 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 
 | Madde | Tetik |
 |---|---|
-| 2025 eksik driver SVG (tsunoda, lawson) | AssetFallback OK (artık zaten fotoğrafsız politika var, madde geçersiz) |
-| `public/stories/` stray klasörler | Silinebilir |
-| Playwright e2e suite | Lighthouse/a11y otomasyonu |
-| Upstash env Vercel'de | `UPSTASH_REDIS_REST_URL` + `_TOKEN` |
+| `public/stories/` 124 dosya, lisans kaydı yok | Sahip kararı (tut / lisansla / sil) |
+| `ci.yml` (PR kapısı) GitHub'da henüz koşmadı; required check yapılması sahip ayarı | İlk PR |
+| Analytics onaysız yükleniyor, gizlilik metni "onaya kadar kapalı" diyor | Sahip kararı |
+| Yasal sayfalarda `.example` e-posta adresleri | Sahip kararı |
+| Node 24 (engines) vs 22 (workflow) | Sahip kararı |
+| Playwright e2e suite yok | Lighthouse/a11y otomasyonu |
+| Upstash, cron secret, Groq/Gemini, Sentry değişkenlerinin Vercel'deki durumu | Sahip teyidi |
 
 ---
 
@@ -148,12 +151,14 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 
 | Dosya | İçerik |
 |---|---|
-| `docs/reference/proje-dizini.md` | Dizin haritası |
+| `AGENTS.md` | Kanonik agent kuralları |
+| `docs/reference/apex-reference.md` | Ölçülmüş durum, mimari, boşluklar |
+| `docs/procedures.md` | Tekrarlanan prosedürler |
 | `docs/reference/mimari.md` | Backend mimarisi |
-| `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` | Tuzaklar + kararlar |
+| `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` | Tuzaklar + kararlar (tarihsel) |
 | `docs/vision/technical.md` | Agent teknik özet |
-| `docs/design/apex-design-language.md` | Apex özel tasarım dili (onaylı kararlar) |
-| `docs/design/design.md/` | Genel tasarım prensipleri |
+| `docs/design/apex-design-language.md` | Apex tasarım dili (otorite) |
+| `docs/design/design.md/` | Genel tasarım prensipleri (kütüphane) |
 
 ## Haber hikâyeleri: birleştirme + özgün yazım (2026-09-29)
 - [x] Pist konumu + saat dilimi DB'de (`circuits.data.location`), statik veriden bağımsız
@@ -161,6 +166,6 @@ Time Zone API'ye gerek kalmadı — tarayıcının kendi `Intl` saat dilimi + st
 - [x] **Manuel — Efendim:** `20260929000004_news_stories.sql` çalıştırıldı (2026-10-01)
 - [x] `GROQ_API_KEY` + `GEMINI_API_KEY` `.env.local`'de; yazım Groq gpt-oss-120b→20b, yedek Gemini 3.5 Flash-Lite→3.8 Flash. Deploy'da ikisi de Vercel env'e girilecek
 - [x] `.github/workflows/sync-news.yml` (saatte bir) yazıldı; `SITE_URL` var + `CRON_SECRET_KEY` secret deploy sonrası bağlanacak
-- [ ] antigravity devir planı: `docs/plans/news-stories-ui-handoff.md` (arka plan özeti + arayüz görevleri + kalite kapıları)
-- [ ] antigravity: haber detay sayfasında `item.sourceLinks` ile kaynak listesi + linkler; görselsiz hikâyede kapak alanı gizlenir (placeholder yok); `lib/news/voice.ts` tonunu ev sesine göre ince ayar
+- [x] Haber detay sayfasında `item.sourceLinks` kaynak listesi (`components/news/NewsLeadBlock.tsx`, `app/[locale]/news/[id]/page.tsx`) — kodda doğrulandı 2026-10-01; devir planı dosyası silindi
+- [ ] `lib/news/voice.ts` tonunu ev sesine göre ince ayar (editoryal karar)
 

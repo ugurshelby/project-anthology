@@ -1,5 +1,7 @@
 # README — `docs/design/` Kullanım Kılavuzu (Agent İçin)
 
+> **Otorite:** Apex için tek tasarım otoritesi `docs/design/apex-design-language.md`'dir. Bu klasördeki stil makaleleri (`design-styles/`), renk, tipografi, trend ve teknik dosyaları bir **kütüphanedir, otorite değildir**: ilham ve somut teknik verir, Apex tasarım diliyle çelişen yerde `apex-design-language.md` kazanır. Birbirleriyle de çelişirler (glassmorphism, neumorphism, brutalism, Swiss...), hiçbiri tek başına yasa değildir.
+
 > **Bu dosya, herhangi bir frontend/tasarım kararı öncesi okunacak ilk dosyadır.** Amacı: bu klasörde kaybolmamak — göreve göre hangi dosyaya bakman gerektiğini en hızlı şekilde bulmak. Bu klasör kod değil, proje-agnostik bir **tasarım referans kütüphanesi**dir; Efendim'in birden fazla projesinde (Apex, Rosso, FinPilot, EVEREST, Obsession, The Origin ve gelecekteki projeler) ortak kullanılır.
 
 ---
@@ -8,7 +10,7 @@
 
 1. **Her zaman burayı önce oku.** Bir UI/frontend kararı almadan önce bu README'yi tara, aşağıdaki "Karar Tablosu"ndan görevine uyan satırı bul.
 2. **Universal Design Principles her zaman tabandır.** Hangi göreve baksan da, `universal-design-principles.md` içindeki yedi ilke (hiyerarşi, bilişsel yük, sistemleştirme, tutarlılık, erişilebilirlik, geri bildirim, kısıtlama disiplini) geçerlidir — bu ilkelerle çelişen hiçbir stil/teknik kararı uygulanmaz.
-3. **Proje-özel `design.md`/`CLAUDE.md` her zaman önceliklidir.** Eğer üzerinde çalıştığın projenin kendi tasarım anayasası varsa (örn. Apex'in `apex-final-design.md`'si), bu klasördeki dökümanlar onunla **çelişmez, sadece destekler/somutlaştırır**. Proje-özel kural varsa o kazanır.
+3. **Proje-özel `design.md`/`CLAUDE.md` her zaman önceliklidir.** Eğer üzerinde çalıştığın projenin kendi tasarım anayasası varsa (Apex için `apex-design-language.md`), bu klasördeki dökümanlar onunla **çelişmez, sadece destekler/somutlaştırır**. Proje-özel kural varsa o kazanır.
 4. **Birden fazla dosya gerekebilir.** Örn. "Apex için yeni bir dashboard kartı tasarla" görevi hem `design-styles/Brutalist...md`, hem `colours/60-30-10-renk-kurali.md`, hem de `design-techniques/loading-states-process-feedback.md`'yi aynı anda gerektirebilir — tabloyu tek satırla sınırlama, göreve uyan tüm satırları topla.
 5. **Bu dosyayı güncel tut.** Klasöre yeni bir döküman eklendiğinde (Efendim tarafından veya senin tarafından), bu README'nin ilgili tablosuna **mutlaka** yeni bir satır eklenir. Güncel olmayan bir README, klasörü tekrar "kaybolunacak bir yığın" haline getirir — bu adım atlanamaz.
 

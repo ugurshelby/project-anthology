@@ -8,7 +8,7 @@
 
 ## 1. Proje özeti
 
-**Project Anthology (marka: APEX)** Formula 1 odaklı bir Next.js 16 (App Router) sitesidir. Canlı adres: `https://project-anthology-five.vercel.app`. Stack: **Next.js + React 19 + Tailwind 4 + Supabase (Postgres) + Vercel Cron**. Veri akışı: dış kaynaklar (Jolpica/Ergast, F1DB, OpenF1, RSS) → **server-side cron** ile Supabase'e yazılır → **RSC** katmanı `lib/data/*` üzerinden okur → UI render. Geçmiş sezon verisi F1DB seed ile DB'de; güncel sezon hem DB hem canlı Jolpica fallback ile beslenir. Haberler `/news` ve home'da canlı RSS aggregate; F1 takvimi/puan durumu için tek temporal kaynak `@/lib/f1Calendar`.
+**Project Anthology (marka: APEX)** Formula 1 odaklı bir Next.js 16 (App Router) sitesidir. Canlı adres: `https://project-anthology-eight.vercel.app`. Stack: **Next.js + React 19 + Tailwind 4 + Supabase (Postgres) + Vercel Cron**. Veri akışı: dış kaynaklar (Jolpica/Ergast, F1DB, OpenF1, RSS) → **server-side cron** ile Supabase'e yazılır → **RSC** katmanı `lib/data/*` üzerinden okur → UI render. Geçmiş sezon verisi F1DB seed ile DB'de; güncel sezon hem DB hem canlı Jolpica fallback ile beslenir. Haberler `/news` ve home'da canlı RSS aggregate; F1 takvimi/puan durumu için tek temporal kaynak `@/lib/f1Calendar`.
 
 ---
 
@@ -164,7 +164,7 @@ Hobby planda günde 1 cron → yarış haftası için **read-layer staleness** v
 | 5FIX planı (EntityDrawer, records) | `docs/plans/PLAN_5FIX_2026-06-08.md` |
 | Agent karar logları | `logs/AGENT_*.md` |
 | Asset layout & pipeline | `docs/reference/ASSETS.md`, `assets/scripts/generate-historical-assets.mjs` |
-| Ana üretim planı | `docs/PLAN.md` |
+| Canlı plan | `docs/plans/master-plan.md` |
 | Eksik driver audit | `MISSING_ASSETS.md`, `assets/scripts/audit-missing-assets.ts` |
 | F1 temporal mantık | `lib/f1Calendar.ts` |
 | F1 okuma katmanı | `lib/data/f1.ts`, `lib/f1/snapshotStaleness.ts` |
