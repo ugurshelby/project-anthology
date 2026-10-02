@@ -26,7 +26,7 @@ No file in the repo states a business owner, a company, or a revenue model. Thos
 
 ## 2. Current state summary (what works, what is broken, what is half-built; measured, not described)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
 The web app is a working Next.js product, not a skeleton and not an idea with little code. `components/` contains 89 `.ts`/`.tsx` files and `app/[locale]/` contains 20 `page.tsx` files [VERIFIED: file search]. The June 2026 note that the frontend was deleted is false for the tree that exists today. See section 9.
 
@@ -48,10 +48,10 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 ### Broken or wrong relative to the code and the live host
 
 - Fixed 2026-10-01: `lib/data/siteUrl.ts` used to fall back to `https://project-anthology-seven.vercel.app`, which returns HTTP 404 [VERIFIED: `curl`]. The single exported constant `PROD_SITE_URL` is now the eight host, and `scripts/sync-f1-scheduled.ts` imports it (`tests/siteUrl.test.ts`). On Vercel the function prefers `NEXT_PUBLIC_SITE_URL`, then `VERCEL_URL`, and only then this constant [VERIFIED: `lib/data/siteUrl.ts`]. The live canonical is the eight host [VERIFIED: homepage HTML].
-- Local `npm run build` warned that `metadataBase` resolved to `http://localhost:3000` [VERIFIED: build log]. Re-run on 2026-10-01 after the origin fix: the warning still appears twice during static generation, so it does not come from `getSiteUrl()`'s fallback; the page that omits `metadataBase` was not located (not in `app/*.tsx`) [OPEN]. `.env.local` does not define `NEXT_PUBLIC_SITE_URL` [VERIFIED: key-name parse of `.env.local`]. A local production build therefore does not match the live canonical host.
+- Local `npm run build` warns twice that `metadataBase` is not set and resolves to `http://localhost:3000` [VERIFIED: build logs]. Cause is not a missing `NEXT_PUBLIC_SITE_URL`: a build run on 2026-10-02 with `NEXT_PUBLIC_SITE_URL` set to the live host printed the same two warnings. In a production build `getSiteUrl()` already falls back to `PROD_SITE_URL`, and every page under `app/[locale]` inherits `metadataBase` from `app/[locale]/layout.tsx`. The only code outside that layout is `app/not-found.tsx` and `app/global-error.tsx` (plus the file-based `app/opengraph-image.tsx`), so the two warnings most likely come from those two prerendered pages [INFERRED, not isolated]. Effect: only their generated `og:image` meta can point at localhost; the live canonical for real pages is unaffected [VERIFIED: homepage HTML]. No workaround was added. `NEXT_PUBLIC_SITE_URL` is already named in `.env.example` (empty). Note: in `next dev` an unknown URL 500s with "not-found.tsx doesn't have a root layout" (same file, dev only; the live site returns 404 for unknown URLs [VERIFIED: `curl`]).
 - Sentry source-map upload during this build was skipped. The CLI reported `Project not found` for org `anthology-z0`, project `project-anthology` [VERIFIED: `next.config.ts` and the build log]. Whether production Sentry receives events was not checked.
 - Legal pages link to placeholder mailboxes `privacy@apexstats.example`, `dmca@apexstats.example`, and `contact@apexstats.example` [VERIFIED: `app/[locale]/(legal)/*/page.tsx`].
-- The privacy page says optional analytics stay off until consent [VERIFIED: `app/[locale]/(legal)/privacy/page.tsx`]. `app/[locale]/layout.tsx` always mounts `@vercel/analytics` and `@vercel/speed-insights` [VERIFIED]. A search of `*.ts`/`*.tsx` found no consent or cookie-banner component [VERIFIED: search].
+- Analytics consent (done 2026-10-02): `@vercel/analytics` and `@vercel/speed-insights` are mounted only after the visitor presses Accept (`components/consent/AnalyticsConsent.tsx`, logic in `lib/consent.ts`, choice in `localStorage` key `apex-analytics-consent`, footer link reopens it). In a browser (dev build, 375px, EN and TR): nothing loaded before a choice, nothing after Decline and after reload, both `va.vercel-scripts.com` scripts load after Accept. The privacy page is now bilingual (messages `privacy.*`) and describes exactly this. The privacy mailbox is still a `.example` placeholder.
 
 ### Half-built, or stated as open while the code has moved on
 
@@ -127,7 +127,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-01.
 | `supabase/migrations/` | 8 SQL migrations. `supabase/config.toml` exists |
 | `scripts/` | `seed-f1-history.ts`, `seed-stories.ts`, `sync-f1-scheduled.ts`, `verify-seed-coverage.ts`, `dedupe-f1-snapshots.ts` |
 | `tests/` | 22 Vitest files. `vitest.config.ts` includes only `tests/**/*.test.ts` |
-| `public/stories/` | 124 files still present. `public/drivers` and `public/teams` are absent [VERIFIED: `Test-Path` and file count] |
+| `public/stories/` | 124 files still present (ledger: `docs/reference/stories-assets-ledger.md`). `public/drivers` and `public/teams` are absent [VERIFIED: `Test-Path` and file count] |
 | `stories-images/` | 59 files. Local export noted in `stories-images/README.md` |
 | `.github/workflows/` | `sync-f1-race-aware.yml`, `sync-news.yml`, `notify-sessions.yml` |
 | `mobile/` | Expo app on disk only. Gitignored. Not in git |
@@ -213,7 +213,7 @@ Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`.
 
 ## 5. Security, secrets and cost exposure (env handling, .gitignore coverage, auth, abuse and quota risks)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
 ### Env handling
 
@@ -253,7 +253,7 @@ Cron writes use the service role on the server [VERIFIED: `lib/supabase.ts` comm
 - `live-timing` can still spend OpenF1 quota on a cache miss. The code treats a fan-out as the failure mode it already fixed once [VERIFIED: route comments and `logs/2026-09-28.md`].
 - News rewrite runs on the hourly GitHub cron and can call Groq and Gemini for up to 300s [VERIFIED: `maxDuration` and `sync-news.yml`]. The 2026-10-01 log records one real run of about 200s, 94 stories, 51 original EN+TR rewrites [VERIFIED: log text; this pass did not repeat the cron].
 - `sync-f1-race-aware.yml` no longer runs `npm ci`: the due-check was run in a copy with no `node_modules` and printed its skip line (2026-10-01). It still wakes hourly; only the install was removed. Not run in GitHub Actions itself.
-- Analytics and Speed Insights load for every page view with no consent gate [VERIFIED: layout]. That is a policy and privacy mismatch, and it is also a vendor call on every visit.
+- Analytics and Speed Insights are now opt-in (see section 2); no vendor call happens before Accept.
 - Sentry `tracesSampleRate` is 1.0 in development and 0.1 otherwise [VERIFIED: `sentry.server.config.ts`]. Upload of source maps is gated on `SENTRY_UPLOAD_SOURCE_MAPS=true` plus a token [VERIFIED: `next.config.ts`]. This build tried an upload and the project was not found.
 
 Placeholder legal mailboxes mean a privacy or DMCA request sent from the site goes nowhere [INFERRED: `.example` addresses in the page source].
@@ -338,7 +338,7 @@ The 2026-10-01 log says production `sync-f1` and `sync-news` were checked after 
 
 ## 9. Documentation inventory (every doc, rule file, log: purpose, up to date or stale, duplicate or conflicting, applied plans that should be deleted)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
 “Up to date” means it matches the code and the live host on 2026-10-01. “Stale” means a claim in it is false now.
 
@@ -379,6 +379,7 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 |---|---|---|
 | `docs/reference/mimari.md` | Backend architecture | Useful on stack and the single temporal source. Says Playwright is the e2e tool and that Vercel has 3 crons. Playwright does not run. GitHub crons are easy to miss if this is the only map. Header has no 2026-10 date |
 | `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` | Incident list and “do not break” rules. Header 2026-06-10. Live URL is the five host | Valuable as history. **Stale as operations.** Open items include a history backfill and a disabled GitHub schedule that later logs say were done. Asset paths it mandates (`public/drivers/{season}/`) were removed. It says the home page calls live RSS; `app/[locale]/page.tsx` calls `getLatestNews` |
+| `docs/reference/stories-assets-ledger.md` | Read-only per-file inventory of `public/stories` (references, source, license, type) | Current (2026-10-02). Generated; regenerate when files change |
 | `docs/reference/anthology-gorsel-temin.md` | How anthology images were obtained | Not fully read. Related to the 124 files still in `public/stories`. Treat as a sourcing note, not a license ledger |
 | `docs/reference/web-iyilestirme-onerileri-2026-07-05.md` | Improvement notes. Describes a `PROD_SITE_URL` bug against the five host | Historical. The fallback bug class still exists, now with the seven host |
 | `docs/vision/technical.md` | Agent technical summary | Current (top half rewritten 2026-10-01) |
@@ -441,11 +442,11 @@ Deleted on 2026-10-01 (git history is the archive): `docs/PLAN.md`, `docs/plans/
 
 ## 10. Gaps (difference between stated intent and reality, ordered by severity)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
-1. **Legal pages claim a real privacy and DMCA process. The mailboxes are `.example` placeholders, and analytics load without the consent the privacy page promises.** [VERIFIED: legal pages, layout, search for a consent component.] `ROADMAP.md` phase 1 and `AGENTS.md` say these surfaces are required before production is acceptable. The pages exist. The mechanism does not.
+1. **Legal mailboxes are placeholders.** `privacy@`, `dmca@`, `contact@apexstats.example` go nowhere. The consent gate now makes the privacy page true; the addresses are an owner decision. `ROADMAP.md` phase 1 and `AGENTS.md` still require a real contact before production is acceptable.
 2. **Production hostname drift.** Fixed in code 2026-10-01 (one `PROD_SITE_URL`, eight host). Still open: `NEXT_PUBLIC_SITE_URL` is absent from `.env.local`, so a local production build warns `metadataBase` is localhost; the Vercel and GitHub `SITE_URL` values are owner-side (section 13).
-3. **Anthology still serves a large set of photographs after a written photo-free, license-or-remove policy.** Grid photos were removed. `public/stories` still has 124 files. The ingestion report describes real race photographs. `AGENTS.md` says an asset with an unclear license does not ship. No per-file license ledger was found in this pass [UNVERIFIED: each file’s license was not opened].
+3. **Anthology still serves 124 files under `public/stories` with no license record.** Measured 2026-10-02 in `docs/reference/stories-assets-ledger.md`: 0 of 124 files have an author, source or license recorded; 23 appear in the ingestion report with a raw file name only; 97 png have no doc entry; 4 are svg; 56 are referenced by `data/stories/content.ts`, 68 are referenced by nothing; every story's hero image is unlicensed. `AGENTS.md` says an asset with an unclear license does not ship. What to keep is an owner decision (questions at the end of the ledger).
 5. **PR gate exists but is unproven and not enforced by the repo.** `ci.yml` was added 2026-10-01; making it a required check is a GitHub setting (owner).
 6. **Rate limiting and cron locking are only as strong as Upstash in production, which is unconfirmed for the current Vercel project.** The code degrades to per-instance memory. The news and F1 crons are also scheduled twice (Vercel daily and GitHub hourly).
 7. **Sentry is wired and the upload failed** with `Project not found` for the org and project hardcoded in `next.config.ts`. Error monitoring may be dark. [UNVERIFIED: live Sentry ingest.]
@@ -457,12 +458,12 @@ Last verified: 2026-10-01
 
 ## 11. Proposed roadmap (not implemented, ordered, each item with a done-criterion)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
 These items are not done. Order follows section 10.
 
-2. **Make the privacy page true.** Either gate Analytics and Speed Insights behind an opt-in, or change the privacy copy so it does not say they are off until consent. Replace `privacy@`, `dmca@`, and `contact@apexstats.example` with addresses the owner monitors.
-   Done when: a fresh browser session does not send analytics before consent, or the privacy page no longer claims that; each legal page’s mailto is an address the owner has confirmed; a test message to that address is received.
+2. **Real legal mailboxes.** Replace `privacy@`, `dmca@`, `contact@apexstats.example` with addresses the owner monitors.
+   Done when: each legal page's mailto is an address the owner has confirmed; a test message is received.
 3. **License ledger for `public/stories` and `stories-images`.** For each file: source, license, author, date, or remove it. Same standard already used for the grid.
    Done when: every file under `public/stories` is either listed with a license that allows this use, or deleted, and the site still builds.
 5. **Prove CI.** Open a pull request and see `ci.yml` green on Node 24; then make it a required check (owner).
@@ -488,7 +489,7 @@ Installed. The single canonical rule file is `/AGENTS.md` (permission model, for
 
 ## 13. Open questions for owner
 
-Last verified: 2026-10-01
+Last verified: 2026-10-02
 
 1. ~~Which rule file wins?~~ Resolved 2026-10-01: `AGENTS.md`.
 2. Is the current Vercel project still on the Hobby plan? The daily cron design assumes yes. That was not visible from the repo.
@@ -498,7 +499,7 @@ Last verified: 2026-10-01
 6. Are `privacy@apexstats.example`, `dmca@apexstats.example`, and `contact@apexstats.example` intentional placeholders? If a real address exists, it is not in the legal pages. Was the privacy text reviewed by anyone who can approve a KVKK notice? The repo does not say.
 7. Is the Expo app in `mobile/` still a product? It is on disk and gitignored, so `main` does not contain it.
 8. Is `feat/apex-frontend-rebuild` still needed, or is it an abandoned branch?
-9. Should Analytics stay on for every visitor? The privacy page says no. The layout says yes. The repo does not record a decision that resolves both.
+9. ~~Analytics for every visitor?~~ Resolved 2026-10-02: opt-in (owner decision), implemented.
 10. Sentry org `anthology-z0` and project `project-anthology` were not found during this build. Is that the project to keep, or should source-map upload stay off?
 11. The master plan’s unchecked UI and Lighthouse items were not re-measured in a browser in this pass. Which of WEB-UI.4, WEB-UI.5, WEB-UI.7, and WEB-UI.8 are still wanted?
 12. Who is allowed to apply SQL to the production Supabase project? The logs say the owner applied the September 29 migrations by hand after `db push` timed out. This pass did not compare remote migration history to the eight files.
