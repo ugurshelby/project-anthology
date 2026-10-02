@@ -8,7 +8,7 @@ import type { ConstructorStandingRow } from '@/lib/f1/mrdata';
 /**
  * Constructors standings as telemetry-style horizontal progress bars.
  */
-export function TeamTelemetryBars({ teams }: { teams: ConstructorStandingRow[] }) {
+export function TeamTelemetryBars({ teams, season }: { teams: ConstructorStandingRow[]; season?: number }) {
   const maxPoints = Math.max(...teams.map((t) => Number(t.points) || 0), 1);
   const leader = teams[0];
 
@@ -17,18 +17,18 @@ export function TeamTelemetryBars({ teams }: { teams: ConstructorStandingRow[] }
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-0.5"
-        style={{ backgroundColor: resolveTeamUiColor(leader?.constructorId, leader?.constructorName) }}
+        style={{ backgroundColor: resolveTeamUiColor(leader?.constructorId, leader?.constructorName, season) }}
       />
       <span className="label-caps text-text-mid">Constructors · Telemetry</span>
       <div className="flex flex-col gap-3">
         {teams.map((row) => {
-          const color = resolveTeamUiColor(row.constructorId, row.constructorName);
+          const color = resolveTeamUiColor(row.constructorId, row.constructorName, season);
           const pct = Math.round((Number(row.points) / maxPoints) * 100);
           const logo = teamIconSrc(row.constructorName);
           return (
             <Link
               key={row.constructorId}
-              href={`/teams/${row.constructorId}`}
+              href={season !== undefined ? `/teams/${row.constructorId}?season=${season}` : `/teams/${row.constructorId}`}
               className="group flex flex-col gap-1.5 rounded-[var(--radius-chip)] p-2 transition-colors hover:bg-surface-raised/50"
             >
               <div className="flex items-center justify-between gap-2">

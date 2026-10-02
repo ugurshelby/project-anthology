@@ -24,7 +24,7 @@ export function DriverPodiumStandings({
       <span
         aria-hidden
         className="absolute inset-x-0 top-0 h-0.5"
-        style={{ backgroundColor: resolveTeamUiColor(podium[0]?.constructorId, podium[0]?.constructorName) }}
+        style={{ backgroundColor: resolveTeamUiColor(podium[0]?.constructorId, podium[0]?.constructorName, season) }}
       />
       <span className="label-caps text-text-mid">Drivers · Championship</span>
 
@@ -39,12 +39,12 @@ export function DriverPodiumStandings({
           <table className="w-full border-collapse">
             <tbody>
               {rest.map((row) => {
-                const color = resolveTeamUiColor(row.constructorId, row.constructorName);
+                const color = resolveTeamUiColor(row.constructorId, row.constructorName, season);
                 return (
                   <tr key={row.driverId} className="border-b border-hairline/60 last:border-b-0">
                     <td className="data-tabular w-8 py-1.5 pr-2 text-right text-text-low">{row.position}</td>
                     <td className="py-1.5 pr-2">
-                      <Link href={`/drivers/${row.driverId}`} className="font-condensed text-sm font-600 uppercase text-text-hi hover:text-accent" style={{ fontFamily: 'var(--font-condensed)' }}>
+                      <Link href={`/drivers/${row.driverId}?season=${season}`} className="font-condensed text-sm font-600 uppercase text-text-hi hover:text-accent" style={{ fontFamily: 'var(--font-condensed)' }}>
                         {row.driverName.split(' ').pop()}
                       </Link>
                     </td>
@@ -67,13 +67,13 @@ export function DriverPodiumStandings({
 }
 
 function PodiumBlock({ row, season }: { row: DriverStandingRow; season: number }) {
-  const color = resolveTeamUiColor(row.constructorId, row.constructorName);
+  const color = resolveTeamUiColor(row.constructorId, row.constructorName, season);
   const portrait = driverIconSrc(row.driverCode, row.driverId, season);
   const number = getDriverLore(row.driverId)?.number;
 
   return (
     <Link
-      href={`/drivers/${row.driverId}`}
+      href={`/drivers/${row.driverId}?season=${season}`}
       className="group relative flex flex-col gap-2 overflow-hidden rounded-[var(--radius)] border border-white/[0.08] bg-surface-raised/60 p-4 transition-colors hover:border-white/[0.14]"
       style={{ borderTopWidth: 2, borderTopColor: color }}
     >

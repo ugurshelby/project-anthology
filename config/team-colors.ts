@@ -11,6 +11,7 @@
 
 import { paletteFor } from '@/lib/history/palette';
 import { resolveConstructorId } from '@/lib/history/store';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 
 export const F1_TEAM_COLORS_SEASON = 2026;
 
@@ -265,15 +266,17 @@ export function getTeamByName(name: string): TeamColorSet | undefined {
 
 /**
  * Resolve the best UI accent color from live API hex and/or team name.
- * With a `season`, the team's livery colour for THAT season wins (history
- * palette, see lib/history/palette.ts); without one the behaviour is unchanged.
+ * A team that exists in the history index gets its livery colour for the
+ * given season (the current season when none is given; lib/history/palette.ts).
+ * Only unknown teams fall back to the live API hex / old table.
  */
 export function resolveTeamUiColor(apiColor: unknown, teamName?: string, season?: number): string {
-  if (season !== undefined && teamName && resolveConstructorId(teamName, season)) {
-    return paletteFor(teamName, season).ui;
+  const year = season ?? CURRENT_SEASON;
+  if (teamName && resolveConstructorId(teamName, year)) {
+    return paletteFor(teamName, year).ui;
   }
   const fromApi = normalizeHex(String(apiColor ?? ''));
-  if (fromApi) return fromApi;
+  if (/^#[0-9a-f]{3,8}$/i.test(fromApi)) return fromApi;
 
   const team = teamName ? getTeamByName(teamName) : undefined;
   if (team) return team.ui;

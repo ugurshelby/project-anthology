@@ -149,3 +149,40 @@ export function buildTeamDna(constructorId: string): TeamDna | null {
     note: noteKey ? TEAM_DNA_NOTES[noteKey] : null,
   };
 }
+
+/** The stage (or prior spell) a season belongs to, if the team raced that year. */
+export function stageForYear(dna: TeamDna, year: number): DnaStage | null {
+  const within = (s: DnaStage) => year >= s.from && (s.to === null || year <= s.to);
+  const inRows = (s: DnaStage) => getConstructorRecord(s.constructorId)?.s.some((r) => r.y === year) ?? false;
+  return [...dna.stages, ...dna.priorSpells].find((s) => within(s) && inRows(s)) ?? null;
+}
+
+/** Years the lineage raced, ascending. */
+export function lineageYears(dna: TeamDna): number[] {
+  const years = new Set<number>();
+  for (const s of [...dna.stages, ...dna.priorSpells]) {
+    const rec = getConstructorRecord(s.constructorId);
+    rec?.s.forEach((r) => {
+      if (r.y >= s.from && (s.to === null || r.y <= s.to)) years.add(r.y);
+    });
+  }
+  return [...years].sort((a, b) => a - b);
+}
+
+/** Lineage totals through a season (every name the team raced under up to then). */
+export function lineageTotalsAsOf(dna: TeamDna, year: number): { seasons: number; wins: number; podiums: number; poles: number; titles: number[] } {
+  const out = { seasons: 0, wins: 0, podiums: 0, poles: 0, titles: [] as number[] };
+  for (const s of dna.stages) {
+    const rec = getConstructorRecord(s.constructorId);
+    for (const r of rec?.s ?? []) {
+      if (r.y < s.from || (s.to !== null && r.y > s.to) || r.y > year) continue;
+      out.seasons += 1;
+      out.wins += r.w;
+      out.podiums += r.pd;
+      out.poles += r.pl;
+      if (r.ch) out.titles.push(r.y);
+    }
+  }
+  out.titles.sort((a, b) => a - b);
+  return out;
+}

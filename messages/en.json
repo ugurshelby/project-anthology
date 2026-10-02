@@ -60,7 +60,8 @@
     "legalPrivacy": "Privacy",
     "legalTerms": "Terms",
     "legalDmca": "Copyright / DMCA",
-    "analyticsSettings": "Analytics settings"
+    "analyticsSettings": "Analytics settings",
+    "dataCredit": "Historical data"
   },
   "common": {
     "loading": "Loading…",
@@ -95,5 +96,94 @@
     "s4Title": "Your rights",
     "s4p1": "Subject to applicable law, you may request access, correction, deletion, restriction, portability or objection; withdraw consent; and complain to the Turkish Data Protection Authority (KVKK) or your local supervisory authority. We may need to verify a request before acting on it.",
     "s4p2": "Send privacy requests to <mail>privacy@apexstats.example</mail>. This address is a placeholder and must be replaced with a monitored mailbox before launch."
+  },
+  "history": {
+    "rail": {
+      "label": "Select a season",
+      "prev": "Previous season",
+      "next": "Next season",
+      "champion": "Champion",
+      "decade": "{decade}s"
+    },
+    "stats": {
+      "position": "Championship",
+      "points": "Points",
+      "wins": "Wins",
+      "podiums": "Podiums",
+      "poles": "Poles",
+      "starts": "Starts",
+      "fastestLaps": "Fastest laps",
+      "titles": "Titles",
+      "seasons": "Seasons",
+      "number": "Car number",
+      "bestFinish": "Best finish"
+    },
+    "driver": {
+      "kicker": "{team} · {year}",
+      "seasonHeading": "{year} season",
+      "careerHeading": "Career through {year}",
+      "journeyHeading": "Team journey",
+      "journeyLead": "Every team, in order. Select a stint to jump to that season.",
+      "champion": "World Champion {year}",
+      "titlesInline": "Titles: {years}",
+      "bornLine": "Born {born}",
+      "nationality": "{nationality}",
+      "teamAndNumber": "#{number}",
+      "storyHeading": "The Story",
+      "newsHeading": "Related News",
+      "yearsLabel": "{from}–{to}",
+      "stintSeasons": "{count, plural, one {# season} other {# seasons}}",
+      "nationalityLabel": "Nationality",
+      "bornLabel": "Born"
+    },
+    "team": {
+      "kicker": "Constructor // {year}",
+      "seasonHeading": "{year} season",
+      "lineageHeading": "Team through {year}",
+      "lineupHeading": "Drivers in {year}",
+      "entrant": "Entered as",
+      "engine": "Engine",
+      "champion": "Constructors' Champion {year}",
+      "storyHeading": "The Team",
+      "newsHeading": "Related News",
+      "base": "Base",
+      "founded": "Founded",
+      "lineupNumber": "#{number}"
+    },
+    "dna": {
+      "heading": "Team DNA",
+      "lead": "How this team entered Formula 1, and every name it has raced under since.",
+      "founderBadge": "Founding member",
+      "founderLine": "Every season since {year}. Never missed a race year.",
+      "enteredLine": "Entered Formula 1 in {year}",
+      "stillRacing": "Still racing",
+      "now": "now",
+      "years": "{from}–{to}",
+      "seasons": "{count, plural, one {# season} other {# seasons}}",
+      "wins": "{count, plural, one {# win} other {# wins}}",
+      "titles": "{count, plural, one {# title} other {# titles}}",
+      "engines": "Engines: {names}",
+      "entrants": "Raced as {names}",
+      "priorHeading": "Earlier appearances",
+      "priorLine": "{name} raced in {from}–{to}, separately from the lineage above.",
+      "current": "Selected season",
+      "later": "Later chapter",
+      "totalsHeading": "Lineage totals",
+      "totalSeasons": "Seasons",
+      "totalWins": "Wins",
+      "totalTitles": "Titles",
+      "ticksLabel": "Every season this team raced",
+      "tickTitle": "{year}: {name}",
+      "chapter": "Chapter {n}"
+    },
+    "season": {
+      "heading": "Season {year}",
+      "railHeading": "Choose a season",
+      "champions": "Champions",
+      "driverChampion": "Drivers' champion",
+      "constructorChampion": "Constructors' champion",
+      "ongoing": "Season in progress",
+      "decadeLine": "{year} · {decade}s"
+    }
   }
 }

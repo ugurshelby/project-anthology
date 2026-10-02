@@ -12,6 +12,9 @@ import { SeasonHighlightTiles } from '@/components/season/SeasonHighlightTiles';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
 import { localizedAlternates } from '@/lib/seo';
+import { SeasonRail } from '@/components/history/SeasonRail';
+import { SeasonChampions } from '@/components/history/SeasonChampions';
+import { seasonRailYears } from '@/lib/history/seasons';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -55,6 +58,10 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
   const seasonData = await getSeasonData(year);
   const { standings, constructors, races, raceSummaries, highlights, recap } = seasonData;
 
+  const railYears = seasonRailYears(
+    Array.from({ length: CURRENT_SEASON - F1_SEASON_MIN + 1 }, (_, i) => F1_SEASON_MIN + i),
+  );
+
   const nextRace = year === CURRENT_SEASON ? getNextRace(races) : undefined;
   const nextRound = nextRace?.round != null ? String(nextRace.round) : undefined;
   const leader = standings[0];
@@ -74,6 +81,8 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
         <span aria-hidden className="film-grain pointer-events-none fixed inset-0 z-0" />
 
         <div className="relative z-10 flex w-full max-w-full min-w-0 flex-col">
+          <SeasonRail years={railYears} selected={year} hrefTemplate="/season/{year}" className="mb-4 md:mb-6" />
+
           <SeasonTitleFightHero
             year={year}
             minSeason={F1_SEASON_MIN}
@@ -81,6 +90,8 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
             leader={leader}
             challenger={challenger}
           />
+
+          <SeasonChampions year={year} />
 
           {races.length > 0 ? (
             <SeasonTimeline races={races} nextRound={nextRound} />
@@ -93,7 +104,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
           <BentoGrid>
             <DriverPodiumStandings drivers={standings} season={year} />
             {constructors.length > 0 ? (
-              <TeamTelemetryBars teams={constructors} />
+              <TeamTelemetryBars teams={constructors} season={year} />
             ) : null}
             {highlights ? (
               <SeasonHighlightTiles highlights={highlights} season={year} />
