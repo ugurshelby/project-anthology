@@ -1,4 +1,6 @@
-import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
+import { raceName } from '@/lib/i18n/format';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { DriverAvatar } from '@/components/bento/DriverAvatar';
@@ -15,6 +17,8 @@ const MEDAL: Record<1 | 2 | 3, string> = {
  * "last race" card but as a bento tile with a team-tinted P1 spotlight row.
  */
 export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season: number }) {
+  const t = useTranslations('ui.home.latest');
+  const locale = useLocale();
   const winner = recap.podium.find((p) => p.position === '1');
   const winnerColor = winner ? resolveTeamUiColor(undefined, winner.constructorName, season) : undefined;
   const winnerPortrait = winner ? driverIconSrc(winner.driverCode, winner.driverName, season) : null;
@@ -22,11 +26,11 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="label-caps text-text-mid">Latest Race</span>
-        <span className="label-caps text-text-low">Round {recap.round}</span>
+        <span className="label-caps text-text-mid">{t('heading')}</span>
+        <span className="label-caps text-text-low">{t('round', { round: recap.round })}</span>
       </div>
       <span className="font-condensed text-xl font-600 uppercase leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
-        {recap.raceName}
+        {raceName(recap.raceName, locale)}
       </span>
 
       {winner ? (
@@ -44,7 +48,7 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
             />
           ) : null}
           <div className="flex min-w-0 flex-col">
-            <span className="label-caps" style={{ color: MEDAL[1] }}>Winner</span>
+            <span className="label-caps" style={{ color: MEDAL[1] }}>{t('winner')}</span>
             <span className="font-condensed truncate text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
               {winner.driverName}
             </span>
@@ -74,7 +78,7 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
 
       {recap.fastestLapDriver ? (
         <span className="label-caps text-text-low">
-          Fastest Lap · {recap.fastestLapDriver}
+          {t('fastestLap')} · {recap.fastestLapDriver}
           {recap.fastestLapTime ? ` · ${recap.fastestLapTime}` : ''}
         </span>
       ) : null}
@@ -83,7 +87,7 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
         href={`/season/${season}/round/${recap.round}`}
         className="label-caps mt-auto text-accent transition-opacity hover:opacity-80"
       >
-        Full results →
+        {t('fullResults')}
       </Link>
     </div>
   );

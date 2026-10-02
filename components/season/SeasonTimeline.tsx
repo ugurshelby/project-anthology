@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from 'next-intl';
+import { raceName } from '@/lib/i18n/format';
 import type { CalendarRace } from '@/lib/f1Calendar';
 import { isRaceDone } from '@/lib/f1Calendar';
 
@@ -12,14 +14,16 @@ export function SeasonTimeline({
   races: CalendarRace[];
   nextRound?: string;
 }) {
+  const t = useTranslations('ui.season');
+  const locale = useLocale();
   const total = races.length;
 
   return (
     <div className="mb-6 flex w-full max-w-full min-w-0 flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="label-caps text-text-mid">Season timeline</span>
+        <span className="label-caps text-text-mid">{t('timeline')}</span>
         <span className="data-tabular text-text-low">
-          {races.filter((r) => isRaceDone(r)).length} / {total} rounds
+          {t('roundsProgress', { done: races.filter((r) => isRaceDone(r)).length, total })}
         </span>
       </div>
       <div className="relative flex h-8 w-full max-w-full min-w-0 items-center gap-0.5 overflow-x-auto pb-1">
@@ -42,7 +46,7 @@ export function SeasonTimeline({
                 ].join(' ')}
               />
               <span className="sr-only">
-                R{round} {race.raceName} {done ? 'completed' : isNext ? 'next' : 'upcoming'}
+                {t('roundState', { round, name: raceName(race.raceName, locale), state: done ? t('stateDone') : isNext ? t('stateNext') : t('stateUpcoming') })}
               </span>
             </div>
           );

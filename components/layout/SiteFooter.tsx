@@ -26,6 +26,7 @@ const LEGAL_LINKS: { href: string; footerKey: 'legalDisclaimer' | 'legalPrivacy'
 export function SiteFooter() {
   const tFooter = useTranslations('footer');
   const tNav = useTranslations('nav');
+  const tCommon = useTranslations('ui.common');
 
   return (
     <footer className="mt-20 border-t border-white/[0.1] bg-bg/90 pb-mobile-nav md:pb-0">
@@ -50,7 +51,7 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-4 md:items-end">
           <span className="label-caps text-text-mid">{tFooter('explore')}</span>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label="Explore">
+          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label={tCommon('explore')}>
             {EXPLORE_LINKS.map((l) => (
               <Link
                 key={l.href}
@@ -61,7 +62,7 @@ export function SiteFooter() {
               </Link>
             ))}
           </nav>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label="Legal">
+          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label={tCommon('legal')}>
             {LEGAL_LINKS.map((l) => (
               <Link
                 key={l.href}

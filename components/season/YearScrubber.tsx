@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 
 /**
@@ -16,6 +17,7 @@ export function YearScrubber({
   minSeason: number;
   currentSeason: number;
 }) {
+  const t = useTranslations('ui.season');
   const router = useRouter();
   const go = (y: number) => router.push(y === currentSeason ? '/season' : `/season/${y}`);
 
@@ -29,7 +31,7 @@ export function YearScrubber({
     <div className="flex items-center gap-3 md:gap-4">
       <button
         type="button"
-        aria-label="Previous season"
+        aria-label={t('prev')}
         disabled={year <= minSeason}
         onClick={() => go(year - 1)}
         className="cursor-pointer text-text-mid transition-colors hover:text-text-hi disabled:cursor-not-allowed disabled:opacity-30"
@@ -42,7 +44,7 @@ export function YearScrubber({
           {year}
         </span>
         <select
-          aria-label="Select season year"
+          aria-label={t('pick')}
           value={year}
           onChange={(e) => go(Number(e.target.value))}
           className="absolute inset-0 w-full h-full cursor-pointer opacity-0 bg-transparent text-base"
@@ -57,7 +59,7 @@ export function YearScrubber({
 
       <button
         type="button"
-        aria-label="Next season"
+        aria-label={t('nextSeason')}
         disabled={year >= currentSeason}
         onClick={() => go(year + 1)}
         className="cursor-pointer text-text-mid transition-colors hover:text-text-hi disabled:cursor-not-allowed disabled:opacity-30"

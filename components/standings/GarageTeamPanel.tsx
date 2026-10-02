@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
 import { teamIconSrc, carSrc, driverIconSrc } from '@/lib/assets/f1-icons';
@@ -27,6 +28,7 @@ function DriverBay({
   color: string;
   divided?: boolean;
 }) {
+  const t = useTranslations('ui.common');
   const portrait = driverIconSrc(row.driverCode, row.driverId, season);
   const number = row.carNumber ?? row.position;
 
@@ -87,7 +89,7 @@ function DriverBay({
         </span>
         <div className="data-tabular flex justify-between text-xs text-text-mid md:text-sm">
           <span>P{row.position}</span>
-          <span className="text-text-hi">{row.points} PTS</span>
+          <span className="text-text-hi">{row.points} {t('pts')}</span>
         </div>
       </div>
     </Link>
@@ -95,6 +97,7 @@ function DriverBay({
 }
 
 function EmptySeat({ divided }: { divided?: boolean }) {
+  const t = useTranslations('ui.common');
   return (
     <div
       className={[
@@ -111,7 +114,7 @@ function EmptySeat({ divided }: { divided?: boolean }) {
         }}
       />
       <span className="relative z-10 font-mono text-xs font-700 uppercase tracking-wider text-text-low">
-        TBA // Seat unconfirmed
+        {t('seatTbc')}
       </span>
     </div>
   );
@@ -121,6 +124,7 @@ function EmptySeat({ divided }: { divided?: boolean }) {
  * One constructor = one paddock garage panel (team identity + both seats).
  */
 export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: number }) {
+  const t = useTranslations('ui.common');
   const color = resolveTeamUiColor(undefined, unit.constructorName, season);
   const logo = teamIconSrc(unit.constructorName);
   const car = carSrc(unit.constructorId, unit.constructorName);
@@ -182,7 +186,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
               <span />
             )}
             <span className="data-tabular text-xs text-text-mid">
-              {unit.wins} W · {unit.points} PTS
+              {unit.wins} {t('winsShort')} · {unit.points} {t('pts')}
             </span>
           </div>
         </Link>

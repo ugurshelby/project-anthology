@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { useTransition } from 'react';
 
@@ -10,6 +11,7 @@ import { useTransition } from 'react';
  * Used in desktop SiteHeader and mobile More sheet.
  */
 export function LocaleSwitcher({ className = '' }: { className?: string }) {
+  const t = useTranslations('system');
   const params = useParams();
   const locale = params?.locale === 'tr' ? 'tr' : 'en';
   const router = useRouter();
@@ -26,7 +28,7 @@ export function LocaleSwitcher({ className = '' }: { className?: string }) {
   return (
     <div
       role="region"
-      aria-label="Change language"
+      aria-label={t('changeLanguage')}
       className={[
         'inline-flex items-center gap-1 rounded-full border border-hairline bg-surface/80 p-0.5 backdrop-blur-md',
         className,

@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { NAV_ITEMS_LEFT, NAV_ITEMS_RIGHT } from './nav-items';
 import { HeaderNav } from './HeaderNav';
 import { LocaleSwitcher } from './LocaleSwitcher';
@@ -14,6 +15,7 @@ import { LocaleSwitcher } from './LocaleSwitcher';
  * Glossary — with LocaleSwitcher placed at the right flank.
  */
 export function SiteHeader() {
+  const t = useTranslations('system');
   return (
     <header className="sticky top-0 z-30 hidden border-b border-white/[0.1] bg-bg/85 backdrop-blur-xl md:block">
       <div className="mx-auto flex h-16 w-full max-w-[var(--container-max)] items-center justify-between px-5 md:px-8 lg:justify-center lg:gap-10 lg:px-16">
@@ -30,7 +32,7 @@ export function SiteHeader() {
             APEX
           </span>
           <span className="label-caps mt-0.5 text-[10px] tracking-[0.22em] text-text-mid">
-            ARCHIVE
+            {t('archive')}
           </span>
         </Link>
 

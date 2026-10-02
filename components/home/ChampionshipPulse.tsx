@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { ApexImage } from '@/components/media/ApexImage';
@@ -13,6 +14,7 @@ export function ChampionshipPulse({
   constructors: ConstructorStandingRow[];
   season: number;
 }) {
+  const t = useTranslations('ui.home.pulse');
   const [leader, ...rest] = drivers;
   const leaderPts = Number(leader?.points) || 0;
   const chasing = rest.slice(0, 4);
@@ -32,13 +34,13 @@ export function ChampionshipPulse({
             style={{ backgroundColor: leaderTeamColor }}
             aria-hidden="true"
           />
-          <h2 className="label-caps tracking-wider text-text-mid">Championship Pulse</h2>
+          <h2 className="label-caps tracking-wider text-text-mid">{t('heading')}</h2>
         </div>
         <Link
           href="/season"
           className="group/link inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-wider text-text-mid transition-colors duration-150 hover:text-white active:scale-95"
         >
-          <span>Standings</span>
+          <span>{t('standings')}</span>
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-150 ease-out group-hover/link:translate-x-0.5"
@@ -77,7 +79,7 @@ export function ChampionshipPulse({
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: leaderTeamColor }}
                 />
-                P1 Leader
+                {t('leader')}
               </span>
             </div>
 
@@ -100,7 +102,7 @@ export function ChampionshipPulse({
                 {leader.points}
               </span>
               <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-text-low">
-                PTS
+                {t('pts')}
               </span>
             </div>
           </div>
@@ -125,7 +127,7 @@ export function ChampionshipPulse({
           ) : null}
         </Link>
       ) : (
-        <p className="body-md text-text-mid">Standings unavailable.</p>
+        <p className="body-md text-text-mid">{t('unavailable')}</p>
       )}
 
       {/* Chasing Drivers (P2-P5) */}
@@ -155,7 +157,7 @@ export function ChampionshipPulse({
                   </span>
                 </div>
                 <span className="shrink-0 rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums text-text-mid">
-                  +{delta} PTS
+                  +{delta} {t('pts')}
                 </span>
               </div>
 
@@ -179,8 +181,8 @@ export function ChampionshipPulse({
       {topConstructors.length > 0 ? (
         <div className="mt-1 flex flex-col gap-2 border-t border-hairline/60 pt-3">
           <div className="flex items-center justify-between">
-            <span className="label-caps text-xs text-text-low">Constructors</span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-text-low">Points</span>
+            <span className="label-caps text-xs text-text-low">{t('constructors')}</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-text-low">{t('points')}</span>
           </div>
 
           <div className="flex flex-col gap-1">

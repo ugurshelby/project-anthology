@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import type { PitStopRow, RaceResultRow } from '@/lib/f1/mrdata';
 
@@ -7,6 +8,7 @@ interface PitStopsTableProps {
 }
 
 export function PitStopsTable({ rows, results = [] }: PitStopsTableProps) {
+  const t = useTranslations('ui.table');
   if (rows.length === 0) return null;
 
   // Build driver lookup map from race results
@@ -36,11 +38,11 @@ export function PitStopsTable({ rows, results = [] }: PitStopsTableProps) {
   return (
     <div className="flex flex-col">
       <div className="label-caps flex items-center gap-3 border-b border-hairline py-2 text-text-low text-xs">
-        <span className="w-10 text-left">Lap</span>
-        <span className="w-8 text-center">Stop</span>
-        <span className="flex-1">Driver & Team</span>
-        <span className="w-24 text-right">Duration</span>
-        <span className="hidden w-20 text-right sm:block">Time</span>
+        <span className="w-10 text-left">{t('lap')}</span>
+        <span className="w-8 text-center">{t('stop')}</span>
+        <span className="flex-1">{t('driverTeam')}</span>
+        <span className="w-24 text-right">{t('duration')}</span>
+        <span className="hidden w-20 text-right sm:block">{t('time')}</span>
       </div>
 
       <div className="divide-y divide-hairline max-h-[460px] overflow-y-auto pr-1">
@@ -97,7 +99,7 @@ export function PitStopsTable({ rows, results = [] }: PitStopsTableProps) {
                 </span>
                 {isFastest ? (
                   <span className="label-caps text-[9px] text-accent font-mono uppercase tracking-wider">
-                    Fastest
+                    {t('fastest')}
                   </span>
                 ) : null}
               </div>

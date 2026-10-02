@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { resolveTeamUiColor } from '@/config/team-colors';
@@ -9,6 +10,7 @@ import type { ConstructorStandingRow } from '@/lib/f1/mrdata';
  * Constructors standings as telemetry-style horizontal progress bars.
  */
 export function TeamTelemetryBars({ teams, season }: { teams: ConstructorStandingRow[]; season?: number }) {
+  const t = useTranslations('ui.season');
   const maxPoints = Math.max(...teams.map((t) => Number(t.points) || 0), 1);
   const leader = teams[0];
 
@@ -19,7 +21,7 @@ export function TeamTelemetryBars({ teams, season }: { teams: ConstructorStandin
         className="absolute inset-x-0 top-0 h-0.5"
         style={{ backgroundColor: resolveTeamUiColor(leader?.constructorId, leader?.constructorName, season) }}
       />
-      <span className="label-caps text-text-mid">Constructors · Telemetry</span>
+      <span className="label-caps text-text-mid">{t('constructorsTelemetry')}</span>
       <div className="flex flex-col gap-3">
         {teams.map((row) => {
           const color = resolveTeamUiColor(row.constructorId, row.constructorName, season);

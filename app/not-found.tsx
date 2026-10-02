@@ -17,17 +17,16 @@ export default function RootNotFound() {
               letterSpacing: '-0.02em',
             }}
           >
-            Off Track
+            Off Track · Pist Dışı
           </h1>
           <p className="body-md max-w-[48ch] text-text-mid">
-            This page doesn&apos;t exist — the driver, team, or race you&apos;re looking for may have
-            been renamed or never made the grid.
+            This page doesn&apos;t exist. / Bu sayfa yok.
           </p>
           <Link
             href="/"
             className="label-caps mt-2 rounded-[var(--radius-pill)] border border-hairline bg-surface px-6 py-3 text-text-hi transition-colors hover:border-accent"
           >
-            Back to Home
+            Home · Ana sayfa
           </Link>
         </main>
       </body>

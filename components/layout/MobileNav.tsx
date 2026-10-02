@@ -16,6 +16,7 @@ import { LocaleSwitcher } from './LocaleSwitcher';
 export function MobileNav() {
   const pathname = usePathname();
   const t = useTranslations('nav');
+  const tc = useTranslations('ui.common');
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
@@ -82,18 +83,18 @@ export function MobileNav() {
       {moreOpen ? (
         <div
           role="menu"
-          aria-label="More"
+          aria-label={tc('moreMenu')}
           className="fixed inset-0 z-[60] flex min-w-0 flex-col justify-end overscroll-contain bg-bg/90 backdrop-blur-2xl md:hidden animate-[fadeIn_180ms_ease-out]"
         >
           <button
             type="button"
-            aria-label="Close menu"
+            aria-label={tc('closeMenu')}
             className="absolute inset-0"
             onClick={() => setMoreOpen(false)}
           />
           <div className="relative z-10 flex min-w-0 flex-col gap-3 px-4 pb-[max(8rem,calc(6rem+env(safe-area-inset-bottom)))] sm:px-5">
             <div className="flex items-center justify-between rounded-[var(--radius-lg)] border border-hairline bg-surface/60 px-4 py-2.5">
-              <span className="label-caps text-xs text-text-mid">Language / Dil</span>
+              <span className="label-caps text-xs text-text-mid">{tc('language')}</span>
               <LocaleSwitcher />
             </div>
             <div className="grid min-w-0 grid-cols-2 gap-3">
@@ -140,7 +141,7 @@ export function MobileNav() {
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
-        aria-label="Primary"
+        aria-label={tc('primary')}
       >
         <ul className="pointer-events-auto flex min-w-0 items-center justify-between gap-0.5 overflow-hidden rounded-full border border-white/10 bg-black/70 px-1.5 py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)] backdrop-blur-md">
           {MOBILE_NAV_ITEMS.map((item) => {

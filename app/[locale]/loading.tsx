@@ -1,13 +1,16 @@
+import { useTranslations } from 'next-intl';
+
 /** Home-page loading skeleton — cinematic hero + three paddock tiles. */
 export default function Loading() {
+  const t = useTranslations('system');
   return (
     <main
       id="main-content"
       role="status"
-      aria-label="Loading page content"
+      aria-label={t('loading')}
       className="mx-auto w-full max-w-[var(--container-max)] flex-1 px-5 pt-0 pb-mobile-nav md:px-8 md:pb-8 lg:px-16"
     >
-      <span className="sr-only">Loading page content…</span>
+      <span className="sr-only">{t('loading')}</span>
       <div
         aria-hidden
         className="-mx-5 h-[520px] animate-pulse bg-surface md:-mx-8 md:h-[600px] lg:-mx-16"

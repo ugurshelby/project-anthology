@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { resolveTeamUiColor } from '@/config/team-colors';
@@ -16,6 +17,7 @@ export function DriverPodiumStandings({
   drivers: DriverStandingRow[];
   season: number;
 }) {
+  const t = useTranslations('ui.season');
   const podium = drivers.slice(0, 3);
   const rest = drivers.slice(3);
 
@@ -26,7 +28,7 @@ export function DriverPodiumStandings({
         className="absolute inset-x-0 top-0 h-0.5"
         style={{ backgroundColor: resolveTeamUiColor(podium[0]?.constructorId, podium[0]?.constructorName, season) }}
       />
-      <span className="label-caps text-text-mid">Drivers · Championship</span>
+      <span className="label-caps text-text-mid">{t('driversChampionship')}</span>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {podium.map((row) => (
