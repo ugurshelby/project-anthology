@@ -135,4 +135,9 @@ export const CIRCUIT_FACTS_TR: Record<string, CircuitFactsTr> = {
     signatureCorner: 'Eğimli 4. viraj',
     note: 'Madrid\'in 2026\'da takvime giren yeni melez pisti: eğimli bir viraj, sokak ve kalıcı pist bölümlerinin karışımı.',
   },
+  sepang: {
+    character: 'Geniş, yüksek lastik aşınması, tropikal nem',
+    signatureCorner: '5–6. viraj yüksek hızlı süpürmesi ve 14. viraj firkete',
+    note: 'Hermann Tilke tasarımı klasik pist: ani bastıran tropikal muson yağmurları, yoğun nem ve yüksek hızlı yön değişimleriyle meşhurdur.',
+  },
 };

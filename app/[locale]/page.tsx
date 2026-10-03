@@ -41,7 +41,7 @@ import { PageShell } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { formatDate, raceName } from '@/lib/i18n/format';
+import { formatDate, raceName, circuitName } from '@/lib/i18n/format';
 import { localizedAlternates } from '@/lib/seo';
 
 export const revalidate = 0;
@@ -89,7 +89,7 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const lastRaceRecap = getLastRaceResult(previousResults);
 
   const nextRaceTitle = raceName(nextRace?.raceName ?? nextRace?.Circuit?.Location?.country ?? t('seasonFallback'), locale);
-  const nextRaceCircuit = nextRace?.Circuit?.circuitName ?? '';
+  const nextRaceCircuit = circuitName(nextRace?.Circuit?.circuitName, locale);
   const nextRaceDate = nextRace?.date ? formatDate(`${nextRace.date}T12:00:00Z`, locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';

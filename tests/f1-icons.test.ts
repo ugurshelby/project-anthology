@@ -29,6 +29,7 @@ describe('circuitCoverSrc / circuitIconSrc', () => {
 
   it('circuitIconSrc still resolves the MIT-licensed track outline', () => {
     expect(circuitIconSrc('monaco')).toBe('/circuits/mc-1929.svg');
+    expect(circuitIconSrc('sepang')).toBe('/circuits/my-1999.svg');
     expect(circuitIconSrc('unknown-circuit')).toBeNull();
   });
 });
