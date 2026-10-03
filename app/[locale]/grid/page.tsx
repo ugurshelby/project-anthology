@@ -31,11 +31,21 @@ export async function generateMetadata({
   };
 }
 
-export default async function GridPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ season?: string }> }) {
+export default async function GridPage({
+  params,
+  searchParams,
+  initialViewOverride,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ season?: string; view?: 'constructor' | 'driver' }>;
+  initialViewOverride?: 'constructor' | 'driver';
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const raw = Number((await searchParams).season);
+  const resolvedSearchParams = await searchParams;
+  const raw = Number(resolvedSearchParams.season);
   const requested = Number.isInteger(raw) && raw >= F1_SEASON_MIN && raw <= CURRENT_SEASON ? raw : CURRENT_SEASON;
+  const viewParam = initialViewOverride ?? (resolvedSearchParams.view === 'driver' ? 'driver' : 'constructor');
   const [{ season, groups, flat }, { rows: teamRows }] = await Promise.all([
     getDriversByTeam(requested),
     getCurrentTeams(requested),
@@ -58,8 +68,8 @@ export default async function GridPage({ params, searchParams }: { params: Promi
 
   return (
     <PageShell>
-      <SeasonRail years={railYears} selected={season} hrefTemplate="/grid?season={year}" className="mb-6" />
-      <GridExplorer season={season} units={units} drivers={flat} />
+      <SeasonRail years={railYears} selected={season} hrefTemplate={`/grid?season={year}${viewParam === 'driver' ? '&view=driver' : ''}`} className="mb-6" />
+      <GridExplorer season={season} units={units} drivers={flat} initialView={viewParam} />
     </PageShell>
   );
 }
