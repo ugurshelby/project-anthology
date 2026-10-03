@@ -17,6 +17,7 @@ import { SeasonRail } from '@/components/history/SeasonRail';
 import { HistoryCard } from '@/components/history/HistoryCard';
 import { StatTiles } from '@/components/history/StatTiles';
 import { TeamLineup } from '@/components/history/TeamLineup';
+import { CareerArc } from '@/components/history/CareerArc';
 import { TeamDnaSection } from '@/components/history/TeamDnaSection';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
@@ -66,12 +67,12 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   const t = await getTranslations({ locale, namespace: 'history' });
   const theme = teamThemeVars(view.id, view.year);
   const relatedNews = view.isCurrentSeason ? await getNewsForEntity(view.name, 4) : [];
-  const lore = getTeamLore(view.headId) ?? getTeamLore(view.headId.replace(/-/g, '_'));
+  const lore = getTeamLore(view.headId, locale) ?? getTeamLore(view.headId.replace(/-/g, '_'), locale);
 
   const s = view.season;
   const metaParts: string[] = [];
   if (s.position != null) metaParts.push(`P${s.position}`);
-  if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} PTS`);
+  if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}`);
 
   const asOf = view.asOf;
 
@@ -108,7 +109,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <HistoryCard span={7} eyebrow={s.champion ? t('team.champion', { year: view.year }) : undefined} heading={t('team.seasonHeading', { year: view.year })}>
+          <HistoryCard span={7} texture={view.id} eyebrow={s.champion ? t('team.champion', { year: view.year }) : undefined} heading={t('team.seasonHeading', { year: view.year })}>
             <StatTiles
               items={[
                 { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
@@ -136,7 +137,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
           </HistoryCard>
 
           {view.dna ? (
-          <HistoryCard span={5} heading={t('team.lineageHeading', { year: view.year })}>
+          <HistoryCard span={5} texture={view.id} heading={t('team.lineageHeading', { year: view.year })}>
             <StatTiles
               items={[
                 { label: t('stats.seasons'), value: asOf.seasons },
@@ -154,8 +155,14 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
           ) : null}
 
           {view.lineup.length > 0 ? (
-            <HistoryCard span={12} heading={t('team.lineupHeading', { year: view.year })}>
+            <HistoryCard span={12} texture={view.id} heading={t('team.lineupHeading', { year: view.year })}>
               <TeamLineup lineup={view.lineup} year={view.year} ui={view.palette.ui} />
+            </HistoryCard>
+          ) : null}
+
+          {view.arc.filter((a) => a.position != null).length > 1 ? (
+            <HistoryCard span={12} texture={view.id} heading={t('team.arcHeading')}>
+              <CareerArc points={view.arc} selectedYear={view.year} caption={t('team.arcCaption', { name: view.name })} />
             </HistoryCard>
           ) : null}
 
@@ -170,7 +177,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
                 lore={lore.lore}
                 facts={[
                   { label: t('team.base'), value: lore.hq.label },
-                  { label: t('team.founded'), value: String(lore.founded) },
+                  { label: t('team.founded'), value: String(view.dna?.firstSeason ?? lore.founded) },
                 ]}
               />
             </BentoCard>

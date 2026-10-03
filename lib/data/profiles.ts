@@ -56,12 +56,12 @@ function num(value: string | number | null | undefined): number | null {
 }
 
 /** Editorial lore is keyed by Ergast ids; match it to an F1DB driver by id variants and birth year. */
-function loreFor(id: string, rec: DriverRecord): DriverLore | null {
+function loreFor(id: string, rec: DriverRecord, locale?: string): DriverLore | null {
   const parts = id.split('-');
   const candidates = [id, id.replace(/-/g, '_'), parts[parts.length - 1], `${parts[0]}_${parts[parts.length - 1]}`];
   const born = rec.b ? Number(rec.b.slice(0, 4)) : null;
   for (const c of candidates) {
-    const lore = getDriverLore(c);
+    const lore = getDriverLore(c, locale);
     if (lore && (born == null || lore.born === born)) return lore;
   }
   return null;
@@ -91,6 +91,14 @@ export interface DriverStintView {
   years: number[];
 }
 
+export interface ArcEntry {
+  year: number;
+  position: number | null;
+  ui: string;
+  champion: boolean;
+  label?: string;
+}
+
 export interface DriverView {
   id: string;
   name: string;
@@ -100,6 +108,8 @@ export interface DriverView {
   year: number;
   isCurrentSeason: boolean;
   years: YearChip[];
+  /** Championship position per season, for the career arc. */
+  arc: ArcEntry[];
   teams: DriverSeasonTeam[];
   palette: TeamPalette;
   /** Season numbers; a field is null when the archive does not carry it. */
@@ -153,7 +163,7 @@ function overlayDriver(rec: DriverRecord, row: DriverSeasonRow | null, live: Ret
  * e.g. a mid-season debutant after the index was built. Shows what the live
  * snapshot knows; history sections are simply absent.
  */
-function liveOnlyDriver(param: string, data: SeasonData | null): DriverView | null {
+function liveOnlyDriver(param: string, data: SeasonData | null, locale?: string): DriverView | null {
   const row = data?.standings.find((r) => r.driverId === param.toLowerCase());
   if (!row) return null;
   const teamId = resolveConstructorId(row.constructorId || row.constructorName, CURRENT_SEASON);
@@ -172,17 +182,18 @@ function liveOnlyDriver(param: string, data: SeasonData | null): DriverView | nu
     year: CURRENT_SEASON,
     isCurrentSeason: true,
     years: [{ year: CURRENT_SEASON, ui: palette.ui, label: row.constructorName, champion: false }],
+    arc: [],
     teams: row.constructorName ? [{ id: teamKey, name: row.constructorName, ui: palette.ui, number: row.permanentNumber }] : [],
     palette,
     season: { position, points, wins: stats.wins, podiums: stats.podiums, poles: 0, starts: 0, fastestLaps: 0, champion: false },
     asOf: totals,
     stints: [],
     number: row.permanentNumber,
-    lore: getDriverLore(param.toLowerCase()),
+    lore: getDriverLore(param.toLowerCase(), locale),
   };
 }
 
-export async function getDriverView(param: string, requestedYear?: number): Promise<DriverView | null> {
+export async function getDriverView(param: string, requestedYear?: number, locale?: string): Promise<DriverView | null> {
   let live: ReturnType<typeof liveStandingFor> = null;
   let data: SeasonData | null = null;
   let id = resolveDriverId(param);
@@ -197,10 +208,10 @@ export async function getDriverView(param: string, requestedYear?: number): Prom
     if (row) id = resolveDriverId(param, { name: row.driverName, code: row.driverCode });
   }
   if (!id) {
-    return liveOnlyDriver(param, data);
+    return liveOnlyDriver(param, data, locale);
   }
   const rec = getDriverRecord(id);
-  if (!rec) return liveOnlyDriver(param, data);
+  if (!rec) return liveOnlyDriver(param, data, locale);
 
   if (mayUseLive && !data) {
     try {
@@ -262,6 +273,7 @@ export async function getDriverView(param: string, requestedYear?: number): Prom
     year,
     isCurrentSeason: year === CURRENT_SEASON,
     years: chips,
+    arc: rows.map((r) => ({ year: r.y, position: r.p, ui: paletteForConstructorId(lastTeamOf(r), r.y).ui, champion: r.ch === 1, label: getConstructorRecord(lastTeamOf(r))?.n })),
     teams,
     palette: paletteForConstructorId(lastTeam, year),
     season: {
@@ -277,7 +289,7 @@ export async function getDriverView(param: string, requestedYear?: number): Prom
     asOf: driverTotalsAsOf(effective, year),
     stints,
     number: numberOf(row),
-    lore: loreFor(id, rec),
+    lore: loreFor(id, rec, locale),
   };
 }
 
@@ -307,6 +319,7 @@ export interface TeamView {
   year: number;
   isCurrentSeason: boolean;
   years: YearChip[];
+  arc: ArcEntry[];
   palette: TeamPalette;
   entrants: string[];
   engines: string[];
@@ -364,6 +377,7 @@ async function liveOnlyTeam(param: string): Promise<TeamView | null> {
     year: CURRENT_SEASON,
     isCurrentSeason: true,
     years: [{ year: CURRENT_SEASON, ui: palette.ui, label: row.constructorName, champion: false }],
+    arc: [],
     palette,
     entrants: [],
     engines: [],
@@ -411,6 +425,11 @@ export async function getTeamView(param: string, requestedYear?: number): Promis
     year,
     isCurrentSeason: year === CURRENT_SEASON,
     years: chips,
+    arc: years.map((y) => {
+      const st = stageForYear(dna, y);
+      const r = st ? getConstructorRecord(st.constructorId)?.s.find((x) => x.y === y) : undefined;
+      return { year: y, position: r?.p ?? null, ui: st ? paletteForConstructorId(st.constructorId, y).ui : '#8B93A1', champion: r?.ch === 1, label: st?.name };
+    }),
     palette: paletteForConstructorId(stage.constructorId, year),
     entrants: preferNamed(row.e, rec.n),
     engines: row.en,
