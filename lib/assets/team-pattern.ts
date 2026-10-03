@@ -38,8 +38,21 @@ function patternCss(kind: PatternKind, color: string): string {
 }
 
 /** Returns a CSS `background-image` + `background-size` pair for a team's signature micro-texture at a given opacity. */
+const KINDS: PatternKind[] = ['diagonal', 'grid', 'chevron', 'dots', 'hatch', 'arrows'];
+
+/** Every team gets its own texture: the curated ones above, otherwise a stable pick from the id. */
+function kindFor(constructorId: string | undefined | null): PatternKind {
+  const id = (constructorId ?? '').replace(/-/g, '_');
+  const known = TEAM_PATTERN[id];
+  if (known) return known;
+  if (!id) return 'grid';
+  let h = 5381;
+  for (let i = 0; i < id.length; i += 1) h = ((h << 5) + h + id.charCodeAt(i)) | 0;
+  return KINDS[Math.abs(h) % KINDS.length];
+}
+
 export function teamPatternStyle(constructorId: string | undefined | null, color: string, opacity = 0.08): { backgroundImage: string; backgroundSize: string } {
-  const kind = TEAM_PATTERN[constructorId ?? ''] ?? 'grid';
+  const kind = kindFor(constructorId);
   const tintedColor = `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
   const size = kind === 'dots' ? '14px 14px' : '28px 28px';
   return { backgroundImage: patternCss(kind, tintedColor), backgroundSize: size };

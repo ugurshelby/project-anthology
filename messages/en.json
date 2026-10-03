@@ -116,7 +116,8 @@
       "titles": "Titles",
       "seasons": "Seasons",
       "number": "Car number",
-      "bestFinish": "Best finish"
+      "bestFinish": "Best finish",
+      "ptsShort": "PTS"
     },
     "driver": {
       "kicker": "{team} · {year}",
@@ -134,7 +135,9 @@
       "yearsLabel": "{from}–{to}",
       "stintSeasons": "{count, plural, one {# season} other {# seasons}}",
       "nationalityLabel": "Nationality",
-      "bornLabel": "Born"
+      "bornLabel": "Born",
+      "arcHeading": "Championship position by season",
+      "arcCaption": "Championship position of {name} in every season"
     },
     "team": {
       "kicker": "Constructor // {year}",
@@ -147,8 +150,10 @@
       "storyHeading": "The Team",
       "newsHeading": "Related News",
       "base": "Base",
-      "founded": "Founded",
-      "lineupNumber": "#{number}"
+      "founded": "In Formula 1 since",
+      "lineupNumber": "#{number}",
+      "arcHeading": "Constructors' position by season",
+      "arcCaption": "Constructors' championship position of {name} in every season"
     },
     "dna": {
       "heading": "Team DNA",
@@ -184,6 +189,9 @@
       "constructorChampion": "Constructors' champion",
       "ongoing": "Season in progress",
       "decadeLine": "{year} · {decade}s"
+    },
+    "arc": {
+      "champion": "Champion"
     }
   },
   "system": {

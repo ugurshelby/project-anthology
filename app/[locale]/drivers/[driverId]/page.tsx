@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getDriverView } from '@/lib/data/profiles';
+import { countryName } from '@/lib/i18n/format';
 import { SITE_NAME, siteUrl, localizedAlternates } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { getNewsForEntity } from '@/lib/data/news';
@@ -16,6 +17,7 @@ import { SeasonRail } from '@/components/history/SeasonRail';
 import { HistoryCard } from '@/components/history/HistoryCard';
 import { StatTiles } from '@/components/history/StatTiles';
 import { DriverJourney } from '@/components/history/DriverJourney';
+import { CareerArc } from '@/components/history/CareerArc';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -39,7 +41,7 @@ function taglineFromLore(lore: { lore: string }): string | null {
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { driverId, locale } = await params;
-  const view = await getDriverView(driverId, parseSeason((await searchParams).season));
+  const view = await getDriverView(driverId, parseSeason((await searchParams).season), locale);
   const tp = await getTranslations({ locale, namespace: 'ui.pages.driver' });
   if (!view) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('driver') };
 
@@ -67,7 +69,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 export default async function DriverProfilePage({ params, searchParams }: PageProps) {
   const { driverId, locale } = await params;
   setRequestLocale(locale);
-  const view = await getDriverView(driverId, parseSeason((await searchParams).season));
+  const view = await getDriverView(driverId, parseSeason((await searchParams).season), locale);
   if (!view) notFound();
 
   const t = await getTranslations({ locale, namespace: 'history' });
@@ -79,7 +81,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   const s = view.season;
   const metaParts: string[] = [];
   if (s.position != null) metaParts.push(`P${s.position}`);
-  if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} PTS`);
+  if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}`);
 
   const career = view.asOf;
   const born = view.born ? view.born.slice(0, 4) : null;
@@ -119,7 +121,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <HistoryCard span={7} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
+          <HistoryCard span={7} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
             <StatTiles
               items={[
                 { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
@@ -132,7 +134,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             />
           </HistoryCard>
 
-          <HistoryCard span={5} heading={t('driver.careerHeading', { year: view.year })}>
+          <HistoryCard span={5} texture={lastTeam?.id} heading={t('driver.careerHeading', { year: view.year })}>
             <StatTiles
               items={[
                 { label: t('stats.seasons'), value: career.seasons },
@@ -149,8 +151,14 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             />
           </HistoryCard>
 
+          {view.arc.filter((a) => a.position != null).length > 1 ? (
+            <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.arcHeading')}>
+              <CareerArc points={view.arc} selectedYear={view.year} caption={t('driver.arcCaption', { name: view.name })} />
+            </HistoryCard>
+          ) : null}
+
           {view.stints.length > 0 ? (
-            <HistoryCard span={12} heading={t('driver.journeyHeading')}>
+            <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.journeyHeading')}>
               <DriverJourney stints={view.stints} driverId={view.id} selectedYear={view.year} />
             </HistoryCard>
           ) : null}
@@ -163,7 +171,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
                 milestones={view.lore.milestones}
                 lore={view.lore.lore}
                 facts={[
-                  ...(view.nationality ? [{ label: t('driver.nationalityLabel'), value: view.nationality }] : []),
+                  ...(view.nationality ? [{ label: t('driver.nationalityLabel'), value: countryName(view.nationality, locale) }] : []),
                   ...(born ? [{ label: t('driver.bornLabel'), value: born }] : []),
                 ]}
               />

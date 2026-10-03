@@ -116,7 +116,8 @@
       "titles": "Şampiyonluk",
       "seasons": "Sezon",
       "number": "Yarış numarası",
-      "bestFinish": "En iyi sıralama"
+      "bestFinish": "En iyi sıralama",
+      "ptsShort": "PUAN"
     },
     "driver": {
       "kicker": "{team} · {year}",
@@ -134,7 +135,9 @@
       "yearsLabel": "{from}–{to}",
       "stintSeasons": "{count, plural, one {# sezon} other {# sezon}}",
       "nationalityLabel": "Uyruk",
-      "bornLabel": "Doğum"
+      "bornLabel": "Doğum",
+      "arcHeading": "Sezon sezon şampiyona sırası",
+      "arcCaption": "{name} için her sezonun şampiyona sırası"
     },
     "team": {
       "kicker": "Takım // {year}",
@@ -147,8 +150,10 @@
       "storyHeading": "Takım",
       "newsHeading": "İlgili Haberler",
       "base": "Merkez",
-      "founded": "Kuruluş",
-      "lineupNumber": "#{number}"
+      "founded": "Formula 1'de",
+      "lineupNumber": "#{number}",
+      "arcHeading": "Sezon sezon takımlar sırası",
+      "arcCaption": "{name} için her sezonun takımlar şampiyonası sırası"
     },
     "dna": {
       "heading": "Takım DNA'sı",
@@ -184,6 +189,9 @@
       "constructorChampion": "Markalar şampiyonu",
       "ongoing": "Sezon sürüyor",
       "decadeLine": "{year} · {decade}'ler"
+    },
+    "arc": {
+      "champion": "Şampiyon"
     }
   },
   "system": {

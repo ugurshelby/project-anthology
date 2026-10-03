@@ -27,7 +27,7 @@ export function TeamLineup({ lineup, year, ui }: { lineup: TeamLineupView[]; yea
               <span className="data-tabular mt-1 block text-xs text-text-mid">
                 {d.position != null ? `P${d.position}` : null}
                 {d.position != null && (d.points > 0 || d.position != null) ? <span className="mx-1.5 text-text-low">·</span> : null}
-                {d.position != null || d.points > 0 ? `${Number.isInteger(d.points) ? d.points : d.points.toFixed(1)} PTS` : null}
+                {d.position != null || d.points > 0 ? `${Number.isInteger(d.points) ? d.points : d.points.toFixed(1)} ${t('stats.ptsShort')}` : null}
                 {d.wins > 0 ? (
                   <>
                     <span className="mx-1.5 text-text-low">·</span>
