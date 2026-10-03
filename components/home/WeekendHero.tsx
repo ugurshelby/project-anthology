@@ -96,7 +96,12 @@ export function WeekendHero({
             </div>
           ) : null}
         </div>
-        <h1 className="display-hero mt-2 max-w-[18ch] italic uppercase leading-[0.86] text-text-hi">{title}</h1>
+        <h1
+          lang={locale}
+          className="display-hero mt-2 max-w-[18ch] italic leading-[0.86] text-text-hi"
+        >
+          {title.toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-US')}
+        </h1>
         {subtitle ? <p className="data-tabular mt-2 text-text-mid">{subtitle}</p> : null}
 
         <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">

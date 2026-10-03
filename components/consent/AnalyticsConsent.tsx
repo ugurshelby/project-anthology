@@ -51,7 +51,7 @@ export function AnalyticsConsent() {
       {showNotice ? (
         <section
           aria-labelledby="consent-title"
-          className="fixed inset-x-3 bottom-[max(6.5rem,calc(88px+env(safe-area-inset-bottom,0px)))] z-40 rounded-[var(--radius-card)] border border-white/15 bg-surface p-4 shadow-lg md:inset-x-auto md:bottom-6 md:left-6 md:max-w-sm"
+          className="fixed inset-x-3 bottom-[max(6.5rem,calc(88px+env(safe-area-inset-bottom,0px)))] z-40 rounded-[var(--radius-card)] border border-white/15 bg-surface p-4 shadow-lg md:inset-x-auto md:bottom-6 md:right-6 md:left-auto md:max-w-sm"
         >
           <h2 id="consent-title" className="label-caps text-text-hi">
             {t('title')}

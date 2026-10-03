@@ -84,8 +84,11 @@ export function DriverHeroGraphic({
               className="h-1.5 w-1.5 rounded-full"
               style={{ backgroundColor: 'var(--team-secondary, var(--accent))' }}
             />
-            <span className="font-mono text-[11px] font-500 uppercase tracking-[0.2em] text-text-mid">
-              SPEC // {mark}
+            <span
+              lang="en"
+              className="font-mono text-[11px] font-500 uppercase tracking-[0.2em] text-text-mid"
+            >
+              SPEC // {mark.toLocaleUpperCase('en-US')}
             </span>
           </div>
           <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-text-low">

@@ -86,18 +86,60 @@ export function ApexFallback({
             'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.35) 100%)',
         }}
       />
-      <div className="relative z-10 flex flex-col items-center gap-1 px-3 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 px-3 text-center">
         {children ?? (
           <>
             {mark ? (
-              <span
-                className="font-condensed text-2xl font-700 uppercase leading-none text-text-hi"
-                style={{ fontFamily: 'var(--font-condensed)', color: 'color-mix(in srgb, var(--team-secondary, var(--accent)) 70%, white)' }}
-              >
-                {mark}
-              </span>
-            ) : null}
-            <span className="label-caps text-text-low">{KIND_LABEL[kind]}</span>
+              <>
+                <span
+                  className="font-condensed text-2xl font-700 uppercase tracking-wider leading-none"
+                  style={{
+                    fontFamily: 'var(--font-condensed)',
+                    color: 'color-mix(in srgb, var(--team-secondary, var(--accent)) 85%, white)',
+                  }}
+                >
+                  {mark}
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">
+                  {kind === 'car' ? 'CHASSIS SPEC' : kind === 'team' ? 'CONSTRUCTOR' : 'SPEC'}
+                </span>
+              </>
+            ) : kind === 'circuit' ? (
+              <>
+                <svg
+                  aria-hidden="true"
+                  className="h-6 w-6 text-text-mid/70"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M4 20 C 4 10, 10 4, 20 4" strokeDasharray="2 2" />
+                  <path d="M4 16 C 8 16, 16 8, 16 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="10" cy="10" r="1.5" fill="currentColor" />
+                </svg>
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">
+                  CIRCUIT // CAD
+                </span>
+              </>
+            ) : (
+              <>
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5 text-text-mid/60"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
+                  <circle cx="18" cy="18" r="2" fill="currentColor" />
+                </svg>
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">
+                  ARCHIVE // SPEC
+                </span>
+              </>
+            )}
           </>
         )}
       </div>
