@@ -173,12 +173,28 @@ Karar özeti: `?season=` adres biçimi; kariyer/kimlik verisi F1DB'den üretilen
 | `docs/design/apex-design-language.md` | Apex tasarım dili (otorite) |
 | `docs/design/design.md/` | Genel tasarım prensipleri (kütüphane) |
 
-## Haber hikâyeleri: birleştirme + özgün yazım (2026-09-29)
-- [x] Pist konumu + saat dilimi DB'de (`circuits.data.location`), statik veriden bağımsız
-- [x] Kümeleme (`lib/news/cluster.ts`), yeniden yazım (`rewrite.ts`, telif koruması), pipeline (`stories.ts`), sync-news yeniden yazıldı, okuma katmanı `news_stories`'tan okuyor, testler (177/177)
-- [x] **Manuel — Efendim:** `20260929000004_news_stories.sql` çalıştırıldı (2026-10-01)
-- [x] `GROQ_API_KEY` + `GEMINI_API_KEY` `.env.local`'de; yazım Groq gpt-oss-120b→20b, yedek Gemini 3.5 Flash-Lite→3.8 Flash. Deploy'da ikisi de Vercel env'e girilecek
-- [x] `.github/workflows/sync-news.yml` (saatte bir) yazıldı; `SITE_URL` var + `CRON_SECRET_KEY` secret deploy sonrası bağlanacak
-- [x] Haber detay sayfasında `item.sourceLinks` kaynak listesi (`components/news/NewsLeadBlock.tsx`, `app/[locale]/news/[id]/page.tsx`) — kodda doğrulandı 2026-10-01; devir planı dosyası silindi
-- [ ] `lib/news/voice.ts` tonunu ev sesine göre ince ayar (editoryal karar)
+### 🛠️ TEŞHİS-DÜZELTME — Ekran görüntüleri teşhis bulguları düzeltme paketi (2026-10-03)
+
+`docs/plans/teshis.md` ve `apex_followup_status_and_screenshots.md` analizinden çıkarılan somut uygulama maddeleri:
+
+- [x] **FAZ 1 — Çekirdek Mantık, Yönlendirme ve Veri Düzeltmeleri (Öncelik 1)**
+  - [x] **P1.1 Sürücüler ve Takımlar Sayfası Boş Ekran / Rota Düzeltmesi:** `/drivers` ve `/teams` boş redirect/siyah ekran yerine `GridPage`'i sırasıyla `initialView="driver"` ve `initialView="constructor"` ile doğrudan ve eksiksiz render edecek.
+  - [x] **P1.2 Yarış Adı ve Lokasyon Normalizasyonu:** `lib/i18n/format.ts`'te `raceName()` Sepang / Malezya veri çakışmasını (`Bahrain Grand Prix in Malaysia`) `Malaysian Grand Prix` / `Malezya Grand Prix` olarak normalize edecek; `X Grand Prix in Y` kalıplarını ve Türkçe karşılıklarını tam eşleştirecek. `circuitName()` yerelleştirme yardımcısı eklenecek (`Sepang International Circuit` → `Sepang Uluslararası Pisti`).
+  - [x] **P1.3 Sepang Pist Haritası (SVG) ve Bilgileri (Facts):** `assets/f1-circuits/f1-circuits.geojson`'daki `my-1999` koordinatlarından `public/circuits/my-1999.svg` üretilecek; `lib/assets/f1-icons.ts` `CIRCUIT_ID_TO_SVG` sözlüğüne `sepang: 'my-1999.svg'` eklenecek; `data/circuits/facts.ts` ve `facts.tr.ts`'e Sepang eklenecek (boş `CIRCUIT` kutusu ortadan kalkacak).
+
+- [x] **FAZ 2 — Arayüz, Grid ve Katman Çakışması Düzeltmeleri (Öncelik 2)**
+  - [x] **P2.1 Noktalı Büyük "İ" (Dotted I) Problemi Giderilmesi:** İngilizce arayüzde `IN` kelimesinin `İN` olmasına yol açan CSS `uppercase` yerine veya öncesinde JavaScript `toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-US')` dönüşümü ve açık `lang` izolasyonu uygulanacak (`BAHRAIN GRAND PRIX IN MALAYSIA`, `SPEC // HAM`).
+  - [x] **P2.2 Analitik Onay Banner Çakışması (Overlay Conflict):** `components/consent/AnalyticsConsent.tsx` masaüstünde sol sütundaki puan durumu, kariyer dökümü ve yasal metinleri örtmeyecek şekilde sağ alt köşeye (`md:right-6 md:left-auto md:bottom-6`) konumlandırılacak ve sayfa altlarına yeterli koruma padding'i (`pb-24`) eklenecek.
+  - [x] **P2.3 ApexFallback Görsel Tasarım İyileştirmesi:** `components/media/ApexFallback.tsx` içindeki kaba `CAR`, `DRIVER`, `CIRCUIT` metin yer tutucuları yerine takım renkleriyle uyumlu, teknik tipografik monogram rozeti ve CAD blueprint dokusu verilecek; "eksik görsel hatası" değil kasıtlı teknik tasarım olarak görünecek.
+  - [x] **P2.4 Sezon ve Haberler Kart Kırpılma / Hizalama:** `components/season/HorizontalRaceStrip.tsx` yarış kartlarındaki taşmalar ve `components/news/` ikincil manşet kartı görsel/metin en-boy oranları sıkışmayı önleyecek şekilde dengelenecek.
+  - [x] **P2.5 "Tarihte Bugün" Hiyerarşi Ayrımı:** `components/home/OnThisDayCard.tsx`'teki arşiv bağlamı (`ARCHIVE // ON THIS DAY` / `F1 ARŞİVİ // TARİHTE BUGÜN`) güçlendirilerek güncel sezon akışından net bir şekilde ayrıştırılacak.
+
+- [x] **FAZ 3 — Yerelleştirme ve Dil Bütünlüğü (Öncelik 3)**
+  - [x] **P3.1 Türkçe Modu Çeviri Bütünlüğü:** Ana sayfa hero'sunda yarış ve pist isimlerinin Türkçe karşılıklarının kullanılması; haber akışında TR modunda `titleTr`/`summaryTr`'nin önceliklendirilmesi; sözlük ve gizlilik sayfalarında dil kontrollerinin doğrulanması.
+
+- [x] **FAZ 4 — Doğrulama ve Ekran Görüntüleri Yenileme (Öncelik 4)**
+  - [x] **P4.1 Test ve Tip Kontrolleri:** `npm test`, `npx tsc --noEmit`, `npm run lint`.
+  - [x] **P4.2 Yerel Sunucu Ekran Görüntülerinin Yenilenmesi:** Düzeltmeler sonrası 14 temel sayfa yeniden Chromium ile fotoğraflanacak ve `teshis.md`'deki tüm maddelerin çözüldüğü kanıtlanacak.
+
+## Teknik Borç
 
