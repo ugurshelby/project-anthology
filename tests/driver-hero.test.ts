@@ -1,11 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 import { DriverProfileHero, DriverHeroGraphic } from '@/components/profile/DriverProfileHero';
+
+const Provider = NextIntlClientProvider as unknown as React.ComponentType<{ locale: string; messages: unknown; timeZone: string; children?: React.ReactNode }>;
+
+const render = (el: React.ReactElement) =>
+  renderToStaticMarkup(React.createElement(Provider, { locale: 'en', messages, timeZone: 'UTC' }, el));
 
 describe('DriverHeroGraphic & DriverProfileHero visual redesign', () => {
   it('renders DriverHeroGraphic with driverCode as the primary mark', () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       React.createElement(DriverHeroGraphic, {
         mark: 'VER',
         bigNumber: '1',
@@ -22,7 +29,7 @@ describe('DriverHeroGraphic & DriverProfileHero visual redesign', () => {
   });
 
   it('renders DriverHeroGraphic without car number gracefully', () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       React.createElement(DriverHeroGraphic, {
         mark: 'SEN',
         bigNumber: null,
@@ -38,7 +45,7 @@ describe('DriverHeroGraphic & DriverProfileHero visual redesign', () => {
   });
 
   it('DriverProfileHero derives monogram initials from driver name when driverCode is absent', () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       React.createElement(DriverProfileHero, {
         title: 'Max Verstappen',
         imageAlt: 'Max Verstappen',
@@ -53,7 +60,7 @@ describe('DriverHeroGraphic & DriverProfileHero visual redesign', () => {
   });
 
   it('DriverProfileHero uses driverCode when provided', () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       React.createElement(DriverProfileHero, {
         title: 'Charles Leclerc',
         driverCode: 'LEC',
@@ -69,7 +76,7 @@ describe('DriverHeroGraphic & DriverProfileHero visual redesign', () => {
   });
 
   it('DriverProfileHero renders without imageSrc and includes editorial magazine structure', () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       React.createElement(DriverProfileHero, {
         kicker: 'Ferrari · 2026',
         title: 'Lewis Hamilton',

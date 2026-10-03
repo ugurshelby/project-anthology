@@ -122,7 +122,12 @@ function RaceMicroSummary({
               </span>
             ) : null}
           </span>
-          <h3 className="headline-md uppercase text-text-hi">{raceName(race.raceName, locale)}</h3>
+          <h3
+            lang={locale}
+            className="headline-md uppercase text-text-hi break-words line-clamp-2"
+          >
+            {raceName(race.raceName, locale)}
+          </h3>
           {race.done && race.podium.length > 0 ? (
             <div className="flex flex-wrap gap-3">
               {race.podium.map((p) => (

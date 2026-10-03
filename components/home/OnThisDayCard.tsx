@@ -49,9 +49,11 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
         />
 
         {/* Floating Date Badge */}
-        <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1 font-mono text-xs uppercase tracking-wider text-white shadow-sm backdrop-blur-md">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          <span>{t('badge', { date: dateLabel })}</span>
+        <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/65 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-white shadow-sm backdrop-blur-md">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+          <span className="font-semibold text-accent">{locale === 'tr' ? 'F1 ARŞİVİ' : 'F1 ARCHIVE'}</span>
+          <span className="text-white/30">/</span>
+          <span>{dateLabel}</span>
         </div>
 
         {/* Historical Year Watermark */}
@@ -67,9 +69,12 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
       {/* Right Content Area */}
       <div className="relative z-10 flex flex-col justify-between gap-5 p-6 sm:p-8 md:col-span-7">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">
-              {t('flashback', { season: featured.season })}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-[var(--radius-pill)] border border-accent/40 bg-accent/15 px-2.5 py-0.5 font-mono text-[10px] font-700 uppercase tracking-widest text-accent">
+              {locale === 'tr' ? 'TARİHTE BUGÜN' : 'ON THIS DAY'}
+            </span>
+            <span className="font-mono text-xs uppercase tracking-widest text-text-mid">
+              {'// '}F1 {featured.season}
             </span>
           </div>
 
