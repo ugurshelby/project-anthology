@@ -12,13 +12,15 @@ export function GridExplorer({
   season,
   units,
   drivers,
+  initialView = 'constructor',
 }: {
   season: number;
   units: GarageUnit[];
   drivers: DriverGridRow[];
+  initialView?: GridView;
 }) {
   const t = useTranslations('ui.grid');
-  const [view, setView] = useState<GridView>('constructor');
+  const [view, setView] = useState<GridView>(initialView);
 
   return (
     <div className="flex flex-col gap-6">
