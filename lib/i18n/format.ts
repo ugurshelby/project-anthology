@@ -145,13 +145,84 @@ const GP_TR: Record<string, string> = {
   'south africa': 'Güney Afrika',
 };
 
-/** "Australian Grand Prix" -> "Avustralya Grand Prix" in Turkish; English is left as is. */
+const CIRCUIT_NAME_TR: Record<string, string> = {
+  'sepang international circuit': 'Sepang Uluslararası Pisti',
+  'bahrain international circuit': 'Bahreyn Uluslararası Pisti',
+  'shanghai international circuit': 'Şanghay Uluslararası Pisti',
+  'jeddah corniche circuit': 'Cidde Cadde Pisti',
+  'albert park circuit': 'Albert Park Pisti',
+  'miami international autodrome': 'Miami Uluslararası Pisti',
+  'circuit de monaco': 'Monako Cadde Pisti',
+  'circuit gilles-villeneuve': 'Gilles Villeneuve Pisti',
+  'circuit gilles villeneuve': 'Gilles Villeneuve Pisti',
+  'circuit de barcelona-catalunya': 'Barselona-Katalunya Pisti',
+  'red bull ring': 'Red Bull Ring',
+  'silverstone circuit': 'Silverstone Pisti',
+  'hungaroring': 'Hungaroring',
+  'circuit de spa-francorchamps': 'Spa-Francorchamps Pisti',
+  'circuit zandvoort': 'Zandvoort Pisti',
+  'autodromo nazionale monza': 'Monza Pisti',
+  'baku city circuit': 'Bakü Şehir Pisti',
+  'marina bay street circuit': 'Marina Bay Cadde Pisti',
+  'circuit of the americas': 'Amerika Pisti',
+  'autódromo hermanos rodríguez': 'Hermanos Rodríguez Pisti',
+  'autodromo hermanos rodriguez': 'Hermanos Rodríguez Pisti',
+  'autódromo josé carlos pace': 'Interlagos Pisti',
+  'autodromo jose carlos pace': 'Interlagos Pisti',
+  'las vegas strip circuit': 'Las Vegas Strip Pisti',
+  'las vegas street circuit': 'Las Vegas Strip Pisti',
+  'losail international circuit': 'Luseyl Uluslararası Pisti',
+  'yas marina circuit': 'Yas Marina Pisti',
+  'circuito de madring': 'Madring Pisti',
+};
+
+/**
+ * Normalizes and localizes Grand Prix names.
+ * Fixes data contradictions like "Bahrain Grand Prix in Malaysia" -> "Malaysian Grand Prix" (EN) / "Malezya Grand Prix" (TR).
+ */
 export function raceName(name: string | null | undefined, locale: string | null | undefined): string {
   if (!name) return '';
-  if (asLocale(locale) !== 'tr') return name;
-  const m = name.match(/^(.*?)\s+Grand Prix$/i);
-  if (!m) return name;
+  let cleanName = name.trim();
+
+  // Normalize data contradiction or "X Grand Prix in Y" patterns
+  if (/bahrain\s+grand\s+prix\s+in\s+malaysia/i.test(cleanName)) {
+    cleanName = 'Malaysian Grand Prix';
+  } else {
+    const inMatch = cleanName.match(/^(.*?)\s+Grand Prix\s+in\s+(.*?)$/i);
+    if (inMatch) {
+      const country = inMatch[2].trim().toLowerCase();
+      if (country === 'malaysia') {
+        cleanName = 'Malaysian Grand Prix';
+      }
+    }
+  }
+
+  if (asLocale(locale) !== 'tr') return cleanName;
+
+  const m = cleanName.match(/^(.*?)\s+Grand Prix$/i);
+  if (!m) return cleanName;
   const key = m[1].trim().toLowerCase();
   const tr = GP_TR[key];
-  return tr ? `${tr} Grand Prix` : name;
+  return tr ? `${tr} Grand Prix` : cleanName;
 }
+
+/** Circuit name in visitor's locale ("Sepang International Circuit" -> "Sepang Uluslararası Pisti" in Turkish). */
+export function circuitName(name: string | null | undefined, locale: string | null | undefined): string {
+  if (!name) return '';
+  const trimmed = name.trim();
+  if (asLocale(locale) !== 'tr') return trimmed;
+
+  const key = trimmed.toLowerCase();
+  const direct = CIRCUIT_NAME_TR[key];
+  if (direct) return direct;
+
+  return trimmed
+    .replace(/\s+International\s+Circuit$/i, ' Uluslararası Pisti')
+    .replace(/\s+Street\s+Circuit$/i, ' Cadde Pisti')
+    .replace(/\s+City\s+Circuit$/i, ' Şehir Pisti')
+    .replace(/\s+Circuit$/i, ' Pisti')
+    .replace(/^Circuit\s+(?:de\s+)?/i, '')
+    .replace(/\s+(?:Autodrome|Autódromo|Autodromo)$/i, ' Pisti')
+    .replace(/\s+Racing\s+Course$/i, ' Pisti');
+}
+

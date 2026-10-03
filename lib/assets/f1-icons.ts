@@ -45,6 +45,7 @@ const CIRCUIT_ID_TO_SVG: Record<string, string> = {
   qatar: 'qa-2004.svg',
   yas_marina: 'ae-2009.svg',
   madring: 'es-2026.svg',
+  sepang: 'my-1999.svg',
 };
 
 /** @deprecated Always null — no driver photography is used. Kept as a stable no-op API so call sites don't need to change; ApexFallback renders the badge instead. */

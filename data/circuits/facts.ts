@@ -235,6 +235,14 @@ export const CIRCUIT_FACTS: Record<string, CircuitFacts> = {
     signatureCorner: 'Banked Turn 4',
     note: 'Madrid’s new hybrid circuit, joining the calendar in 2026 with a banked corner and a mix of street and permanent sections.',
   },
+  sepang: {
+    lat: 2.7608, lon: 101.738, timeZone: 'Asia/Kuala_Lumpur',
+    lengthKm: 5.543, corners: 15, drsZones: 2, firstGp: 1999,
+    lapRecord: '1:34.080 — Vettel (2017)',
+    character: 'Wide, high tyre degradation, tropical heat',
+    signatureCorner: 'Turns 5–6 sweeps & Turn 14 hairpin',
+    note: 'A wide Hermann Tilke masterpiece known for tropical rain storms, extreme humidity, and demanding high-speed sweeping sections.',
+  },
 };
 
 export function getCircuitFacts(circuitId: string | undefined | null, locale?: string): CircuitFacts | null {
