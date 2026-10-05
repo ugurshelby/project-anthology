@@ -145,7 +145,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-01.
 
 ## 4. Data and infrastructure (DB, schema, migrations, external APIs, cron jobs, deployment, branch and deploy triggers)
 
-Last verified: 2026-10-02
+Last verified: 2026-10-05
 
 ### Tables
 
@@ -172,7 +172,7 @@ Whether the remote migration history matches these eight files one-for-one was n
 | Source | Where it is used | Notes in code |
 |---|---|---|
 | Jolpica / Ergast | `lib/f1/sources/jolpica.ts`, `app/api/f1-season/route.ts`, `scripts/sync-f1-scheduled.ts` | Proxy path is a whitelist regex. Host is hardcoded. Snapshot is returned before a live call [VERIFIED: `app/api/f1-season/route.ts`] |
-| F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db`, and `scripts/build-f1-history-index.ts` (committed history index). **License CC BY 4.0: attribution is shown in the footer** | Historical seed. Not re-run in this analysis |
+| F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db`, and `scripts/build-f1-history-index.ts` (committed history index). **License CC BY 4.0: attribution is shown in the footer** | Historical seed. Local index is `v2026.15.1`; upstream latest release is `v2026.16.0` (published 2026-10-04) [VERIFIED: GitHub API] |
 | OpenF1 | `lib/f1/sources/openf1.ts`, `app/api/live-timing/route.ts`, `sync-radio` | Code comment: 3 requests/second shared, not per visitor. Live route uses 5s edge cache, an in-memory stampede guard, and an 8s timeout [VERIFIED: route comments] |
 | Open-Meteo | circuit weather cron path described in `docs/plans/master-plan.md` and `20260929000002_circuit_weather.sql` | Page reads are documented as DB-only |
 | RSS | `lib/news/aggregate.ts`, `sync-news` | Clustered into `news_stories` |
@@ -200,7 +200,7 @@ GitHub Actions [VERIFIED: the three YAML files]:
 | `sync-news.yml` | minute 7 of every hour, plus dispatch | `curl` to `/api/cron/sync-news` with Bearer `CRON_SECRET_KEY`, 420s max |
 | `notify-sessions.yml` | every 10 minutes, plus dispatch | `curl` to `/api/cron/notify-sessions` |
 
-All four cron routes call `isCronAuthorized` [VERIFIED: grep of `app/api/**/route.ts`]. `maxDuration` is 300s for sync-f1, sync-news, and sync-radio, and 60s for notify-sessions [VERIFIED: those files].
+All four cron routes call `isCronAuthorized` [VERIFIED: grep of `app/api/**/route.ts`]. On 2026-10-05, all four routes (`sync-news`, `sync-f1`, `sync-radio`, `notify-sessions`) returned HTTP 401 when accessed without authorization [VERIFIED: live curl]. `maxDuration` is 300s for sync-f1, sync-news, and sync-radio, and 60s for notify-sessions [VERIFIED: those files]. GitHub Actions runs on 2026-10-05 completed successfully for notify-sessions, sync-f1 race-aware, and sync-news [VERIFIED: `gh run list`].
 
 The YAML comments say Vercel Hobby allows one cron run per day, which is why the finer jobs moved to GitHub Actions [VERIFIED: workflow comments]. The actual Vercel plan on the current account was not opened [UNVERIFIED: no Vercel dashboard access in this pass].
 
@@ -313,7 +313,7 @@ Agent rules that are written down but fight each other (auto-commit in `.cursor/
 
 ## 8. History and recurring problems (from logs and git history: past bugs, repeated mistakes, what fixed them)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-05
 
 247 commits on `main` [VERIFIED: `git rev-list --count HEAD`]. Logs on disk are only `logs/2026-09-21.md`, `2026-09-28.md`, `2026-09-29.md`, and `2026-10-01.md`, because older logs were deleted from the working tree on 2026-10-01 [VERIFIED: `logs/` search and commit `c23acc2`]. Older incidents below are from `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` (dated 2026-06-10 in its header) and from commit subjects. Where the lessons file disagrees with later code, the later code wins. The lessons file is a history source, not a current map.
 
@@ -323,11 +323,11 @@ Last verified: 2026-10-01
 |---|---|---|---|
 | Production hostname drift | Docs and code have used `five`, then `seven`, then `eight`. Commit `6ab76cb` (2026-07-05) is `fix: kritik — hardcoded prod URL güncellendi (five → seven)`. `siteUrl.ts` still says seven. Live site is eight. Seven returns 404 | Update every hardcoded host in the same change as the Vercel project move. Prefer env over a constant | [VERIFIED: grep of the three hostnames, commit subject, live HTTP] |
 | Docs frozen at the 2026-06-21 UI wipe | README, `proje-dizini.md`, `technical.md`, and all three constitution files said `components/` was deleted and pages are placeholders | The UI was rebuilt. The sentence was copied and not removed | [VERIFIED: those files versus 89 component files] |
-| Stale or empty DB snapshots served as fresh | `fetched_at` was new but names were blank, so the UI showed dashes. Home and season also showed different points because revalidate differed | `isSeasonSnapshotContentInvalid()`, historical seasons stay on the DB, current season can fall through to Jolpica, season page is dynamic | [VERIFIED: lessons file; tests for the read fallback passed. Not re-proven against production data in this pass] |
+| Stale or empty DB snapshots served as fresh | `fetched_at` was new but names were blank, so the UI showed dashes. Home and season also showed different points because revalidate differed | `isSeasonSnapshotContentInvalid()`, historical seasons stay on the DB, current season can fall through to Jolpica, season page is dynamic | [VERIFIED: lessons file; 2026-10-05 check confirmed 2026 calendar (23 races, R1 Australian GP) and standings (23 drivers, 11 teams) return HTTP 200 with X-Data-Source: snapshot and non-empty content] |
 | NULL in unique keys | `UNIQUE (season, round, type)` treated each `round IS NULL` as distinct, so season rows duplicated | Partial unique index plus update-first ingest | [VERIFIED: lessons file and `20260606000001_partial_unique_index.sql`] |
 | RLS without GRANT | Policies existed and anon still got Postgres `42501` | Explicit `GRANT SELECT` | [VERIFIED: lessons file and the grants in the initial migration] |
 | Untimestamped migration skipped | Supabase CLI ignored a file whose name was not a timestamp | `20260603000001_...` pattern | [VERIFIED: lessons file; current filenames match] |
-| Cron auth and schedule | Hobby plan cannot run sub-daily Vercel crons. A GitHub schedule without the repo secret failed every hour. Missing Vercel secret made the platform cron return 401 | Daily `vercel.json` plus GitHub Actions for hourly and 10-minute work. Bearer check. Schedule was re-enabled 2026-09-28 after the secret and `SITE_URL` var were set | [VERIFIED: lessons file, workflow comments, `logs/2026-09-28.md`]. Whether those GitHub schedules are green after the move to the eight host is [UNVERIFIED: Actions runs were not listed] |
+| Cron auth and schedule | Hobby plan cannot run sub-daily Vercel crons. A GitHub schedule without the repo secret failed every hour. Missing Vercel secret made the platform cron return 401 | Daily `vercel.json` plus GitHub Actions for hourly and 10-minute work. Bearer check. Schedule was re-enabled 2026-09-28 after the secret and `SITE_URL` var were set | [VERIFIED: lessons file, workflow comments, `logs/2026-09-28.md`; on 2026-10-05 gh run list confirmed all three workflows green and all four cron routes returned 401 without bearer] |
 | Unlicensed images shipped | Real driver photos, team logos, car renders, and circuit photos were in production with no license record | Removed 2026-09-28 (`398739f`). Helpers return null. Fallback badges | [VERIFIED: `logs/2026-09-28.md`, `public/drivers` absent]. Anthology `public/stories` (124 files) was not in that removal list [VERIFIED: master plan removal list versus file count] |
 | OpenF1 fan-out | `Cache-Control: no-store` on live timing meant one upstream call per viewer, against a shared 3 req/s cap | `s-maxage=5`, stampede guard, 8s timeout | [VERIFIED: `logs/2026-09-28.md` and `app/api/live-timing/route.ts`] |
 | Encoding and layout | Mojibake (`Â·`, `â€”`) and a tablet season page blown out to ~4000px by flex `min-width: auto` | Character cleanup and `min-w-0` / `max-w-full` on the season strips (`a55e196`) | [VERIFIED: `logs/2026-09-29.md`] |
