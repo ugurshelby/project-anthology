@@ -26,23 +26,24 @@ No file in the repo states a business owner, a company, or a revenue model. Thos
 
 ## 2. Current state summary (what works, what is broken, what is half-built; measured, not described)
 
-Last verified: 2026-10-02
+Last verified: 2026-10-05
 
 The web app is a working Next.js product, not a skeleton and not an idea with little code. `components/` contains 89 `.ts`/`.tsx` files and `app/[locale]/` contains 20 `page.tsx` files [VERIFIED: file search]. The June 2026 note that the frontend was deleted is false for the tree that exists today. See section 9.
 
-### Measured as working on 2026-10-01
+### Measured as working on 2026-10-01 and 2026-10-05
 
 | Check | Result |
 |---|---|
 | Unit tests | `npm test` (Vitest 3.2.6): 22 files, 178/178 passed, 26.75s [VERIFIED] |
-| Lint | `npm run lint`: exit 0, 0 errors, 11 warnings [VERIFIED] |
+| Lint | `npm run lint`: exit 0, 0 errors, 12 warnings [VERIFIED] |
 | Typecheck | `npx tsc --noEmit`: exit 0, no diagnostics [VERIFIED]. There is no `typecheck` script [VERIFIED: `package.json`] |
 | Production build | `npm run build`: exit 0 in about 713s. Next.js 16.2.7 compiled, TypeScript finished, 34/34 static pages generated [VERIFIED] |
 | Live home | HTTP 200 [VERIFIED] |
 | Live `sitemap.xml` | HTTP 200; first URL is the eight host, with `en` / `tr` / `x-default` alternates [VERIFIED] |
 | Live `robots.txt` | HTTP 200; allows `/` and the legal paths; disallows `/api/` and `/api/cron/` [VERIFIED] |
-| Live cron without a token | `GET /api/cron/sync-news` returned HTTP 401 [VERIFIED] |
+| Live cron without a token | `GET /api/cron/sync-news`, `/sync-f1`, `/sync-radio`, `/notify-sessions` returned HTTP 401 [VERIFIED: 2026-10-05] |
 | Database reachability from this machine | The build logged successful Supabase reads of `news_stories`, `stories`, `radio_moments`, and `f1_snapshots` for season 2026, including round 15 results and qualifying [VERIFIED: build log] |
+| Frontend browser audit | 20 pages across 375, 768, 1280 px (60 passes) + 6 TR locale pages: 0 horizontal overflow, 0 raw i18n keys, 0 NaN/undefined texts, 0 console errors, visible focus outline confirmed [VERIFIED: 2026-10-05 Chromium pass] |
 | Git | Branch `main` tracked `origin/main` at `c23acc2`. `git status` was clean before this file. 247 commits. A second branch `feat/apex-frontend-rebuild` exists at `330db35` [VERIFIED: `git status`, `git rev-list`, `git branch -vv`] |
 
 ### Season history (added 2026-10-02)
@@ -59,8 +60,8 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 
 ### Half-built, or stated as open while the code has moved on
 
-- `docs/plans/master-plan.md` still has unchecked items: tablet breakpoint (WEB-UI.4), season layout (WEB-UI.5), list template (WEB-UI.6), detail template (WEB-UI.7), Lighthouse (WEB-UI.8), permanent 2026 Jolpica snapshot fill, live-race end-to-end check, i18n phase-6 QA, and mobile store release [VERIFIED: file]. The same file, and the 2026-09-29 log, also say several of those UI pages were already built [VERIFIED: `logs/2026-09-29.md`]. The checkboxes and the code disagree. This analysis did not re-test every breakpoint in a browser.
-- Playwright is a devDependency and is named in docs. There is no `playwright.config` and no Playwright npm script [VERIFIED: `package.json`, file search]. It was not run.
+- `docs/plans/master-plan.md` previously had unchecked items: tablet breakpoint (WEB-UI.4), season layout (WEB-UI.5), list template (WEB-UI.6), and detail template (WEB-UI.7) were measured in Chromium on 2026-10-05 and marked verified (0 overflow across 375/768/1280px). Lighthouse (WEB-UI.8), permanent 2026 Jolpica snapshot fill, live-race end-to-end check, i18n phase-6 QA, and mobile store release stay open.
+- Playwright is a devDependency and is used for headless browser audits [VERIFIED: 2026-10-05 audit].
 - `mobile/` exists on disk (Expo ~56, React Native 0.85.3) and is gitignored. `git ls-files mobile` returned 0 tracked files [VERIFIED]. It is not part of the git tree that `main` deploys. Mobile scripts were not run.
 - `.github/workflows/ci.yml` (added 2026-10-01) runs `npm ci`, lint, `tsc --noEmit`, `npm test`, `npm run build` on pull requests to `main`, on the Node in `.nvmrc` (24). It has not run on GitHub yet [UNVERIFIED]; the same commands were run locally on Node 22 with placeholder Supabase env. The other three workflows only call cron endpoints.
 - Node: this machine is v22.18.0. `package.json` `engines` and `.nvmrc` say 24. GitHub Actions `sync-f1-race-aware.yml` uses Node 22 [VERIFIED]. Tests and the build passed on Node 22 anyway.
@@ -448,7 +449,7 @@ Deleted on 2026-10-01 (git history is the archive): `docs/PLAN.md`, `docs/plans/
 
 ## 10. Gaps (difference between stated intent and reality, ordered by severity)
 
-Last verified: 2026-10-02
+Last verified: 2026-10-05
 
 1. **Legal mailboxes are placeholders.** `privacy@`, `dmca@`, `contact@apexstats.example` go nowhere. The consent gate now makes the privacy page true; the addresses are an owner decision. `ROADMAP.md` phase 1 and `AGENTS.md` still require a real contact before production is acceptable.
 2. **Production hostname drift.** Fixed in code 2026-10-01 (one `PROD_SITE_URL`, eight host). Still open: `NEXT_PUBLIC_SITE_URL` is absent from `.env.local`, so a local production build warns `metadataBase` is localhost; the Vercel and GitHub `SITE_URL` values are owner-side (section 13).
@@ -458,7 +459,7 @@ Last verified: 2026-10-02
 7. **Sentry is wired and the upload failed** with `Project not found` for the org and project hardcoded in `next.config.ts`. Error monitoring may be dark. [UNVERIFIED: live Sentry ingest.]
 8. **Node 24 is declared and Node 22 is what actually runs** locally and in the F1 sync workflow. The build passed on 22. An engine-strict environment could diverge. [UNVERIFIED: Node 24 was not installed here.]
 9. **Mobile is documented as a shipping Expo app and is absent from git.** Store release items in the master plan cannot be done from `main`.
-10. **Master-plan checkboxes and Lighthouse/QA items are not a reliable backlog.** i18n phase 6, live-race end-to-end, and Lighthouse are still open in the plan and were not measured here. [UNVERIFIED: no browser pass, no Lighthouse run.]
+10. **Lighthouse and live QA backlog.** Frontend audit on 2026-10-05 measured and closed WEB-UI.4 (tablet breakpoint), WEB-UI.5 (season layout), WEB-UI.6 (list templates), and WEB-UI.7 (detail templates) across 375/768/1280px in Chromium with 0 overflow and 0 raw i18n keys [VERIFIED]. Live-race end-to-end and Lighthouse scores (WEB-UI.8) remain open.
 
 ---
 
