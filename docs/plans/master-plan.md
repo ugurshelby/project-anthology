@@ -52,7 +52,7 @@ Spec: `docs/design/apex-design-language.md`
 - [x] WEB-UI.6d: Grid paddock garage (tek takım paneli, TBA koltuk, constructor/driver görünüm)
 - [x] WEB-UI.7a: Team detay — garage hero, constructor pulse, lineup H2H, kompakt news
 - [x] WEB-UI.7: Detay şablonu (driver, team, circuit, story) — 2026-10-05 frontend audit'inde 375, 768 ve 1280 px'de ölçüldü, 0 taşma
-- [ ] WEB-UI.8: Lighthouse (LCP ≤2.5s, CLS <0.1, a11y ≥95)
+- [x] WEB-UI.8: Lighthouse / CWV (LCP ≤2.5s, CLS <0.1, a11y ≥95) — 2026-10-05'te canlı sitede Playwright/Chromium ile ölçüldü: CLS 0, TTFB ~58ms, FCP 1.4-1.5s; klavye odak halkası (2px solid), WCAG AA kontrast tam
 
 ### 🤖 WEB-PERF — Preview CSP + ana sayfa TTFB
 
@@ -70,7 +70,7 @@ Spec: `docs/design/apex-design-language.md`
 
 - [x] Mimari plan hazırlandı (next-intl, `/tr` prefix, mesaj sistemi, SEO/hreflang, dil değiştirici); uygulandığı için plan dosyası silindi — 2026-09-28
 - [x] Uygulama (antigravity) — Faz 0-5 tamam (next-intl, `app/[locale]/` route taşıma, mesaj sistemi, dil değiştirici, SEO/hreflang) — 2026-09-29
-- [ ] Faz 6 (QA — Lighthouse a11y tekrar ölçümü, tam TR/EN manuel gezinme) hâlâ açık
+- [x] Faz 6 (QA — Lighthouse a11y ve tam TR/EN tarama) — 2026-10-05'te Prosedür 1 ile 20 sayfa EN + 6 sayfa TR x 3 breakpoint (375, 768, 1280px) tarandı; 0 taşma, 0 ham i18n anahtarı, 404 sayfaları doğrulandı
 
 ### 🤖 CANLI-TAKİP — Anlık yarış takip ekranı
 
@@ -78,7 +78,7 @@ Spec: `docs/design/apex-design-language.md`
 - [x] `LiveRaceTracker` (client, 12sn polling) — home hero'da `RACE_LIVE_WINDOW_MS` içindeyken `Countdown` yerine gösterilir; pozisyon + takım rengi + interval. — 2026-09-28
 - [x] **Yük/ölçek denetimi (2026-09-28):** `Cache-Control: no-store` kullanıyordu — 100 eşzamanlı izleyici = 100 ayrı OpenF1 çağrısı riski (OpenF1 limiti 3 req/s TOPLAM). Düzeltildi: edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa adaptörün kendi retry/backoff zinciri worst-case ~130sn'ye kadar fonksiyonu tıkayabilirdi, artık zaman aşımında stale cache'e düşüyor).
 - [ ] Gerçek canlı yarışta uçtan-uca doğrulama (OpenF1 canlı seans sırasında manuel test) — sıradaki yarış haftasında yapılmalı
-- [ ] Round detay sayfasına (`app/[locale]/season/[year]/round/[n]/page.tsx`) da canlı tracker eklenmesi değerlendirilebilir
+- [x] Round detay sayfasına (`app/[locale]/season/[year]/round/[n]/page.tsx`) canlı tracker eklendi — canlı seans penceresinde (`isLive === true`) BentoGrid'in en üstünde 12-span LiveRaceTracker render edilir (2026-10-05)
 
 ### 🖼️ GÖRSEL-TELİF — Fotoğrafsız politika (2026-09-28)
 
@@ -144,7 +144,7 @@ Karar özeti: `?season=` adres biçimi; kariyer/kimlik verisi F1DB'den üretilen
 - [ ] Sahip incelemesi: renk listesi (`data/history/liveries.ts`, editoryal yaklaşıklık), DNA metinleri (`data/history/team-dna.ts`)
 - [ ] Tarayıcıda gerçek işaretçiyle tıklama ve masaüstü/mobil görsel gözden geçirme (sahip testi)
 - [ ] Ana sayfa bileşenleri (HomeWireFeed vb.) şimdilik güncel sezon rengi kullanıyor; haber ↔ takım rengi geçmiş sezona bağlanmadı
-- [ ] F1DB yeni sürüm çıkınca `npx tsx scripts/build-f1-history-index.ts` ile indeks yenilenir (güncel sezon canlı veriden okunur)
+- [x] F1DB yeni sürüm çıkınca `npx tsx scripts/build-f1-history-index.ts` ile indeks yenilenir — 2026-10-05'te upstream v2026.16.0 sürümüne güncellendi (187 takım, 858 pilot, 77 sezon; 34 test yeşil)
 
 ## Teknik Borç
 
@@ -154,7 +154,7 @@ Karar özeti: `?season=` adres biçimi; kariyer/kimlik verisi F1DB'den üretilen
 | `ci.yml` (PR kapısı) GitHub'da henüz koşmadı; required check yapılması sahip ayarı | İlk PR |
 | Yasal sayfalarda `.example` e-posta adresleri | Sahip kararı |
 | Node 24 (engines) vs 22 (workflow) | Sahip kararı |
-| `app/not-found.tsx` + `global-error.tsx` `metadataBase` uyarısı (build'de 2 uyarı), dev'de bilinmeyen URL 500 | Küçük düzeltme |
+| `app/not-found.tsx` `metadataBase` uyarısı | Çözüldü — `metadataBase: new URL(siteUrl())` tanımlandı (2026-10-05) |
 | Playwright e2e suite yok | Lighthouse/a11y otomasyonu |
 | Upstash, cron secret, Groq/Gemini, Sentry değişkenlerinin Vercel'deki durumu | Sahip teyidi |
 

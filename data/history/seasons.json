@@ -75,5 +75,5 @@
 "2023":{"rounds":22,"raced":22,"final":true,"driverChampion":{"id":"max-verstappen","pts":575},"constructorChampion":{"id":"red-bull","pts":860}},
 "2024":{"rounds":24,"raced":24,"final":true,"driverChampion":{"id":"max-verstappen","pts":437},"constructorChampion":{"id":"mclaren","pts":666}},
 "2025":{"rounds":24,"raced":24,"final":true,"driverChampion":{"id":"lando-norris","pts":423},"constructorChampion":{"id":"mclaren","pts":833}},
-"2026":{"rounds":23,"raced":15,"final":false,"driverChampion":null,"constructorChampion":null}
+"2026":{"rounds":23,"raced":16,"final":false,"driverChampion":null,"constructorChampion":null}
 }

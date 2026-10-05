@@ -10,8 +10,15 @@ import {
   getSprintResultRows,
   getQualifyingRows,
   getPitStopRows,
+  nowMs,
 } from '@/lib/f1/mrdata';
-import { CURRENT_SEASON, F1_SEASON_MIN, weekendSessionChips } from '@/lib/f1Calendar';
+import {
+  CURRENT_SEASON,
+  F1_SEASON_MIN,
+  weekendSessionChips,
+  raceStartMs,
+  getRaceCountdownPhase,
+} from '@/lib/f1Calendar';
 import { getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { LocalTime } from '@/components/time/LocalTime';
@@ -20,6 +27,7 @@ import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { RaceResultsTable, QualifyingTable } from '@/components/season/ResultsTable';
 import { PitStopsTable } from '@/components/season/PitStopsTable';
+import { LiveRaceTracker } from '@/components/home/LiveRaceTracker';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { siteUrl, localizedAlternates } from '@/lib/seo';
 
@@ -104,6 +112,10 @@ export default async function RoundPage({ params }: PageProps) {
   const winner = results[0];
   const theme = teamThemeVars(winner?.constructorName, year);
 
+  const isCurrentSeason = year === CURRENT_SEASON;
+  const startMs = isCurrentSeason && race ? raceStartMs(race) : null;
+  const isLive = startMs !== null && getRaceCountdownPhase(startMs, nowMs()) === 'live';
+
   return (
     <main
       id="main-content"
@@ -174,6 +186,12 @@ export default async function RoundPage({ params }: PageProps) {
       </header>
 
       <BentoGrid>
+        {isLive ? (
+          <BentoCard span={12} className="border-accent/40 bg-accent/5">
+            <LiveRaceTracker />
+          </BentoCard>
+        ) : null}
+
         {results.length > 0 ? (
           <BentoCard span={sprint.length > 0 || quali.length > 0 || pitstops.length > 0 ? 8 : 12}>
             <span className="label-caps mb-3 block text-text-mid">{t('classification')}</span>
