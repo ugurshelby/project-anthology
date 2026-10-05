@@ -216,4 +216,25 @@ describe('fetchRoundSnapshot — tier order', () => {
       `/api/f1-season?path=${CURRENT_SEASON}/3/qualifying`,
     );
   });
+
+  it('rejects upstream schema deviation (missing MRData envelope) and returns null safely', async () => {
+    mockFetchSiteJson.mockResolvedValue({ error: 'Upstream schema changed', status: 500 });
+
+    const { fetchRoundSnapshot } = await loadF1();
+    const result = await fetchRoundSnapshot(CURRENT_SEASON, 4, 'results');
+
+    expect(result).toBeNull();
+  });
+
+  it('preserves stale DB data when upstream returns malformed non-MRData payload', async () => {
+    const dbData = calendarMrData('Stale Good GP');
+    mockDbRow.mockReturnValue({ data: dbData, fetched_at: isoDaysAgo(10) });
+    mockFetchSiteJson.mockResolvedValue({ message: 'Invalid payload structure' });
+
+    const { fetchSeasonSnapshotTyped } = await loadF1();
+    const result = await fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
+
+    expect(result).toEqual(dbData);
+  });
 });
+

@@ -82,10 +82,15 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const nextRace = getLiveOrNextRace(races, now);
 
   const previousRound = previousRace?.round != null ? Number(previousRace.round) : null;
-  const previousResults =
+  const circuitId = nextRace?.Circuit?.circuitId;
+
+  const [previousResults, circuitWeather, nextRaceLocation] = await Promise.all([
     previousRound != null && Number.isFinite(previousRound)
-      ? await fetchRoundSnapshot(CURRENT_SEASON, previousRound, 'results')
-      : null;
+      ? fetchRoundSnapshot(CURRENT_SEASON, previousRound, 'results')
+      : Promise.resolve(null),
+    circuitId ? getCircuitWeather(circuitId) : Promise.resolve(null),
+    circuitId ? getCircuitLocation(circuitId) : Promise.resolve(null),
+  ]);
   const lastRaceRecap = getLastRaceResult(previousResults);
 
   const nextRaceTitle = raceName(nextRace?.raceName ?? nextRace?.Circuit?.Location?.country ?? t('seasonFallback'), locale);
@@ -95,12 +100,6 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
   const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
   const nextRaceFacts = getCircuitFacts(nextRace?.Circuit?.circuitId);
-  const circuitWeather = nextRace?.Circuit?.circuitId
-    ? await getCircuitWeather(nextRace.Circuit.circuitId)
-    : null;
-  const nextRaceLocation = nextRace?.Circuit?.circuitId
-    ? await getCircuitLocation(nextRace.Circuit.circuitId)
-    : null;
 
   const eyebrow = nextRace?.round
     ? t('eyebrowRound', { season: CURRENT_SEASON, round: nextRace.round })
