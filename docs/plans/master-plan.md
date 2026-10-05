@@ -4,7 +4,7 @@
 > Ölçülmüş durum: `docs/reference/apex-reference.md`. Tamamlanan plan dosyaları silinir (geçmiş git'te).
 >
 > **Canlı:** https://project-anthology-eight.vercel.app
-> **Son güncelleme:** 2026-10-02
+> **Son güncelleme:** 2026-10-05
 
 ---
 
@@ -13,7 +13,7 @@
 | Alan | Durum |
 |---|---|
 | Web backend + veri katmanı | ✅ Çalışıyor (Supabase; Vercel 3 günlük cron + GitHub Actions saatlik/10 dk) |
-| Web frontend | ✅ 20 sayfa, 89 bileşen, EN + `/tr`; tablet/Lighthouse/QA kutuları aşağıda açık (ölçülmedi) |
+| Web frontend | ✅ 20 sayfa, 89 bileşen, EN + `/tr`; 375/768/1280 px tarayıcı denetimi yapıldı (taşma 0) |
 | Mobil (Expo 56) | ⚠️ `mobile/` diskte var ama `.gitignore`'da, git'te yok — sahip kararı bekliyor |
 | Tasarım otoritesi | ✅ `docs/design/apex-design-language.md` + `docs/design/design.md/` |
 
@@ -44,14 +44,14 @@ Spec: `docs/design/apex-design-language.md`
 - [x] WEB-UI.2: `SplitHomeLayout` + `PosterHero` bileşenleri
 - [x] WEB-UI.3: Home refactor (`app/page.tsx`) — Split Cinema desktop / Poster Dense mobile
 - [x] WEB-UI.3b: Home cinematic Grand Prix Weekend (full-bleed hero, Live Paddock bento, archive On This Day)
-- [ ] WEB-UI.4: Tablet breakpoint (md) — kod var, tarayıcıda ölçülmedi
-- [ ] WEB-UI.5: Season sayfası layout — kod var (UI-BUGS tablet fix'i yapıldı), ölçülmedi
-- [ ] WEB-UI.6: Liste şablonu (drivers, teams, circuits, news, anthology, glossary) — sayfalar var, ölçülmedi
+- [x] WEB-UI.4: Tablet breakpoint (md, 768px) — 2026-10-05 frontend audit'inde 20 sayfa Chromium ile ölçüldü, 0 taşma
+- [x] WEB-UI.5: Season sayfası layout — 2026-10-05 frontend audit'inde 375, 768 ve 1280 px'de ölçüldü, yatay şeritler ve scrubber taşmasız
+- [x] WEB-UI.6: Liste şablonu (drivers, teams, circuits, news, anthology, glossary) — 2026-10-05 frontend audit'inde 375, 768 ve 1280 px'de ölçüldü, 0 taşma
 - [x] WEB-UI.6b: News editoryal redesign (1+2 manşet, sticky filtre, Wire telemetry, Load More)
 - [x] WEB-UI.6c: Tech Glossary dossier redesign (arama, lastik telemetry, bento terimler)
 - [x] WEB-UI.6d: Grid paddock garage (tek takım paneli, TBA koltuk, constructor/driver görünüm)
 - [x] WEB-UI.7a: Team detay — garage hero, constructor pulse, lineup H2H, kompakt news
-- [ ] WEB-UI.7: Detay şablonu (driver, team, circuit, story)
+- [x] WEB-UI.7: Detay şablonu (driver, team, circuit, story) — 2026-10-05 frontend audit'inde 375, 768 ve 1280 px'de ölçüldü, 0 taşma
 - [ ] WEB-UI.8: Lighthouse (LCP ≤2.5s, CLS <0.1, a11y ≥95)
 
 ### 🤖 WEB-PERF — Preview CSP + ana sayfa TTFB
