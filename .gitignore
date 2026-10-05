@@ -61,3 +61,5 @@ _stories-backup-*/
 _remap-staging/
 _remap-*.ps1
 _remap-*.mjs
+/scratch/
+

@@ -8,7 +8,7 @@ name: sync-f1 race-aware
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'  # every hour on the hour (UTC)
+    - cron: '12 * * * *'  # hourly at :12, offset from Vercel 07:00 and notify-sessions (:10/:20) (UTC)
 
 jobs:
   sync:
