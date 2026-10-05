@@ -272,8 +272,8 @@
       "otd": {
         "badge": "On This Day · {date}",
         "flashback": "Historical Flashback · {season}",
-        "wonGp": "{winner} won the {race} for {team} in {season}.",
-        "wonAt": "{winner} won at {race} for {team} in {season}.",
+        "wonGp": "{winner} claimed victory in the {season} {race} behind the wheel for {team}.",
+        "wonAt": "{winner} took the chequered flag at {race} for {team} in {season}.",
         "also": "Also on this day:"
       }
     },

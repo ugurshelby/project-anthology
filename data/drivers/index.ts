@@ -1,9 +1,10 @@
 /**
  * Editorial profiles for the current grid, in the Apex house voice
- * (docs/F1_Anlati_Stil_Kilavuzu.md): a thesis in the first lines, facts that
- * can be checked, one short sentence that lands. Every claim here was checked
- * against the F1 history index or is a widely documented fact; statistics that
- * change (wins, podiums, points) live in the data, not in this prose.
+ * (docs/F1_Anlati_Stil_Kilavuzu.md & docs/F1_Anlati_Stil_Kilavuzu_v2.md §7.C):
+ * a thesis in the first lines, facts that can be checked, one short sentence
+ * that lands decisively. Every claim here was checked against the F1 history
+ * index or is a widely documented fact; statistics that change (wins, podiums,
+ * points) live in the data, not in this prose.
  *
  * English is the base text; `tr` holds the Turkish version of the same profile.
  */
