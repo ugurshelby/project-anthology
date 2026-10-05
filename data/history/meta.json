@@ -1,7 +1,7 @@
 {
   "source": "F1DB (https://github.com/f1db/f1db), CC BY 4.0",
-  "release": "v2026.15.1",
-  "zipSha256": "0b8a20e46dd7c54ff4d7bad43ca69be8c2c880f2de7866fcc9fb8e9ca12853f0",
+  "release": "v2026.16.0",
+  "zipSha256": "bfb6aa3a8fabf2e762aa78cbe465d6ddb617c845cddbb47dcaa4a79891945e4c",
   "newestSeason": 2026,
   "constructors": 187,
   "drivers": 858,

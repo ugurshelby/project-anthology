@@ -1,5 +1,13 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { siteUrl } from '@/lib/seo';
 import './globals.css';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
+  title: '404 - Off Track | Apex',
+  description: 'This page does not exist.',
+};
 
 export default function RootNotFound() {
   return (

@@ -173,7 +173,7 @@ Whether the remote migration history matches these eight files one-for-one was n
 | Source | Where it is used | Notes in code |
 |---|---|---|
 | Jolpica / Ergast | `lib/f1/sources/jolpica.ts`, `app/api/f1-season/route.ts`, `scripts/sync-f1-scheduled.ts` | Proxy path is a whitelist regex. Host is hardcoded. Snapshot is returned before a live call [VERIFIED: `app/api/f1-season/route.ts`] |
-| F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db`, and `scripts/build-f1-history-index.ts` (committed history index). **License CC BY 4.0: attribution is shown in the footer** | Historical seed. Local index is `v2026.15.1`; upstream latest release is `v2026.16.0` (published 2026-10-04) [VERIFIED: GitHub API] |
+| F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db`, and `scripts/build-f1-history-index.ts` (committed history index). **License CC BY 4.0: attribution is shown in the footer** | Historical seed. Local index is `v2026.16.0` (updated 2026-10-05); upstream release is `v2026.16.0` (published 2026-10-04) [VERIFIED: local build + GitHub API] |
 | OpenF1 | `lib/f1/sources/openf1.ts`, `app/api/live-timing/route.ts`, `sync-radio` | Code comment: 3 requests/second shared, not per visitor. Live route uses 5s edge cache, an in-memory stampede guard, and an 8s timeout [VERIFIED: route comments] |
 | Open-Meteo | circuit weather cron path described in `docs/plans/master-plan.md` and `20260929000002_circuit_weather.sql` | Page reads are documented as DB-only |
 | RSS | `lib/news/aggregate.ts`, `sync-news` | Clustered into `news_stories` |
