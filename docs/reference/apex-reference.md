@@ -343,7 +343,7 @@ The 2026-10-01 log says production `sync-f1` and `sync-news` were checked after 
 
 ## 9. Documentation inventory (every doc, rule file, log: purpose, up to date or stale, duplicate or conflicting, applied plans that should be deleted)
 
-Last verified: 2026-10-02
+Last verified: 2026-10-05
 
 “Up to date” means it matches the code and the live host on 2026-10-01. “Stale” means a claim in it is false now.
 
@@ -394,7 +394,8 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 
 | File | Purpose | Status |
 |---|---|---|
-| `docs/F1_Anlati_Stil_Kilavuzu.md` | House voice for anthology prose, derived from named YouTube channels, with an anti-plagiarism section | Editorial standard. It says transcript files live in `/workspace/f1-style/transcripts/`, which is not this repo. The guide itself is in-repo |
+| `docs/F1_Anlati_Stil_Kilavuzu.md` | House voice for anthology prose, derived from named YouTube channels, with an anti-plagiarism section | Editorial standard. Base reference. v2 layer in `docs/F1_Anlati_Stil_Kilavuzu_v2.md` |
+| `docs/F1_Anlati_Stil_Kilavuzu_v2.md` | Acoustic signal analysis, page prosody, bilingual TR/EN cadence, and multiformat narrative matrix (stories, news briefs, On This Day, lore) | Editorial standard v2 (2026-10-05). Active upper layer for anthology, news briefs, and site-wide editorial lore |
 | `docs/glossary-icon-prompts.md` | Prompts for glossary icons | Asset-generation note. Not verified against current icons |
 | `docs/anthology-ingestion-report.md` | 2026-09-17 report of race photographs copied into `/stories/...` | Historical ingestion record. Those subjects are real photographs. It is not a license ledger |
 | `docs/anthology-missing-assets-download-list.md` | Missing-asset download list | Likely stale after ingestion. Not re-audited file by file |

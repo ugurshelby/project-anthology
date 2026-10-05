@@ -3,6 +3,7 @@
 
 > **Bu belge ne?** Yiğit Tezcan ve Karaboğa'nın belgesel tadındaki, dramatik, insani ve edebi F1 anlatımını *teknik olarak* çözümleyip sitemizin antoloji bölümüne uyarlanmış, özgün bir yazım sesi (ev sesi) tanımlar.
 > **Ne değildir?** Bu kanalların metinlerini, cümlelerini, espri ve benzetmelerini kopyalamak için bir şablon değildir. Taklit değil, *zanaat* çıkarıyoruz: ton, tempo, imge mantığı, jargon disiplini ve karakter kurma mekaniği.
+> **v2 Güncellemesi (5 Ekim 2026):** Bu metin temel referans omurgasıdır. Akustik sinyal analizi, sesten yazıya aktarılan sayfa prozodisi, hem Türkçe hem İngilizce iki dilli dengeler ve çoklu anlatı formatları (Antoloji, Haberler, Tarihte Bugün, Sürücü/Takım Lore) için genişletilmiş üst katman olan [F1 Anlatı Stil Kılavuzu v2](F1_Anlati_Stil_Kilavuzu_v2.md) dökümanını birlikte inceleyiniz.
 
 ---
 

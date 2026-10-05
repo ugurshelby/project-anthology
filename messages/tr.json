@@ -272,8 +272,8 @@
       "otd": {
         "badge": "Tarihte Bugün · {date}",
         "flashback": "Tarihten Bir Kesit · {season}",
-        "wonGp": "{winner}, {season} yılında {race} yarışını {team} adına kazandı.",
-        "wonAt": "{winner}, {season} yılında {race} pistinde {team} adına kazandı.",
+        "wonGp": "{winner}, {season} {race} zaferine {team} direksiyonunda ulaştı.",
+        "wonAt": "{winner}, {season} yılında {race} pistinde {team} direksiyonunda damalı bayrağı ilk sırada gördü.",
         "also": "Aynı günde:"
       }
     },
