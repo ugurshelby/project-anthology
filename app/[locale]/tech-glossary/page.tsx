@@ -4,6 +4,8 @@ import { getGlossaryTerms } from '@/data/glossary/terms';
 import { getTyreCompounds } from '@/data/glossary/tyres';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { GlossaryExplorer } from '@/components/glossary/GlossaryExplorer';
+import { RegulationErasPanel } from '@/components/glossary/RegulationErasPanel';
+import { TyreThermalWindows } from '@/components/glossary/TyreThermalWindows';
 import { localizedAlternates } from '@/lib/seo';
 
 export async function generateMetadata({
@@ -83,6 +85,15 @@ export default async function TechGlossaryPage({ params }: { params: Promise<{ l
         </div>
       </div>
 
+      <div className="mb-12 space-y-10">
+        {/* 5.1 Regulation Eras Module */}
+        <RegulationErasPanel />
+
+        {/* 5.2 Tyre Physics & Thermal Operating Windows */}
+        <TyreThermalWindows />
+      </div>
+
+      {/* Interactive Search & Term Catalog */}
       <GlossaryExplorer terms={glossaryTerms} tyres={TYRE_COMPOUNDS} />
     </PageShell>
   );

@@ -120,6 +120,72 @@ function EmptySeat({ divided }: { divided?: boolean }) {
   );
 }
 
+function TeammateHeadToHead({
+  d1,
+  d2,
+  color,
+}: {
+  d1: DriverGridRow;
+  d2: DriverGridRow;
+  color: string;
+}) {
+  const pts1 = parseFloat(d1.points) || 0;
+  const pts2 = parseFloat(d2.points) || 0;
+  const total = pts1 + pts2;
+  const pct1 = total > 0 ? Math.round((pts1 / total) * 100) : 50;
+  const pct2 = 100 - pct1;
+  const pos1 = parseInt(d1.position, 10) || 99;
+  const pos2 = parseInt(d2.position, 10) || 99;
+
+  return (
+    <div className="relative z-10 flex flex-col gap-1.5 border-t border-hairline bg-white/[0.015] px-3.5 py-2 md:px-4">
+      <div className="flex items-center justify-between text-[11px] font-mono">
+        <div className="flex items-center gap-1.5">
+          <span className={`font-600 uppercase ${pos1 < pos2 ? 'text-text-hi' : 'text-text-mid'}`}>
+            {d1.driverCode || d1.driverName.slice(0, 3)}
+          </span>
+          {pos1 < pos2 ? (
+            <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[9px] font-bold text-[#00d26a]">
+              AHEAD
+            </span>
+          ) : null}
+        </div>
+        <span className="label-caps tracking-widest text-text-low text-[10px]">
+          H2H · {pts1} : {pts2} PTS
+        </span>
+        <div className="flex items-center gap-1.5">
+          {pos2 < pos1 ? (
+            <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[9px] font-bold text-[#00d26a]">
+              AHEAD
+            </span>
+          ) : null}
+          <span className={`font-600 uppercase ${pos2 < pos1 ? 'text-text-hi' : 'text-text-mid'}`}>
+            {d2.driverCode || d2.driverName.slice(0, 3)}
+          </span>
+        </div>
+      </div>
+
+      {/* Dual comparison bar */}
+      <div className="relative flex h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+        <div
+          className="h-full transition-all duration-300"
+          style={{
+            width: `${pct1}%`,
+            backgroundColor: pos1 <= pos2 ? color : 'rgba(255, 255, 255, 0.25)',
+          }}
+        />
+        <div
+          className="h-full transition-all duration-300"
+          style={{
+            width: `${pct2}%`,
+            backgroundColor: pos2 < pos1 ? color : 'rgba(255, 255, 255, 0.25)',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 /**
  * One constructor = one paddock garage panel (team identity + both seats).
  */
@@ -191,9 +257,12 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
           </div>
         </Link>
 
-        <div className="grid grid-cols-2 lg:min-h-0 lg:flex-1">
-          {d1 ? <DriverBay row={d1} season={season} color={color} /> : <EmptySeat />}
-          {d2 ? <DriverBay row={d2} season={season} color={color} divided /> : <EmptySeat divided />}
+        <div className="flex flex-col lg:min-h-0 lg:flex-1">
+          <div className="grid grid-cols-2 flex-1">
+            {d1 ? <DriverBay row={d1} season={season} color={color} /> : <EmptySeat />}
+            {d2 ? <DriverBay row={d2} season={season} color={color} divided /> : <EmptySeat divided />}
+          </div>
+          {d1 && d2 ? <TeammateHeadToHead d1={d1} d2={d2} color={color} /> : null}
         </div>
       </div>
     </article>

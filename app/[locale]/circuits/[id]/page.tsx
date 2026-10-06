@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { countryName, raceName } from '@/lib/i18n/format';
 import Image from 'next/image';
-import { ApexImage } from '@/components/media/ApexImage';
 import { localizedAlternates } from '@/lib/seo';
 import { getCircuitDetail, getCurrentSeasonResults, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
@@ -13,7 +12,9 @@ import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { SeasonResultsPanel } from '@/components/circuit/SeasonResultsPanel';
 import { CircuitCharacter } from '@/components/circuit/CircuitCharacter';
 import { CircuitWeatherCard } from '@/components/circuit/CircuitWeatherCard';
-import { circuitCoverSrc } from '@/lib/assets/f1-icons';
+import { CircuitElevationProfile } from '@/components/circuit/CircuitElevationProfile';
+import { CircuitLoreCards } from '@/components/circuit/CircuitLoreCards';
+import { circuitIconSrc } from '@/lib/assets/f1-icons';
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -60,7 +61,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
   if (!circuit) notFound();
 
   const facts = getCircuitFacts(id, locale);
-  const cover = circuitCoverSrc(id);
+  const svgTrackSrc = circuit.svgSrc ?? circuitIconSrc(id);
 
   const dossier = [
     { label: t('round'), value: circuit.round ? String(circuit.round) : '' },
@@ -87,39 +88,95 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               <TechnicalDossier entries={dossier} />
             </BentoCard>
 
-            {/* Track map — glassmorphic surface over the real circuit cover photo */}
+            {/* Track map — CAD Blueprint Viewport with telemetry grid & crosshairs */}
             <BentoCard
               span={8}
-              className="relative order-1 flex min-h-64 items-center justify-center overflow-hidden !bg-transparent !p-0 md:order-2 md:min-h-80"
+              className="relative order-1 flex min-h-72 flex-col justify-between overflow-hidden !bg-[#0b0f14] !p-5 md:order-2 md:min-h-88 border border-white/10"
             >
-              {cover ? (
-                <ApexImage
-                  src={cover}
-                  alt=""
-                  kind="circuit"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="pointer-events-none object-cover opacity-50"
-                />
-              ) : null}
-              <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-bg/40" />
+              {/* CAD Engineering Background Grid */}
               <div
-                className="relative z-10 m-4 flex h-[calc(100%-2rem)] w-[calc(100%-2rem)] items-center justify-center overflow-hidden rounded-[var(--radius-lg)] border border-white/15"
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-20"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 32px rgba(0,0,0,0.4)',
+                  backgroundImage: `
+                    linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '32px 32px',
                 }}
-              >
-                {circuit.svgSrc ? (
-                  <div className="relative h-56 w-full md:h-72">
-                    <Image src={circuit.svgSrc} alt={t('mapAlt', { name: circuit.circuitName })} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-contain" />
+              />
+
+              {/* CAD Crosshairs in corners */}
+              <div aria-hidden="true" className="pointer-events-none absolute top-3 left-3 font-mono text-[10px] text-white/30">
+                + [LAT_LON.CAD_GRID]
+              </div>
+              <div aria-hidden="true" className="pointer-events-none absolute top-3 right-3 font-mono text-[10px] text-accent/60">
+                FIA GRADE 1 // APEX TELEMETRY
+              </div>
+              <div aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 font-mono text-[10px] text-white/30">
+                SCALE: 1:5000 // SECTOR S1-S2-S3
+              </div>
+
+              {/* Radial center glow */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full bg-accent/[0.06] blur-3xl"
+              />
+
+              {/* Technical Header HUD */}
+              <div className="relative z-10 flex items-center justify-between text-xs font-mono text-text-low">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                  <span className="uppercase tracking-widest text-text-hi text-[11px] font-bold">
+                    {circuit.circuitName} {'//'} TRACK BLUEPRINT
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-3">
+                  {circuit.editorial.lapLengthKm ? (
+                    <span className="rounded bg-white/[0.04] px-2 py-0.5 border border-white/5">
+                      {circuit.editorial.lapLengthKm} KM
+                    </span>
+                  ) : null}
+                  {circuit.editorial.drsZones ? (
+                    <span className="rounded bg-white/[0.04] px-2 py-0.5 border border-white/5 text-accent">
+                      {circuit.editorial.drsZones} DRS ZONES
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Vector Track Geometry */}
+              <div className="relative z-10 my-auto flex items-center justify-center py-6">
+                {svgTrackSrc ? (
+                  <div className="relative h-56 w-full md:h-72 drop-shadow-[0_0_24px_rgba(255,24,1,0.18)]">
+                    <Image
+                      src={svgTrackSrc}
+                      alt={t('mapAlt', { name: circuit.circuitName })}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 60vw"
+                      className="object-contain transition-transform duration-500 hover:scale-[1.02]"
+                    />
                   </div>
                 ) : (
                   <span className="label-caps text-text-low">{t('noMap')}</span>
                 )}
               </div>
+
+              {/* Bottom Telemetry Bar */}
+              <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-2 text-[11px] font-mono text-text-mid">
+                <span>CIRCUIT ID: {circuit.circuitId.toUpperCase()}</span>
+                <span>{circuit.locality}, {countryName(circuit.country, locale)}</span>
+              </div>
+            </BentoCard>
+
+            {/* Elevation & Topography Profile */}
+            <BentoCard span={12}>
+              <CircuitElevationProfile
+                circuitId={id}
+                lengthKm={circuit.editorial.lapLengthKm ? parseFloat(circuit.editorial.lapLengthKm) : undefined}
+                drsZones={circuit.editorial.drsZones ? parseInt(circuit.editorial.drsZones, 10) : undefined}
+                corners={facts?.corners}
+              />
             </BentoCard>
 
             {weather ? (
@@ -134,28 +191,42 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </BentoCard>
             ) : null}
 
+            {/* Historical Lore Cards */}
+            <BentoCard span={12}>
+              <CircuitLoreCards circuitId={id} />
+            </BentoCard>
+
             {circuit.winners.length > 0 ? (
-              <BentoCard span={facts || weather ? 6 : 12}>
+              <BentoCard span={12}>
                 <span className="label-caps mb-3 block text-text-mid">{t('recentWinners')}</span>
-                <div className="flex flex-col">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {circuit.winners.map((w, i) => (
                     <div
                       key={w.season}
                       className={[
-                        'flex items-center gap-4 border-b border-hairline py-2.5 last:border-b-0',
-                        i === 0 ? 'text-text-hi' : '',
+                        'flex items-center justify-between rounded-lg border border-hairline bg-white/[0.02] p-3 transition-colors hover:border-white/15',
+                        i === 0 ? 'border-accent/40 bg-accent/[0.04]' : '',
                       ].join(' ')}
                     >
-                      <span className={['data-tabular w-14', i === 0 ? 'font-700 text-accent' : 'text-text-mid'].join(' ')}>
-                        {w.season}
-                      </span>
-                      <span
-                        className={['font-condensed flex-1 uppercase text-text-hi', i === 0 ? 'text-xl font-700' : 'text-lg font-600'].join(' ')}
-                        style={{ fontFamily: 'var(--font-condensed)' }}
-                      >
-                        {w.driverName}
-                      </span>
-                      <span className="data-tabular text-text-mid">{w.constructorName}</span>
+                      <div className="flex items-center gap-3">
+                        <span className={['data-tabular font-mono text-sm', i === 0 ? 'font-bold text-accent' : 'text-text-mid'].join(' ')}>
+                          {w.season}
+                        </span>
+                        <div>
+                          <span
+                            className={['font-condensed block uppercase text-text-hi', i === 0 ? 'text-lg font-700' : 'text-base font-600'].join(' ')}
+                            style={{ fontFamily: 'var(--font-condensed)' }}
+                          >
+                            {w.driverName}
+                          </span>
+                          <span className="text-xs text-text-mid">{w.constructorName}</span>
+                        </div>
+                      </div>
+                      {i === 0 ? (
+                        <span className="rounded bg-accent/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-accent">
+                          LATEST
+                        </span>
+                      ) : null}
                     </div>
                   ))}
                 </div>

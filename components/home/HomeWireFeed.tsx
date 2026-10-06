@@ -66,7 +66,7 @@ function WireThumbnail({
   );
 }
 
-export function HomeWireFeed({ items }: { items: NewsItem[] }) {
+export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: number }) {
   const locale = useLocale();
   const feed = items.slice(0, 6);
 
@@ -106,7 +106,7 @@ export function HomeWireFeed({ items }: { items: NewsItem[] }) {
           {feed.map((item) => {
             const title = localizedNewsTitle(item, locale);
             const team = detectTeamTag(item.title, item.summary);
-            const teamColor = team ? resolveTeamUiColor(undefined, team) : undefined;
+            const teamColor = team ? resolveTeamUiColor(undefined, team, season) : undefined;
             const thumb = hasRealImage(item) ? item.image : null;
             const rawTime = formatWireTime(item.publishedTs).replace(' UTC', '');
 

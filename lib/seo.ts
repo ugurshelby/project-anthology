@@ -106,3 +106,61 @@ export function articleJsonLd(input: {
     },
   };
 }
+
+/** SportsEvent JSON-LD for a Grand Prix race weekend. */
+export function sportsEventJsonLd(input: {
+  name: string;
+  startDate?: string;
+  endDate?: string;
+  circuitName: string;
+  locality?: string;
+  country: string;
+  round?: number | string;
+  season?: number | string;
+  url: string;
+}): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SportsEvent',
+    name: input.name,
+    sport: 'Formula 1',
+    url: absoluteUrl(input.url),
+    startDate: input.startDate,
+    endDate: input.endDate || input.startDate,
+    location: {
+      '@type': 'Place',
+      name: input.circuitName,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: input.locality,
+        addressCountry: input.country,
+      },
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: 'FIA - Fédération Internationale de l\'Automobile',
+    },
+  };
+}
+
+/** Vehicle/Product JSON-LD for a historic machinery car dossier. */
+export function vehicleJsonLd(input: {
+  name: string;
+  brand: string;
+  modelDate: string | number;
+  description: string;
+  url: string;
+}): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Vehicle',
+    name: input.name,
+    brand: {
+      '@type': 'Brand',
+      name: input.brand,
+    },
+    modelDate: String(input.modelDate),
+    description: input.description,
+    url: absoluteUrl(input.url),
+  };
+}
