@@ -28,25 +28,27 @@ No file in the repo states a business owner, a company, or a revenue model. Thos
 
 ## 2. Current state summary (what works, what is broken, what is half-built; measured, not described)
 
-Last verified: 2026-10-05
+Last verified: 2026-10-06
 
-The web app is a working Next.js product, not a skeleton and not an idea with little code. `components/` contains 89 `.ts`/`.tsx` files and `app/[locale]/` contains 20 `page.tsx` files [VERIFIED: file search]. The June 2026 note that the frontend was deleted is false for the tree that exists today. See section 9.
+The web app is a working Next.js product, not a skeleton and not an idea with little code. `components/` contains 95+ `.ts`/`.tsx` files and `app/[locale]/` contains 22 `page.tsx` files [VERIFIED: file search].
 
-### Measured as working on 2026-10-01 and 2026-10-05
+### Measured as working on 2026-10-06
 
 | Check | Result |
 |---|---|
-| Unit tests | `npm test` (Vitest 3.2.6): 22 files, 178/178 passed, 26.75s [VERIFIED] |
-| Lint | `npm run lint`: exit 0, 0 errors, 12 warnings [VERIFIED] |
-| Typecheck | `npx tsc --noEmit`: exit 0, no diagnostics [VERIFIED]. There is no `typecheck` script [VERIFIED: `package.json`] |
-| Production build | `npm run build`: exit 0 in about 713s. Next.js 16.2.7 compiled, TypeScript finished, 34/34 static pages generated [VERIFIED] |
+| Unit tests | `npx vitest run`: 36 test files, 278/278 passed (17.4s, exit 0) [VERIFIED: 2026-10-06] |
+| Lint | `npm run lint`: exit 0, 0 errors, 15 warnings [VERIFIED: 2026-10-06] |
+| Typecheck | `npx tsc --noEmit`: exit 0, no diagnostics [VERIFIED: 2026-10-06] |
+| Production build | `npm run build`: exit 0 (Next.js Turbopack). 48/48 static pages and dynamic routes compiled [VERIFIED: 2026-10-06] |
 | Live home | HTTP 200 [VERIFIED] |
 | Live `sitemap.xml` | HTTP 200; first URL is the eight host, with `en` / `tr` / `x-default` alternates [VERIFIED] |
 | Live `robots.txt` | HTTP 200; allows `/` and the legal paths; disallows `/api/` and `/api/cron/` [VERIFIED] |
-| Live cron without a token | `GET /api/cron/sync-news`, `/sync-f1`, `/sync-radio`, `/notify-sessions` returned HTTP 401 [VERIFIED: 2026-10-05] |
-| Database reachability from this machine | The build logged successful Supabase reads of `news_stories`, `stories`, `radio_moments`, and `f1_snapshots` for season 2026, including round 15 results and qualifying [VERIFIED: build log] |
-| Frontend browser audit | 20 pages across 375, 768, 1280 px (60 passes) + 6 TR locale pages: 0 horizontal overflow, 0 raw i18n keys, 0 NaN/undefined texts, 0 console errors, visible focus outline confirmed [VERIFIED: 2026-10-05 Chromium pass] |
-| Git | Branch `main` tracked `origin/main` at `c23acc2`. `git status` was clean before this file. 247 commits. A second branch `feat/apex-frontend-rebuild` exists at `330db35` [VERIFIED: `git status`, `git rev-list`, `git branch -vv`] |
+| Live cron without a token | `GET /api/cron/sync-news`, `/sync-f1`, `/sync-radio`, `/notify-sessions` returned HTTP 401 [VERIFIED] |
+| Database reachability from this machine | The build logged successful Supabase reads of `news_stories`, `stories`, `radio_moments`, and `f1_snapshots` for season 2026 [VERIFIED: build log] |
+| Machinery & CAD Blueprints | `/machinery` index and `/machinery/[id]` dossier routes with interactive SVG wireframes [VERIFIED: 2026-10-06] |
+| Tech Glossary 2.0 | `RegulationErasPanel` (1994–2026) and `TyreThermalWindows` (C1–C5) live in `/tech-glossary` [VERIFIED: 2026-10-06] |
+| Circuits & Telemetry | Topography elevation profiles and curated lore cards live in `/circuits/[id]` [VERIFIED: 2026-10-06] |
+| Season & Grid Dynamics | `SeasonProgressionChart`, `GridDeltaBadge`, and `TeammateHeadToHead` live in season and grid [VERIFIED: 2026-10-06] |
 
 ### Season history (added 2026-10-02)
 
@@ -149,7 +151,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 
 ## 4. Data and infrastructure (DB, schema, migrations, external APIs, cron jobs, deployment, branch and deploy triggers)
 
-Last verified: 2026-10-05
+Last verified: 2026-10-06
 
 ### Tables
 
@@ -209,6 +211,8 @@ All four cron routes call `isCronAuthorized` [VERIFIED: grep of `app/api/**/rout
 The YAML comments say Vercel Hobby allows one cron run per day, which is why the finer jobs moved to GitHub Actions [VERIFIED: workflow comments]. The actual Vercel plan on the current account was not opened [UNVERIFIED: no Vercel dashboard access in this pass].
 
 Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`. The news route comment says a 60-second minimum interval and idempotent rewrites [VERIFIED: `sync-news.yml` header]. They can still double the provider cost once a day.
+
+`sync-f1` is idempotent per snapshot (2026-10-06): a `source='jolpica'` row fetched at least 24h after its due window (`SNAPSHOT_SETTLE_AFTER_MS`) is final and is not fetched again, so each session is pulled from Jolpica until it settles and then left alone. Results and pit stops are gated separately, a postponed race un-settles itself (its due time moves), `?force=1` re-fetches everything in scope, and the response carries a `settled` counter. The fetch-time index is one `f1_snapshots` query that fails open (an unreadable DB means everything is fetched, as before) [VERIFIED: `lib/f1/syncSchedule.ts`, `lib/f1Ingest.ts`, `app/api/cron/sync-f1/route.ts`, `tests/sync-f1-idempotent.test.ts` 11 tests]. The read path is unchanged: a stale current-season DB row still falls through to the live Jolpica proxy [VERIFIED: `lib/data/f1.ts`].
 
 ### Deployment and branches
 
@@ -317,7 +321,7 @@ Agent rules that are written down but fight each other (auto-commit in `.cursor/
 
 ## 8. History and recurring problems (from logs and git history: past bugs, repeated mistakes, what fixed them)
 
-Last verified: 2026-10-05
+Last verified: 2026-10-06
 
 247 commits on `main` [VERIFIED: `git rev-list --count HEAD`]. Logs on disk are only `logs/2026-09-21.md`, `2026-09-28.md`, `2026-09-29.md`, and `2026-10-01.md`, because older logs were deleted from the working tree on 2026-10-01 [VERIFIED: `logs/` search and commit `c23acc2`]. Older incidents below are from `docs/reference/muhendislik-dersleri.md` (dated 2026-06-10 in its header) and from commit subjects. Where the lessons file disagrees with later code, the later code wins. The lessons file is a history source, not a current map.
 
@@ -340,6 +344,7 @@ Last verified: 2026-10-05
 | Parallel `next build` | Second build hit “Another next build process is already running” | Do not run two builds. Clear `.next` only when the lock is stale | [VERIFIED: lessons file. Not reproduced in this pass; one build was run] |
 | Asset path and diacritics | Hardcoded `/drivers/{slug}.svg` 404’d after a season-folder move. Accented Ergast ids missed files | Season-aware resolver and alias tests. Later made moot for photos by the null-icon policy | [VERIFIED: lessons file and `tests/f1-icons.test.ts` still passing] |
 | F1DB field name | Mapper read `driverResults`; the file uses `raceResults`, so results were empty | Mapper rewrite and a re-seed | [VERIFIED: lessons file. The 2026-09-28 log says a 1950–2017 backfill then showed 77/77 seasons. Not re-counted in this pass] |
+| F1DB race and circuit names | Same class of bug again: the mapper read `race.name` and `race.circuit.*`, which do not exist (F1DB `races[]` carries only `grandPrixId` / `circuitId`), so every historical calendar row has blank `raceName`, `circuitName`, locality and country. Live: 22/22, 24/24, 24/24 blank for 2022/2024/2025, 0 blank for 2026. Historical round pages render an empty `<h1>` and a ` 2025 \| Apex` title | Adapter now resolves names through `grandsPrix` / `circuits` / `countries` (2026-10-06). The live DB still holds the old rows until `npm run seed:f1db` is run with the owner's go-ahead (master plan 1.5) | [VERIFIED: live `/api/season/{year}`, `<title>` of `/season/2025/round/3`, F1DB schema, `tests/f1db-adapter.test.ts`. Re-seed not run] |
 
 The 2026-10-01 log says production `sync-f1` and `sync-news` were checked after the hostname move (92 stories, 42 original rewrites) and that GitHub’s secret/variable and Vercel `NEXT_PUBLIC_SITE_URL` were still to do [VERIFIED: log]. This analysis did not call the cron with a secret.
 

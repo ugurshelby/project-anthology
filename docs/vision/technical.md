@@ -59,7 +59,7 @@ Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
 
 **Tek temporal kaynak:** `lib/f1Calendar.ts` — `CURRENT_SEASON`, `getF1Context()`
 
-**Tarihsel kapsam:** `f1_snapshots` 1950–güncel sezon tam dolu (77/77 sezon, calendar+results+standings — 2026-09-28 backfill). `scripts/seed-f1-history.ts` varsayılanı `F1_SEASON_MIN` (1950), idempotent — yeniden çalıştırmak güvenli.
+**Tarihsel kapsam:** `f1_snapshots` 1950–güncel sezon tam dolu (77/77 sezon, calendar+results+standings — 2026-09-28 backfill). `scripts/seed-f1-history.ts` varsayılanı `F1_SEASON_MIN` (1950), idempotent — yeniden çalıştırmak güvenli. **Bilinen kusur (2026-10-06):** tarihsel takvim satırlarında yarış/pist/yer/ülke adları boş (F1DB adaptörü var olmayan alanları okuyordu); adaptör düzeltildi, canlı DB yeniden tohumlanmayı bekliyor (`docs/plans/master-plan.md` 1.5).
 
 **Kadro otomasyonu:** Sezon kadrosu (kim hangi takımda) hiçbir yerde hardcode değil — `getSeasonData(CURRENT_SEASON)` ile canlı Jolpica/DB'den gelir, yeni sezon başladığında kod değişikliği gerekmez. Pilot numarası da `DriverStandingRow.permanentNumber` ile canlı kaynaktan gelir (`lib/f1/mrdata.ts`) — yeni pilot standings'e girer girmez otomatik görünür. Yalnızca **editöryel** içerik (`data/drivers/index.ts` bio/lore, `config/team-colors.ts` marka renkleri) elle güncellenir; bunlar veri değil tasarım/içerik kararı, eksik olsa da UI kırılmaz (graceful fallback).
 
@@ -78,7 +78,7 @@ Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
 | Rota | Amaç |
 |---|---|
 | `/api/cron/sync-news` | RSS → kümeleme → `news_stories` (+ `news_cache`). Vercel günlük 06:00 UTC + GitHub Actions `sync-news.yml` saatlik (:07) |
-| `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (Vercel 07:00 UTC); `scope=live` GitHub Actions `sync-f1-race-aware.yml` saatlik due-check |
+| `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (Vercel 07:00 UTC); `scope=live` GitHub Actions `sync-f1-race-aware.yml` saatlik due-check. İdempotent: due penceresinden ≥ 24 sa sonra çekilmiş Jolpica satırı final sayılır, tekrar çekilmez; `?force=1` zorlar |
 | `/api/cron/sync-radio` | OpenF1 → radio_moments (08:00 UTC) |
 | `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (GitHub Actions `notify-sessions.yml`, 10dk) |
 | `/api/push/register` | Expo push token kayıt (rate-limit 10/dk) |
