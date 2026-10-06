@@ -78,6 +78,13 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   sourcemaps: {
     disable: !enableSentrySourceMaps,
   },
+  // Without the upload there is nothing to attach to a release; creating one
+  // anyway made every build call `sentry-cli releases new` and log
+  // "Project not found" whenever a token was present but the project was not.
+  release: {
+    create: enableSentrySourceMaps,
+    finalize: enableSentrySourceMaps,
+  },
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
   silent: !process.env.CI,

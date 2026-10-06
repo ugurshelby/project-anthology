@@ -1,5 +1,6 @@
 import type { MrData } from '@/lib/data/f1';
 import type { CalendarRace } from '@/lib/f1Calendar';
+import { resolveTeamUiColor } from '@/config/team-colors';
 
 export function getRacesFromCalendar(data: MrData | null): CalendarRace[] {
   const races = (data?.MRData as { RaceTable?: { Races?: CalendarRace[] } })?.RaceTable
@@ -437,76 +438,133 @@ export interface DriverCumulativePoints {
   driverName: string;
   driverCode: string;
   constructorName: string;
-  /** [round, cumulative points at that round] — sorted ascending */
+  /**
+   * Team UI colour resolved server-side for the season the snapshots belong to
+   * (era-correct livery colour, e.g. a 2008 Ferrari is not drawn in 2026 red).
+   */
+  color: string;
+  /**
+   * [round, cumulative points after that round] for EVERY round with a race
+   * result, ascending. A driver who sat a round out carries their total forward
+   * (and starts at 0), so all series span the same x-range.
+   */
   data: [number, number][];
 }
 
+export interface CumulativePointsOptions {
+  /** Season the snapshots belong to — drives the era-correct team colour. Defaults to the current season. */
+  season?: number;
+  /**
+   * `sprint` snapshots of the same season. Sprint points are scored on the
+   * race weekend's round, so they are added to that round's total — without
+   * them the final point would disagree with the official standings.
+   */
+  sprintResults?: MrData[];
+}
+
+interface WeekendResultRow {
+  position?: string;
+  points?: string;
+  Driver?: { givenName?: string; familyName?: string; code?: string };
+  Constructor?: { name?: string };
+}
+
 /**
- * Derives cumulative points per driver per round from all finished-round results.
+ * Derives cumulative points per driver per round from all finished-round results
+ * (plus sprint results when supplied).
  * Returns top-N drivers by final points, sorted desc.
- * Points per finishing position follow the standard 25-18-15-12-10-8-6-4-2-1 system.
+ * When a result row has no `points`, the standard 25-18-15-12-10-8-6-4-2-1 table
+ * is used for the race (never for sprints).
  */
 export function getDriverCumulativePoints(
   allRoundResults: MrData[],
   topN = 5,
+  options: CumulativePointsOptions = {},
 ): DriverCumulativePoints[] {
   const PTS_MAP: Record<number, number> = {
     1: 25, 2: 18, 3: 15, 4: 12, 5: 10,
     6: 8, 7: 6, 8: 4, 9: 2, 10: 1,
   };
 
-  interface RoundEntry {
-    round: number;
-    pts: number;
+  interface DriverAccumulator {
     driverCode: string;
     constructorName: string;
+    /** Round of the most recent race the driver appeared in — decides the team label. */
+    lastRound: number;
+    perRound: Map<number, number>;
   }
 
-  const perDriver = new Map<string, RoundEntry[]>();
+  const perDriver = new Map<string, DriverAccumulator>();
+  const raceRounds = new Set<number>();
+
+  const roundOf = (snapshot: MrData): { race: Record<string, unknown>; round: number } | null => {
+    const race = firstRace(snapshot);
+    if (!race) return null;
+    const round = Number(race.round);
+    return Number.isFinite(round) && round > 0 ? { race, round } : null;
+  };
+
+  const driverNameOf = (r: WeekendResultRow): string =>
+    `${r.Driver?.givenName ?? ''} ${r.Driver?.familyName ?? ''}`.trim();
+
+  const accumulatorFor = (name: string): DriverAccumulator => {
+    let acc = perDriver.get(name);
+    if (!acc) {
+      acc = { driverCode: '', constructorName: '', lastRound: 0, perRound: new Map() };
+      perDriver.set(name, acc);
+    }
+    return acc;
+  };
 
   for (const snapshot of allRoundResults) {
-    const race = firstRace(snapshot);
-    if (!race) continue;
-    const roundNum = Number(race.round);
-    if (!Number.isFinite(roundNum) || roundNum <= 0) continue;
+    const parsed = roundOf(snapshot);
+    if (!parsed) continue;
+    const { race, round } = parsed;
+    raceRounds.add(round);
 
-    const results =
-      (race.Results as
-        | Array<{
-            position?: string;
-            points?: string;
-            Driver?: { givenName?: string; familyName?: string; code?: string };
-            Constructor?: { name?: string };
-          }>
-        | undefined) ?? [];
-
-    for (const r of results) {
-      const given = r.Driver?.givenName ?? '';
-      const family = r.Driver?.familyName ?? '';
-      const driverName = `${given} ${family}`.trim();
-      if (!driverName) continue;
-      const pos = Number(r.position);
-      const pts = r.points ? Number(r.points) : (PTS_MAP[pos] ?? 0);
-      const driverCode = (r.Driver?.code ?? '').toLowerCase();
-      const constructorName = r.Constructor?.name ?? '';
-      if (!perDriver.has(driverName)) perDriver.set(driverName, []);
-      perDriver.get(driverName)!.push({ round: roundNum, pts, driverCode, constructorName });
+    for (const r of (race.Results as WeekendResultRow[] | undefined) ?? []) {
+      const name = driverNameOf(r);
+      if (!name) continue;
+      const pts = r.points ? Number(r.points) : (PTS_MAP[Number(r.position)] ?? 0);
+      const acc = accumulatorFor(name);
+      acc.perRound.set(round, (acc.perRound.get(round) ?? 0) + (Number.isFinite(pts) ? pts : 0));
+      if (round >= acc.lastRound) {
+        acc.lastRound = round;
+        acc.driverCode = (r.Driver?.code ?? '').toLowerCase();
+        acc.constructorName = r.Constructor?.name ?? '';
+      }
     }
   }
 
+  // A sprint only counts towards a weekend whose race result is known, so the
+  // series never gets a round the race table does not have.
+  for (const snapshot of options.sprintResults ?? []) {
+    const parsed = roundOf(snapshot);
+    if (!parsed || !raceRounds.has(parsed.round)) continue;
+    for (const r of (parsed.race.SprintResults as WeekendResultRow[] | undefined) ?? []) {
+      const name = driverNameOf(r);
+      if (!name) continue;
+      const pts = Number(r.points ?? 0);
+      if (!Number.isFinite(pts) || pts === 0) continue;
+      const acc = accumulatorFor(name);
+      acc.perRound.set(parsed.round, (acc.perRound.get(parsed.round) ?? 0) + pts);
+    }
+  }
+
+  const rounds = [...raceRounds].sort((a, b) => a - b);
+
   const series: DriverCumulativePoints[] = [];
-  for (const [driverName, entries] of perDriver.entries()) {
-    const sorted = entries.slice().sort((a, b) => a.round - b.round);
+  for (const [driverName, acc] of perDriver.entries()) {
     let cumPts = 0;
-    const data: [number, number][] = sorted.map((e) => {
-      cumPts += e.pts;
-      return [e.round, cumPts];
+    const data: [number, number][] = rounds.map((round) => {
+      cumPts += acc.perRound.get(round) ?? 0;
+      return [round, cumPts];
     });
-    const last = sorted[sorted.length - 1];
     series.push({
       driverName,
-      driverCode: last?.driverCode ?? '',
-      constructorName: last?.constructorName ?? '',
+      driverCode: acc.driverCode,
+      constructorName: acc.constructorName,
+      color: resolveTeamUiColor(undefined, acc.constructorName, options.season),
       data,
     });
   }

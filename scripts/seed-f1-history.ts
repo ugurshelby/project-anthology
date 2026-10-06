@@ -103,7 +103,7 @@ async function main(): Promise<void> {
     console.log(`Season ${season}: ${seasonRaces.length} races`);
 
     // Season-level snapshots
-    const calData = toMRDataCalendar(season, races);
+    const calData = toMRDataCalendar(season, races, lk);
     await upsert(season, null, 'calendar', calData as unknown as Json, dryRun, stats);
 
     if (seasonRecord) {

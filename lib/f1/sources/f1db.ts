@@ -27,14 +27,23 @@ const FETCH_TIMEOUT_MS = 120_000; // 120 s — zip download
 // F1DB is fully normalized: result/standing items carry only IDs; driver and
 // constructor names live in top-level `drivers[]` / `constructors[]` lookups.
 
-interface F1DbRace {
+// Race items carry NO name and NO embedded circuit (verified against
+// f1db.schema.json): the Grand Prix title, circuit name, place and country are
+// all id references into the top-level `grandsPrix[]`, `circuits[]` and
+// `countries[]` tables, resolved through F1DbLookups below.
+export interface F1DbRace {
   year: number;
   round: number;
-  name?: string;
+  grandPrixId?: string;
+  officialName?: string;
   date?: string;
+  /** "HH:mm" (UTC) — Ergast consumers expect "HH:mm:ssZ", see `ergastTime`. */
   time?: string;
   circuitId?: string;
-  circuit?: { circuitId?: string; name?: string; country?: string; city?: string };
+  qualifyingDate?: string;
+  qualifyingTime?: string;
+  sprintRaceDate?: string;
+  sprintRaceTime?: string;
   raceResults?: F1DbDriverResult[];
   qualifyingResults?: F1DbQualResult[];
   sprintRaceResults?: F1DbDriverResult[];
@@ -90,10 +99,35 @@ interface F1DbConstructor {
   fullName?: string;
 }
 
+interface F1DbGrandPrix {
+  id?: string;
+  /** Short title, e.g. "Australia". */
+  name?: string;
+  /** Ergast-style race name, e.g. "Australian Grand Prix". */
+  fullName?: string;
+}
+
+interface F1DbCircuit {
+  id?: string;
+  name?: string;
+  fullName?: string;
+  /** City / locality, e.g. "Melbourne". */
+  placeName?: string;
+  countryId?: string;
+}
+
+interface F1DbCountry {
+  id?: string;
+  name?: string;
+}
+
 export interface F1DbData {
   races?: F1DbRace[];
   drivers?: F1DbDriver[];
   constructors?: F1DbConstructor[];
+  grandsPrix?: F1DbGrandPrix[];
+  circuits?: F1DbCircuit[];
+  countries?: F1DbCountry[];
   seasons?: Array<{
     year: number;
     rounds?: number;
@@ -106,6 +140,9 @@ export interface F1DbData {
 export interface F1DbLookups {
   drivers: Map<string, F1DbDriver>;
   constructors: Map<string, F1DbConstructor>;
+  grandsPrix: Map<string, F1DbGrandPrix>;
+  circuits: Map<string, F1DbCircuit>;
+  countries: Map<string, F1DbCountry>;
 }
 
 let _lookups: F1DbLookups | null = null;
@@ -117,7 +154,13 @@ export function getF1DbLookups(db: F1DbData): F1DbLookups {
   for (const d of db.drivers ?? []) if (d.id) drivers.set(d.id, d);
   const constructors = new Map<string, F1DbConstructor>();
   for (const c of db.constructors ?? []) if (c.id) constructors.set(c.id, c);
-  _lookups = { drivers, constructors };
+  const grandsPrix = new Map<string, F1DbGrandPrix>();
+  for (const g of db.grandsPrix ?? []) if (g.id) grandsPrix.set(g.id, g);
+  const circuits = new Map<string, F1DbCircuit>();
+  for (const c of db.circuits ?? []) if (c.id) circuits.set(c.id, c);
+  const countries = new Map<string, F1DbCountry>();
+  for (const c of db.countries ?? []) if (c.id) countries.set(c.id, c);
+  _lookups = { drivers, constructors, grandsPrix, circuits, countries };
   return _lookups;
 }
 
@@ -200,6 +243,39 @@ function ergastConstructor(
   };
 }
 
+/** Ergast race name ("Australian Grand Prix") resolved from the race's Grand Prix id. */
+function ergastRaceName(race: F1DbRace | undefined, lk: F1DbLookups): string {
+  if (!race) return '';
+  const gp = race.grandPrixId ? lk.grandsPrix.get(race.grandPrixId) : undefined;
+  return gp?.fullName ?? race.officialName ?? gp?.name ?? '';
+}
+
+/** Ergast-shape Circuit block (name, locality, country) resolved from the race's circuit id. */
+function ergastCircuit(race: F1DbRace, lk: F1DbLookups): Record<string, unknown> {
+  const circuitId = race.circuitId ?? '';
+  const circuit = lk.circuits.get(circuitId);
+  const country = circuit?.countryId ? lk.countries.get(circuit.countryId) : undefined;
+  return {
+    circuitId,
+    circuitName: circuit?.name ?? circuit?.fullName ?? '',
+    Location: { country: country?.name ?? '', locality: circuit?.placeName ?? '' },
+  };
+}
+
+/** F1DB times are "HH:mm" UTC; Ergast/Jolpica (and `Date.parse` without a local-time surprise) want "HH:mm:ssZ". */
+export function ergastTime(time: string | undefined): string {
+  if (!time) return '';
+  if (/^\d{2}:\d{2}$/.test(time)) return `${time}:00Z`;
+  if (/^\d{2}:\d{2}:\d{2}$/.test(time)) return `${time}Z`;
+  return time;
+}
+
+/** Ergast session slot ({date, time}); undefined when the session is not on the F1DB race. */
+function ergastSlot(date: string | undefined, time: string | undefined): { date: string; time?: string } | undefined {
+  if (!date) return undefined;
+  return time ? { date, time: ergastTime(time) } : { date };
+}
+
 /** A position string Ergast consumers expect ("1", "R", …). */
 function ergastPosition(r: { positionNumber?: number | null; positionText?: string | null }): string | null {
   if (r.positionNumber != null) return String(r.positionNumber);
@@ -233,7 +309,7 @@ function qualResultToErgast(r: F1DbQualResult, lk: F1DbLookups): Record<string, 
 }
 
 /** Build MRData calendar envelope for a single season. */
-export function toMRDataCalendar(season: number, races: F1DbRace[]): MRData {
+export function toMRDataCalendar(season: number, races: F1DbRace[], lk: F1DbLookups): MRData {
   const seasonRaces = races.filter((r) => r.year === season);
   return {
     MRData: {
@@ -248,17 +324,12 @@ export function toMRDataCalendar(season: number, races: F1DbRace[]): MRData {
         Races: seasonRaces.map((r) => ({
           season: String(season),
           round: String(r.round),
-          raceName: r.name ?? '',
+          raceName: ergastRaceName(r, lk),
           date: r.date ?? '',
-          time: r.time ?? '',
-          Circuit: {
-            circuitId: r.circuit?.circuitId ?? r.circuitId ?? '',
-            circuitName: r.circuit?.name ?? '',
-            Location: {
-              country: r.circuit?.country ?? '',
-              locality: r.circuit?.city ?? '',
-            },
-          },
+          time: ergastTime(r.time),
+          Circuit: ergastCircuit(r, lk),
+          Qualifying: ergastSlot(r.qualifyingDate, r.qualifyingTime),
+          Sprint: ergastSlot(r.sprintRaceDate, r.sprintRaceTime),
         })),
       },
     },
@@ -278,9 +349,9 @@ export function toMRDataResults(
         {
           season: String(season),
           round: String(round),
-          raceName: race.name ?? '',
+          raceName: ergastRaceName(race, lk),
           date: race.date ?? '',
-          Circuit: { circuitId: race.circuit?.circuitId ?? race.circuitId ?? '' },
+          Circuit: ergastCircuit(race, lk),
           Results: (race.raceResults ?? []).map((r) => driverResultToErgast(r, lk)),
         },
       ]
@@ -305,9 +376,9 @@ export function toMRDataQualifying(
         {
           season: String(season),
           round: String(round),
-          raceName: race.name ?? '',
+          raceName: ergastRaceName(race, lk),
           date: race.date ?? '',
-          Circuit: { circuitId: race.circuit?.circuitId ?? race.circuitId ?? '' },
+          Circuit: ergastCircuit(race, lk),
           QualifyingResults: (race.qualifyingResults ?? []).map((r) => qualResultToErgast(r, lk)),
         },
       ]
@@ -334,7 +405,7 @@ export function toMRDataSprint(
           {
             season: String(season),
             round: String(round),
-            raceName: race?.name ?? '',
+            raceName: ergastRaceName(race, lk),
             SprintResults: sprintResults.map((r) => driverResultToErgast(r, lk)),
           },
         ]
