@@ -1,0 +1,29 @@
+name: sync-media
+
+# Hourly media (image) sync: resolves one license-checked image per driver / team /
+# car / circuit and stores re-encoded WebP copies (see app/api/cron/sync-media/route.ts
+# and docs/reference/media-sistemi.md). Vercel Hobby crons run once a day, which is too
+# slow for the initial backlog, so this runs on GitHub Actions like sync-news.yml,
+# reusing the same repo secret/var (CRON_SECRET_KEY, SITE_URL).
+# The route is incremental (only DUE rows are processed, inside a 240 s budget) and
+# a 60 s minimum interval guards against overlapping invocations. With nothing due
+# it is one cheap query. It stays inert until the media_assets migration is applied.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *' # hourly, off the :00 peak (UTC)
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Call sync-media
+        env:
+          CRON_SECRET_KEY: ${{ secrets.CRON_SECRET_KEY }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          curl -sf --max-time 320 -X GET "${SITE_URL%/}/api/cron/sync-media" \
+            -H "Authorization: Bearer ${CRON_SECRET_KEY}" \
+            -w "\nHTTP %{http_code}\n"

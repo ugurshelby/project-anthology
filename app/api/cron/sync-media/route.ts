@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
+import { isMissingMediaTables } from '@/lib/media/errors';
 import { isMediaEntityType, isValidMediaKey } from '@/lib/media/keys';
 import { runMediaSync } from '@/lib/media/sync';
 
@@ -58,7 +59,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     );
     return NextResponse.json(report);
   } catch (err) {
-    console.error('[sync-media] failed:', err instanceof Error ? err.message : String(err));
+    const message = err instanceof Error ? err.message : String(err);
+    // Migration not applied yet: stay inert (200) so the hourly workflow is not red until the owner applies it.
+    if (isMissingMediaTables(message)) {
+      console.warn('[sync-media] skipped: media tables are not migrated yet');
+      return NextResponse.json({ skipped: true, reason: 'media tables not migrated yet' });
+    }
+    console.error('[sync-media] failed:', message);
     return NextResponse.json({ error: 'sync-media failed' }, { status: 500 });
   }
 }

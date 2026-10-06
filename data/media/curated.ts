@@ -88,7 +88,7 @@ export const ICONIC_CARS: IconicCar[] = [
     files: ['Mika Hakkinen 2008 Stars and Cars McLaren MP4-13.jpg', 'McLaren MP4-13 at Goodwood 2012 (4).jpg'],
   },
   {
-    slug: 'red-bull-rb19', name: 'Red Bull RB19', constructorId: 'red_bull', season: 2023,
+    slug: 'redbull-rb19', name: 'Red Bull RB19', constructorId: 'red_bull', season: 2023,
     files: ['FIA F1 Austria 2023 Nr. 1 (1).jpg'],
     query: 'Red Bull RB19 Verstappen 2023',
   },
@@ -131,6 +131,12 @@ export const ICONIC_CARS: IconicCar[] = [
   {
     slug: 'lotus-49', name: 'Lotus 49', constructorId: 'lotus_f1', season: 1968,
     files: ['1968 Lotus 49 Ford (49380121867).jpg'],
+  },
+  {
+    // Matches data/machinery/cars.ts id 'lotus-72'. Files checked on Commons 2026-10-06 (CC BY-SA 3.0 / CC BY 3.0 / CC BY-SA 4.0, all >= 2500 px wide).
+    slug: 'lotus-72', name: 'Lotus 72', constructorId: 'lotus_f1', season: 1970,
+    files: ['Lotus 72 JPS.jpg', 'Lotus 72.JPG', 'Lotus 72 at Formula 1 Exhibition, London 01.jpg'],
+    query: 'Lotus 72 Formula One',
   },
   {
     slug: 'lotus-79', name: 'Lotus 79', constructorId: 'lotus_f1', season: 1978,
