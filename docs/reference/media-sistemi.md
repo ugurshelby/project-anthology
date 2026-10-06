@@ -2,7 +2,7 @@
 
 Last verified: 2026-10-06
 
-Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend'in (Antigravity) bu sisteme nasıl güvenli bağlanacağını** anlatır. Kod ve migration hazırdır; migration canlı veritabanına 2026-10-06'da uygulandı, kod ve workflow canlıya çıkınca ilk dolum başlar (bkz. Bölüm 13).
+Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend'in (Antigravity) bu sisteme nasıl güvenli bağlanacağını** anlatır. Kod ve migration hazırdır; migration canlı veritabanına uygulandı ve kod/workflow 2026-10-06'da canlıya çıktı; ilk `sync-media` koşusuyla dolum başlar (bkz. Bölüm 13).
 
 > Tek cümlede: Site **hiçbir zaman** Wikimedia'ya (veya başka bir görsel kaynağına) kendi isteğiyle gitmez. Zamanlanmış bir iş (cron) her varlık için lisansı doğrulanmış tek bir görsel bulur, kendi WebP kopyasını Supabase Storage'a yükler, bilgisini `media_assets` tablosuna yazar. Sayfalar yalnızca bu tabloyu okur. Kayıt yoksa **placeholder** çizilir.
 
