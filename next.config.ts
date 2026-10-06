@@ -23,6 +23,18 @@ const SECURITY_HEADERS = [
   },
 ];
 
+// next/image may optimize ONLY our own Supabase Storage `media` bucket (re-encoded, license-checked
+// WebP written by the sync-media cron). Anything else stays blocked. See docs/reference/media-sistemi.md.
+function mediaRemotePatterns(): NonNullable<NonNullable<NextConfig['images']>['remotePatterns']> {
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '');
+    if (url.protocol !== 'https:') return [];
+    return [{ protocol: 'https', hostname: url.hostname, pathname: '/storage/v1/object/public/media/**' }];
+  } catch {
+    return [];
+  }
+}
+
 // On Vercel preview deployments, add noindex so search engines don't index staging.
 // Production (VERCEL_ENV=production) never gets noindex.
 const isPreview = process.env.VERCEL_ENV === 'preview';
@@ -50,8 +62,9 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // External editorial images are intentionally not optimized remotely.
     // Local/openly licensed SVG and raster assets remain supported, while
-    // unverified press/team imagery falls back through ApexImage.
-    remotePatterns: [],
+    // unverified press/team imagery falls back through ApexImage. The only
+    // remote source is the media bucket (see mediaRemotePatterns above).
+    remotePatterns: mediaRemotePatterns(),
   },
   // Keep heavy/unnecessary files out of serverless function bundles. NOTE:
   // jsdom must NOT be excluded — the news aggregator (lib/news/aggregate.ts)
