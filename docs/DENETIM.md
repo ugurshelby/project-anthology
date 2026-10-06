@@ -12,7 +12,7 @@ Bu döküman, kurucunun vizyonunda belirtilen misyon hedefleri doğrultusunda pr
 
 Apex'in temel omurgası kurulmuş ve yayındadır. Ancak kullanıcı deneyiminde güçlü hissedilen alanlar ile tamamlanması gereken kritik boşluklar arasında belirgin bir fark vardır:
 
-- **En Güçlü Yönümüz:** Derin hikaye anlatımı ([Anthology](file:///c:/Users/ts/Desktop/Coding/anthology/app/[locale]/anthology)), editoryal ton, pilot ve takım profil sayfalarındaki zenginlik ve [DriverHeroGraphic](file:///c:/Users/ts/Desktop/Coding/anthology/components/profile/DriverHeroGraphic.tsx) ile sıfır telif riskiyle üretilen özgün prosedürel CAD/tipografik görsel dil.
+- **En Güçlü Yönümüz:** Derin hikaye anlatımı ([Anthology](../app/[locale]/anthology)), editoryal ton, pilot ve takım profil sayfalarındaki zenginlik ve [DriverHeroGraphic](../components/profile/DriverProfileHero.tsx) ile sıfır telif riskiyle üretilen özgün prosedürel CAD/tipografik görsel dil.
 - **Kritik Eksiklikler:** Sezon takibinin statik kalması, efsanevi araçlar (Machinery) bölümünün henüz hiç var olmaması, pist sayfalarının görsel ve telemetrik olarak boş hissettirmesi, regülasyonların araç karakteristiğine etkisini anlatan teknik sözlük derinliğinin eksikliği ve telif temizliği sonrası doğan genel görsel kuruluk.
 
 ---

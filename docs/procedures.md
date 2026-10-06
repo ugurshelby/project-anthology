@@ -48,8 +48,8 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 ## 4. Docs freshness sweep
 
 - Triggers: "doküman taraması", "bayat dokümanları temizle", "docs sweep".
-- Scope: `README.md`, `AGENTS.md`, `docs/**` (not vendored skill packs), `logs/`, `.env.example`, `ROADMAP.md`, `PRODUCT.md`.
-- Steps: compare each claim (routes, env names, counts, hosts, branches, commands) with the code; fix false lines; delete fully applied plans and false docs (git history is the archive; no archive folders); keep `docs/plans/master-plan.md` as the only live checklist and make boxes match code; keep the reference current; delete logs older than 15 days.
+- Scope: `README.md`, `AGENTS.md`, `docs/**` (not vendored skill packs), `logs/`, `.env.example`.
+- Steps: compare each claim (routes, env names, counts, hosts, branches, commands) with the code; fix false lines; delete fully applied plans and false docs (git history is the archive; no archive folders); ensure no docs exist in root except `README.md` and `AGENTS.md`; keep `docs/plans/master-plan.md` as the only live checklist and make boxes match code; review and keep `docs/PRODUCT.md` fresh; keep the reference current; delete logs older than 15 days.
 - May change: any doc. Never edit `docs/design/` essays beyond the README index, and never vendored skill packs.
 - Only report: docs about mobile or licensing that wait on an owner decision.
 - Docs: reference section 9.
@@ -88,13 +88,16 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 ## 8. Docs refinement
 
 - Triggers: "docs refinement prosedürü", "dokümanları rafine et", "docs refinement".
-- Scope: `docs/**` (özellikle `docs/plans/master-plan.md`, `docs/reference/`, `docs/` kök dizini ve `docs/README.md`). `docs/plans/acil-eylem-plani.md` gibi açık geliştirici direktiflerine dokunulmaz.
+- Scope: `docs/**` (özellikle `docs/plans/master-plan.md`, `docs/PRODUCT.md`, `docs/reference/`, `docs/` kök dizini ve `docs/README.md`). `docs/plans/acil-eylem-plani.md` gibi açık geliştirici direktiflerine dokunulmaz.
 - Steps:
   1. `docs/vision/apex-vision.md`'yi temel referans ve pusula alarak tüm dokümantasyonu tara.
-  2. `docs/plans/master-plan.md` içindeki tamamlanmış işleri (`[x]`) temizle; yalnızca açık işleri bırak (`[ ]` / `[~]`) ve bunları vizyon-misyon hiyerarşisine göre (Kusursuz Saat Veri Altyapısı, Yaşayan Sezon & Grid, Pistler & Topoğrafya, Machinery İkonik Araçlar, Tech Glossary 2.0, Telif-Güvenli Görseller, Mobil/Kalite) sırala.
-  3. `docs/reference/` ve `docs/` kök dizinindeki bayat, çözülmüş veya geçici raporları (ingestion logları, eski düzeltme önerileri vb.) sil; yaşayan dökümanları vizyon doğrultusunda güncelle ve adlarını anlaşılır yap.
-  4. Tüm iç bağlantıları (link/path) doğrula; sıfır kırık link sağla.
-  5. `docs/README.md` master dokümantasyon dizinini ve haritasını güncelle.
+  2. Kök dizin hijyenini sağla: Ana proje dizininde yalnızca `README.md` ve `AGENTS.md` kalabilir; tüm diğer dokümanlar `docs/` altında toplanmalıdır.
+  3. `docs/plans/master-plan.md` içindeki tamamlanmış işleri (`[x]`) temizle; yalnızca açık işleri bırak (`[ ]` / `[~]`) ve bunları vizyon-misyon hiyerarşisine göre (Kusursuz Saat Veri Altyapısı, Yaşayan Sezon & Grid, Pistler & Topoğrafya, Machinery İkonik Araçlar, Tech Glossary 2.0, Telif-Güvenli Görseller, Mobil/Kalite) sırala.
+  4. Rapor ve referans yaşam döngüsü: İncelenip açık işleri `master-plan.md`'ye aktarılan referans veya rapor dokümanları (ör. denetim raporları) repodan silinmelidir; eski/bayat raporlar saklanmaz (arşiv git geçmişidir).
+  5. Proje tanıtım vitrini (`docs/PRODUCT.md`): Mimari, arayüz ve vizyonel kararları yansıtacak şekilde her refinemenet işlemi sonunda güncel tutulmalıdır.
+  6. `docs/reference/` ve `docs/` kök dizinindeki bayat, çözülmüş veya geçici raporları sil; yaşayan dökümanları vizyon doğrultusunda güncelle ve adlarını anlaşılır yap.
+  7. Tüm iç bağlantıları (link/path) doğrula; sıfır kırık link sağla.
+  8. `docs/README.md` master dokümantasyon dizinini ve haritasını güncelle.
 - May change: `docs/**`, `docs/README.md`, `docs/reference/apex-reference.md`.
 - Only report: silinen, güncellenen ve yeniden adlandırılan dosyalar.
 - Output: temizlenmiş doküman listesi, güncel açık işler özeti, kapı kontrol sonuçları.

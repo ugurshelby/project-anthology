@@ -65,6 +65,12 @@
 - [ ] **Editoryal İnceleme (Sahip):** Dönem renk listesi (`data/history/liveries.ts`) ve takım DNA metinleri (`data/history/team-dna.ts`).
 - [ ] **Mobil Uygulama (Sahip):** Cihazda Expo Go / preview test, App Store / Google Play süreçleri ve `mobile/` deposunun durumu.
 
+### 🔍 Öncelik 8: SEO, Yapılandırılmış Veri & Core Web Vitals (Production Release)
+
+- [ ] **Structured Data (JSON-LD) & OpenGraph:** Grand Prix/yarış detayları için `SportsEvent`, pilot detayları için `Person`, takım detayları için `SportsTeam` şemalarının schema validator ve Search Console ile doğrulanması; mutlak `og:image` boyut ve fallback kontrolleri.
+- [ ] **Core Web Vitals & Lighthouse Baseline:** Canlı prod ortamında LCP (<2.5s), INP (<200ms) ve CLS (<0.1) performans eşiklerinin ölçülerek tescillenmesi.
+- [ ] **Sentry ve Hata Gözlemlenebilirliği:** Build sırasındaki `Project not found` Sentry kaynak haritası yapılandırmasının düzeltilmesi ve prod hata yakalama/alert akışının doğrulanması.
+
 ---
 
 ## 3. Teknik Borç ve Çevre Takibi

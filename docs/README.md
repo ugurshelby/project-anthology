@@ -23,6 +23,8 @@ Tüm yapay zeka ajanları (Claude Code, Cursor, Antigravity vb.) ve geliştirici
 ```
 docs/
 ├── README.md                           # Bu dosya — Dokümantasyon ana indeksi ve haritası
+├── PRODUCT.md                          # Proje ve ürün tanıtım vitrini (Her refactoring/freshness sonrası güncellenir)
+├── DENETIM.md                          # Misyon ve Eksiklikler Denetim Raporu (Brownfield analizi)
 ├── procedures.md                       # 8 adet tekrarlanabilir operasyonel ve bakım prosedürü
 ├── F1_Anlati_Stil_Kilavuzu.md          # Antoloji ve içerik için temel editoryal "ev sesi" rehberi
 ├── F1_Anlati_Stil_Kilavuzu_v2.md       # Akustik analiz, sayfa prozodisi ve çoklu format editoryal matrisi
@@ -61,9 +63,13 @@ docs/
 - **[`apex-vision.md`](vision/apex-vision.md):** Projenin "Neden?" sorusuna yanıt veren ana metin. Saat mekanizması harmonik veri akışı, sıfır takılmalı akıcı frontend ve rafine UI/UX dengesini kurar.
 - **[`technical.md`](vision/technical.md):** Mimari bileşenlerin hızlı teknik dökümü.
 
+### 🌟 `docs/PRODUCT.md` (Ürün ve Proje Tanıtım Dokümanı)
+- Projenin resmi vitrin ve ürün özet dökümanıdır.
+- Her `docs refinement` veya `docs freshness sweep` prosedürü sonrasında mimari, arayüz ve vizyonel kararları yansıtacak şekilde güncel tutulması zorunludur.
+
 ### 📋 `docs/plans/` (İş Listeleri ve Planlama)
 - **[`acil-eylem-plani.md`](plans/acil-eylem-plani.md):** Geliştiricinin bizzat yazdığı öncelikli eylem planı. Yapay zeka ajanları tarafından değiştirilmez.
-- **[`master-plan.md`](plans/master-plan.md):** Tamamlanan maddelerin temizlendiği, yalnızca açık işlerin `apex-vision.md`'deki 7 öncelik seviyesine göre listelendiği tek canlı plan.
+- **[`master-plan.md`](plans/master-plan.md):** Tamamlanan maddelerin temizlendiği, yalnızca açık işlerin `apex-vision.md`'deki 8 öncelik seviyesine göre listelendiği tek canlı plan.
 
 ### 🎨 `docs/design/` (Tasarım Sistemi)
 - **[`apex-design.md`](design/apex-design.md):** F1 dinamizmini Apple tasarım ilkeleri (titiz mikro-etkileşimler, fizik temelli yay hareketleri, saydam malzemeler, hiyerarşik tipografi) ile birleştiren master rehber.
@@ -76,23 +82,27 @@ docs/
 
 ---
 
-## 4. Standart Prosedür: Docs Refinement (Prosedür 8)
+## 4. Dokümantasyon Kuralları & Docs Refinement (Prosedür 8)
 
-Proje sahibi *"docs refinement prosedürü uygula"*, *"dokümanları rafine et"* veya *"docs refinement"* komutunu verdiğinde aşağıdaki standart döngü işletilir:
+### 🛑 Kök Dizin Doküman Kısıtı:
+Ana proje kök dizininde (`/`) kesinlikle serbest dokümantasyon, rapor veya markdown dosyası **bulunamaz**.
+Kök dizinde yalnızca:
+- [`README.md`](../README.md)
+- [`AGENTS.md`](../AGENTS.md)
+yer alabilir. Tüm plan, spek, rapor, tasarım ve referans belgeleri `docs/` altında konumlandırılmalıdır.
+
+### ♻️ Rapor ve Referans Yaşam Döngüsü:
+Bir denetim veya araştırma raporu (ör. `DENETIM.md` vb.) tamamen incelenip açık eylem maddeleri plan dokümanına (`docs/plans/master-plan.md`) aktarıldıktan sonra repodan silinmelidir. Boşa eski döküman saklanmaz; arşiv git geçmişidir.
+
+### 🔄 Docs Refinement Prosedürü Döngüsü:
 
 ```mermaid
 graph TD
-    A["1. Pusulayı Yükle<br>(docs/vision/apex-vision.md)"] --> B["2. Master Planı Temizle<br>(Tamamlananları sil, açıkları vizyona göre sırala)"]
+    A["1. Pusulayı Yükle<br>(docs/vision/apex-vision.md)"] --> B["2. Master Planı Temizle & Genişlet<br>(Tamamlananları sil, açıkları vizyona göre sırala)"]
     B --> C["3. acil-eylem-plani.md'yi Koru<br>(Geliştirici direktifine dokunma)"]
-    C --> D["4. docs/reference & Kök Dizin Taraması<br>(Bayat raporları sil, adları standartlaştır)"]
-    D --> E["5. İç Bağlantı & Link Doğrulaması<br>(Sıfır kırık bağlantı)"]
-    E --> F["6. docs/README.md Güncellemesi<br>(Haritayı senkronize et)"]
+    C --> D["4. Kök Dizin & docs/ Taraması<br>(Yalnızca README ve AGENTS kökte kalır, raporları plana aktar)"]
+    D --> E["5. docs/PRODUCT.md Güncellemesi<br>(Ürün tanıtımını taze tut)"]
+    E --> F["6. İç Bağlantı & Link Doğrulaması<br>(Sıfır kırık bağlantı)"]
     F --> G["7. Doğrulama Kapıları<br>(test, lint, tsc, build)"]
     G --> H["8. Günlük Kaydı & Commit<br>(logs/YYYY-MM-DD.md ve push)"]
 ```
-
-### Prosedür Kuralları:
-1. `docs/plans/acil-eylem-plani.md` dosyasına asla dokunulmaz.
-2. `docs/plans/master-plan.md` dosyasında yalnızca `[ ]` veya `[~]` açık işler kalır, tamamlananlar (`[x]`) temizlenir (arşiv git geçmişidir).
-3. Dokümantasyonda yapılan her yol veya isim değişikliği kod tabanındaki referanslarla senkronize edilir.
-4. İşlem bitiminde Vitest, ESLint, TypeScript (`tsc --noEmit`) ve Next.js (`npm run build`) kapı kontrolleri koşulur.
