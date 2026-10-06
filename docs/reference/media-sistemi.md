@@ -2,7 +2,7 @@
 
 Last verified: 2026-10-06
 
-Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend'in (Antigravity) bu sisteme nasıl güvenli bağlanacağını** anlatır. Kod ve migration hazırdır; canlı veritabanına uygulama ve ilk çalıştırma sahibin onayını bekler (bkz. Bölüm 13).
+Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend'in (Antigravity) bu sisteme nasıl güvenli bağlanacağını** anlatır. Kod ve migration hazırdır; migration canlı veritabanına 2026-10-06'da uygulandı, kod ve workflow canlıya çıkınca ilk dolum başlar (bkz. Bölüm 13).
 
 > Tek cümlede: Site **hiçbir zaman** Wikimedia'ya (veya başka bir görsel kaynağına) kendi isteğiyle gitmez. Zamanlanmış bir iş (cron) her varlık için lisansı doğrulanmış tek bir görsel bulur, kendi WebP kopyasını Supabase Storage'a yükler, bilgisini `media_assets` tablosuna yazar. Sayfalar yalnızca bu tabloyu okur. Kayıt yoksa **placeholder** çizilir.
 
@@ -127,7 +127,7 @@ Gerçek veride yakalanan tuzaklar (testlerle sabitlendi): Ferrari logosu aramas�
 
 ## 5. Senkronizasyon (cron)
 
-Route: `app/api/cron/sync-media` · Zamanlama: saatlik (`17 * * * *`, `vercel.json`) · `maxDuration=300`, iş bütçesi 240 sn.
+Route: `app/api/cron/sync-media` · Zamanlama: saatlik, **GitHub Actions** (`.github/workflows/sync-media.yml`, `17 * * * *`; `vercel.json`'da değil çünkü Vercel Hobby cron'ları günde bir kez çalışır ve saatlik ifade deploy'u reddeder) · `maxDuration=300`, iş bütçesi 240 sn. Migration uygulanana kadar route `200 {skipped:true}` döner (workflow kırmızı olmaz).
 
 - **Auth:** `Authorization: Bearer <CRON_SECRET>` (`isCronAuthorized`, fail-closed) + `isCronTriggerAllowed` (60 sn alt sınır).
 - **Keşif:** Jolpica'dan sezon başına pilot/takım/pist listesi. En yeni sezon her çalışmada, eski sezonlar çalışma başına en fazla 2 tane geriye doğru (2018'e kadar). Ek olarak ikonik araçlar ve tarihî pistler (`data/media/curated.ts`). **Yeni sezon (2027, 2028…) için kod değişikliği gerekmez.**
@@ -307,9 +307,9 @@ Boyutlar (en büyük varyant): pilot ort. 44 KB (maks 130), logo ort. 15 KB (mak
 ## 13. İşletme (sahip için)
 
 **Canlıya alma sırası (her adım sahibin onayıyla):**
-1. Migration'ı uygulayın: `supabase/migrations/20261006000001_media_assets.sql` (tablolar, RLS, kolon yetkileri, `media` bucket). *Önce canlı durumu salt-okunur kontrol edin.*
-2. (İsteğe bağlı) `MEDIA_CONTACT` env adı Vercel'e eklenebilir (değer: iletişim e-postası/URL; commit edilmez).
-3. Vercel'e deploy → saatlik cron backlog'u eritir (ilk gün birkaç saat). Hemen başlatmak için cron route'unu `CRON_SECRET` ile elle çağırın.
+1. ~~Migration'ı uygulayın~~ **Yapıldı (2026-10-06, sahip onayıyla, Supabase MCP):** `20261006000001_media_assets.sql` + `20261006000002_push_service_role_grants.sql` uygulandı ve `schema_migrations` geçmişine repo sürümleriyle kaydedildi. Doğrulama: RLS, anon'a yalnızca 20 arayüz kolonu açık (gerçek anon REST: genel kolon 200, `last_error` ve `select=*` 401), `media` bucket (public, 3 MB, webp), `service_role` tam yetkili.
+2. `MEDIA_CONTACT` Vercel Production'a eklendi (sahip, 2026-10-06; değer repoda tutulmaz). Anlamı: Değer gizli değildir; Wikimedia'nın User-Agent politikası, isteği yapanın ulaşılabilir olmasını ister. İzlediğiniz bir e-posta adresi (ör. ileride `contact@…`) ya da proje adresi (repo URL'si) olur; boşsa site URL'si kullanılır. Commit edilmez.
+3. Deploy'dan sonra `sync-media` GitHub workflow'u saatlik backlog'u eritir (ilk gün birkaç saat); hemen başlatmak için workflow'u `workflow_dispatch` ile elle tetikleyin (repo secret `CRON_SECRET_KEY` ve var `SITE_URL` diğer workflow'larla ortaktır).
 4. İlerleme: aşağıdaki SQL'ler.
 
 **İzleme:**
@@ -367,7 +367,8 @@ Görsel **anında** herkese kapanır. Bir sonraki cron çalışması dosyayı ka
 | `lib/media/sync.ts` | Orkestratör (bütçe, devre kesici, vade takvimi) |
 | `lib/media/read.ts` | Okuma katmanı (sayfalar + API) |
 | `app/api/media/route.ts` | Public API |
-| `app/api/cron/sync-media/route.ts` | Cron |
+| `app/api/cron/sync-media/route.ts` | Cron (migration yokken `skipped`, `lib/media/errors.ts`) |
+| `.github/workflows/sync-media.yml` | Saatlik tetik (GitHub Actions) |
 | `data/media/curated.ts` | Elle derlenen ikonik araçlar, logo/pist ayarları, alias'lar |
 | `scripts/media-sync.ts` | Kuru çalıştırma (DB'ye yazmaz) |
 | `tests/media-*.test.ts`, `tests/api-media.test.ts` | Testler |

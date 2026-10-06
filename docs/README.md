@@ -77,6 +77,7 @@ docs/
 - **[`apex-reference.md`](reference/apex-reference.md):** Ölçülmüş durumlar, canlı hostlar, bağımlılıklar, güvenlik açıkları ve dokümantasyon envanteri.
 - **[`mimari.md`](reference/mimari.md):** Çok kaynaklı (F1DB, Jolpica, OpenF1, RSS) veri hattı, Vercel cron'ları, 3 kademeli okuma fallback'i ve Supabase PostgreSQL modeli.
 - **[`muhendislik-dersleri.md`](reference/muhendislik-dersleri.md):** Geliştirme süresince karşılaşılan 31 somut tuzak (Next.js ISR kilitleri, DB round=NULL unique index sorunları, asset resolution hataları) ve kanıtlanmış çözümleri.
+- **[`yaris-hafta-sonu-dogrulama.md`](reference/yaris-hafta-sonu-dogrulama.md):** Gerçek bir yarış hafta sonunda yapılacak canlı doğrulamaların rehberi (canlı zamanlama, senkron/settled/stale-while-revalidate, push penceresi, JSON-LD, CWV, Sentry), 2026 takvimi ve geçme ölçütleri. Tüm maddeler kapanınca silinir.
 
 ---
 
