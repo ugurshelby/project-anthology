@@ -119,7 +119,7 @@ Rules that the code and the engineering standard both state:
 
 ### Directory map
 
-Paths below were confirmed by file search or `Test-Path` on 2026-10-01.
+Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 
 | Path | Role |
 |---|---|
@@ -135,8 +135,9 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-01.
 | `supabase/migrations/` | 8 SQL migrations. `supabase/config.toml` exists |
 | `scripts/` | `seed-f1-history.ts`, `seed-stories.ts`, `sync-f1-scheduled.ts`, `verify-seed-coverage.ts`, `dedupe-f1-snapshots.ts` |
 | `tests/` | 22 Vitest files. `vitest.config.ts` includes only `tests/**/*.test.ts` |
-| `public/stories/` | 56 files (124 before the 2026-10-02 deletion of 68 unreferenced files; ledger: `docs/reference/stories-assets-ledger.md`). `public/drivers` and `public/teams` are absent [VERIFIED: `Test-Path` and file count] |
-| `stories-images/` | 59 files. Local export noted in `stories-images/README.md` |
+| `public/` | Client runtime assets: `brand/` (logos), `circuits/` (25 SVGs), `tyres/` (11 SVGs), `glossary-icons/` (20 webp), `stories/` (56 PNGs in 17 story folders; ledger: `docs/reference/stories-assets-ledger.md`). Cleaned of duplicate or unreferenced assets [VERIFIED: 2026-10-06] |
+| `assets/` | Build-time datasets and source assets: `brand/`, `data/`, `f1-circuits/`, `raw-glossary-icons/`, `scripts/`, `icons/` |
+| `stories-images/` | Retired on 2026-10-06 (100% duplicate of `public/stories/`; backed up to `backup/pre-asset-cleanup-20261006` and removed from git) |
 | `.github/workflows/` | `sync-f1-race-aware.yml`, `sync-news.yml`, `notify-sessions.yml` |
 | `mobile/` | Expo app on disk only. Gitignored. Not in git |
 | `docs/`, `logs/`, `design/` | Documentation and a separate design folder |
@@ -403,7 +404,7 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 | `docs/procedures.md` | Repeatable operational and maintenance procedures (Procedures 1–8) | Current (Procedure 8 added 2026-10-06) |
 | `docs/F1_Anlati_Stil_Kilavuzu.md` | House voice for anthology prose, derived from named YouTube channels, with an anti-plagiarism section | Editorial standard. Base reference. v2 layer in `docs/F1_Anlati_Stil_Kilavuzu_v2.md` |
 | `docs/F1_Anlati_Stil_Kilavuzu_v2.md` | Acoustic signal analysis, page prosody, bilingual TR/EN cadence, and multiformat narrative matrix | Editorial standard v2 (2026-10-05) |
-| `stories-images/README.md` | Export count: 57 images, 17 stories | Local export note |
+| `docs/reference/stories-assets-ledger.md` | Asset inventory and license gap ledger for stories assets | Current (2026-10-06) |
 
 ### docs/design
 
@@ -449,7 +450,7 @@ These items are not done. Order follows section 10.
 
 2. **Real legal mailboxes.** Replace `privacy@`, `dmca@`, `contact@apexstats.example` with addresses the owner monitors.
    Done when: each legal page's mailto is an address the owner has confirmed; a test message is received.
-3. **License ledger for `public/stories` and `stories-images`.** For each file: source, license, author, date, or remove it. Same standard already used for the grid.
+3. **License ledger for `public/stories`.** For each file: source, license, author, date, or remove it. Same standard already used for the grid.
    Done when: every file under `public/stories` is either listed with a license that allows this use, or deleted, and the site still builds.
 5. **Prove CI.** Open a pull request and see `ci.yml` green on Node 24; then make it a required check (owner).
    Done when: the workflow is green on a real pull request and a failing `npm test` blocks merge.
