@@ -188,6 +188,69 @@ export interface CircuitWeatherInsert {
 }
 export type CircuitWeatherUpdate = Partial<CircuitWeatherInsert>;
 
+// ── media_assets / media_sync_state ──────────────────────────────────────────
+// One resolved, license-checked image per entity. See migration 20261006000001
+// and docs/reference/media-sistemi.md.
+export type MediaEntityType = 'driver' | 'team' | 'car' | 'circuit';
+export type MediaStatus = 'pending' | 'resolved' | 'missing';
+export type MediaReview = 'auto' | 'approved' | 'rejected';
+export interface MediaVariantJson {
+  w: number;
+  h: number;
+  path: string;
+  bytes: number;
+}
+export interface MediaAssetRow {
+  id: number;
+  entity_type: MediaEntityType;
+  entity_key: string;
+  season: number | null;
+  display_name: string | null;
+  wikipedia_url: string | null;
+  extra: Json;
+  aliases: string[];
+  status: MediaStatus;
+  review: MediaReview;
+  rejected_files: string[];
+  source: string | null;
+  source_page_url: string | null;
+  source_file: string | null;
+  author: string | null;
+  license: string | null;
+  license_url: string | null;
+  attribution: string | null;
+  is_trademark: boolean;
+  confidence: number | null;
+  width: number | null;
+  height: number | null;
+  variants: Json;
+  blur_data_url: string | null;
+  dominant_color: string | null;
+  content_sha256: string | null;
+  attempts: number;
+  last_error: string | null;
+  resolved_at: string | null;
+  checked_at: string | null;
+  next_check_at: string;
+  created_at: string;
+  updated_at: string;
+}
+export type MediaAssetInsert = Pick<MediaAssetRow, 'entity_type' | 'entity_key'> &
+  Partial<Omit<MediaAssetRow, 'id' | 'entity_type' | 'entity_key' | 'created_at'>>;
+export type MediaAssetUpdate = Partial<MediaAssetInsert>;
+
+export interface MediaSyncStateRow {
+  key: string;
+  value: Json;
+  updated_at: string;
+}
+export interface MediaSyncStateInsert {
+  key: string;
+  value?: Json;
+  updated_at?: string;
+}
+export type MediaSyncStateUpdate = Partial<MediaSyncStateInsert>;
+
 // ── push_subscriptions ───────────────────────────────────────────────────────
 export interface PushSubscriptionRow {
   id: string;
@@ -255,6 +318,18 @@ export interface Database {
         Row: CircuitWeatherRow;
         Insert: CircuitWeatherInsert;
         Update: CircuitWeatherUpdate;
+        Relationships: never[];
+      };
+      media_assets: {
+        Row: MediaAssetRow;
+        Insert: MediaAssetInsert;
+        Update: MediaAssetUpdate;
+        Relationships: never[];
+      };
+      media_sync_state: {
+        Row: MediaSyncStateRow;
+        Insert: MediaSyncStateInsert;
+        Update: MediaSyncStateUpdate;
         Relationships: never[];
       };
     };
