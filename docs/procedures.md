@@ -87,8 +87,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 
 ## 8. Docs refinement
 
-- Triggers: "docs refinement prosedürü", "dokümanları rafine et", "docs refinement".
-- Scope: `docs/**` (özellikle `docs/plans/master-plan.md`, `docs/PRODUCT.md`, `docs/reference/`, `docs/` kök dizini ve `docs/README.md`). `docs/plans/acil-eylem-plani.md` gibi açık geliştirici direktiflerine dokunulmaz.
+- Scope: `docs/**` (özellikle `docs/plans/master-plan.md`, `docs/PRODUCT.md`, `docs/reference/`, `docs/` kök dizini ve `docs/README.md`). Tek canlı eylem planı `docs/plans/master-plan.md`'dir.
 - Steps:
   1. `docs/vision/apex-vision.md`'yi temel referans ve pusula alarak tüm dokümantasyonu tara.
   2. Kök dizin hijyenini sağla: Ana proje dizininde yalnızca `README.md` ve `AGENTS.md` kalabilir; tüm diğer dokümanlar `docs/` altında toplanmalıdır.
