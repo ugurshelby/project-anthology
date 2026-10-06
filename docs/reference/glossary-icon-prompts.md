@@ -195,4 +195,4 @@ Minimalist CAD blueprint icon of an F1 full wet tyre tread pattern, showing deep
 
 1. **SVG veya PNG Çıktısı:** Generative AI'dan aldığınız görseli (örneğin Recraft veya Vectorizer.ai kullanarak) temiz SVG'ye vektörize edebilir veya şeffaf PNG olarak dışa aktarabilirsiniz.
 2. **Renk Değiştirme:** Vektörel çizgilerin rengini CSS içinde `stroke="currentColor"` veya `#EF4444` (Racing Red) / `#00D2BE` (Mercedes Cyan) / `#FF8700` (McLaren Papaya) gibi takım ve hamur renklerine dinamik olarak uyarlayabilirsiniz.
-3. **Bileşene Entegrasyon:** Yeni SVG path'lerini [`components/glossary/TermDiagram.tsx`](file:///c:/Users/ts/Desktop/Coding/anthology/components/glossary/TermDiagram.tsx) içerisindeki ilgili ikon fonksiyonlarına doğrudan yapıştırabilirsiniz.
+3. **Bileşene Entegrasyon:** Yeni SVG path'lerini [`components/glossary/TermDiagram.tsx`](../../components/glossary/TermDiagram.tsx) içerisindeki ilgili ikon fonksiyonlarına doğrudan yapıştırabilirsiniz.

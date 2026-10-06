@@ -84,3 +84,17 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 - Only report: everything under their "only report" lines.
 - Docs: as in those procedures.
 - Output: one combined report in the common format, with a single "Needs owner" list.
+
+## 8. Docs refinement
+
+- Triggers: "docs refinement prosedürü", "dokümanları rafine et", "docs refinement".
+- Scope: `docs/**` (özellikle `docs/plans/master-plan.md`, `docs/reference/`, `docs/` kök dizini ve `docs/README.md`). `docs/plans/acil-eylem-plani.md` gibi açık geliştirici direktiflerine dokunulmaz.
+- Steps:
+  1. `docs/vision/apex-vision.md`'yi temel referans ve pusula alarak tüm dokümantasyonu tara.
+  2. `docs/plans/master-plan.md` içindeki tamamlanmış işleri (`[x]`) temizle; yalnızca açık işleri bırak (`[ ]` / `[~]`) ve bunları vizyon-misyon hiyerarşisine göre (Kusursuz Saat Veri Altyapısı, Yaşayan Sezon & Grid, Pistler & Topoğrafya, Machinery İkonik Araçlar, Tech Glossary 2.0, Telif-Güvenli Görseller, Mobil/Kalite) sırala.
+  3. `docs/reference/` ve `docs/` kök dizinindeki bayat, çözülmüş veya geçici raporları (ingestion logları, eski düzeltme önerileri vb.) sil; yaşayan dökümanları vizyon doğrultusunda güncelle ve adlarını anlaşılır yap.
+  4. Tüm iç bağlantıları (link/path) doğrula; sıfır kırık link sağla.
+  5. `docs/README.md` master dokümantasyon dizinini ve haritasını güncelle.
+- May change: `docs/**`, `docs/README.md`, `docs/reference/apex-reference.md`.
+- Only report: silinen, güncellenen ve yeniden adlandırılan dosyalar.
+- Output: temizlenmiş doküman listesi, güncel açık işler özeti, kapı kontrol sonuçları.

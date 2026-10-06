@@ -125,12 +125,12 @@ npx tsc --noEmit            # Tip kontrolü (npm script yok)
 | Dosya | İçerik |
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | Tek kanonik agent kural dosyası |
+| [`docs/vision/apex-vision.md`](docs/vision/apex-vision.md) | Temel vizyon ve misyon rehberi (Pusula) |
+| [`docs/design/apex-design.md`](docs/design/apex-design.md) | Ana tasarım sistemi mimarisi (SSOT) |
 | [`docs/reference/apex-reference.md`](docs/reference/apex-reference.md) | Ölçülmüş durum, mimari, veri, güvenlik, boşluklar |
 | [`docs/procedures.md`](docs/procedures.md) | Tekrarlanan bakım/denetim prosedürleri |
-| [`docs/plans/master-plan.md`](docs/plans/master-plan.md) | Canlı iş listesi |
-| [`docs/vision/technical.md`](docs/vision/technical.md) | Teknik özet (stack, API, tablolar, env) |
-| [`docs/design/apex-design-language.md`](docs/design/apex-design-language.md) | Tasarım otoritesi |
-| [`docs/reference/PROJECT_LESSONS_AND_ROADMAP.md`](docs/reference/PROJECT_LESSONS_AND_ROADMAP.md) | Geçmiş tuzaklar (tarihsel) |
+| [`docs/plans/master-plan.md`](docs/plans/master-plan.md) | Canlı iş listesi (Vizyon hiyerarşisi) |
+| [`docs/reference/muhendislik-dersleri.md`](docs/reference/muhendislik-dersleri.md) | Mühendislik dersleri ve geçmiş tuzaklar |
 
 ## Deploy
 
