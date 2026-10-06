@@ -1,0 +1,98 @@
+# Apex — Dokümantasyon Dizini ve Mimari Rehberi
+
+> **Projenin Temel Pusulası ve Vizyonu:** [`docs/vision/apex-vision.md`](vision/apex-vision.md)  
+> Apex, Formula 1 ve motor sporları kültürünü yalnızca anlık yarış sonuçlarından ibaret olmaktan çıkarıp; köklü tarihini, teknik dinamiklerini, ikonik araçlarını ve insan hikayelerini bir araya getiren; arka planda bir saat mekanizması gibi harmonik işleyen veri mimarisiyle son kullanıcıya kusursuz, hızlı, akıcı ve görsel olarak özgün bir dijital arşiv-ekosistem sunar.
+
+---
+
+## 1. Otorite ve Kural Hiyerarşisi
+
+Tüm yapay zeka ajanları (Claude Code, Cursor, Antigravity vb.) ve geliştiriciler aşağıdaki hiyerarşiye kesinlikle uyar:
+
+1. **Kod ve Testler:** Gerçek kod tabanı ve yeşil geçen testler birinci otoritedir.
+2. **Agent Anayasası ([`AGENTS.md`](../AGENTS.md)):** Proje genelindeki kurallar ve yasaklar (hardcode yasakları, veri bütünlüğü, gizlilik).
+3. **Acil Eylem Planı ([`docs/plans/acil-eylem-plani.md`](plans/acil-eylem-plani.md)):** Doğrudan geliştirici tarafından dikte edilen en yüksek öncelikli yönlendirmeler.
+4. **Referans Dokümanı ([`docs/reference/apex-reference.md`](reference/apex-reference.md)):** Ölçülmüş, doğrulanmış durum ve sistem envanteri.
+5. **Tasarım Sistemi ([`docs/design/apex-design.md`](design/apex-design.md)):** Apple tasarım ilkeleri ve F1 kimliğini sentezleyen master tasarım otoritesi (SSOT).
+6. **Canlı Plan ([`docs/plans/master-plan.md`](plans/master-plan.md)):** Açık işlerin vizyon hiyerarşisine göre yönetildiği tek canlı liste.
+
+---
+
+## 2. Dokümantasyon Haritası
+
+```
+docs/
+├── README.md                           # Bu dosya — Dokümantasyon ana indeksi ve haritası
+├── procedures.md                       # 8 adet tekrarlanabilir operasyonel ve bakım prosedürü
+├── F1_Anlati_Stil_Kilavuzu.md          # Antoloji ve içerik için temel editoryal "ev sesi" rehberi
+├── F1_Anlati_Stil_Kilavuzu_v2.md       # Akustik analiz, sayfa prozodisi ve çoklu format editoryal matrisi
+│
+├── vision/                             # Vizyon, Misyon ve Teknik Temeller
+│   ├── apex-vision.md                  # Master vizyon, misyon, temel sütunlar ve mimari pusula (SSOT)
+│   ├── technical.md                    # Agent teknik sistem ve veri akışı özeti
+│   └── skills.md                       # Ekosistem skill tetikleyici haritası
+│
+├── plans/                              # Eylem ve Geliştirme Planları
+│   ├── acil-eylem-plani.md             # Doğrudan geliştirici direktifleri (DOKUNULMAZ)
+│   └── master-plan.md                  # Tek canlı açık iş listesi (Vizyon katmanlarına göre sıralı)
+│
+├── design/                             # Tasarım Sistemi ve Arayüz Standartları
+│   ├── apex-design.md                  # Master Tasarım Sistemi Mimarisi (Apple HIG + F1 Ruhu)
+│   ├── apex-design-language.md         # Tipografi, renk, yüzey derinliği ve layout kuralları
+│   ├── tokens.json                     # Resmi tasarım değişkenleri (renkler, fontlar, aralıklar)
+│   ├── README.md                       # Tasarım kütüphanesi rehberi
+│   ├── skills/                         # Onaylı 5 katmanlı tasarım skill orkestrasyonu
+│   └── [arka plan denemeleri]          # premium-design-philosophy, universal-principles vb.
+│
+└── reference/                          # Sistem Referansları ve Mühendislik Hafızası
+    ├── apex-reference.md               # Master yaşayan referans (ölçülmüş gerçekler, test sonuçları)
+    ├── mimari.md                       # Backend mimarisi, saat mekanizması veri akışı, Supabase & cron
+    ├── muhendislik-dersleri.md         # Yaşanmış tuzaklar, Next.js/DB mimari dersleri ve çözümler
+    ├── stories-assets-ledger.md        # public/stories 56 görsel varlık dökümü ve lisans envanteri
+    ├── anthology-image-map.md          # 17 antoloji hikayesinin görsel kullanım eşlemesi
+    └── glossary-icon-prompts.md        # Tech Glossary teknik CAD / blueprint ikon üretim promptları
+```
+
+---
+
+## 3. Bölüm Detayları ve Sorumluluklar
+
+### 🧭 `docs/vision/` (Vizyon ve Misyon)
+- **[`apex-vision.md`](vision/apex-vision.md):** Projenin "Neden?" sorusuna yanıt veren ana metin. Saat mekanizması harmonik veri akışı, sıfır takılmalı akıcı frontend ve rafine UI/UX dengesini kurar.
+- **[`technical.md`](vision/technical.md):** Mimari bileşenlerin hızlı teknik dökümü.
+
+### 📋 `docs/plans/` (İş Listeleri ve Planlama)
+- **[`acil-eylem-plani.md`](plans/acil-eylem-plani.md):** Geliştiricinin bizzat yazdığı öncelikli eylem planı. Yapay zeka ajanları tarafından değiştirilmez.
+- **[`master-plan.md`](plans/master-plan.md):** Tamamlanan maddelerin temizlendiği, yalnızca açık işlerin `apex-vision.md`'deki 7 öncelik seviyesine göre listelendiği tek canlı plan.
+
+### 🎨 `docs/design/` (Tasarım Sistemi)
+- **[`apex-design.md`](design/apex-design.md):** F1 dinamizmini Apple tasarım ilkeleri (titiz mikro-etkileşimler, fizik temelli yay hareketleri, saydam malzemeler, hiyerarşik tipografi) ile birleştiren master rehber.
+- **[`tokens.json`](design/tokens.json):** Kod tabanındaki Tailwind ve CSS tokenlarının referans kaynağı.
+
+### ⚙️ `docs/reference/` (Mühendislik ve Veri Referansı)
+- **[`apex-reference.md`](reference/apex-reference.md):** Ölçülmüş durumlar, canlı hostlar, bağımlılıklar, güvenlik açıkları ve dokümantasyon envanteri.
+- **[`mimari.md`](reference/mimari.md):** Çok kaynaklı (F1DB, Jolpica, OpenF1, RSS) veri hattı, Vercel cron'ları, 3 kademeli okuma fallback'i ve Supabase PostgreSQL modeli.
+- **[`muhendislik-dersleri.md`](reference/muhendislik-dersleri.md):** Geliştirme süresince karşılaşılan 31 somut tuzak (Next.js ISR kilitleri, DB round=NULL unique index sorunları, asset resolution hataları) ve kanıtlanmış çözümleri.
+
+---
+
+## 4. Standart Prosedür: Docs Refinement (Prosedür 8)
+
+Proje sahibi *"docs refinement prosedürü uygula"*, *"dokümanları rafine et"* veya *"docs refinement"* komutunu verdiğinde aşağıdaki standart döngü işletilir:
+
+```mermaid
+graph TD
+    A["1. Pusulayı Yükle<br>(docs/vision/apex-vision.md)"] --> B["2. Master Planı Temizle<br>(Tamamlananları sil, açıkları vizyona göre sırala)"]
+    B --> C["3. acil-eylem-plani.md'yi Koru<br>(Geliştirici direktifine dokunma)"]
+    C --> D["4. docs/reference & Kök Dizin Taraması<br>(Bayat raporları sil, adları standartlaştır)"]
+    D --> E["5. İç Bağlantı & Link Doğrulaması<br>(Sıfır kırık bağlantı)"]
+    E --> F["6. docs/README.md Güncellemesi<br>(Haritayı senkronize et)"]
+    F --> G["7. Doğrulama Kapıları<br>(test, lint, tsc, build)"]
+    G --> H["8. Günlük Kaydı & Commit<br>(logs/YYYY-MM-DD.md ve push)"]
+```
+
+### Prosedür Kuralları:
+1. `docs/plans/acil-eylem-plani.md` dosyasına asla dokunulmaz.
+2. `docs/plans/master-plan.md` dosyasında yalnızca `[ ]` veya `[~]` açık işler kalır, tamamlananlar (`[x]`) temizlenir (arşiv git geçmişidir).
+3. Dokümantasyonda yapılan her yol veya isim değişikliği kod tabanındaki referanslarla senkronize edilir.
+4. İşlem bitiminde Vitest, ESLint, TypeScript (`tsc --noEmit`) ve Next.js (`npm run build`) kapı kontrolleri koşulur.

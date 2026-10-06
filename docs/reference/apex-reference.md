@@ -68,7 +68,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 - `.github/workflows/ci.yml` (added 2026-10-01) runs `npm ci`, lint, `tsc --noEmit`, `npm test`, `npm run build` on pull requests to `main`, on the Node in `.nvmrc` (24). It has not run on GitHub yet [UNVERIFIED]; the same commands were run locally on Node 22 with placeholder Supabase env. The other three workflows only call cron endpoints.
 - Node: this machine is v22.18.0. `package.json` `engines` and `.nvmrc` say 24. GitHub Actions `sync-f1-race-aware.yml` uses Node 22 [VERIFIED]. Tests and the build passed on Node 22 anyway.
 
-`project-anthology-seven.vercel.app` is down (404). Older docs still name `project-anthology-five.vercel.app` [VERIFIED: `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md`]. The log of 2026-09-29 says the five project was deleted by the owner [VERIFIED: `logs/2026-09-29.md`]. The five host was not requested in this pass.
+`project-anthology-seven.vercel.app` is down (404). Older docs still name `project-anthology-five.vercel.app` [VERIFIED: `docs/reference/muhendislik-dersleri.md`]. The log of 2026-09-29 says the five project was deleted by the owner [VERIFIED: `logs/2026-09-29.md`]. The five host was not requested in this pass.
 
 ---
 
@@ -114,7 +114,7 @@ Public JSON routes under app/api/*  (rate-limited, snapshot-first where noted)
 Rules that the code and the engineering standard both state:
 
 - Season, “is the race over”, and current year come from `lib/f1Calendar.ts`. `CURRENT_SEASON` is the UTC year. Hardcoded season/driver/team lists are forbidden [VERIFIED: `AGENTS.md`, `lib/f1Calendar.ts` imports].
-- Historical seasons are read from the database. The current season can fall through to Jolpica when the snapshot is stale or content-invalid [VERIFIED: `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` describes this; `tests/f1-read-fallback.test.ts` passed, which covers that read order].
+- Historical seasons are read from the database. The current season can fall through to Jolpica when the snapshot is stale or content-invalid [VERIFIED: `docs/reference/muhendislik-dersleri.md` describes this; `tests/f1-read-fallback.test.ts` passed, which covers that read order].
 - News pages read `news_stories`, not the visitor’s browser calling RSS [VERIFIED: `docs/plans/news-stories-ui-handoff.md` and `docs/vision/technical.md` “Haber hikâyeleri” section; home page imports `getLatestNews`].
 
 ### Directory map
@@ -318,7 +318,7 @@ Agent rules that are written down but fight each other (auto-commit in `.cursor/
 
 Last verified: 2026-10-05
 
-247 commits on `main` [VERIFIED: `git rev-list --count HEAD`]. Logs on disk are only `logs/2026-09-21.md`, `2026-09-28.md`, `2026-09-29.md`, and `2026-10-01.md`, because older logs were deleted from the working tree on 2026-10-01 [VERIFIED: `logs/` search and commit `c23acc2`]. Older incidents below are from `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` (dated 2026-06-10 in its header) and from commit subjects. Where the lessons file disagrees with later code, the later code wins. The lessons file is a history source, not a current map.
+247 commits on `main` [VERIFIED: `git rev-list --count HEAD`]. Logs on disk are only `logs/2026-09-21.md`, `2026-09-28.md`, `2026-09-29.md`, and `2026-10-01.md`, because older logs were deleted from the working tree on 2026-10-01 [VERIFIED: `logs/` search and commit `c23acc2`]. Older incidents below are from `docs/reference/muhendislik-dersleri.md` (dated 2026-06-10 in its header) and from commit subjects. Where the lessons file disagrees with later code, the later code wins. The lessons file is a history source, not a current map.
 
 ### Repeated themes
 
@@ -385,27 +385,25 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 
 | File | Purpose | Status |
 |---|---|---|
-| `docs/reference/mimari.md` | Backend architecture | Useful on stack and the single temporal source. Says Playwright is the e2e tool and that Vercel has 3 crons. Playwright does not run. GitHub crons are easy to miss if this is the only map. Header has no 2026-10 date |
-| `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` | Incident list and “do not break” rules. Header 2026-06-10. Live URL is the five host | Valuable as history. **Stale as operations.** Open items include a history backfill and a disabled GitHub schedule that later logs say were done. Asset paths it mandates (`public/drivers/{season}/`) were removed. It says the home page calls live RSS; `app/[locale]/page.tsx` calls `getLatestNews` |
-| `docs/reference/stories-assets-ledger.md` | Read-only per-file inventory of `public/stories` (references, source, license, type) | Current (2026-10-02). Generated; regenerate when files change |
-| `docs/reference/anthology-gorsel-temin.md` | How anthology images were obtained | Not fully read. Related to the files in `public/stories`. Its per-story counts predate the 2026-10-02 deletion of unreferenced files. Treat as a sourcing note, not a license ledger |
-| `docs/reference/web-iyilestirme-onerileri-2026-07-05.md` | Improvement notes. Describes a `PROD_SITE_URL` bug against the five host | Historical. The fallback bug class still exists, now with the seven host |
-| `docs/vision/technical.md` | Agent technical summary | Current (top half rewritten 2026-10-01) |
-| `docs/vision/skills.md` | Skill trigger list referenced by the constitutions | Not a product spec. Skill packs under `.agents/skills` and `.claude/skills` are vendored |
+| `docs/vision/apex-vision.md` | Master vision & mission compass (the foundational purpose of Apex) | Authoritative (2026-10-06) |
+| `docs/vision/technical.md` | Agent technical summary | Current |
+| `docs/vision/skills.md` | Skill trigger list referenced by the constitutions | Reference |
+| `docs/reference/apex-reference.md` | Master living reference and measurement baseline | Current (2026-10-06) |
+| `docs/reference/mimari.md` | Backend architecture and clockwork data flow | Current (2026-10-06) |
+| `docs/reference/muhendislik-dersleri.md` | Incident list, traps, and “do not break” rules (renamed from `PROJECT_LESSONS_AND_ROADMAP.md`) | Historical engineering memory |
+| `docs/reference/stories-assets-ledger.md` | Read-only per-file inventory of `public/stories` (references, source, license, type) | Current (2026-10-02) |
+| `docs/reference/anthology-image-map.md` | Canonical mapping of 17 stories to 57 image assets | Current (moved from `docs/` root) |
+| `docs/reference/glossary-icon-prompts.md` | Generative prompts for glossary CAD / blueprint line-art icons | Current (moved from `docs/` root) |
 
 ### Other project docs
 
 | File | Purpose | Status |
 |---|---|---|
+| `docs/README.md` | Master documentation map and navigation index | Current (2026-10-06) |
+| `docs/procedures.md` | Repeatable operational and maintenance procedures (Procedures 1–8) | Current (Procedure 8 added 2026-10-06) |
 | `docs/F1_Anlati_Stil_Kilavuzu.md` | House voice for anthology prose, derived from named YouTube channels, with an anti-plagiarism section | Editorial standard. Base reference. v2 layer in `docs/F1_Anlati_Stil_Kilavuzu_v2.md` |
-| `docs/F1_Anlati_Stil_Kilavuzu_v2.md` | Acoustic signal analysis, page prosody, bilingual TR/EN cadence, and multiformat narrative matrix (stories, news briefs, On This Day, lore) | Editorial standard v2 (2026-10-05). Active upper layer for anthology, news briefs, and site-wide editorial lore |
-| `docs/glossary-icon-prompts.md` | Prompts for glossary icons | Asset-generation note. Not verified against current icons |
-| `docs/anthology-ingestion-report.md` | 2026-09-17 report of race photographs copied into `/stories/...` | Historical ingestion record. Those subjects are real photographs. It is not a license ledger |
-| `docs/anthology-missing-assets-download-list.md` | Missing-asset download list | Likely stale after ingestion. Not re-audited file by file |
-| `docs/anthology-image-remap-audit.md` | Remap audit | Historical |
-| `docs/anthology-image-map.md` | Image map | Historical. May still describe files under `public/stories` |
+| `docs/F1_Anlati_Stil_Kilavuzu_v2.md` | Acoustic signal analysis, page prosody, bilingual TR/EN cadence, and multiformat narrative matrix | Editorial standard v2 (2026-10-05) |
 | `stories-images/README.md` | Export count: 57 images, 17 stories | Local export note |
-| `old-versions-valuable-files/README.md` and `audit-raporu.md` | Archived material | Excluded from `tsconfig` and ESLint. Not current code |
 
 ### docs/design
 
@@ -413,28 +411,15 @@ Last verified: 2026-10-06
 
 Design authority is `docs/design/apex-design.md` (master design system architecture, synthesizing Apple design principles with Formula 1 identity) and `docs/design/apex-design-language.md` [VERIFIED: `AGENTS.md`, master plan]. Token definitions live in `docs/design/tokens.json` [VERIFIED].
 
-On 2026-10-05, the conflicting design essays (`design-styles/`, `colours/`, `typography/`, `trends/`, `design-techniques/`, `design.md/`) and 15 unapproved skill directories were consolidated and removed. The single approved skill directory is `docs/design/skills/` containing the 5-layer orchestrated skills: `apple-design` (foundational), `high-end-visual-design` + `minimalist-ui` (execution), `industrial-brutalist-ui` (filtered telemetry), `react-view-transitions` (motion), and `ui-ux-pro-max` + `accesslint-audit` (quality audit).
+On 2026-10-05, conflicting design essays (`design-styles/`, `colours/`, `typography/`, `trends/`, `design-techniques/`, `design.md/`) and unapproved skill directories were consolidated and removed. The single approved skill directory is `docs/design/skills/` containing the 5-layer orchestrated skills: `apple-design` (foundational), `high-end-visual-design` + `minimalist-ui` (execution), `industrial-brutalist-ui` (filtered telemetry), `react-view-transitions` (motion), and `ui-ux-pro-max` + `accesslint-audit` (quality audit).
 
 Other general reference essays in `docs/design/` (`premium-design-philosophy.md`, `universal-design-principles.md`, `ux-laws-reference.md`, `tasarim-skilleri-rehberi.md`) remain background reading, secondary to `apex-design.md`.
 
-### docs/superpowers (historical specs and plans)
+### Applied plans and retired docs
 
-The web-only June/July specs were deleted on 2026-10-01 after checking that the code implements them. Only the mobile ones remain, waiting on the owner's decision about `mobile/`. They are records, not plans, and name the five or seven host.
-
-- `docs/superpowers/plans/2026-07-13-mobile-bugfix-and-features.md`
-- `docs/superpowers/plans/2026-06-25-mobile-app.md` (hardcodes the five host for the Expo API)
-- `docs/superpowers/specs/2026-07-13-mobile-bugfix-and-features-design.md`
-- `docs/superpowers/specs/2026-06-25-mobile-app-design.md`
-
-`design/boxbox-mobile/screens-spec.md` and `design/stitch-design-pack/DESIGN.md` are the same class of design exploration. The 15 third-party app screenshots that were in `design/boxbox-mobile/screenshots/` were deleted on 2026-10-02 (owner decision; the repo is public).
-
-### Vendored skill and tool docs (not project source)
-
-Dozens of `SKILL.md`, `AGENTS.md`, and `CLAUDE.md` files under `.agents/skills/` and `.claude/skills/` (including `graphify`, `impeccable`, and `taste-skills`) are third-party packs. `.claude/skills/graphify/docs/**` is that tool’s own docs. They are not Apex specifications. ESLint already ignores `.claude`.
-
-### Applied plans
-
-Deleted on 2026-10-01 (git history is the archive): `docs/PLAN.md`, `docs/plans/i18n-architecture.md`, `docs/plans/news-ui-brief.md`, `docs/plans/news-stories-ui-handoff.md`, `docs/plans/driver-hero-visual-redesign.md`, `docs/reference/proje-dizini.md`, and the four web-only `docs/superpowers` specs. `docs/plans/master-plan.md` is the single live checklist; its header date and list were corrected on the same day. `PROJECT_LESSONS_AND_ROADMAP.md` stays as history only.
+- Deleted on 2026-10-01: `docs/PLAN.md`, `docs/plans/i18n-architecture.md`, `docs/plans/news-ui-brief.md`, `docs/plans/news-stories-ui-handoff.md`, `docs/plans/driver-hero-visual-redesign.md`, `docs/reference/proje-dizini.md`.
+- Deleted on 2026-10-06 (Docs refinement procedure): `docs/reference/anthology-gorsel-temin.md`, `docs/reference/web-iyilestirme-onerileri-2026-07-05.md`, `docs/anthology-ingestion-report.md`, `docs/anthology-missing-assets-download-list.md`, `docs/anthology-image-remap-audit.md`, `docs/superpowers/`, and `old-versions-valuable-files/`.
+- `docs/plans/master-plan.md` is the single live checklist; cleaned of all completed items on 2026-10-06, keeping only vision-prioritized open tasks. `docs/plans/acil-eylem-plani.md` is preserved intact as the primary developer directive.
 
 ---
 

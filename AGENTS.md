@@ -85,6 +85,7 @@ When the owner says one of these phrases, follow the matching procedure in `docs
 | "şu hatayı düzelt: ...", "canlıda şunu gördüm: ..." / bug report | 5. Bug triage |
 | "main'e hazır mı", "merge öncesi kontrol" / merge readiness | 6. Merge readiness |
 | "rutin kontrol", "bakım oturumu" / routine session | 7. Routine session (3, 2, 4) |
+| "docs refinement prosedürü", "dokümanları rafine et" / docs refinement | 8. Docs refinement |
 
 ## Product and brand limits
 

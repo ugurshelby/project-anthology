@@ -1,6 +1,7 @@
 # Mimari — Project Anthology (Apex)
 
 > F1 anlatı/istatistik platformu. Next.js 16 App Router + Supabase (PostgreSQL) + çok kaynaklı dış F1 veri entegrasyonu. Bu döküman backend mimarisini, veri tabanı kullanımını, veri/API kaynaklarını ve bunların nasıl kullanıldığını anlatır.
+> **Temel Amaç ve Vizyon:** `docs/vision/apex-vision.md` (Saat mekanizması veri mimarisi felsefesi).
 
 ---
 
@@ -19,7 +20,7 @@
 | Deploy / Cron | Vercel (3 cron job, `vercel.json`) |
 | Test | Vitest (unit) + Playwright (e2e/görsel) |
 
-**Tek kaynak ilkesi:** Sezon/round/"hangi sezon güncel" kararlarının tamamı [`lib/f1Calendar.ts`](../lib/f1Calendar.ts) üzerinden geçer. Hiçbir dosya sezon yılını, pilot listesini veya takım listesini hardcode etmez. `CURRENT_SEASON = new Date().getUTCFullYear()`, `F1_SEASON_MIN = 1950`.
+**Tek kaynak ilkesi:** Sezon/round/"hangi sezon güncel" kararlarının tamamı [`lib/f1Calendar.ts`](../../lib/f1Calendar.ts) üzerinden geçer. Hiçbir dosya sezon yılını, pilot listesini veya takım listesini hardcode etmez. `CURRENT_SEASON = new Date().getUTCFullYear()`, `F1_SEASON_MIN = 1950`.
 
 ---
 
@@ -56,7 +57,7 @@
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-İki katı ayrılmış istemci (bkz. [`lib/supabase.ts`](../lib/supabase.ts)):
+İki katı ayrılmış istemci (bkz. [`lib/supabase.ts`](../../lib/supabase.ts)):
 
 - **`getSupabaseClient()`** — anon key. İstemci + RSC okumaları için. RLS'e tabi (sadece public read). **Asla yazmaz.**
 - **`getSupabaseAdmin()`** — service_role key. **Yalnızca server-side** (cron/seed). RLS'i bypass eder. Service key yoksa **fırlatır** — anon key'e sessiz fallback yapmaz (anon yazma RLS'e takılır ve kafa karıştırıcı "permission denied" üretir).
@@ -65,7 +66,7 @@
 
 ## 3. Veri Tabanı (Supabase / PostgreSQL)
 
-Migrasyonlar: [`supabase/migrations/`](../supabase/migrations/). 5 tablo, `jsonb` ile ham dış veri saklama, kanonik `type` CHECK kısıtları, kaynak (source) izleme.
+Migrasyonlar: [`supabase/migrations/`](../../supabase/migrations/). 5 tablo, `jsonb` ile ham dış veri saklama, kanonik `type` CHECK kısıtları, kaynak (source) izleme.
 
 ### 3.1 Tablolar
 
@@ -87,7 +88,7 @@ source ∈ { f1db, jolpica, openf1 }                -- provenance CHECK
 
 - **Round-NULL tuzağı:** PostgreSQL `UNIQUE(season, round, type)` her NULL'ı ayrı kabul eder, yani sezon seviyesi satırlar için düz upsert duplicate INSERT yapabilir. İki savunma var:
   1. Kısmi unique index `idx_f1_snapshots_season_type_no_round` (`WHERE round IS NULL`) — migrasyon `20260606000001`.
-  2. Yazma katmanı ([`lib/f1Ingest.ts`](../lib/f1Ingest.ts)): `round === null` ise **update-first, yoksa insert** yapar (düz upsert yerine).
+  2. Yazma katmanı ([`lib/f1Ingest.ts`](../../lib/f1Ingest.ts)): `round === null` ise **update-first, yoksa insert** yapar (düz upsert yerine).
 - **Okuma katmanı** bu yüzden `maybeSingle` yerine `order('fetched_at', desc).limit(1)` kullanır — eski duplicate'ler varsa en yenisi gelir.
 
 ### 3.3 RLS & yetkiler
@@ -104,25 +105,25 @@ source ∈ { f1db, jolpica, openf1 }                -- provenance CHECK
 Çok kaynaklı mimari (her kaynak farklı bir işi yapar — örtüşme yok):
 
 ### 4.1 F1DB — tarihsel veri (seed)
-[`lib/f1/sources/f1db.ts`](../lib/f1/sources/f1db.ts)
+[`lib/f1/sources/f1db.ts`](../../lib/f1/sources/f1db.ts)
 - GitHub Release'ten (`f1db-json-single.zip`) **bellekte** indirilir, `fflate` ile açılır — **diske yazılmaz**.
 - Tüm geçmiş sezonlar (1950→) buradan gelir. **Jolpica tarihsel için asla kullanılmaz** (rate-limit tükenmesini ve gönüllü-host bağımlılığını önlemek için).
 - Normalize edici fonksiyonlar F1DB'nin ID-tabanlı şemasını **Ergast/MRData biçimine** çevirir (`toMRDataCalendar`, `toMRDataResults`, `toMRDataDriverStandings`, …) → `f1Ingest` kaynağı bilmeden upsert eder.
-- Kullanım: `npm run seed:f1db` ([`scripts/seed-f1-history.ts`](../scripts/seed-f1-history.ts)).
+- Kullanım: `npm run seed:f1db` ([`scripts/seed-f1-history.ts`](../../scripts/seed-f1-history.ts)).
 
 ### 4.2 Jolpica (Ergast) — güncel sezon canlı veri
-[`lib/f1/sources/jolpica.ts`](../lib/f1/sources/jolpica.ts) · base `https://api.jolpi.ca/ergast/f1`
+[`lib/f1/sources/jolpica.ts`](../../lib/f1/sources/jolpica.ts) · base `https://api.jolpi.ca/ergast/f1`
 - **Sadece güncel sezon** (cron sync-f1) ve okuma katmanı son-çare proxy'si.
 - Per-instance rate-limit: ~0.8 req/s floor (1200 ms), 6 retry exponential backoff, 10 s timeout, 429/5xx retry, 404→boş MRData.
 - Veri zaten MRData biçiminde gelir (passthrough). `fetchCalendar`, `fetchDriverStandings`, `fetchResults`, `fetchQualifying`, `fetchSprint` + `hasRaces`/`hasResults`… shape guard'ları.
 
 ### 4.3 OpenF1 — telsiz audio
-[`lib/f1/sources/openf1.ts`](../lib/f1/sources/openf1.ts) · base `https://api.openf1.org/v1`
+[`lib/f1/sources/openf1.ts`](../../lib/f1/sources/openf1.ts) · base `https://api.openf1.org/v1`
 - Auth yok. Rate-limit: 3 req/s, 30 req/min → adapter 350 ms inter-request floor uygular (≈2.86 req/s).
 - `fetchRaceSessions(year)` → `fetchTeamRadio(sessionKey)` + `fetchSessionDrivers` + `fetchMeeting` → `radio_moments` insert'lerine map'lenir.
 
 ### 4.4 RSS — haber
-[`lib/news/aggregate.ts`](../lib/news/aggregate.ts)
+[`lib/news/aggregate.ts`](../../lib/news/aggregate.ts)
 - Kaynaklar: The Race, Autosport, Motorsport.com (+diğerleri). Per-source AbortController timeout.
 - F1 keyword filtresi + non-F1 exclusion, canonical-URL dedup (UTM/hash strip), Jaccard başlık-benzerliği clustering (eşik 0.65), newest-first sıralama.
 - Node.js'te JSDOM `DOMParser` polyfill kullanır → **bu yüzden `jsdom` `next.config` `outputFileTracingExcludes`'tan DIŞLANMAZ** (yoksa sync-news 500 verir).
@@ -133,7 +134,7 @@ source ∈ { f1db, jolpica, openf1 }                -- provenance CHECK
 
 Tümü `app/api/` altında, `runtime = 'nodejs'`.
 
-### 5.1 Cron Jobs (Vercel — [`vercel.json`](../vercel.json))
+### 5.1 Cron Jobs (Vercel — [`vercel.json`](../../vercel.json))
 
 | Rota | Schedule (UTC) | Kaynak → Hedef | `maxDuration` |
 |---|---|---|---|
@@ -141,7 +142,7 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 | `GET /api/cron/sync-f1?scope=season` | `0 7 * * *` | Jolpica → `f1_snapshots` | 300 s |
 | `GET /api/cron/sync-radio` | `0 8 * * *` | OpenF1 → `radio_moments` | 300 s |
 
-- **Auth:** [`lib/cronAuth.ts`](../lib/cronAuth.ts) — `Authorization: Bearer <CRON_SECRET>` (birincil; Vercel Cron tam bu env adıyla enjekte eder) veya legacy `CRON_SECRET_KEY`. Karşılaştırma **constant-time** (`timingSafeEqual`). Upstash Redis varsa (`UPSTASH_REDIS_REST_URL`) serverless container'lar arası SET-NX dağıtık lock ile trigger throttle uygulanır; yoksa in-memory fallback devrededir.
+- **Auth:** [`lib/cronAuth.ts`](../../lib/cronAuth.ts) — `Authorization: Bearer <CRON_SECRET>` (birincil; Vercel Cron tam bu env adıyla enjekte eder) veya legacy `CRON_SECRET_KEY`. Karşılaştırma **constant-time** (`timingSafeEqual`). Upstash Redis varsa (`UPSTASH_REDIS_REST_URL`) serverless container'lar arası SET-NX dağıtık lock ile trigger throttle uygulanır; yoksa in-memory fallback devrededir.
 - **sync-f1 scope:** `live` (race-weekend pencereleri: quali/sprint/results) veya `season` (tam backfill). Seans bazında yerel try/catch ile hata izolasyonu bulunur (tek seans çökmesi tüm cron'u kırmaz). Sürücü/takım lider değişim bildirimleri tek bir havuzda toplanıp tek seferde `sendExpoPushNotifications` ile gönderilir.
 
 ### 5.2 Public/okuma rotaları
@@ -156,7 +157,7 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 
 ## 6. Okuma Katmanı — 3 Kademeli Fallback & Performans
 
-[`lib/data/f1.ts`](../lib/data/f1.ts) tüm F1 okumaları için:
+[`lib/data/f1.ts`](../../lib/data/f1.ts) tüm F1 okumaları için:
 
 ```
 1. Supabase f1_snapshots  (DB — tek doğruluk kaynağı)
@@ -164,12 +165,12 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 3. Jolpica proxy /api/f1-season  (son çare, SADECE canlı sezon)
 ```
 
-- **Staleness kontrolü:** güncel sezon satırları takvim-farkındalıklı tazelik kontrolünden geçer ([`lib/f1/snapshotStaleness.ts`](../lib/f1/snapshotStaleness.ts)). DB cache beklenenden eskiyse (post-quali/post-race) bypass edilip canlı Jolpica okunur — cron çalışmaları arası standings/results taze kalır.
+- **Staleness kontrolü:** güncel sezon satırları takvim-farkındalıklı tazelik kontrolünden geçer ([`lib/f1/snapshotStaleness.ts`](../../lib/f1/snapshotStaleness.ts)). DB cache beklenenden eskiyse (post-quali/post-race) bypass edilip canlı Jolpica okunur — cron çalışmaları arası standings/results taze kalır.
 - **Content-validity guard:** F1DB seed'in placeholder (boş `raceName` / eksik `Constructors[]`) yazdığı satırlar tazelik geçse bile geçersiz sayılıp canlıya düşülür.
 - **Batch Querying (`fetchAllRoundResults`):** Sezonun tamamlanan rauntları N adet tekil veritabanı sorgusu yerine tek bir `.in('round', finishedRounds)` batch sorgusu ile tek round-trip'te çekilir. Eksik/stale kalanlar için tekil fallback zinciri işletilir.
 - **getOnThisDay Bellek Koruması (OOM Guard):** Tüm zamanların `results` kayıtlarının `data` sütununu belleğe çekmek yerine doğrudan PostgreSQL JSON operatörü (`data->MRData->RaceTable->Races->0->>date LIKE %-MM-DD`) ve `.limit(80)` uygulanarak serverless OOM riski engellenmiştir.
 - **Tarihsel veri her zaman DB'den** servis edilir; Jolpica tarihsel için asla kullanılmaz.
-- Diğer okuyucular: [`lib/data/news.ts`](../lib/data/news.ts) (news_cache → /api/news → static fallback), [`lib/data/stories.ts`](../lib/data/stories.ts) (published-only), [`lib/data/radio.ts`](../lib/data/radio.ts), [`lib/data/circuits.ts`](../lib/data/circuits.ts).
+- Diğer okuyucular: [`lib/data/news.ts`](../../lib/data/news.ts) (news_cache → /api/news → static fallback), [`lib/data/stories.ts`](../../lib/data/stories.ts) (published-only), [`lib/data/radio.ts`](../../lib/data/radio.ts), [`lib/data/circuits.ts`](../../lib/data/circuits.ts).
 
 ---
 
@@ -188,15 +189,15 @@ App Router (`app/**/page.tsx`, RSC — veri server-side okunur):
 | `/news` | Haber akışı |
 | `/tech-glossary` | Teknik sözlük |
 
-`/radio` → `/anthology` kalıcı redirect ([`next.config.ts`](../next.config.ts)).
+`/radio` → `/anthology` kalıcı redirect ([`next.config.ts`](../../next.config.ts)).
 
 ---
 
 ## 8. Güvenlik & Operasyon
 
-- **CSP / güvenlik header'ları** [`next.config.ts`](../next.config.ts) (`lib/security/csp.ts`): `font-src` same-origin + `data:` + `https://vercel.live` (Vercel Toolbar Geist fontları); `connect-src` whitelist (Supabase, Sentry, Vercel insights, Jolpica, OpenF1, open-meteo); HSTS, X-Content-Type-Options, frame-ancestors (portfolio embed izinli). Preview deploy'larda `X-Robots-Tag: noindex`.
+- **CSP / güvenlik header'ları** [`next.config.ts`](../../next.config.ts) (`lib/security/csp.ts`): `font-src` same-origin + `data:` + `https://vercel.live` (Vercel Toolbar Geist fontları); `connect-src` whitelist (Supabase, Sentry, Vercel insights, Jolpica, OpenF1, open-meteo); HSTS, X-Content-Type-Options, frame-ancestors (portfolio embed izinli). Preview deploy'larda `X-Robots-Tag: noindex`.
 - **SSRF koruması:** `/api/f1-season` proxy'sinde host hardcode + path whitelist regex.
-- **Rate-limit:** [`lib/rateLimit.ts`](../lib/rateLimit.ts) — Upstash sliding-window (UPSTASH_* env varsa, instance'lar arası tutarlı), yoksa in-memory fallback.
+- **Rate-limit:** [`lib/rateLimit.ts`](../../lib/rateLimit.ts) — Upstash sliding-window (UPSTASH_* env varsa, instance'lar arası tutarlı), yoksa in-memory fallback.
 - **Sentry:** kritik fonksiyonlar sarılı; client upload `tunnelRoute = '/monitoring'` üzerinden.
 - **Bundle:** `outputFileTracingexcludes` ile `public/**`, `node_modules/canvas/**` hariç tutulur; **`jsdom` hariç tutulmaz** (sync-news runtime'da kullanır).
 
@@ -216,7 +217,7 @@ App Router (`app/**/page.tsx`, RSC — veri server-side okunur):
 
 ## 9. Scriptler
 
-[`scripts/`](../scripts/):
+[`scripts/`](../../scripts/):
 
 | Script | Komut | İş |
 |---|---|---|

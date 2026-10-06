@@ -1,8 +1,9 @@
-# Project Anthology (APEX) — Dikkat Dökümanı & Yol Haritası
+# Project Anthology (APEX) — Mühendislik Dersleri ve Tuzaklar
 
 > **Amaç:** Geliştirme sırasında yaşanan hatalar, çözümleri ve mimari kararları tek yerde toplamak.  
 > Yeni geliştirici veya agent bu dosyayı okuyarak aynı tuzaklara düşmez.  
-> **Son güncelleme:** 2026-06-10 · Kaynak: `logs/AGENT_*`, `plans/`, `pre-plans/`, `docs/`
+> **Temel Amaç ve Vizyon:** `docs/vision/apex-vision.md` | **Canlı Plan & Açık İşler:** `docs/plans/master-plan.md`  
+> **Not:** Bu döküman operasyonel bir yol haritası değil; yaşanmış tuzaklar ve kritik mimari hafıza referansıdır.
 
 ---
 
@@ -121,36 +122,13 @@ Yeni ortam kurulumu veya deploy sonrası:
 
 ---
 
-## 5. Yol haritası
+## 5. Yol haritası ve Açık İşler
 
-### Tamamlanan (referans)
-
-- Masterplan Phase 0–8, v1.1 (CSP, deploy, bento), v1.2 B2/B4/B5/B6 (BackButton, calendar link, hava durumu, GlossaryCard)
-- 5FIX Bölüm 1: season freshness, F1DB schema fix, CalendarScroller, news live RSS, GH workflow disable
-- 5FIX2: content-invalid guard, home aggregate, CSP/image domain
-- Visual sprint (5 animasyon), QA sprint (AssetFallback, vitest 20 test), season asset layout, EntityDrawer + SeasonExplorer
-- Asset fix: submodule → static, diacritic resolver, CSP frame-src
-
-### Açık / devreden işler
-
-| Öncelik | Madde | Kaynak | Not |
-|---------|-------|--------|-----|
-| 🔴 Yüksek | Tarihsel **results backfill** doğrulama | `AGENT_5fix`, `PLAN_5FIX` | `seed:f1db` prod'da çalıştı mı? Past Winners 2018–2025 dolu mu? |
-| 🔴 Yüksek | **2026 DB snapshot** Jolpica ile güncelle | `AGENT_5FIX2` | Content-invalid guard geçici; cron ile kalıcı DB düzeltmesi |
-| 🟡 Orta | **Mid-season ikon çözümü** | `AGENT_ASSETS_SEASON_LAYOUT` | İki takımlı pilotlar için team-aware slug |
-| 🟡 Orta | **Pit-stop verisi** | `PLAN_5FIX` Özellik 2 | Ayrı kaynak gerekir; Season Records'ta yok |
-| 🟡 Orta | v1.2 **C1** hedefli testler genişletme | `plans/v1.2-polish.md` | `snapshotStaleness`, `isSeasonSnapshotContentInvalid` unit test |
-| 🟡 Orta | v1.2 **C4** Lighthouse prod ölçümü | QA sprint | LCP/CLS/a11y raporu |
-| 🟢 Düşük | v1.2 **B1** NewsCarousel | v1.2 plan | Durum kodda kontrol edilmeli (bazı loglar tamam diyor) |
-| 🟢 Düşük | `public/stories/` 3 stray klasör sil | Health check U2 | Export artığı: `Full 1280x720` vb. |
-| 🟢 Düşük | **GitHub Actions** race-aware hourly yeniden aç | `.github/workflows/` | Secret + billing kararı sonrası |
-| 🟢 Düşük | Tarihsel **takım renkleri** palette | Asset log | `team-colors.ts` 2026 dışı genişletme |
-| 🟢 Düşük | `circuits` DB tablosu seed | Health check U5 | Şu an kullanılmıyor; ileride gerekirse |
-| 🟢 Düşük | 2025 eksik driver SVG | `MISSING_ASSETS.md` | tsunoda, lawson — AssetFallback OK |
+Tüm aktif yol haritası, öncelikler ve açık görevler `docs/vision/apex-vision.md` vizyonu doğrultusunda **`docs/plans/master-plan.md`** üzerinde yönetilmektedir. Tek canlı iş listesi orasıdır.
 
 ### Cron sıklığı notu
 
-Hobby planda günde 1 cron → yarış haftası için **read-layer staleness** ve **force-dynamic season** kritik. Pro plana geçilirse `vercel.json`'da `scope=live` 15 dk cron değerlendirilebilir (`pre-plans/data-ingestion-plan.md` orijinal tasarım).
+Hobby planda günde 1 cron → yarış haftası için **read-layer staleness** ve **force-dynamic season** kritik. Pro plana geçilirse `vercel.json`'da `scope=live` 15 dk cron değerlendirilebilir.
 
 ---
 
@@ -158,14 +136,15 @@ Hobby planda günde 1 cron → yarış haftası için **read-layer staleness** v
 
 | Ne arıyorsun? | Nereye bak |
 |---------------|------------|
-| Proje anayasası (backend/QA) | `pre-plans/CLAUDE.md` |
-| Tasarım SSOT | `pre-plans/DESIGN_SYSTEM.md` |
-| v1.2 açık maddeler | `plans/v1.2-polish.md` |
-| 5FIX planı (EntityDrawer, records) | `docs/plans/PLAN_5FIX_2026-06-08.md` |
-| Agent karar logları | `logs/AGENT_*.md` |
-| Asset layout & pipeline | `docs/reference/ASSETS.md`, `assets/scripts/generate-historical-assets.mjs` |
-| Canlı plan | `docs/plans/master-plan.md` |
-| Eksik driver audit | `MISSING_ASSETS.md`, `assets/scripts/audit-missing-assets.ts` |
+| Temel Vizyon & Amaç | `docs/vision/apex-vision.md` |
+| Proje Kuralları (Agent Anayasası) | `AGENTS.md` |
+| Tasarım Sistemi (Master SSOT) | `docs/design/apex-design.md` |
+| Canlı Plan & Açık İşler | `docs/plans/master-plan.md` |
+| Acil Eylem Planı (Geliştirici Direktifleri) | `docs/plans/acil-eylem-plani.md` |
+| Sistem Referansı & Ölçümler | `docs/reference/apex-reference.md` |
+| Backend & Veri Mimarisi | `docs/reference/mimari.md` |
+| F1 Anlatı ve Ev Sesi Rehberleri | `docs/F1_Anlati_Stil_Kilavuzu.md`, `docs/F1_Anlati_Stil_Kilavuzu_v2.md` |
+| Operasyonel Prosedürler | `docs/procedures.md` |
 | F1 temporal mantık | `lib/f1Calendar.ts` |
 | F1 okuma katmanı | `lib/data/f1.ts`, `lib/f1/snapshotStaleness.ts` |
 | F1 yazma / cron | `lib/f1Ingest.ts`, `app/api/cron/sync-*/route.ts` |
@@ -177,10 +156,8 @@ Hobby planda günde 1 cron → yarış haftası için **read-layer staleness** v
 | Pist statik facts + koordinat | `data/circuits/facts.ts`, `lib/data/circuits.ts` |
 | DB şema | `supabase/migrations/`, `types/database.ts` |
 | Cron zamanlaması | `vercel.json` |
-| Güvenlik header / CSP | `next.config.ts` |
-| Görsel sprint planı | `.cursor/plans/visual_sprint_animations_de3f79dc.plan.md` |
+| Güvenlik header / CSP | `next.config.ts`, `lib/security/csp.ts` |
 | Testler | `tests/*.test.ts`, `vitest.config.ts` |
-| Next.js agent kuralları | `AGENTS.md` |
 
 ---
 

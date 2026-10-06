@@ -1,7 +1,8 @@
 # F1 Anlatı Stil Kılavuzu — **v2**
 ### Antoloji / Hikâye bölümü için "ev sesi" rehberi · Sürüm 2.0 · 5 Ekim 2026
 
-> **v2'de ne var?** v1 metin (altyazı) okumasına dayanıyordu ve ses katmanını açıkça kapsam dışı bırakmıştı. v2, iki kanaldan **v1'de kullanılmamış 8 yeni videoyu** inceliyor ve bulguları büyük ölçüde **doğrudan sesten** çıkarıyor: konuşma hızı, duraklar, perde (F0) ve tonlama, ses şiddeti, müzik yatağı ve arşiv sesinin yeri, açılış/doruk/kapanışta okuma farkları. Sonra bu ses bulgularını **yazıya çeviriyor** ("sayfa prozodisi"), ev sesini güncelliyor ve antoloji hikâyelerinden haber bültenlerine, "Tarihte Bugün" kesitlerinden sürücü/takım profillerine kadar **hem Türkçe hem İngilizce** tüm anlatı formatlarına yayıyor.
+> **v2'de ne var?** v1 metin (altyazı) okumasına dayanıyordu ve ses katmanını açıkça kapsam dışı bırakmıştı. v2, iki kanaldan **v1'de kullanılmamış 8 yeni videoyu** inceliyor ve bulguları büyük ölçüde **doğrudan sesten** çıkarıyor: konuşma hızı, duraklar, perde (F0) ve tonlama, ses şiddeti, müzik yatağı ve arşiv sesinin yeri, açılış/doruk/kapanışta okuma farkları. Sonra bu ses bulgularını **yazıya çeviriyor** ("sayfa prozodisi"), ev sesini güncelliyor ve antoloji hikâyelerinden haber bültenlerine, "Tarihte Bugün" kesitlerinden sürücü/takım profillerine kadar **hem Türkçe hem İngilizce** tüm anlatı formatlarına yayıyor.  
+> **Temel Amaç ve Vizyon:** [`docs/vision/apex-vision.md`](vision/apex-vision.md) (Köklü tarih, teknik dinamikler ve editoryal derinlik felsefesi).  
 > **Değişmeyen ilke:** Taklit değil zanaat çıkarıyoruz. İki kanalın cümleleri, benzetmeleri, sahne sıraları ve espri kalıpları kopyalanmaz. Alıntılar kısa (12 kelimenin altında), kaynaklı ve yalnızca kanıt amaçlıdır.
 
 ---
