@@ -5,6 +5,8 @@ import { resolveTeamUiColor } from '@/config/team-colors';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { DriverGridRow } from '@/lib/data/entities';
 
+import type { TeamHeadToHead } from '@/lib/f1/headToHead';
+
 export interface GarageUnit {
   constructorId: string;
   constructorName: string;
@@ -13,6 +15,7 @@ export interface GarageUnit {
   wins: string;
   powerUnit: string | null;
   drivers: DriverGridRow[];
+  headToHead?: TeamHeadToHead;
 }
 
 function DriverBay({
@@ -105,64 +108,169 @@ function TeammateHeadToHead({
   d1,
   d2,
   color,
+  h2h,
 }: {
   d1: DriverGridRow;
   d2: DriverGridRow;
   color: string;
+  h2h?: TeamHeadToHead;
 }) {
   const pts1 = parseFloat(d1.points) || 0;
   const pts2 = parseFloat(d2.points) || 0;
-  const total = pts1 + pts2;
-  const pct1 = total > 0 ? Math.round((pts1 / total) * 100) : 50;
-  const pct2 = 100 - pct1;
   const pos1 = parseInt(d1.position, 10) || 99;
   const pos2 = parseInt(d2.position, 10) || 99;
+
+  let quali1 = 0;
+  let quali2 = 0;
+  let race1 = 0;
+  let race2 = 0;
+  let hasH2H = false;
+
+  if (h2h && (h2h.qualifying.compared > 0 || h2h.race.compared > 0)) {
+    const id1 = d1.driverId.toLowerCase();
+    const id2 = d2.driverId.toLowerCase();
+    const hId0 = h2h.drivers[0]?.driverId.toLowerCase();
+    const hId1 = h2h.drivers[1]?.driverId.toLowerCase();
+
+    if (id1 === hId0 && id2 === hId1) {
+      quali1 = h2h.qualifying.wins[0];
+      quali2 = h2h.qualifying.wins[1];
+      race1 = h2h.race.wins[0];
+      race2 = h2h.race.wins[1];
+      hasH2H = true;
+    } else if (id1 === hId1 && id2 === hId0) {
+      quali1 = h2h.qualifying.wins[1];
+      quali2 = h2h.qualifying.wins[0];
+      race1 = h2h.race.wins[1];
+      race2 = h2h.race.wins[0];
+      hasH2H = true;
+    }
+  }
+
+  const raceTotal = race1 + race2;
+  const racePct1 = raceTotal > 0 ? Math.round((race1 / raceTotal) * 100) : 50;
+  const racePct2 = 100 - racePct1;
+
+  const qualiTotal = quali1 + quali2;
+  const qualiPct1 = qualiTotal > 0 ? Math.round((quali1 / qualiTotal) * 100) : 50;
+  const qualiPct2 = 100 - qualiPct1;
+
+  const ptsTotal = pts1 + pts2;
+  const ptsPct1 = ptsTotal > 0 ? Math.round((pts1 / ptsTotal) * 100) : 50;
+  const ptsPct2 = 100 - ptsPct1;
+
+  const d1Ahead = hasH2H
+    ? race1 > race2 || (race1 === race2 && (quali1 > quali2 || (quali1 === quali2 && pos1 < pos2)))
+    : pos1 < pos2;
+  const d2Ahead = hasH2H
+    ? race2 > race1 || (race2 === race1 && (quali2 > quali1 || (quali2 === quali1 && pos2 < pos1)))
+    : pos2 < pos1;
 
   return (
     <div className="relative z-10 flex flex-col gap-1.5 border-t border-hairline bg-white/[0.015] px-3.5 py-2 md:px-4">
       <div className="flex items-center justify-between text-[11px] font-mono">
         <div className="flex items-center gap-1.5">
-          <span className={`font-600 uppercase ${pos1 < pos2 ? 'text-text-hi' : 'text-text-mid'}`}>
+          <span className={`font-600 uppercase ${d1Ahead ? 'text-text-hi' : 'text-text-mid'}`}>
             {d1.driverCode || d1.driverName.slice(0, 3)}
           </span>
-          {pos1 < pos2 ? (
+          {d1Ahead ? (
             <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[9px] font-bold text-[#00d26a]">
               AHEAD
             </span>
           ) : null}
         </div>
-        <span className="label-caps tracking-widest text-text-low text-[10px]">
-          H2H · {pts1} : {pts2} PTS
-        </span>
+
+        {hasH2H ? (
+          <div className="flex items-center gap-2 text-[10px] font-mono tracking-wider">
+            <span className="text-text-mid">
+              <span className="text-text-low font-semibold">Q</span> {quali1}:{quali2}
+            </span>
+            <span className="text-hairline">·</span>
+            <span className="text-text-mid">
+              <span className="text-text-low font-semibold">R</span> {race1}:{race2}
+            </span>
+            <span className="text-hairline">·</span>
+            <span className="text-text-low">
+              {pts1}:{pts2} PTS
+            </span>
+          </div>
+        ) : (
+          <span className="label-caps tracking-widest text-text-low text-[10px]">
+            H2H · {pts1} : {pts2} PTS
+          </span>
+        )}
+
         <div className="flex items-center gap-1.5">
-          {pos2 < pos1 ? (
+          {d2Ahead ? (
             <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[9px] font-bold text-[#00d26a]">
               AHEAD
             </span>
           ) : null}
-          <span className={`font-600 uppercase ${pos2 < pos1 ? 'text-text-hi' : 'text-text-mid'}`}>
+          <span className={`font-600 uppercase ${d2Ahead ? 'text-text-hi' : 'text-text-mid'}`}>
             {d2.driverCode || d2.driverName.slice(0, 3)}
           </span>
         </div>
       </div>
 
-      {/* Dual comparison bar */}
-      <div className="relative flex h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-        <div
-          className="h-full transition-all duration-300"
-          style={{
-            width: `${pct1}%`,
-            backgroundColor: pos1 <= pos2 ? color : 'rgba(255, 255, 255, 0.25)',
-          }}
-        />
-        <div
-          className="h-full transition-all duration-300"
-          style={{
-            width: `${pct2}%`,
-            backgroundColor: pos2 < pos1 ? color : 'rgba(255, 255, 255, 0.25)',
-          }}
-        />
-      </div>
+      {hasH2H ? (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 text-[8px] font-mono font-bold text-text-low">R</span>
+            <div className="relative flex h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className="h-full transition-all duration-300"
+                style={{
+                  width: `${racePct1}%`,
+                  backgroundColor: race1 >= race2 ? color : 'rgba(255, 255, 255, 0.25)',
+                }}
+              />
+              <div
+                className="h-full transition-all duration-300"
+                style={{
+                  width: `${racePct2}%`,
+                  backgroundColor: race2 > race1 ? color : 'rgba(255, 255, 255, 0.25)',
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 text-[8px] font-mono font-bold text-text-low">Q</span>
+            <div className="relative flex h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className="h-full transition-all duration-300"
+                style={{
+                  width: `${qualiPct1}%`,
+                  backgroundColor: quali1 >= quali2 ? color : 'rgba(255, 255, 255, 0.25)',
+                }}
+              />
+              <div
+                className="h-full transition-all duration-300"
+                style={{
+                  width: `${qualiPct2}%`,
+                  backgroundColor: quali2 > quali1 ? color : 'rgba(255, 255, 255, 0.25)',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="relative flex h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+          <div
+            className="h-full transition-all duration-300"
+            style={{
+              width: `${ptsPct1}%`,
+              backgroundColor: pos1 <= pos2 ? color : 'rgba(255, 255, 255, 0.25)',
+            }}
+          />
+          <div
+            className="h-full transition-all duration-300"
+            style={{
+              width: `${ptsPct2}%`,
+              backgroundColor: pos2 < pos1 ? color : 'rgba(255, 255, 255, 0.25)',
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -246,7 +354,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
             {d1 ? <DriverBay row={d1} season={season} color={color} /> : <EmptySeat />}
             {d2 ? <DriverBay row={d2} season={season} color={color} divided /> : <EmptySeat divided />}
           </div>
-          {d1 && d2 ? <TeammateHeadToHead d1={d1} d2={d2} color={color} /> : null}
+          {d1 && d2 ? <TeammateHeadToHead d1={d1} d2={d2} color={color} h2h={unit.headToHead} /> : null}
         </div>
       </div>
     </article>

@@ -17,6 +17,8 @@ import { localizedAlternates } from '@/lib/seo';
 import { SeasonRail } from '@/components/history/SeasonRail';
 import { SeasonChampions } from '@/components/history/SeasonChampions';
 import { seasonRailYears } from '@/lib/history/seasons';
+import { getMachineryCarsForSeason } from '@/data/machinery/cars';
+import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -71,6 +73,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
   const nextRound = nextRace?.round != null ? String(nextRace.round) : undefined;
   const leader = standings[0];
   const challenger = standings[1] ?? null;
+  const machineryCars = getMachineryCarsForSeason(year);
 
   if (!leader) {
     return (
@@ -109,6 +112,12 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
           {evolutionSeries && evolutionSeries.length > 0 ? (
             <div className="my-4 md:my-6">
               <SeasonProgressionChart series={evolutionSeries} season={year} />
+            </div>
+          ) : null}
+
+          {machineryCars.length > 0 ? (
+            <div className="my-4 md:my-6">
+              <MachineryCrossLink cars={machineryCars} locale={locale} />
             </div>
           ) : null}
 

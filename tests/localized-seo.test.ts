@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { localizedAlternates, websiteJsonLd, articleJsonLd, siteUrl } from '../lib/seo';
+import { localizedAlternates, websiteJsonLd, articleJsonLd, sportsEventJsonLd, siteUrl } from '../lib/seo';
 
 describe('Localized SEO & Hreflang helpers', () => {
   it('generates correct alternates for default English route', () => {
@@ -63,5 +63,35 @@ describe('Localized SEO & Hreflang helpers', () => {
 
     expect(enArticle.inLanguage).toBe('en-US');
     expect(enArticle.url).toBe(`${base}/anthology/senna-monaco-1988`);
+  });
+
+  it('sportsEventJsonLd produces valid SportsEvent schema', () => {
+    const base = siteUrl();
+    const event = sportsEventJsonLd({
+      name: 'Monaco Grand Prix',
+      startDate: '2026-05-24',
+      circuitName: 'Circuit de Monaco',
+      locality: 'Monte Carlo',
+      country: 'Monaco',
+      round: 6,
+      season: 2026,
+      url: '/season/2026/round/6',
+    });
+
+    expect(event['@context']).toBe('https://schema.org');
+    expect(event['@type']).toBe('SportsEvent');
+    expect(event.name).toBe('Monaco Grand Prix');
+    expect(event.sport).toBe('Formula 1');
+    expect(event.url).toBe(`${base}/season/2026/round/6`);
+    expect(event.startDate).toBe('2026-05-24');
+    expect(event.location).toEqual({
+      '@type': 'Place',
+      name: 'Circuit de Monaco',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Monte Carlo',
+        addressCountry: 'Monaco',
+      },
+    });
   });
 });

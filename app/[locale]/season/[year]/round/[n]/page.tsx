@@ -29,7 +29,8 @@ import { RaceResultsTable, QualifyingTable } from '@/components/season/ResultsTa
 import { PitStopsTable } from '@/components/season/PitStopsTable';
 import { LiveRaceTracker } from '@/components/home/LiveRaceTracker';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { siteUrl, localizedAlternates } from '@/lib/seo';
+import { sportsEventJsonLd, localizedAlternates } from '@/lib/seo';
+import { GlossaryLinkedText } from '@/components/glossary/GlossaryLinkedText';
 
 // Same dynamic posture as /season: current-season rounds must pass the
 // staleness→live read path on every request; historical rounds are DB-stable.
@@ -116,33 +117,32 @@ export default async function RoundPage({ params }: PageProps) {
   const startMs = isCurrentSeason && race ? raceStartMs(race) : null;
   const isLive = startMs !== null && getRaceCountdownPhase(startMs, nowMs()) === 'live';
 
+  const raceNameValue = race?.raceName?.trim();
+  const circuitNameValue = race?.Circuit?.circuitName?.trim();
+  const countryValue = race?.Circuit?.Location?.country?.trim();
+  const startDateValue = race?.date?.trim();
+
+  const eventJsonLd =
+    raceNameValue && circuitNameValue && countryValue && startDateValue
+      ? sportsEventJsonLd({
+          name: raceNameValue,
+          startDate: startDateValue,
+          circuitName: circuitNameValue,
+          locality: race?.Circuit?.Location?.locality?.trim(),
+          country: countryValue,
+          round,
+          season: year,
+          url: `/season/${year}/round/${round}`,
+        })
+      : null;
+
   return (
     <main
       id="main-content"
       style={theme as React.CSSProperties}
       className="mx-auto w-full max-w-[var(--container-max)] flex-1 bg-bg px-5 py-8 md:px-8 lg:px-16 lg:py-12"
     >
-      <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'SportsEvent',
-          name: race?.raceName ?? t('fallbackName', { round }),
-          url: `${siteUrl()}/season/${year}/round/${round}`,
-          startDate: race?.date,
-          location: race?.Circuit?.Location
-            ? {
-                '@type': 'Place',
-                name: race.Circuit.circuitName,
-                address: {
-                  '@type': 'PostalAddress',
-                  addressLocality: race.Circuit.Location.locality,
-                  addressCountry: race.Circuit.Location.country,
-                },
-              }
-            : undefined,
-          sport: 'Formula 1',
-        }}
-      />
+      {eventJsonLd ? <JsonLd data={eventJsonLd} /> : null}
       <header className="mb-8 flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="label-caps text-text-mid">
@@ -226,6 +226,24 @@ export default async function RoundPage({ params }: PageProps) {
         {results.length === 0 && quali.length === 0 && sprint.length === 0 && pitstops.length === 0 ? (
           <BentoCard span={12}>
             <span className="label-caps text-text-low">{t('notAvailable')}</span>
+          </BentoCard>
+        ) : null}
+
+        {circuitFacts?.note ? (
+          <BentoCard span={12} className="border-hairline/80 bg-white/[0.015]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-hairline/40 pb-2 mb-2">
+              <span className="label-caps text-accent text-xs">
+                {locale === 'tr' ? 'Pist Teknik Notu' : 'Circuit Technical Brief'}
+              </span>
+              {circuitFacts.character ? (
+                <span className="font-mono text-[11px] text-text-low">
+                  {circuitFacts.character}
+                </span>
+              ) : null}
+            </div>
+            <p className="body-sm text-text-mid leading-relaxed">
+              <GlossaryLinkedText text={circuitFacts.note} locale={locale} />
+            </p>
           </BentoCard>
         ) : null}
       </BentoGrid>
