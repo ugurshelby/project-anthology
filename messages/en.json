@@ -61,6 +61,7 @@
     "legalPrivacy": "Privacy",
     "legalTerms": "Terms",
     "legalDmca": "Copyright / DMCA",
+    "legalMediaSources": "Media & Attributions",
     "analyticsSettings": "Analytics settings",
     "dataCredit": "Historical data"
   },
@@ -545,6 +546,23 @@
       "s2p1": "Email the notice to <mail>dmca@apexstats.example</mail>. This address is a pre-launch placeholder and must be replaced by a monitored designated agent address before the service is publicly launched.",
       "s3Title": "Review process",
       "s3p1": "We acknowledge valid notices, preserve relevant records, restrict or remove the reported material while investigating, and contact the submitting party if clarification is needed. Counter-notices and repeat-infringer decisions are handled under applicable law. A mistaken or abusive notice can cause harm, so provide only truthful, specific information."
+    },
+    "mediaSources": {
+      "metaTitle": "Media Sources & Attributions",
+      "metaDescription": "Apex Formula 1 media acquisition policy, open licenses (CC BY, CC BY-SA, Public Domain), attribution standards and takedown procedures.",
+      "eyebrow": "Legal / 05",
+      "title": "Media sources, licenses and copyright policy.",
+      "intro": "All media assets displayed on Apex pass through a strict verification gate. Our system never performs unverified client-side requests to third-party hosts; only verified open licenses (CC BY, CC BY-SA, Public Domain) are served from our optimized storage CDN with complete author attributions.",
+      "updated": "06 October 2026",
+      "s1Title": "Open Licenses and Attribution Standards",
+      "s1p1": "Our automated pipeline exclusively accepts assets documented on Wikimedia Commons under verifiable Creative Commons (CC BY, CC BY-SA) or Public Domain (CC0, PD) licenses. Commercial photo agencies, official FOM/Formula 1 portals, and restrictive team press kits are strictly banned.",
+      "s1p2": "Every asset features visible plain-text credits citing the original author, license specification, and direct Wikimedia Commons source links. Optimized WebP variants are hosted under strict compliance with derivative licensing standards (including CC BY-SA share-alike obligations).",
+      "s2Title": "Constructor Marks and Logos",
+      "s2p1": "Team emblems and wordmarks are displayed strictly for descriptive and editorial identification under fair use principles. Apex is an independent fan project, and all respective trademarks remain the sole property of their owners.",
+      "s3Title": "Procedural Vector Placeholders (Parametric SVG)",
+      "s3p1": "Where photographic assets lack open licensing, Apex renders intentional bespoke parametric SVG telemetry badges, CAD chassis silhouettes, and aerodynamic profiles. Circuit geometry contours are derived from MIT-licensed open datasets.",
+      "s4Title": "Copyright Takedowns and Inquiries",
+      "s4p1": "If you believe an image violates copyright or carries an incorrect license declaration, please contact us at <mail>contact@apexstats.example</mail> or follow our DMCA process. Flagged assets are instantly hidden from the public read layer."
     }
   }
 }

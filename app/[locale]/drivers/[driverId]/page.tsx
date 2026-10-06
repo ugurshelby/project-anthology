@@ -6,6 +6,7 @@ import { countryName } from '@/lib/i18n/format';
 import { SITE_NAME, siteUrl, localizedAlternates } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { getNewsForEntity } from '@/lib/data/news';
+import { getMedia } from '@/lib/media/read';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { DriverProfileHero } from '@/components/profile/DriverProfileHero';
@@ -113,6 +114,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
         bigNumber={view.number}
         imageSrc={null}
         imageAlt={view.name}
+        mediaResult={await getMedia('driver', view.id)}
         editorialTagline={view.lore ? taglineFromLore(view.lore) : null}
         driverCode={view.code}
         constructorId={lastTeam?.id.replace(/-/g, '_') ?? null}

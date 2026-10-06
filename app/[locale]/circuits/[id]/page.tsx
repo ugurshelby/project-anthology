@@ -15,6 +15,8 @@ import { CircuitWeatherCard } from '@/components/circuit/CircuitWeatherCard';
 import { CircuitElevationProfile } from '@/components/circuit/CircuitElevationProfile';
 import { CircuitLoreCards } from '@/components/circuit/CircuitLoreCards';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
+import { MediaAssetView } from '@/components/media/MediaAssetView';
+import { getMedia } from '@/lib/media/read';
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -53,10 +55,11 @@ export default async function CircuitDetailPage({ params }: PageProps) {
   const { id, locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'ui.circuit' });
-  const [circuit, results, weather] = await Promise.all([
+  const [circuit, results, weather, circuitMedia] = await Promise.all([
     getCircuitDetail(id),
     getCurrentSeasonResults(),
     getCircuitWeather(id),
+    getMedia('circuit', id),
   ]);
   if (!circuit) notFound();
 
@@ -178,6 +181,23 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                 corners={facts?.corners}
               />
             </BentoCard>
+
+            {/* Authentic Aerial Venue Photograph (when available) */}
+            {circuitMedia.status === 'image' ? (
+              <BentoCard span={12} className="overflow-hidden !p-0">
+                <div className="relative h-64 w-full md:h-80">
+                  <MediaAssetView
+                    type="circuit"
+                    entityKey={id}
+                    initialResult={circuitMedia}
+                    alt={`${circuit.circuitName} venue`}
+                    name={circuit.circuitName}
+                    aspectRatio="21/9"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </BentoCard>
+            ) : null}
 
             {weather ? (
               <BentoCard span={6}>

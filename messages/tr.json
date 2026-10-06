@@ -61,6 +61,7 @@
     "legalPrivacy": "Gizlilik",
     "legalTerms": "Kullanım Koşulları",
     "legalDmca": "Telif / DMCA",
+    "legalMediaSources": "Görsel Kaynakları",
     "analyticsSettings": "Analitik ayarları",
     "dataCredit": "Tarihsel veri"
   },
@@ -545,6 +546,23 @@
       "s2p1": "Bildirimi <mail>dmca@apexstats.example</mail> adresine e-postayla gönderin. Bu adres yayın öncesi bir yer tutucudur; hizmet kamuya açılmadan önce izlenen, atanmış bir temsilci adresiyle değiştirilmelidir.",
       "s3Title": "İnceleme süreci",
       "s3p1": "Geçerli bildirimleri teyit eder, ilgili kayıtları saklar, inceleme sürerken bildirilen materyali kısıtlar veya kaldırır ve açıklama gerekirse bildirimi yapan tarafla iletişime geçeriz. Karşı bildirimler ve tekrarlayan ihlalci kararları geçerli hukuka göre ele alınır. Hatalı ya da kötü niyetli bir bildirim zarar verebilir; bu yüzden yalnızca doğru ve somut bilgi verin."
+    },
+    "mediaSources": {
+      "metaTitle": "Görsel Kaynakları ve Lisanslar",
+      "metaDescription": "Apex Formula 1 görsel temin politikası, açık lisanslar (CC BY, CC BY-SA, Kamu Malı), atıf standartları ve içerik kaldırma süreci.",
+      "eyebrow": "Yasal / 05",
+      "title": "Görsel kaynakları, lisanslar ve telif politikası.",
+      "intro": "Apex'te sunulan tüm görseller sıkı bir lisans kapısından geçer. Sitemiz üçüncü taraf sitelere anlık çağrı yapmaz; yalnızca doğrulanmış açık lisansa (CC BY, CC BY-SA, Kamu Malı) sahip varlıklar kendi depolama alanımızda saklanır ve atıfları eksiksiz gösterilir.",
+      "updated": "06 Ekim 2026",
+      "s1Title": "Açık Lisanslar ve Atıf Standardı",
+      "s1p1": "Sistemimiz yalnızca Wikimedia Commons üzerinde açıkça belgelenmiş Creative Commons (CC BY, CC BY-SA) ve Kamu Malı (Public Domain, CC0) lisansına sahip görselleri kabul eder. Tüm telifli basın ajansı, FOM/Formula 1 resmi portalları veya takım basın bültenleri kesin olarak engellenir.",
+      "s1p2": "Her görselin altında veya detay penceresinde yazar adı, kaynak Wikimedia Commons sayfası ve lisans türü açıkça belirtilir. Yeniden boyutlandırılmış türev WebP kopyaları orijinal lisans şartlarına (CC BY-SA Paylaşımcı lisansı dahil) tam uyumla sunulur.",
+      "s2Title": "Takım Markaları ve Logolar",
+      "s2p1": "Takım logoları yalnızca ilgili takımı tanımlamak amacıyla adil kullanım ve editoryal bağlamda sunulmaktadır. Apex bağımsız bir projedir ve logolar ilgili hak sahiplerine aittir. Resmî bir bağlantı veya onay ima edilmez.",
+      "s3Title": "Prosedürel Vektör Çizimleri (Parametrik SVG)",
+      "s3p1": "Fotoğrafı veya açık lisansı bulunmayan pilotlar, araçlar ve takımlar için Apex tasarım diliyle hazırlanan özgün, hafif parametrik SVG rozetleri ve CAD siluetleri kullanılır. Pist harita konturları MIT lisanslı açık kaynak geometri verisinden üretilir.",
+      "s4Title": "Telif ve İçerik Kaldırma (Takedown)",
+      "s4p1": "Bir görselin telif haklarınızı ihlal ettiğini veya yanlış lisanslandığını düşünüyorsanız, lütfen DMCA sayfamızdaki adımları takip ederek <mail>contact@apexstats.example</mail> adresine bildirin. Bildirilen görsel gecikmeksizin yayından kaldırılır ve tekrar seçilmemek üzere kilitlenir."
     }
   }
 }

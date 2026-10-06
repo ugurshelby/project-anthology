@@ -1,6 +1,8 @@
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { ApexImage } from '@/components/media/ApexImage';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
+import type { MediaResult } from '@/lib/media/read';
 import type { CSSProperties } from 'react';
 
 const PORTRAIT_MASK: CSSProperties = {
@@ -186,6 +188,7 @@ export function DriverProfileHero({
   driverCode,
   constructorId,
   constructorName,
+  mediaResult,
 }: {
   kicker?: string;
   title: string;
@@ -198,11 +201,15 @@ export function DriverProfileHero({
   driverCode?: string | null;
   constructorId?: string | null;
   constructorName?: string | null;
+  mediaResult?: MediaResult | null;
 }) {
   const nameParts = title.trim().split(/\s+/);
   const firstName = nameParts.slice(0, -1).join(' ') || title;
   const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : null;
   const mark = markFromDriver(driverCode, title);
+
+  const isMediaImage = mediaResult?.status === 'image';
+  const effectiveSrc = isMediaImage ? mediaResult.image.src : imageSrc;
 
   return (
     <section className="relative -mx-5 mb-4 overflow-hidden md:-mx-8 lg:-mx-16">
@@ -263,7 +270,7 @@ export function DriverProfileHero({
           </div>
         </div>
 
-        {imageSrc ? (
+        {effectiveSrc ? (
           <div className="pointer-events-none absolute inset-0 z-20">
             <span
               aria-hidden
@@ -273,20 +280,57 @@ export function DriverProfileHero({
               className="absolute inset-0 mx-auto md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[min(68%,820px)] lg:w-[min(62%,900px)]"
               style={PORTRAIT_MASK}
             >
-              <ApexImage
-                src={imageSrc}
-                alt={imageAlt}
-                fill
-                kind="driver"
-                sizes="(max-width: 768px) 100vw, 62vw"
-                className="object-contain object-[center_12%] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
-                priority
-              />
+              {isMediaImage ? (
+                <Image
+                  src={mediaResult.image.src}
+                  alt={imageAlt}
+                  fill
+                  unoptimized={true}
+                  priority
+                  sizes="(max-width: 768px) 100vw, 62vw"
+                  placeholder={mediaResult.image.blurDataURL ? 'blur' : 'empty'}
+                  blurDataURL={mediaResult.image.blurDataURL ?? undefined}
+                  className="object-contain object-[center_12%] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
+                />
+              ) : (
+                <ApexImage
+                  src={effectiveSrc}
+                  alt={imageAlt}
+                  fill
+                  kind="driver"
+                  sizes="(max-width: 768px) 100vw, 62vw"
+                  className="object-contain object-[center_12%] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
+                  priority
+                />
+              )}
             </div>
             <span
               aria-hidden
               className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[48%] bg-gradient-to-t from-bg via-bg/95 to-transparent md:h-[42%]"
             />
+
+            {/* CC BY / CC BY-SA Attribution Badge */}
+            {isMediaImage && mediaResult.attribution?.text ? (
+              <div className="pointer-events-auto absolute bottom-4 right-4 z-30 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] text-text-mid shadow-lg backdrop-blur-md">
+                <span className="font-mono text-[9px] uppercase tracking-wider text-text-low">
+                  Foto:
+                </span>
+                <span className="max-w-[220px] truncate text-white/90">
+                  {mediaResult.attribution.text}
+                </span>
+                {mediaResult.attribution.sourceUrl ? (
+                  <a
+                    href={mediaResult.attribution.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 text-accent hover:underline"
+                    aria-label="Wikimedia Commons Source"
+                  >
+                    ↗
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         ) : (
           <DriverHeroGraphic

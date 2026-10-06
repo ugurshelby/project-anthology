@@ -7,6 +7,8 @@ import { BentoCard } from '@/components/bento/BentoCard';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { getMachineryCar, getAllMachineryCars } from '@/data/machinery/cars';
 import { MachineryCadWireframe } from '@/components/machinery/MachineryCadWireframe';
+import { MediaAssetView } from '@/components/media/MediaAssetView';
+import { getMedia } from '@/lib/media/read';
 import { localizedAlternates, vehicleJsonLd } from '@/lib/seo';
 
 interface PageProps {
@@ -59,6 +61,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
   if (!car) notFound();
 
   const isTr = locale === 'tr';
+  const carMedia = await getMedia('car', `iconic:${car.id}`);
 
   const engineDossier = [
     { label: isTr ? 'GÜÇ ÜNİTESİ' : 'POWER UNIT', value: car.engine.spec },
@@ -125,9 +128,34 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         </p>
       </header>
 
-      {/* Full Width CAD Blueprint Viewport */}
-      <div className="mb-8">
-        <MachineryCadWireframe car={car} interactive={true} />
+      {/* CAD Blueprint & Authentic Archive Photo Grid */}
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <MachineryCadWireframe car={car} interactive={true} />
+        </div>
+        <div className="flex flex-col justify-between rounded-[16px] border border-white/10 bg-[#090d14] p-4 lg:col-span-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="label-caps font-mono text-[10px] tracking-wider text-text-low">
+              {isTr ? 'ARŞİV FOTOĞRAFI // CC BY' : 'ARCHIVE DOSSIER // CC BY'}
+            </span>
+            <span className="font-mono text-[10px] text-accent">
+              {car.year} SPEC
+            </span>
+          </div>
+          <div className="relative min-h-[220px] w-full flex-1 overflow-hidden rounded-lg">
+            <MediaAssetView
+              type="car"
+              entityKey={`iconic:${car.id}`}
+              initialResult={carMedia}
+              alt={car.fullName}
+              name={car.fullName}
+              teamColor={car.accentColor}
+              season={car.year}
+              aspectRatio="16/9"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
       </div>
 
       <BentoGrid>

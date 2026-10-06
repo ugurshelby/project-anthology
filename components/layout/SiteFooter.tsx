@@ -16,11 +16,12 @@ const EXPLORE_LINKS: { href: string; navKey: 'season' | 'grid' | 'circuits' | 'm
   { href: '/tech-glossary', navKey: 'glossary', fallback: 'Tech Glossary' },
 ];
 
-const LEGAL_LINKS: { href: string; footerKey: 'legalDisclaimer' | 'legalPrivacy' | 'legalTerms' | 'legalDmca'; fallback: string }[] = [
+const LEGAL_LINKS: { href: string; footerKey: 'legalDisclaimer' | 'legalPrivacy' | 'legalTerms' | 'legalDmca' | 'legalMediaSources'; fallback: string }[] = [
   { href: '/disclaimer', footerKey: 'legalDisclaimer', fallback: 'Disclaimer' },
   { href: '/privacy', footerKey: 'legalPrivacy', fallback: 'Privacy' },
   { href: '/terms', footerKey: 'legalTerms', fallback: 'Terms' },
   { href: '/dmca', footerKey: 'legalDmca', fallback: 'Copyright / DMCA' },
+  { href: '/media-sources', footerKey: 'legalMediaSources', fallback: 'Media & Attributions' },
 ];
 
 /** Editorial site footer — brand column, explore links, archive note. */

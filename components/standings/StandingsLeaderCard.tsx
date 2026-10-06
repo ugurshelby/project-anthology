@@ -1,6 +1,5 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { ApexFallback } from '@/components/media/ApexFallback';
 import { ApexImage } from '@/components/media/ApexImage';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
