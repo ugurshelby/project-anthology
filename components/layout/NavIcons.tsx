@@ -82,6 +82,18 @@ function GlossaryIcon({ className }: IconProps) {
   );
 }
 
+function MachineryIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden {...STROKE}>
+      <path d="M3 13.5h2.5l2-3.5h9l2 3.5H21v2H3z" />
+      <circle cx="7" cy="15.5" r="2.2" />
+      <circle cx="17" cy="15.5" r="2.2" />
+      <path d="M12 6.5v3.5" />
+      <path d="M9.5 10h5" />
+    </svg>
+  );
+}
+
 const ICONS: Record<NavIconKey, (props: IconProps) => React.JSX.Element> = {
   home: HomeIcon,
   season: SeasonIcon,
@@ -89,6 +101,7 @@ const ICONS: Record<NavIconKey, (props: IconProps) => React.JSX.Element> = {
   anthology: AnthologyIcon,
   teams: TeamsIcon,
   circuits: CircuitsIcon,
+  machinery: MachineryIcon,
   news: NewsIcon,
   glossary: GlossaryIcon,
 };

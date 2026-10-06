@@ -3,6 +3,7 @@ export type NavItemKey =
   | 'season'
   | 'grid'
   | 'circuits'
+  | 'machinery'
   | 'news'
   | 'anthology'
   | 'glossary';
@@ -23,12 +24,13 @@ export type NavIconKey =
   | 'anthology'
   | 'teams'
   | 'circuits'
+  | 'machinery'
   | 'news'
   | 'glossary';
 
 /**
  * Desktop header nav — split either side of the centered APEX logo (see
- * SiteHeader): Season · Grid · Circuits | APEX | News · Anthology · Glossary.
+ * SiteHeader): Season · Grid · Circuits | APEX | Machinery · News · Anthology · Glossary.
  * `/grid` replaced the separate /drivers + /teams hub pages (2026-07 redesign).
  */
 export const NAV_ITEMS_LEFT: NavItem[] = [
@@ -38,6 +40,7 @@ export const NAV_ITEMS_LEFT: NavItem[] = [
 ];
 
 export const NAV_ITEMS_RIGHT: NavItem[] = [
+  { href: '/machinery', label: 'Machinery', key: 'machinery' },
   { href: '/news', label: 'News', key: 'news' },
   { href: '/anthology', label: 'Anthology', key: 'anthology' },
   { href: '/tech-glossary', label: 'Glossary', key: 'glossary' },
@@ -57,6 +60,7 @@ export const MOBILE_NAV_ITEMS: NavItem[] = [
 /** Routes surfaced behind the mobile tab-bar's centre "+" full-screen menu. */
 export const MOBILE_MORE_ITEMS: NavItem[] = [
   { href: '/circuits', label: 'Circuits', key: 'circuits', icon: 'circuits' },
+  { href: '/machinery', label: 'Machinery', key: 'machinery', icon: 'machinery' },
   { href: '/news', label: 'News', key: 'news', icon: 'news' },
   { href: '/tech-glossary', label: 'Glossary', key: 'glossary', icon: 'glossary' },
 ];

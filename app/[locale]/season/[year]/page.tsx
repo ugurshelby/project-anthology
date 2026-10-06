@@ -10,6 +10,7 @@ import { HorizontalRaceStrip } from '@/components/season/HorizontalRaceStrip';
 import { DriverPodiumStandings } from '@/components/season/DriverPodiumStandings';
 import { TeamTelemetryBars } from '@/components/season/TeamTelemetryBars';
 import { SeasonHighlightTiles } from '@/components/season/SeasonHighlightTiles';
+import { SeasonProgressionChart } from '@/components/season/SeasonProgressionChart';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
 import { localizedAlternates } from '@/lib/seo';
@@ -60,7 +61,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
   }
 
   const seasonData = await getSeasonData(year);
-  const { standings, constructors, races, raceSummaries, highlights, recap } = seasonData;
+  const { standings, constructors, races, raceSummaries, highlights, recap, evolutionSeries } = seasonData;
 
   const railYears = seasonRailYears(
     Array.from({ length: CURRENT_SEASON - F1_SEASON_MIN + 1 }, (_, i) => F1_SEASON_MIN + i),
@@ -103,6 +104,12 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
 
           {raceSummaries.length > 0 ? (
             <HorizontalRaceStrip summaries={raceSummaries} nextRound={nextRound} season={year} />
+          ) : null}
+
+          {evolutionSeries && evolutionSeries.length > 0 ? (
+            <div className="my-4 md:my-6">
+              <SeasonProgressionChart series={evolutionSeries} season={year} />
+            </div>
           ) : null}
 
           <BentoGrid>

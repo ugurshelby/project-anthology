@@ -9,6 +9,7 @@ import { HorizontalRaceStrip } from '@/components/season/HorizontalRaceStrip';
 import { DriverPodiumStandings } from '@/components/season/DriverPodiumStandings';
 import { TeamTelemetryBars } from '@/components/season/TeamTelemetryBars';
 import { SeasonHighlightTiles } from '@/components/season/SeasonHighlightTiles';
+import { SeasonProgressionChart } from '@/components/season/SeasonProgressionChart';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
 import { localizedAlternates } from '@/lib/seo';
@@ -44,7 +45,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ locale:
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'ui.pages.season' });
   const seasonData = await getSeasonData(CURRENT_SEASON);
-  const { standings, constructors, races, raceSummaries, highlights, recap } = seasonData;
+  const { standings, constructors, races, raceSummaries, highlights, recap, evolutionSeries } = seasonData;
 
   const nextRace = getNextRace(races);
   const nextRound = nextRace?.round != null ? String(nextRace.round) : undefined;
@@ -76,6 +77,12 @@ export default async function SeasonPage({ params }: { params: Promise<{ locale:
           <SeasonTimeline races={races} nextRound={nextRound} />
 
           <HorizontalRaceStrip summaries={raceSummaries} nextRound={nextRound} season={CURRENT_SEASON} />
+
+          {evolutionSeries && evolutionSeries.length > 0 ? (
+            <div className="my-4 md:my-6">
+              <SeasonProgressionChart series={evolutionSeries} season={CURRENT_SEASON} />
+            </div>
+          ) : null}
 
           <BentoGrid>
             <DriverPodiumStandings drivers={standings} season={CURRENT_SEASON} />

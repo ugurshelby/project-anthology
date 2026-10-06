@@ -6,10 +6,11 @@ import { reopenConsent } from '@/lib/consent';
 
 const YEAR = new Date().getFullYear();
 
-const EXPLORE_LINKS: { href: string; navKey: 'season' | 'grid' | 'circuits' | 'news' | 'anthology' | 'glossary'; fallback: string }[] = [
+const EXPLORE_LINKS: { href: string; navKey: 'season' | 'grid' | 'circuits' | 'machinery' | 'news' | 'anthology' | 'glossary'; fallback: string }[] = [
   { href: '/season', navKey: 'season', fallback: 'Season' },
   { href: '/grid', navKey: 'grid', fallback: 'Grid' },
   { href: '/circuits', navKey: 'circuits', fallback: 'Circuits' },
+  { href: '/machinery', navKey: 'machinery', fallback: 'Machinery' },
   { href: '/news', navKey: 'news', fallback: 'News' },
   { href: '/anthology', navKey: 'anthology', fallback: 'Anthology' },
   { href: '/tech-glossary', navKey: 'glossary', fallback: 'Tech Glossary' },
