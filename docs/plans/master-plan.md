@@ -1,6 +1,7 @@
 # Anthology (Apex) — Master Plan
 
 > Tek canlı iş listesi. Yeni iş buraya madde eklenir; kutu yalnızca kodda veya ölçümle doğrulanınca `[x]` olur.
+> Temel vizyon ve amaç: `docs/vision/apex-vision.md` (bu projenin temel amacı ve vizyonu `apex-vision.md` dökümanıdır; çalışmalar bu vizyon çerçevesinde yapılmalıdır).
 > Ölçülmüş durum: `docs/reference/apex-reference.md`. Tamamlanan plan dosyaları silinir (geçmiş git'te).
 >
 > **Canlı:** https://project-anthology-eight.vercel.app
@@ -15,7 +16,7 @@
 | Web backend + veri katmanı | ✅ Çalışıyor (Supabase; Vercel 3 günlük cron + GitHub Actions saatlik/10 dk) |
 | Web frontend | ✅ 20 sayfa, 89 bileşen, EN + `/tr`; 375/768/1280 px tarayıcı denetimi yapıldı (taşma 0) |
 | Mobil (Expo 56) | ⚠️ `mobile/` diskte var ama `.gitignore`'da, git'te yok — sahip kararı bekliyor |
-| Tasarım otoritesi | ✅ `docs/design/apex-design-language.md` + `docs/design/design.md/` |
+| Tasarım otoritesi | ✅ `docs/design/apex-design.md` + `docs/design/apex-design-language.md` |
 
 **Kritik kısıt:** `lib/f1Calendar.ts` tek temporal kaynak; sezon/pilot/takım hardcode yok.
 
@@ -170,8 +171,8 @@ Karar özeti: `?season=` adres biçimi; kariyer/kimlik verisi F1DB'den üretilen
 | `docs/reference/mimari.md` | Backend mimarisi |
 | `docs/reference/PROJECT_LESSONS_AND_ROADMAP.md` | Tuzaklar + kararlar (tarihsel) |
 | `docs/vision/technical.md` | Agent teknik özet |
-| `docs/design/apex-design-language.md` | Apex tasarım dili (otorite) |
-| `docs/design/design.md/` | Genel tasarım prensipleri (kütüphane) |
+| `docs/design/apex-design.md` | Apex tasarım sistemi anayasası (Apple tasarım prensipleri sentezi) |
+| `docs/design/apex-design-language.md` | Apex tasarım dili ve kabuk kararları |
 
 ### 🛠️ TEŞHİS-DÜZELTME — Ekran görüntüleri teşhis bulguları düzeltme paketi (2026-10-03)
 
