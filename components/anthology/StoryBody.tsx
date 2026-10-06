@@ -1,6 +1,7 @@
 import { ApexImage } from '@/components/media/ApexImage';
 import type { StoryBlock } from '@/data/stories/types';
 import { Reveal } from './Reveal';
+import { GlossaryLinkedText } from '@/components/glossary/GlossaryLinkedText';
 
 /**
  * Editorial story body — reading column (~max-w-3xl), framed image cards,
@@ -32,7 +33,7 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
                     className="font-condensed text-[1.35rem] font-600 leading-snug text-text-hi md:text-[1.65rem] md:leading-tight"
                     style={{ fontFamily: 'var(--font-condensed)' }}
                   >
-                    {block.text}
+                    <GlossaryLinkedText text={block.text} />
                   </p>
                   {block.author ? (
                     <cite className="label-caps mt-4 block not-italic text-text-mid">
@@ -84,7 +85,7 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
                     isFirst ? 'story-dropcap' : '',
                   ].join(' ')}
                 >
-                  {block.text}
+                  <GlossaryLinkedText text={block.text} />
                 </p>
               </Reveal>
             );

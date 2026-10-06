@@ -3,6 +3,7 @@ import { Link } from '@/i18n/routing';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { ApexImage } from '@/components/media/ApexImage';
+import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
 export function ChampionshipPulse({
@@ -21,7 +22,7 @@ export function ChampionshipPulse({
   const topConstructors = constructors.slice(0, 3);
   const constructorLead = Number(topConstructors[0]?.points) || 1;
 
-  const leaderTeamColor = leader ? resolveTeamUiColor(undefined, leader.constructorName) : '#ff1801';
+  const leaderTeamColor = leader ? resolveTeamUiColor(undefined, leader.constructorName, season) : '#ff1801';
   const leaderPortrait = leader ? driverIconSrc(leader.driverCode, leader.driverId, season) : null;
 
   return (
@@ -34,10 +35,12 @@ export function ChampionshipPulse({
             style={{ backgroundColor: leaderTeamColor }}
             aria-hidden="true"
           />
-          <h2 className="label-caps tracking-wider text-text-mid">{t('heading')}</h2>
+          <h2 className="label-caps tracking-wider text-text-mid">
+            {t('heading')}
+          </h2>
         </div>
         <Link
-          href="/season"
+          href={season === CURRENT_SEASON ? '/season' : `/season/${season}`}
           className="group/link inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-wider text-text-mid transition-colors duration-150 hover:text-white active:scale-95"
         >
           <span>{t('standings')}</span>
@@ -135,13 +138,13 @@ export function ChampionshipPulse({
         {chasing.map((row) => {
           const pts = Number(row.points) || 0;
           const delta = leaderPts - pts;
-          const color = resolveTeamUiColor(undefined, row.constructorName);
+          const color = resolveTeamUiColor(undefined, row.constructorName, season);
           const width = leaderPts > 0 ? Math.max(8, (pts / leaderPts) * 100) : 8;
 
           return (
             <Link
               key={row.driverId}
-              href={`/drivers/${row.driverId}`}
+              href={`/drivers/${row.driverId}?season=${season}`}
               className="group/row flex flex-col gap-1.5 rounded-[var(--radius-chip)] px-2.5 py-1.5 transition-all duration-150 ease-out hover:bg-white/[0.04] active:scale-[0.99]"
             >
               <div className="flex items-center justify-between gap-2">
@@ -189,12 +192,12 @@ export function ChampionshipPulse({
             {topConstructors.map((row) => {
               const pts = Number(row.points) || 0;
               const width = Math.max(8, (pts / constructorLead) * 100);
-              const color = resolveTeamUiColor(undefined, row.constructorName);
+              const color = resolveTeamUiColor(undefined, row.constructorName, season);
 
               return (
                 <Link
                   key={row.constructorId}
-                  href={`/teams/${row.constructorId}`}
+                  href={`/teams/${row.constructorId}?season=${season}`}
                   className="group/team flex flex-col gap-1 rounded-[var(--radius-chip)] px-2.5 py-1 transition-all duration-150 ease-out hover:bg-white/[0.04] active:scale-[0.99]"
                 >
                   <div className="flex items-center justify-between gap-2">

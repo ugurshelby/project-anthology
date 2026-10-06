@@ -20,6 +20,8 @@ import { StatTiles } from '@/components/history/StatTiles';
 import { TeamLineup } from '@/components/history/TeamLineup';
 import { CareerArc } from '@/components/history/CareerArc';
 import { TeamDnaSection } from '@/components/history/TeamDnaSection';
+import { getMachineryCarsForTeam } from '@/data/machinery/cars';
+import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -76,6 +78,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}`);
 
   const asOf = view.asOf;
+  const machineryCars = getMachineryCarsForTeam(view.headId || view.id);
 
   return (
     <main
@@ -169,6 +172,12 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
           ) : null}
 
           {view.dna ? <TeamDnaSection dna={view.dna} selectedYear={view.year} teamId={view.headId} /> : null}
+
+          {machineryCars.length > 0 ? (
+            <div className="col-span-12">
+              <MachineryCrossLink cars={machineryCars} locale={locale} />
+            </div>
+          ) : null}
 
           {lore ? (
             <BentoCard span={relatedNews.length > 0 ? 8 : 12}>

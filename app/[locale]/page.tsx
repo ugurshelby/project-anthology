@@ -14,6 +14,7 @@ import {
 } from '@/lib/f1/mrdata';
 import {
   CURRENT_SEASON,
+  F1_SEASON_MIN,
   isRaceDone,
   getLastFinishedRace,
   getLiveOrNextRace,
@@ -152,25 +153,25 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   );
 }
 
-async function HomeStandingsColumn() {
+async function HomeStandingsColumn({ season }: { season: number }) {
   const [standingsData, constructorData] = await Promise.all([
-    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
-    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_constructors'),
+    fetchSeasonSnapshotTyped(season, 'standings_drivers'),
+    fetchSeasonSnapshotTyped(season, 'standings_constructors'),
   ]);
   const standings = getDriverStandings(standingsData, 6);
   const constructors = getConstructorStandings(constructorData, 3);
   return (
     <BentoCard span={4} className={paddockCardClass}>
-      <ChampionshipPulse drivers={standings} constructors={constructors} season={CURRENT_SEASON} />
+      <ChampionshipPulse drivers={standings} constructors={constructors} season={season} />
     </BentoCard>
   );
 }
 
-async function HomeWireColumn() {
+async function HomeWireColumn({ season }: { season: number }) {
   const news = await getLatestNews(8);
   return (
     <BentoCard span={4} className={paddockCardClass}>
-      <HomeWireFeed items={news} />
+      <HomeWireFeed items={news} season={season} />
     </BentoCard>
   );
 }
@@ -217,11 +218,16 @@ async function HomeArchiveBlock() {
 
 export default async function HomePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ season?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const raw = Number(resolvedSearchParams?.season);
+  const season = Number.isInteger(raw) && raw >= F1_SEASON_MIN && raw <= CURRENT_SEASON ? raw : CURRENT_SEASON;
 
   return (
     <PageShell className="!pt-0 lg:!pt-0">
@@ -232,10 +238,10 @@ export default async function HomePage({
       <div className="mt-6 flex flex-col gap-6 md:mt-8 md:gap-8">
         <HomePaddockRail>
           <Suspense fallback={<HomePaddockCardFallback />}>
-            <HomeStandingsColumn />
+            <HomeStandingsColumn season={season} />
           </Suspense>
           <Suspense fallback={<HomePaddockCardFallback />}>
-            <HomeWireColumn />
+            <HomeWireColumn season={season} />
           </Suspense>
           <Suspense fallback={<HomePaddockCardFallback />}>
             <HomeAnthologyColumn locale={locale} />

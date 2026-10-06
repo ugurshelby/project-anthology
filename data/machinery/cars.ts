@@ -365,3 +365,25 @@ export function getMachineryCar(id: string): MachineryCar | undefined {
 export function getAllMachineryCars(): MachineryCar[] {
   return MACHINERY_CARS;
 }
+
+export function getMachineryCarsForDriver(driverId: string): MachineryCar[] {
+  const norm = driverId.toLowerCase().trim().replace(/-/g, '_');
+  return MACHINERY_CARS.filter((c) =>
+    c.drivers.some((d) => {
+      const dNorm = d.id.toLowerCase().replace(/-/g, '_');
+      return dNorm === norm || norm.includes(dNorm) || dNorm.includes(norm);
+    }),
+  );
+}
+
+export function getMachineryCarsForTeam(constructorId: string): MachineryCar[] {
+  const norm = constructorId.toLowerCase().trim().replace(/-/g, '_');
+  return MACHINERY_CARS.filter((c) => {
+    const cNorm = c.constructorId.toLowerCase().replace(/-/g, '_');
+    return cNorm === norm || norm.includes(cNorm) || cNorm.includes(norm);
+  });
+}
+
+export function getMachineryCarsForSeason(year: number): MachineryCar[] {
+  return MACHINERY_CARS.filter((c) => c.year === year);
+}

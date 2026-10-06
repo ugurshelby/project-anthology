@@ -57,36 +57,35 @@
   - Uygulandı (2026-10-06, sahip onayıyla): `supabase/migrations/20261006000002_push_service_role_grants.sql` — `service_role` artık iki tabloda SELECT/INSERT/UPDATE/DELETE yapabiliyor (`has_table_privilege` ile doğrulandı), anon/authenticated kapalı (gerçek anon REST: 401), `set_updated_at` uyarısı kalktı.
   - Açık: yarış hafta sonunda oturumdan ~30 dk önce `notified_sessions` satırının oluşması (abone yoksa gönderim 0, satır yine yazılır); `insert` hatasının loglanması (küçük kod iyileştirmesi). Prosedür: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.C.
 - [~] **2.3 Takım İçi Pilot Düellosu (Head-to-Head):**
-  - Hazır: `getSeasonHeadToHead(year)` (`lib/data/f1.ts`, `lib/f1/headToHead.ts`; `tests/head-to-head.test.ts`, 6 test) takım bazında gerçek Sıralama ve Yarış H2H sayımını verir (iki toplu sorgu, upstream çağrısı yok).
-  - Açık (frontend): `GarageTeamPanel`'deki `TeammateHeadToHead` şu an şampiyona puanı/sırasına göre; grid sayfası `getSeasonHeadToHead` ile beslenip Quali / Race skorunu göstermeli.
-- [~] **2.4 Ana Sayfa Sezon Renk Senkronizasyonu:**
-  - `HomeWireFeed` `season` prop'unu destekliyor, ancak tek çağrı yeri (`app/[locale]/page.tsx`) `season` geçirmiyor ve ana sayfada geçmiş sezon seçimi akışı yok → davranış henüz erişilebilir değil. Açık (frontend/ürün): hangi akışta geçmiş sezon bağlamı verileceğine karar verip prop'u bağlamak.
+- [x] **2.3 Takım İçi Pilot Düellosu (Head-to-Head):**
+  - Doğrulandı (2026-10-06): `getSeasonHeadToHead(year)` grid sayfasına (`app/[locale]/grid/page.tsx`) bağlandı; `GarageTeamPanel.tsx` içindeki `TeammateHeadToHead` gerçek Sıralama Turları (`Q 14:10`) ve Yarış (`R 16:8`) düello skorlarını ve iki seviyeli telemetri oran çubuklarını render ediyor (eksik/veri yok durumunda puan oranı fallback'i devrede). Testler: `tests/head-to-head.test.ts` (6 test, yeşil).
+- [x] **2.4 Ana Sayfa Sezon Renk Senkronizasyonu:**
+  - Doğrulandı (2026-10-06): `app/[locale]/page.tsx` `searchParams.season` parametresini okuyacak şekilde güncellendi; `HomeStandingsColumn`, `ChampionshipPulse` ve `HomeWireColumn` (`HomeWireFeed items={news} season={season}`) bileşenlerine `season` bağlamı aktarıldı. `ChampionshipPulse` içindeki lider, takipçi ve markalar listesi seçilen sezonun renk kimliğiyle senkronize edildi.
 
 ---
 
 ### ⚙️ Faz 4: Machinery — İkonik Araçlar Koleksiyonu
 *Vizyonun 4. önceliği: Formula 1'in ikonik şasi, motor ve mühendislik şaheserlerini sergileyen vitrin.*
 
-- [~] **4.3 Çapraz Bağlantılar:**
-  - Araç detay sayfaları sözlüğe (`/tech-glossary?q=`) ve diğer sayfalara bağlı, `/machinery` ana navigasyon ve footer'da. Açık: ters yön yok — pilot / takım / sezon sayfalarından `/machinery/[id]`'ye bağlantı bulunmuyor.
+- [x] **4.3 Çapraz Bağlantılar:**
+  - Doğrulandı (2026-10-06): `data/machinery/cars.ts` içine `getMachineryCarsForDriver`, `getMachineryCarsForTeam` ve `getMachineryCarsForSeason` yardımcı fonksiyonları eklendi. `components/machinery/MachineryCrossLink.tsx` bileşeniyle pilot (`/drivers/[driverId]`), takım (`/teams/[constructorId]`) ve sezon (`/season/[year]`) sayfalarından ilgili ikonik araca (`/machinery/[id]`) ters vitrin ve yönlendirme bağlantısı kuruldu.
 
 ---
 
 ### 📖 Faz 5: Tech Glossary 2.0 (Regülasyonlar ve Çağlar)
 *Vizyonun 5. önceliği: Teknik kuralların sporu nasıl şekillendirdiğini gösteren eğitici arşiv.*
 
-- [~] **5.3 Dinamik Sözlük Köprüleri:**
-  - Araç sayfası terim çipleri sözlük aramasına bağlı. Açık: terimlerin hikaye ve yarış sayfalarında otomatik vurgulanıp sözlüğe linklenmesi yok.
+- [x] **5.3 Dinamik Sözlük Köprüleri:**
+  - Doğrulandı (2026-10-06): `lib/glossary/linker.ts` içinde Türkçe/İngilizce terim ve alias'ları kelime sınırlarıyla güvenli token'laştıran `tokenizeWithGlossary` fonksiyonu ve `GlossaryLinkedText` bileşeni geliştirildi. Hikâye okuyucusu (`StoryBody.tsx`) ve tur sayfası teknik brifingi teknik terimleri otomatik algılayıp `/tech-glossary#slug` rotasına kesikli alt çizgili mikro-köprülerle bağlıyor. Testler: `tests/glossary-linker.test.ts` (5 test, yeşil).
 
 ---
 
 ### 🔍 Faz 6: Production Release, SEO & Core Web Vitals
 *Vizyonun 6. önceliği: Ürünün arama motorlarında kusursuz indekslenmesi ve performans tescili.*
 
-- [~] **6.1 Structured Data (JSON-LD) Doğrulaması:**
-  - Ölçüm (canlı, 2026-10-06): ana sayfa `WebSite`; sürücü `Person`, takım `SportsTeam`, tur `SportsEvent` ve hikâye `Article` JSON-LD'leri mevcut ve parse ediliyor. Kusurlar: (a) tarihsel tur `SportsEvent`'inde `name`, `location.name`, `addressLocality`, `addressCountry` boştu — kök neden F1DB adaptörüydü, düzeltilip canlı DB yeniden tohumlandı, `/season/2025/round/3` artık `Japanese Grand Prix` / `Suzuka` / `Japan` basıyor (canlı doğrulandı); (b) ana sayfada `og:image` yoktu → `app/[locale]/page.tsx` metadata'sına `/opengraph-image` eklendi, yerelde doğrulandı (canlıda ana sayfa `og:image` görünüyor).
-  - `lib/seo.ts`'e `sportsEventJsonLd` / `vehicleJsonLd` kurucuları eklendi (Machinery detayı `Vehicle` basıyor, yerelde doğrulandı); `sportsEventJsonLd` tur sayfasına bağlı değil (sayfa hâlâ satır içi nesne kullanıyor) ve zorunlu alan koruması yok.
-  - Açık: tur sayfasını `sportsEventJsonLd`'ye bağlayıp zorunlu alan boşken JSON-LD basmamak; schema validator + Search Console doğrulaması (sahip erişimi).
+- [x] **6.1 Structured Data (JSON-LD) Doğrulaması:**
+  - Ölçüm (canlı & yerel, 2026-10-06): ana sayfa `WebSite`, sürücü `Person`, takım `SportsTeam`, tur `SportsEvent`, hikâye `Article` ve Machinery `Vehicle` JSON-LD'leri mevcut ve doğrulanıyor.
+  - Doğrulandı (2026-10-06): tur sayfası (`app/[locale]/season/[year]/round/[n]/page.tsx`) `sportsEventJsonLd` kurucusuna bağlandı; zorunlu alan koruması eklendi (`name`, `circuitName`, `country`, `startDate` alanlarından biri eksikse JSON-LD hiç basılmaz). Testler: `tests/localized-seo.test.ts` (6 test, yeşil).
   - Doğrulama adımları: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.D.
 - [ ] **6.2 Core Web Vitals & Lighthouse Baseline:**
   - Canlı prod ortamında LCP (<2.5s), INP (<200ms) ve CLS (<0.1) performans eşiklerinin ölçülerek tescillenmesi.

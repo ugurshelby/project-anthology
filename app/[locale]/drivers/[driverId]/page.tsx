@@ -19,6 +19,8 @@ import { HistoryCard } from '@/components/history/HistoryCard';
 import { StatTiles } from '@/components/history/StatTiles';
 import { DriverJourney } from '@/components/history/DriverJourney';
 import { CareerArc } from '@/components/history/CareerArc';
+import { getMachineryCarsForDriver } from '@/data/machinery/cars';
+import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -86,6 +88,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
 
   const career = view.asOf;
   const born = view.born ? view.born.slice(0, 4) : null;
+  const machineryCars = getMachineryCarsForDriver(view.id);
 
   return (
     <main
@@ -163,6 +166,12 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
             <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.journeyHeading')}>
               <DriverJourney stints={view.stints} driverId={view.id} selectedYear={view.year} />
             </HistoryCard>
+          ) : null}
+
+          {machineryCars.length > 0 ? (
+            <div className="col-span-12">
+              <MachineryCrossLink cars={machineryCars} locale={locale} />
+            </div>
           ) : null}
 
           {view.lore ? (

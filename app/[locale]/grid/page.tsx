@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getDriversByTeam, getCurrentTeams } from '@/lib/data/entities';
 import { powerUnitLabel } from '@/lib/f1/power-units';
+import { getSeasonHeadToHead } from '@/lib/data/f1';
+import type { TeamHeadToHead } from '@/lib/f1/headToHead';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { GridExplorer } from '@/components/standings/GridExplorer';
 import type { GarageUnit } from '@/components/standings/GarageTeamPanel';
@@ -46,15 +48,17 @@ export default async function GridPage({
   const raw = Number(resolvedSearchParams.season);
   const requested = Number.isInteger(raw) && raw >= F1_SEASON_MIN && raw <= CURRENT_SEASON ? raw : CURRENT_SEASON;
   const viewParam = initialViewOverride ?? (resolvedSearchParams.view === 'driver' ? 'driver' : 'constructor');
-  const [{ season, groups, flat }, { rows: teamRows }] = await Promise.all([
+  const [{ season, groups, flat }, { rows: teamRows }, headToHead] = await Promise.all([
     getDriversByTeam(requested),
     getCurrentTeams(requested),
+    getSeasonHeadToHead(requested).catch((): Record<string, TeamHeadToHead> => ({})),
   ]);
   const railYears = seasonRailYears(Array.from({ length: CURRENT_SEASON - F1_SEASON_MIN + 1 }, (_, i) => F1_SEASON_MIN + i));
   const teamByConstructorId = new Map(teamRows.map((r) => [r.constructorId, r]));
 
   const units: GarageUnit[] = groups.map((group) => {
     const teamRow = teamByConstructorId.get(group.constructorId);
+    const h2h = headToHead[group.constructorId.toLowerCase()];
     return {
       constructorId: group.constructorId,
       constructorName: group.constructorName,
@@ -63,6 +67,7 @@ export default async function GridPage({
       wins: teamRow?.wins ?? '0',
       powerUnit: season === CURRENT_SEASON ? powerUnitLabel(group.constructorId) : enginesFor(group.constructorId || group.constructorName, season),
       drivers: group.drivers.slice(0, 2),
+      headToHead: h2h,
     };
   });
 
