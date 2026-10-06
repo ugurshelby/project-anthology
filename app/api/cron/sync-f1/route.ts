@@ -5,8 +5,12 @@
  * - Auth: Authorization: Bearer ${CRON_SECRET} (legacy CRON_SECRET_KEY also accepted)
  * - scope=live   → race-calendar windows (quali / sprint / results) for active rounds
  * - scope=season → full season backfill (all rounds past results sync window)
+ * - Idempotent: a Jolpica snapshot fetched ≥ SNAPSHOT_SETTLE_AFTER_MS after its
+ *   due window is final and is never fetched again, so each session is pulled
+ *   from upstream (at most) once after it settles, not on every hourly run.
+ *   `?force=1` ignores that and re-fetches everything in scope.
  *
- * Response shape: { source, scope, season, upserted, skipped, errors, durationMs }
+ * Response shape: { source, scope, season, upserted, skipped, settled, errors, durationMs }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -33,19 +37,26 @@ import {
 import {
   ingestSeasonSnapshot,
   ingestRoundSnapshot,
+  loadSnapshotFetchTimes,
+  snapshotKey,
   type IngestStats,
 } from '@/lib/f1Ingest';
 import {
   isRoundInLiveScope,
+  isSnapshotSettled,
+  latestStandingsDueMs,
+  qualiSyncDueMs,
+  raceResultsSyncDueMs,
   shouldFetchQualifying,
   shouldFetchResults,
   shouldFetchSprint,
   shouldFetchStandings,
+  sprintSyncDueMs,
 } from '@/lib/f1/syncSchedule';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { sendExpoPushNotifications } from '@/lib/push/sendExpoPush';
 import type { ExpoPushMessage } from 'expo-server-sdk';
-import type { Json } from '@/types/database';
+import type { Json, SnapshotType } from '@/types/database';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -137,13 +148,27 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const now = new Date();
 
+    // Which snapshots are already final? One query; fails open (empty map).
+    const force = searchParams.get('force') === '1';
+    const fetchTimes = force ? new Map<string, number>() : await loadSnapshotFetchTimes(CURRENT_SEASON);
+    let settledSkips = 0;
+    const isSettled = (round: number | null, type: SnapshotType, dueAt: number | null): boolean =>
+      isSnapshotSettled(fetchTimes.get(snapshotKey(round, type)), dueAt);
+
     // 3) Upsert calendar (always — picks up postponements)
     if (hasRaces(calendarData)) {
       await ingestSeasonSnapshot(CURRENT_SEASON, 'calendar', calendarData as unknown as Json, 'jolpica', stats);
     }
 
     // 4) Standings — refresh when any race results window has passed
-    const refreshStandings = scope === 'season' || shouldFetchStandings(races, now);
+    const wantStandings = scope === 'season' || shouldFetchStandings(races, now);
+    const standingsDue = latestStandingsDueMs(races, now);
+    const standingsSettled =
+      wantStandings &&
+      isSettled(null, 'standings_drivers', standingsDue) &&
+      isSettled(null, 'standings_constructors', standingsDue);
+    if (standingsSettled) settledSkips++;
+    const refreshStandings = wantStandings && !standingsSettled;
     if (refreshStandings) {
       const db = getSupabaseAdmin();
 
@@ -217,14 +242,23 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const round = Number(race.round);
       if (!round) continue;
 
-      const fetchQuali = shouldFetchQualifying(race, now);
-      const fetchSprintData = shouldFetchSprint(race, now);
-      const fetchRaceResults = shouldFetchResults(race, now);
+      const qualiDue = shouldFetchQualifying(race, now);
+      const sprintDue = shouldFetchSprint(race, now);
+      const resultsDue = shouldFetchResults(race, now);
+      const raceDueAt = raceResultsSyncDueMs(race);
 
-      const inScope =
-        scope === 'live'
-          ? isRoundInLiveScope(race, now)
-          : fetchQuali || fetchSprintData || fetchRaceResults;
+      // Due AND not yet final. Results and pit stops are gated separately: pit
+      // stops are often published later than results, so a settled `results`
+      // row must not stop a still-missing `pitstops` row from being fetched.
+      const fetchQuali = qualiDue && !isSettled(round, 'qualifying', qualiSyncDueMs(race));
+      const fetchSprintData = sprintDue && !isSettled(round, 'sprint', sprintSyncDueMs(race));
+      const fetchRaceResults = resultsDue && !isSettled(round, 'results', raceDueAt);
+      const fetchRacePitStops = resultsDue && !isSettled(round, 'pitstops', raceDueAt);
+      const anyDue = qualiDue || sprintDue || resultsDue;
+      const anyToFetch = fetchQuali || fetchSprintData || fetchRaceResults || fetchRacePitStops;
+      if (anyDue && !anyToFetch) settledSkips++;
+
+      const inScope = scope === 'live' ? isRoundInLiveScope(race, now) : anyToFetch;
 
       if (!inScope) {
         stats.skipped++;
@@ -271,8 +305,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           stats.errors.push(msg);
           console.warn(`[sync-f1] ${msg}`);
         }
+      }
 
-        // Pit stops are only published once the race has run — same trigger as results.
+      if (fetchRacePitStops) {
+        // Pit stops are only published once the race has run — same due window as results.
         try {
           const pitstops = await fetchPitStops(CURRENT_SEASON, round);
           if (hasPitStops(pitstops)) {
@@ -285,7 +321,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         }
       }
 
-      if (!fetchQuali && !fetchSprintData && !fetchRaceResults) {
+      if (!anyToFetch) {
         stats.skipped++;
       }
     }
@@ -394,6 +430,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       season: CURRENT_SEASON,
       upserted: stats.upserted,
       skipped: stats.skipped,
+      settled: settledSkips,
       errors: stats.errors,
       durationMs: Date.now() - startedAt,
     });

@@ -204,3 +204,34 @@ export function shouldFetchStandings(races: CalendarRace[], now: Date = new Date
   }
   return false;
 }
+
+/**
+ * Post-race corrections (penalties, reclassifications) land within roughly a
+ * day. A snapshot fetched at least this long after its due window already
+ * carries them, so the cron treats it as final and never re-fetches it.
+ */
+export const SNAPSHOT_SETTLE_AFTER_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * True when a snapshot was fetched late enough after its due window to be final.
+ * Unknown fetch time (never ingested) or unknown due time (session not on the
+ * calendar) is never settled. A postponement moves `dueAtMs` later, which
+ * un-settles the snapshot automatically.
+ */
+export function isSnapshotSettled(
+  fetchedAtMs: number | null | undefined,
+  dueAtMs: number | null,
+): boolean {
+  if (fetchedAtMs == null || dueAtMs == null) return false;
+  return fetchedAtMs >= dueAtMs + SNAPSHOT_SETTLE_AFTER_MS;
+}
+
+/** Due time of the most recent standings window that has already passed, or null before the first race. */
+export function latestStandingsDueMs(races: CalendarRace[], now: Date = new Date()): number | null {
+  let latest: number | null = null;
+  for (const race of races) {
+    const due = standingsSyncDueMs(race);
+    if (due !== null && due <= now.getTime() && (latest === null || due > latest)) latest = due;
+  }
+  return latest;
+}

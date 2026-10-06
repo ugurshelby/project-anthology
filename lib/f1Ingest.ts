@@ -137,6 +137,41 @@ export async function upsertF1Snapshot(
   }
 }
 
+// ── Fetch-time index (idempotent re-sync) ─────────────────────────────────
+
+/** `fetched_at` (epoch ms) of Jolpica-sourced snapshots, keyed by `snapshotKey`. */
+export type SnapshotFetchTimes = Map<string, number>;
+
+export function snapshotKey(round: number | null, type: SnapshotType): string {
+  return `${round ?? 'season'}|${type}`;
+}
+
+/**
+ * One query: when was each Jolpica-sourced snapshot of `season` last fetched?
+ * Only `source = 'jolpica'` rows count — an F1DB seed placeholder must never
+ * make a round look settled. Fails OPEN (empty map): if the DB cannot be read
+ * the caller simply re-fetches everything, exactly as before this index existed.
+ */
+export async function loadSnapshotFetchTimes(season: number): Promise<SnapshotFetchTimes> {
+  const times: SnapshotFetchTimes = new Map();
+  try {
+    const db = getSupabaseAdmin();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (db.from('f1_snapshots') as any)
+      .select('round, type, fetched_at')
+      .eq('season', season)
+      .eq('source', 'jolpica');
+    if (error || !Array.isArray(data)) return times;
+    for (const row of data as Array<{ round: number | null; type: SnapshotType; fetched_at: string }>) {
+      const ms = Date.parse(row.fetched_at);
+      if (Number.isFinite(ms)) times.set(snapshotKey(row.round, row.type), ms);
+    }
+  } catch {
+    // fail open — see above
+  }
+  return times;
+}
+
 // ── Bounded concurrency ────────────────────────────────────────────────────
 
 /**

@@ -54,6 +54,7 @@ import {
   type LastRaceRecap,
   type PoleInfo,
 } from '@/lib/f1/mrdata';
+import { buildSeasonHeadToHead, type TeamHeadToHead } from '@/lib/f1/headToHead';
 import { readPublicJson } from '@/lib/data/fs';
 
 /** Ergast/Jolpica envelope — kept as opaque Json; UI consumes the shape directly. */
@@ -432,12 +433,47 @@ export interface RoundResultSnapshot {
  *
  * Return type is identical: RoundResultSnapshot[] ordered by round.
  */
-export async function fetchAllRoundResults(
+export function fetchAllRoundResults(
   season: number,
   races: CalendarRace[],
 ): Promise<RoundResultSnapshot[]> {
+  return fetchFinishedRoundSnapshots(season, races, 'results');
+}
+
+/** Batch `qualifying` snapshots for every finished round (teammate H2H). */
+export function fetchAllRoundQualifying(
+  season: number,
+  races: CalendarRace[],
+): Promise<RoundResultSnapshot[]> {
+  return fetchFinishedRoundSnapshots(season, races, 'qualifying');
+}
+
+/**
+ * Batch `sprint` snapshots. The single DB query covers every finished round
+ * (historical F1DB calendars carry no Sprint slot, so the calendar cannot tell
+ * which rounds had one); the per-round live fallback is only attempted for
+ * rounds whose calendar entry has a Sprint session, so conventional weekends
+ * never trigger a proxy call.
+ */
+export function fetchAllRoundSprints(
+  season: number,
+  races: CalendarRace[],
+): Promise<RoundResultSnapshot[]> {
+  return fetchFinishedRoundSnapshots(season, races, 'sprint', (race) => Boolean(race.Sprint));
+}
+
+async function fetchFinishedRoundSnapshots(
+  season: number,
+  races: CalendarRace[],
+  type: Extract<SnapshotType, 'results' | 'qualifying' | 'sprint'>,
+  /** Rounds allowed to fall back to the per-round chain (staleness + static + proxy) when absent from the batch. */
+  fallbackFor: (race: CalendarRace) => boolean = () => true,
+): Promise<RoundResultSnapshot[]> {
   const finishedRaces = races.filter((r) => isRaceDone(r));
   if (finishedRaces.length === 0) return [];
+  const fallbackRounds = new Set(
+    finishedRaces.filter(fallbackFor).map((r) => Number(r.round)),
+  );
 
   const finishedRounds = finishedRaces
     .map((r) => Number(r.round))
@@ -451,11 +487,11 @@ export async function fetchAllRoundResults(
       .from('f1_snapshots')
       .select('round, data, fetched_at')
       .eq('season', season)
-      .eq('type', 'results')
+      .eq('type', type)
       .in('round', finishedRounds)
       .returns<Array<{ round: number; data: Json; fetched_at: string }>>();
 
-    const op = `season=${season} type=results in(round,[${finishedRounds.join(',')}])`;
+    const op = `season=${season} type=${type} in(round,[${finishedRounds.join(',')}])`;
     if (!error && batchRows) {
       logSupabaseCall('f1_snapshots', op, 0); // timing not available for batch
       for (const row of batchRows) {
@@ -479,9 +515,10 @@ export async function fetchAllRoundResults(
     finishedRounds.map(async (round): Promise<RoundResultSnapshot | null> => {
       const cached = batchMap.get(round);
       if (cached) return { round, data: cached };
+      if (!fallbackRounds.has(round)) return null;
 
       // Not in batch → use the full fallback chain (staleness + static + proxy)
-      const data = await fetchRoundSnapshot(season, round, 'results');
+      const data = await fetchRoundSnapshot(season, round, type);
       return data ? { round, data } : null;
     }),
   );
@@ -547,7 +584,7 @@ export const getSeasonData = cache(async function getSeasonData(year: number): P
   const lastRace = getLastFinishedRace(races);
   const lastRound = lastRace?.round != null ? Number(lastRace.round) : null;
 
-  const [resultsData, qualiData, allRoundResults] = await Promise.all([
+  const [resultsData, qualiData, allRoundResults, allRoundSprints] = await Promise.all([
     lastRound != null
       ? fetchRoundSnapshot(year, lastRound, 'results')
       : Promise.resolve(null),
@@ -555,6 +592,7 @@ export const getSeasonData = cache(async function getSeasonData(year: number): P
       ? fetchRoundSnapshot(year, lastRound, 'qualifying')
       : Promise.resolve(null),
     fetchAllRoundResults(year, races),
+    fetchAllRoundSprints(year, races),
   ]);
 
   const recap = getLastRaceResult(resultsData);
@@ -572,10 +610,31 @@ export const getSeasonData = cache(async function getSeasonData(year: number): P
     constructorRecords: getConstructorSeasonRecords(constructors, roundData),
     nearestRaceKey: nearestRaceKeyFromCalendar(races, Date.now()),
     driverStats: getPerDriverRoundStats(roundData),
-    evolutionSeries: getDriverCumulativePoints(roundData, 5),
+    evolutionSeries: getDriverCumulativePoints(roundData, 5, {
+      season: year,
+      sprintResults: allRoundSprints.map((s) => s.data),
+    }),
     raceSummaries: buildSeasonRaceSummaries(races, allRoundResults, (r) => isRaceDone(r)),
     highlights: buildSeasonHighlights(roundData),
   };
+});
+
+/**
+ * Teammate qualifying/race head-to-head for a season, keyed by `constructorId`
+ * (see lib/f1/headToHead.ts for the counting rules). Two batch queries and no
+ * upstream call; kept out of `getSeasonData` so only the pages that render it
+ * (grid) pay for it. Empty object when the season has no finished rounds.
+ */
+export const getSeasonHeadToHead = cache(async function getSeasonHeadToHead(
+  year: number,
+): Promise<Record<string, TeamHeadToHead>> {
+  const calendar = await fetchSeasonSnapshotTyped(year, 'calendar');
+  const races = getRacesFromCalendar(calendar);
+  const [qualifying, results] = await Promise.all([
+    fetchAllRoundQualifying(year, races),
+    fetchAllRoundResults(year, races),
+  ]);
+  return buildSeasonHeadToHead(qualifying, results);
 });
 
 export { F1_SEASON_MIN };
