@@ -1,4 +1,4 @@
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';

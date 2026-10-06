@@ -24,6 +24,7 @@ import {
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { getCircuitWeather, getCircuitLocation } from '@/lib/data/circuits';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
+import { getMedia } from '@/lib/media/read';
 import { pickWeekendStory } from '@/lib/home/pickWeekendStory';
 import { WeekendHero } from '@/components/home/WeekendHero';
 import { ChampionshipPulse } from '@/components/home/ChampionshipPulse';
@@ -90,12 +91,13 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const previousRound = previousRace?.round != null ? Number(previousRace.round) : null;
   const circuitId = nextRace?.Circuit?.circuitId;
 
-  const [previousResults, circuitWeather, nextRaceLocation] = await Promise.all([
+  const [previousResults, circuitWeather, nextRaceLocation, circuitMedia] = await Promise.all([
     previousRound != null && Number.isFinite(previousRound)
       ? fetchRoundSnapshot(CURRENT_SEASON, previousRound, 'results')
       : Promise.resolve(null),
     circuitId ? getCircuitWeather(circuitId) : Promise.resolve(null),
     circuitId ? getCircuitLocation(circuitId) : Promise.resolve(null),
+    circuitId ? getMedia('circuit', circuitId) : Promise.resolve(null),
   ]);
   const lastRaceRecap = getLastRaceResult(previousResults);
 
@@ -104,7 +106,7 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const nextRaceDate = nextRace?.date ? formatDate(`${nextRace.date}T12:00:00Z`, locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
-  const circuitCover = circuitCoverSrc(nextRace?.Circuit?.circuitId);
+  const circuitCover = (circuitMedia && circuitMedia.status === 'image' ? circuitMedia.image.src : null) ?? circuitCoverSrc(nextRace?.Circuit?.circuitId);
   const nextRaceFacts = getCircuitFacts(nextRace?.Circuit?.circuitId);
 
   const eyebrow = nextRace?.round

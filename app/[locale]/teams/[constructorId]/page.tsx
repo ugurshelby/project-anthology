@@ -6,6 +6,7 @@ import { getTeamLore } from '@/data/teams';
 import { SITE_NAME, siteUrl, localizedAlternates } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { getNewsForEntity } from '@/lib/data/news';
+import { getMedia } from '@/lib/media/read';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TeamSeasonHero } from '@/components/history/TeamSeasonHero';
@@ -105,6 +106,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         badge={s.champion ? t('team.champion', { year: view.year }) : null}
         numbers={view.lineup.map((d) => d.number).filter((n): n is string => !!n).slice(0, 3)}
         constructorId={view.id}
+        mediaResult={await getMedia('team', view.headId)}
       />
 
       <div className="mt-4 md:mt-6">
