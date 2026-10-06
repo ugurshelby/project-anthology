@@ -4,9 +4,11 @@
  *   2. build-time static JSON under public/data/f1 (if present)
  *   3. Jolpica proxy via /api/f1-season (last resort, live only)
  *
- * Current-season rows also pass a race-calendar staleness check: when the DB
- * cache is older than expected (post-quali / post-race), we bypass it and read
- * live Jolpica so standings/results stay fresh between cron runs.
+ * Current-season rows also pass a race-calendar staleness check. A stale row that
+ * is still recent (≤ MAX_SERVE_STALE_MS) is served IMMEDIATELY and refreshed in the
+ * background (`scheduleSnapshotRefresh`, stale-while-revalidate), so a visitor never
+ * waits on Jolpica. Only a row older than that cap (a broken cron/refresh) bypasses
+ * to live Jolpica, as does a missing or content-invalid row.
  *
  * Historical data is always served from the DB (F1DB seed has written it);
  * Jolpica is never used for historical seasons. All reads are server-side (RSC).
@@ -56,6 +58,7 @@ import {
 } from '@/lib/f1/mrdata';
 import { buildSeasonHeadToHead, type TeamHeadToHead } from '@/lib/f1/headToHead';
 import { readPublicJson } from '@/lib/data/fs';
+import { isRefreshable, scheduleSnapshotRefresh } from '@/lib/data/snapshotRefresh';
 
 /** Ergast/Jolpica envelope — kept as opaque Json; UI consumes the shape directly. */
 export type MrData = { MRData?: Record<string, unknown> } & Record<string, unknown>;
@@ -87,6 +90,17 @@ interface DbSnapshotRow {
 
 function hasMrData(json: unknown): json is MrData {
   return Boolean(json && typeof json === 'object' && 'MRData' in (json as object));
+}
+
+/**
+ * A stale row is served as-is (and refreshed in the background) while it is younger
+ * than this. Beyond it the refresh path is presumed broken and the read goes live.
+ */
+export const MAX_SERVE_STALE_MS = 3 * 24 * 60 * 60 * 1000;
+
+function canServeStale(fetchedAt: string, now: number = Date.now()): boolean {
+  const t = Date.parse(fetchedAt);
+  return Number.isFinite(t) && now - t <= MAX_SERVE_STALE_MS;
 }
 
 async function fetchDbSnapshotRow(
@@ -257,6 +271,12 @@ export const fetchSeasonSnapshotTyped = cache(async function fetchSeasonSnapshot
       }
       const races = await getRacesForStaleness(season);
       if (isSeasonSnapshotStale(type, row.fetched_at, races)) {
+        if (canServeStale(row.fetched_at)) {
+          // Stale-while-revalidate: serve now, refresh after the response.
+          // Standings are not refreshable here (the cron owns leader-change pushes).
+          if (isRefreshable(type)) scheduleSnapshotRefresh({ season, type, round: null });
+          return row.data as MrData;
+        }
         const live = await fetchLiveSeasonSnapshot(season, type, `${type} stale`);
         if (live) return live;
       }
@@ -293,6 +313,10 @@ export async function fetchRoundSnapshot(
     if (season >= CURRENT_SEASON) {
       const races = await getRacesForStaleness(season);
       if (isRoundSnapshotStale(type, round, row.fetched_at, races)) {
+        if (canServeStale(row.fetched_at)) {
+          scheduleSnapshotRefresh({ season, type, round });
+          return row.data as MrData;
+        }
         const live = await fetchLiveRoundSnapshot(season, round, type, `${type} r${round} stale`);
         if (live) return live;
       }
