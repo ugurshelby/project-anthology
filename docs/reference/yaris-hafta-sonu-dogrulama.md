@@ -55,7 +55,7 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 
 | # | Koşul | Durum |
 |---|---|---|
-| 1 | Medya migration'ı (`20261006000001_media_assets.sql`) | **Uygulandı** (2026-10-06, MCP). Kod henüz canlıda değilse `sync-media` çalışmaz; tablo boş. Yarış doğrulamasının zorunlu parçası değil. |
+| 1 | Medya migration'ı (`20261006000001_media_assets.sql`) | **Uygulandı** (2026-10-06, MCP). Kod ve workflow canlıda (2026-10-06); tablo ilk `sync-media` koşusuna kadar boş. Yarış doğrulamasının zorunlu parçası değil. |
 | 2 | **Push tablolarında `service_role` yetkisi** (`20261006000002_push_service_role_grants.sql`) | **Uygulandı** (2026-10-06, MCP; `has_table_privilege` ile doğrulandı). Önceki ölçümde yetki yoktu. |
 | 3 | Test aboneliği (push için) | `push_subscriptions` 0 satır; mobil uygulama yayında değil. Bölüm 3.C'deki yöntemle sahibin onayıyla bir test satırı eklenebilir. |
 | 4 | `MEDIA_CONTACT` Vercel Production | Eklendi (sahip, 2026-10-06). |
