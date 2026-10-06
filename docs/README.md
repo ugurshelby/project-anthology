@@ -11,10 +11,10 @@ Tüm yapay zeka ajanları (Claude Code, Cursor, Antigravity vb.) ve geliştirici
 
 1. **Kod ve Testler:** Gerçek kod tabanı ve yeşil geçen testler birinci otoritedir.
 2. **Agent Anayasası ([`AGENTS.md`](../AGENTS.md)):** Proje genelindeki kurallar ve yasaklar (hardcode yasakları, veri bütünlüğü, gizlilik).
-3. **Acil Eylem Planı ([`docs/plans/acil-eylem-plani.md`](plans/acil-eylem-plani.md)):** Doğrudan geliştirici tarafından dikte edilen en yüksek öncelikli yönlendirmeler.
+3. **Master Plan ([`docs/plans/master-plan.md`](plans/master-plan.md)):** Geliştirici vizyonu ve direktiflerinin işlendiği, açık işlerin faz faz yönetildiği tek canlı liste.
 4. **Referans Dokümanı ([`docs/reference/apex-reference.md`](reference/apex-reference.md)):** Ölçülmüş, doğrulanmış durum ve sistem envanteri.
 5. **Tasarım Sistemi ([`docs/design/apex-design.md`](design/apex-design.md)):** Apple tasarım ilkeleri ve F1 kimliğini sentezleyen master tasarım otoritesi (SSOT).
-6. **Canlı Plan ([`docs/plans/master-plan.md`](plans/master-plan.md)):** Açık işlerin vizyon hiyerarşisine göre yönetildiği tek canlı liste.
+6. **Vizyon ve Misyon ([`docs/vision/apex-vision.md`](vision/apex-vision.md)):** Projenin temel felsefesi ve hedef mimarisi.
 
 ---
 
@@ -35,8 +35,7 @@ docs/
 │   └── skills.md                       # Ekosistem skill tetikleyici haritası
 │
 ├── plans/                              # Eylem ve Geliştirme Planları
-│   ├── acil-eylem-plani.md             # Doğrudan geliştirici direktifleri (DOKUNULMAZ)
-│   └── master-plan.md                  # Tek canlı açık iş listesi (Vizyon katmanlarına göre sıralı)
+│   └── master-plan.md                  # Tek canlı açık iş listesi ve geliştirici direktifleri (Faz faz sıralı)
 │
 ├── design/                             # Tasarım Sistemi ve Arayüz Standartları
 │   ├── apex-design.md                  # Master Tasarım Sistemi Mimarisi (Apple HIG + F1 Ruhu)
@@ -68,8 +67,7 @@ docs/
 - Her `docs refinement` veya `docs freshness sweep` prosedürü sonrasında mimari, arayüz ve vizyonel kararları yansıtacak şekilde güncel tutulması zorunludur.
 
 ### 📋 `docs/plans/` (İş Listeleri ve Planlama)
-- **[`acil-eylem-plani.md`](plans/acil-eylem-plani.md):** Geliştiricinin bizzat yazdığı öncelikli eylem planı. Yapay zeka ajanları tarafından değiştirilmez.
-- **[`master-plan.md`](plans/master-plan.md):** Tamamlanan maddelerin temizlendiği, yalnızca açık işlerin `apex-vision.md`'deki 8 öncelik seviyesine göre listelendiği tek canlı plan.
+- **[`master-plan.md`](plans/master-plan.md):** Geliştirici direktiflerini ve vizyonunu içeren, tamamlanan maddelerin geçmişe devredildiği, yalnızca açık işlerin önem sırasına göre 7 faz halinde listelendiği tek canlı plan.
 
 ### 🎨 `docs/design/` (Tasarım Sistemi)
 - **[`apex-design.md`](design/apex-design.md):** F1 dinamizmini Apple tasarım ilkeleri (titiz mikro-etkileşimler, fizik temelli yay hareketleri, saydam malzemeler, hiyerarşik tipografi) ile birleştiren master rehber.
@@ -98,8 +96,8 @@ Bir denetim veya araştırma raporu (ör. `DENETIM.md` vb.) tamamen incelenip a�
 
 ```mermaid
 graph TD
-    A["1. Pusulayı Yükle<br>(docs/vision/apex-vision.md)"] --> B["2. Master Planı Temizle & Genişlet<br>(Tamamlananları sil, açıkları vizyona göre sırala)"]
-    B --> C["3. acil-eylem-plani.md'yi Koru<br>(Geliştirici direktifine dokunma)"]
+    A["1. Pusulayı Yükle<br>(docs/vision/apex-vision.md)"] --> B["2. Master Planı Temizle & Genişlet<br>(Tamamlananları geçmişe devret, açıkları fazlara göre sırala)"]
+    B --> C["3. Doğrulanmış Ölçümleri Teyit Et<br>(Test, tip, derleme metrikleri)"]
     C --> D["4. Kök Dizin & docs/ Taraması<br>(Yalnızca README ve AGENTS kökte kalır, raporları plana aktar)"]
     D --> E["5. docs/PRODUCT.md Güncellemesi<br>(Ürün tanıtımını taze tut)"]
     E --> F["6. İç Bağlantı & Link Doğrulaması<br>(Sıfır kırık bağlantı)"]
