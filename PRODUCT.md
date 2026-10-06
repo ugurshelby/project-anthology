@@ -13,7 +13,8 @@ derinlemesine incelemek veya mobilde hızlıca kontrol etmek isteyen veri merakl
 
 Apex; resmi olmayan, telif güvenli ve hızlı bir Formula 1 istatistik/telemetri
 arşividir. Kullanıcıların yarış, pilot, takım ve pist verilerini güvenilir bir
-arayüzde karşılaştırmasını sağlar.
+arayüzde karşılaştırmasını sağlar. Bu projenin temel amacı ve vizyonu `docs/vision/apex-vision.md`
+dökümanıdır; tüm çalışmalar bu vizyon çerçevesinde yapılmalıdır.
 
 ## Brand Personality
 

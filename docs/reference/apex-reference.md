@@ -10,7 +10,9 @@ Evidence tags: **[VERIFIED]** means the command was run or the file was read. **
 
 ## 1. Purpose and intended users (only what the repo states)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-05
+
+The foundational purpose and vision of this project is defined in `docs/vision/apex-vision.md` (bu projenin temel amacı ve vizyonu `docs/vision/apex-vision.md` dökümanıdır; çalışmalar bu vizyon çerçevesinde yapılmalıdır).
 
 Apex (Project Anthology) is an unofficial Formula 1 archive and live-data site. The README states that the season calendar, standings, driver and team profiles, circuits, news, and historical stories share one interface [VERIFIED: `README.md`].
 
@@ -407,24 +409,13 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 
 ### docs/design
 
-`docs/design/apex-design-language.md` is the file the master plan calls the approved visual language [VERIFIED: master plan]. `docs/design/README.md` is the folder index.
+Last verified: 2026-10-06
 
-These are generic design essays, not the Apex system. They conflict with each other (glassmorphism, neumorphism, brutalism, Swiss, dark-mode-first) and must not be treated as product law:
+Design authority is `docs/design/apex-design.md` (master design system architecture, synthesizing Apple design principles with Formula 1 identity) and `docs/design/apex-design-language.md` [VERIFIED: `AGENTS.md`, master plan]. Token definitions live in `docs/design/tokens.json` [VERIFIED].
 
-- `docs/design/design-styles/Neo-Brutalism Design System_ A Technical Specification.md`
-- `docs/design/design-styles/Bento Grid Design System_ A Production-Grade Framework for Modular UI.md`
-- `docs/design/design-styles/Editorial UI Design System_ The Architecture of Narrative Experience.md`
-- `docs/design/design-styles/Card-Based UI System_ Professional Design Specification.md`
-- `docs/design/design-styles/Dark Mode First Design_ A Production-Grade System Specification.md`
-- `docs/design/design-styles/Swiss Design System (International Typographic Style).md`
-- `docs/design/design-styles/Neumorphism_ A Comprehensive Design System Specification.md`
-- `docs/design/design-styles/Brutalist UI Design System_ A Technical and Strategic Framework.md`
-- `docs/design/design-styles/Minimalism Design System_ A Production-Grade Specification.md`
-- `docs/design/design-styles/Glassmorphism Design System_ Technical Specification.md`
+On 2026-10-05, the conflicting design essays (`design-styles/`, `colours/`, `typography/`, `trends/`, `design-techniques/`, `design.md/`) and 15 unapproved skill directories were consolidated and removed. The single approved skill directory is `docs/design/skills/` containing the 5-layer orchestrated skills: `apple-design` (foundational), `high-end-visual-design` + `minimalist-ui` (execution), `industrial-brutalist-ui` (filtered telemetry), `react-view-transitions` (motion), and `ui-ux-pro-max` + `accesslint-audit` (quality audit).
 
-Also reference-only, not verified against the built UI: `colours/best-colour-combos.md`, `colours/60-30-10-renk-kurali.md`, `typography/best-font-pairings.md`, `typography/cinematic-fonts-reference.md`, `trends/2026-design-trends-ui-uyarlama.md`, `ux-laws-reference.md`, `universal-design-principles.md`, `premium-design-philosophy.md`, `tasarim-skilleri-rehberi.md`, `design-techniques/loading-states-process-feedback.md`, `design-techniques/progressive-blur-card-design.md`, and the files under `docs/design/design.md/` (`design-system-kurulum-rehberi.md`, `mobile-design.md`, `web-design.md`, `Universal Mobile UI_UX Design System Principles_ Foundation for design.md.md`, `Master Design System Architecture (design.md)_ A Unified Synthesis for Scalable Web Interfaces.md`).
-
-The constitutions say `docs/design/` is the single authority, and also say that when design skills are active it is only inspiration [VERIFIED: `.cursor/rules/CURSOR.mdc` section 4]. That is an internal conflict.
+Other general reference essays in `docs/design/` (`premium-design-philosophy.md`, `universal-design-principles.md`, `ux-laws-reference.md`, `tasarim-skilleri-rehberi.md`) remain background reading, secondary to `apex-design.md`.
 
 ### docs/superpowers (historical specs and plans)
 

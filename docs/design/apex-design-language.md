@@ -1,9 +1,9 @@
 # Apex Design Language — Project Anthology
 
 > **Otorite:** Bu dosya Apex'e özel tasarım kararlarının tek kaynağıdır.
-> Genel prensipler: `docs/design/design.md/` · Visual Companion oturumu: 2026-07-04.
+> Genel prensipler ve tasarım sistemi: `docs/design/apex-design.md` (Apple tasarım prensipleri sentezi).
 >
-> **Son güncelleme:** 2026-07-04
+> **Son güncelleme:** 2026-10-05
 
 ---
 
