@@ -125,6 +125,8 @@ npx tsc --noEmit            # Tip kontrolü (npm script yok)
 | Dosya | İçerik |
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | Tek kanonik agent kural dosyası |
+| [`docs/README.md`](docs/README.md) | Master dokümantasyon indeksi ve haritası |
+| [`docs/PRODUCT.md`](docs/PRODUCT.md) | Proje ve ürün tanıtım vitrini |
 | [`docs/vision/apex-vision.md`](docs/vision/apex-vision.md) | Temel vizyon ve misyon rehberi (Pusula) |
 | [`docs/design/apex-design.md`](docs/design/apex-design.md) | Ana tasarım sistemi mimarisi (SSOT) |
 | [`docs/reference/apex-reference.md`](docs/reference/apex-reference.md) | Ölçülmüş durum, mimari, veri, güvenlik, boşluklar |

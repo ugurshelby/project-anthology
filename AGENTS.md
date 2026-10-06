@@ -33,6 +33,7 @@ Design authority is `docs/design/apex-design.md` (master design system architect
 - Editing a migration that has already been applied.
 - A public proxy route that takes a URL instead of a whitelisted path.
 - Silencing lint warnings or using `any`/ts-ignore escapes instead of fixing the cause.
+- Markdown or documentation files in the project root directory. Only `README.md` and `AGENTS.md` are permitted in the root; all documentation belongs under `docs/`.
 
 ## Verification rule
 
@@ -62,6 +63,9 @@ Next.js 16 has breaking changes: read the relevant guide in `node_modules/next/d
 ## Docs self-maintenance
 
 - A change that makes a doc false updates that doc in the same commit (README, `docs/reference/apex-reference.md`, `docs/vision/technical.md`, `docs/plans/master-plan.md`, `.env.example`).
+- Root doc hygiene: No documentation files are allowed in the project root directory. Only `README.md` and `AGENTS.md` reside in root.
+- Product showcase (`docs/PRODUCT.md`): `docs/PRODUCT.md` is the official project showcase and overview document. Whenever a docs refinement or docs freshness procedure is executed, `docs/PRODUCT.md` must be reviewed and kept fresh so architecture, UI, and vision decisions remain current.
+- Report and reference lifecycle: Any reference or audit report (e.g., audit findings) that has been thoroughly reviewed and its actionable items transferred into a plan document (`docs/plans/master-plan.md`) must be retired/deleted. Do not keep stale documents; git history is the archive.
 - When a procedure touches a section of the reference, update its `Last verified` line.
 - A plan whose last step is done is deleted (after its log entry and commit). Git history is the archive. No archive folders.
 - `docs/plans/master-plan.md` is the single live checklist. Tick a box only after verifying it in code or by a measured run.
