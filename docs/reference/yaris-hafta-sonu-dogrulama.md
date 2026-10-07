@@ -1,12 +1,12 @@
 # Yarış Hafta Sonu Canlı Doğrulama Rehberi
 
-Last verified: 2026-10-06
+Last verified: 2026-10-07
 
 Bu doküman, **gerçek bir yarış hafta sonunda** yapılabilecek canlı doğrulamaları (master-plan 1.1, 1.3, 1.4, 6.1, 6.2, 6.3 ve medya) tek yerde toplar. Sahip yarış zamanı yeni bir oturum açıp "**yarış hafta sonu doğrulamasını başlat — `docs/reference/yaris-hafta-sonu-dogrulama.md`**" dediğinde ajan bu dokümanı okur ve sırayla uygular. Sonuçlar `logs/YYYY-MM-DD.md` içine, geçen maddeler `docs/plans/master-plan.md` içine işlenir (ölçülmeden kutu işaretlenmez).
 
 Ajanın bu dokümanı kullanırken uyacağı kurallar (AGENTS.md ile aynı):
 - Canlı veritabanında **yalnızca okuma** (Supabase MCP, `SELECT`). Yazma, migration veya tohumlama için sahibin o oturumdaki açık onayı gerekir.
-- Cron uçları gizli anahtarla elle çağrılmaz; sonuçlar GitHub Actions log'larından okunur (`gh run view --log`).
+- Cron uçları gizli anahtarla elle çağrılmaz; sonuçlar GitHub Actions log'larından (`gh run view --log`) ya da QStash kuruluysa Upstash console → *Logs*'tan okunur.
 - Gizli değer yazdırılmaz, commit edilmez. `gh` oturumu `ugurshelby` hesabında açık.
 - Canlı uçlara toplu yük bindirilmez (`/api/live-timing` dakikada 30 istekle sınırlı).
 - Yerel build/sunucu gerekirse: aynı anda iki `next build` çalıştırılmaz.
@@ -33,7 +33,7 @@ Kaynak: Jolpica 2026 takvimi (2026-10-06 alındı). Takvim değişebilir: oturum
 
 | Olay | UTC | TR | Dayanak |
 |---|---|---|---|
-| Sprint bildirim penceresi | Cmt ~08:25–08:35 | ~11:25–11:35 | `notify-sessions`: oturumdan ~30 dk önce (±5 dk), GitHub workflow'u her 10 dk |
+| Sprint bildirim penceresi | Cmt ~08:25–08:35 | ~11:25–11:35 | `notify-sessions`: oturumdan ~30 dk önce (±5 dk); QStash her 5 dk (kuruluysa), GitHub yedeği her 10 dk ama güvenilmez |
 | **Sprint canlı** | Cmt 09:00 → ~10:00 | 12:00 → ~13:00 | OpenF1 `date_start`–`date_end` (+10 dk tolerans) |
 | Sprint sonuç senkronu (due) | Cmt 10:30 → ilk koşu ~10:42 | 13:30 → ~13:42 | `SPRINT_SYNC_OFFSET_MS` = +90 dk; `sync-f1-race-aware` her saat :12 |
 | Quali bildirim penceresi | Cmt ~12:25–12:35 | ~15:25–15:35 | aynı |
@@ -68,6 +68,7 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 GitHub Actions `schedule` tetikleri kâğıt üzerindeki sıklıkta çalışmıyor: `notify-sessions` (10 dk) ve saatlik workflow'lar gerçekte günde ~5 kez, medyan ~5 saat aralıkla koşuyor (en uzun ~9,4 sa). Bu yüzden oturum sırasında "saatlik koşuyu bul" yaklaşımı çoğu zaman sonuç vermez. Doğrulama oturumunda:
 - Belirli bir pencereyi sınamak için ilgili workflow'u **elle** tetikleyin: `gh workflow run notify-sessions.yml` (oturumdan ~30 dk önce), `gh workflow run sync-f1-race-aware.yml` (due zamanından sonra). Bu, canlı veriyi okuyup yazan normal işi çalıştırır; sahibin o anki onayıyla yapılır.
 - `sync-f1-scheduled.ts` artık 12 saat geriye bakıyor, yani geç gelen bir koşu da kaçan pencereyi tetikler. `notify-sessions` için böyle bir telafi yoktur (bildirim zaman duyarlıdır): güvenilir dış zamanlayıcı kurulana kadar push penceresi ancak elle tetikleme ile sınanabilir (master-plan 1.6).
+- **QStash kurulduysa (master-plan 1.6)** bu sorun kalmaz: zamanlayıcı dakikasında çalışır (`notify-sessions` */5, `sync-f1` */30). Koşular Upstash console → *Logs*'ta ve `npm run qstash:sync -- --list` çıktısında (son/sonraki çalışma) görünür; GitHub yalnızca yedektir ve elle `gh workflow run` yine çalışır. QStash kurulu değilse yukarıdaki elle tetikleme kuralları geçerlidir.
 - Bir koşunun "yok" olması hata sayılmaz; önce `gh run list --workflow=<ad>.yml --limit 10` ile gerçekten tetiklenip tetiklenmediğine bakın.
 
 ---
@@ -92,7 +93,7 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 
 - **Ne:** `sync-f1` due penceresinde çalışıyor mu, `settled` mantığı doğru mu, bayat satır anında sunulup arkada yenileniyor mu.
 - **Nasıl:**
-  1. GitHub Actions: `gh run list --workflow=sync-f1-race-aware.yml --limit 10`; due penceresini izleyen :12 koşusunu bul, `gh run view <id> --log` ile "window(s) due — triggering live sync" ve yanıt JSON'unu (`upserted`, `skipped`, `settled`, `errors`) oku.
+  1. QStash kuruluysa: Upstash console → *Logs*'ta `apex-sync-f1` teslimatları (HTTP 200 + yanıt gövdesi: `upserted`, `skipped`, `settled`, `errors`). Değilse GitHub Actions: `gh run list --workflow=sync-f1-race-aware.yml --limit 10`; due penceresini izleyen :12 koşusunu bul, `gh run view <id> --log` ile "window(s) due — triggering live sync" ve yanıt JSON'unu (`upserted`, `skipped`, `settled`, `errors`) oku.
   2. Veritabanı (Supabase MCP, salt-okunur):
      ```sql
      select type, round, source, fetched_at from f1_snapshots
