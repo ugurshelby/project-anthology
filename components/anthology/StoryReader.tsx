@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Story } from '@/lib/data/stories';
 import { AnthologyHero } from '@/components/anthology/AnthologyHero';
 import { StoryBody } from '@/components/anthology/StoryBody';
+import { StoryImageNotice } from '@/components/anthology/StoryImageSource';
 
 interface StoryReaderProps {
   story: Story;
@@ -110,6 +111,7 @@ export function StoryReader({ story, initialLanguage }: StoryReaderProps) {
 
       {/* Story prose & imagery */}
       <StoryBody blocks={currentBlocks} />
+      <StoryImageNotice />
     </article>
   );
 }
