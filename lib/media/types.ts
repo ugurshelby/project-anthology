@@ -56,7 +56,7 @@ export interface LicenseVerdict {
 export interface Candidate {
   file: CommonsFileInfo;
   license: LicenseVerdict;
-  source: 'wikidata-p18' | 'wikidata-p154' | 'commons-search' | 'curated';
+  source: 'wikidata-p18' | 'wikidata-p154' | 'commons-category' | 'commons-search' | 'curated';
   score: number;
 }
 
@@ -66,6 +66,8 @@ export interface ResolveOutcome {
   /** How many candidates were inspected / rejected (diagnostics). */
   inspected: number;
   notes: string[];
+  /** Every candidate that cleared the hard gates, best first (including those below MIN_SCORE; diagnostics). */
+  candidates: Candidate[];
 }
 
 export interface MediaVariant {

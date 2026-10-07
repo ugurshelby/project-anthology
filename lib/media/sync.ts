@@ -21,6 +21,15 @@ import { classifyLicense } from '@/lib/media/license';
 /** First season the automatic discovery covers (owner decision 2026-10: 2018 → present). */
 export const MEDIA_MIN_SEASON = 2018;
 
+/**
+ * Bump when the resolver (gates, scoring, search stages, `data/media/curated.ts`) changed in a way that can turn a
+ * `missing` row into a hit. The next sync run makes every `missing` row due once, so an improvement reaches the
+ * entities that were given up on (they would otherwise wait 7-21 days for their normal re-check).
+ *   1 = first release · 2 = 2026-10-07: wider car designations (SF1000, C39, AT01, RP20, R.S.20), venue's own
+ *       Commons category as a source, chassis-designation queries, horse-racing/stamp/cycling rejections.
+ */
+export const RESOLVER_VERSION = 2;
+
 const DAY_MS = 86_400_000;
 const RESOLVED_RECHECK_DAYS = 90;
 const APPROVED_RECHECK_DAYS = 180;
@@ -41,6 +50,8 @@ export interface SyncItem {
 export interface SyncReport {
   discoveredSeasons: number[];
   newEntities: number;
+  /** `missing` rows made due again because RESOLVER_VERSION changed (0 on every other run). */
+  requeued: number;
   due: number;
   resolved: number;
   unchanged: number;
@@ -131,6 +142,20 @@ async function discover(repo: MediaRepo, opts: SyncOptions, deadlineMs: number, 
   await repo.setState('discovered_seasons', { seasons: Array.from(done).sort((a, b) => a - b) });
 }
 
+/** Once per RESOLVER_VERSION: retry everything that was given up on. Failing to record it must never fail the run. */
+async function requeueMissingForNewResolver(repo: MediaRepo, now: Date, log: (msg: string) => void): Promise<number> {
+  try {
+    const state = await repo.getState<{ version?: number }>('resolver_version');
+    if (state?.version === RESOLVER_VERSION) return 0;
+    const n = await repo.requeueMissing(now.toISOString());
+    await repo.setState('resolver_version', { version: RESOLVER_VERSION, at: now.toISOString(), requeued: n });
+    return n;
+  } catch (err) {
+    log(`resolver requeue failed: ${String(err)}`);
+    return 0;
+  }
+}
+
 export async function runMediaSync(opts: SyncOptions): Promise<SyncReport> {
   const startedAt = Date.now();
   const now = opts.now ?? new Date();
@@ -141,6 +166,7 @@ export async function runMediaSync(opts: SyncOptions): Promise<SyncReport> {
   const report: SyncReport = {
     discoveredSeasons: [],
     newEntities: 0,
+    requeued: 0,
     due: 0,
     resolved: 0,
     unchanged: 0,
@@ -153,6 +179,7 @@ export async function runMediaSync(opts: SyncOptions): Promise<SyncReport> {
   };
 
   if (!opts.skipDiscovery) await discover(repo, opts, deadlineMs, report);
+  report.requeued = await requeueMissingForNewResolver(repo, now, log);
 
   let due = await repo.claimDue(opts.maxDue ?? MAX_DUE_PER_RUN, now.toISOString());
   if (opts.only?.length) {

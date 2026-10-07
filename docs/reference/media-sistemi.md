@@ -109,9 +109,9 @@ Her aşama toplu (batch) çalışır; ilk **yeterli** aday bulunan aşamada duru
 |---|---|
 | **driver** | ① curated dosya (varsa) → ② Wikidata **P18** (aktif pilotsa ve fotoğraf son 2 yıldan eskiyse sıradaki aşamaları da dener) → ③ aktif pilotlar için Commons `"<isim> <sezon>"` araması → ④ Wikidata Commons kategorisi (P373) → ⑤ Commons `"<isim> Formula 1"` araması → **placeholder** |
 | **team** (logo) | ① curated → ② Wikidata **P154** (logo) → ③ Commons `"<takım> logo"` aramaları (SVG tercih, en yeni yıl, renkli) → **placeholder** |
-| **car** (sezonluk) | Commons `"<takım> <sezon> Formula One"` aramaları (takımın Wikipedia başlığı da kullanılır). **Sezon kapısı:** dosya adındaki/metadata'daki yıl sezonla birebir eşleşmeli → **placeholder** |
+| **car** (sezonluk) | Commons `"<takım> <sezon> Formula One"` aramaları (takımın Wikipedia başlığı da kullanılır) + varsa `data/media/curated.ts` `CAR_MODELS` şasi adı (`"Red Bull RB16B"`). **Sezon kapısı:** dosya adındaki/metadata'daki yıl sezonla birebir eşleşmeli → **placeholder** |
 | **car** (ikonik) | Yalnızca elle derlenmiş `files` listesi (sırayla) → opsiyonel `query` → placeholder |
-| **circuit** | ① curated → ② Wikidata P18 → ③ P373 kategorisi → ④ Commons `"<pist> aerial/circuit"` → **placeholder** |
+| **circuit** | ① curated → ② Wikidata P18 → ③ P373 kategorisi (kaynak `commons-category`: pistin kendi Commons kategorisine konmuş dosyalar; adında yarış sözcüğü olmayan pistler — Red Bull Ring, Kyalami, AVUS — yalnızca böyle tanınır) → ④ Commons `"<pist> aerial/circuit"` → ⑤ `"<pist> grandstand / paddock pit lane / Formula One"` ve `"<yer> Grand Prix"` → **placeholder** |
 
 ### Kapılar (hepsi geçmeli)
 
@@ -119,7 +119,9 @@ Her aşama toplu (batch) çalışır; ilk **yeterli** aday bulunan aşamada duru
 2. **Format:** JPEG/PNG/WebP. SVG yalnızca takım logosu için (Commons PNG'ye çevirir, biz yine raster'e çeviririz; **SVG hiçbir zaman saklanmaz**). Pist ve araç fotoğrafları için PNG reddedilir (çoğu pist şeması/ekran görüntüsü).
 3. **Boyut:** pilot ≥ 400 px, araç/pist ≥ 1400 px geniş (logo SVG için yok).
 4. **Konu kapıları:** isim/yer adı başlıkta veya kategoride geçmeli; yasaklı kelimeler (harita, oyuncak, poster, diğer seriler F2/F3/E…); araçta **sezon**; pistte **yarış bağlamı** (circuit/speedway/pit/grandstand…); logoda "logo/wordmark/emblem" ve araç modeli rozeti (F430, 16M) olmaması.
-5. **Puan ≥ eşik** (driver 55, team 60, car 60, circuit 50). Puan; kaynak güveni, isim eşleşmesi, çözünürlük, kadraj, yenilik, "pistte çekilmiş araç" gibi sinyallerden gelir.
+5. **Pist için ek kapılar (2026-10-07):** at yarışı (Aintree Racecourse), pul/ilk gün zarfı/kartpostal kategorileri, bisiklet/maraton gibi aynı yolda yapılan etkinlikler ve fuar/sergi/banner fotoğrafları (AVUS'ta Grüne Woche salonu çıkmıştı) reddedilir. Başlığı yalnızca `<pist> Grand Prix (123456)` olan etkinlik anlık görüntüsü, parçayı (aerial/grandstand/start-finish…) adlandırmıyorsa −10 alır. Pistin adındaki takım sözcüğü (Red Bull Ring) "aksiyon fotoğrafı" cezası sayılmaz.
+6. **Araç için şasi kapısı:** takım adı başlıkta değilse kategoride `<şasi> of <sürücü>` benzeri model kategorisi aranır (`Ferrari SF1000 of Charles Leclerc`; desen SF1000, C39, AT01, RP20, R.S.20, VF-19, MCL36 gibi 1–4 haneli şasi kodlarını tanır). Yalnızca yıl metadata'dan geliyorsa kategorilerde olay da (test/Grand Prix/qualifying…) geçmeli — sergi arabası (Honda ofisindeki AT02) yarış hafta sonu karesi sayılmaz. `<şasi> of <sürücü>` kategorisi puan kazanır; yalnızca model kategorisi taşıyan geniş tribün kareleri sıralamada geride kalır. Yol aracı kelimeleri (Stradale, Spider…) elenir.
+7. **Puan ≥ eşik** (driver 55, team 60, car 60, circuit 50). Puan; kaynak güveni, isim eşleşmesi, çözünürlük, kadraj, yenilik, "pistte çekilmiş araç" gibi sinyallerden gelir.
 
 Gerçek veride yakalanan tuzaklar (testlerle sabitlendi): Ferrari logosu aramasında yol aracı rozeti; "Ferrari World" tema parkı logosu; Red Bull içecek logosu; Silverstone'un Wikidata görseli olarak bir McLaren shakedown fotoğrafı; Watkins Glen'in Wikidata görseli olarak bir NASCAR sürücüsü portresi; "panoramio" kelimesinin "panorama" sayılması (otel/şehir fotoğrafları); CC0 dosyalarının "telifli" işaretli gelmesi.
 
@@ -127,14 +129,17 @@ Gerçek veride yakalanan tuzaklar (testlerle sabitlendi): Ferrari logosu aramas�
 
 ## 5. Senkronizasyon (cron)
 
-Route: `app/api/cron/sync-media` · Zamanlama: saatlik, **GitHub Actions** (`.github/workflows/sync-media.yml`, `17 * * * *`; `vercel.json`'da değil çünkü Vercel Hobby cron'ları günde bir kez çalışır ve saatlik ifade deploy'u reddeder) · `maxDuration=300`, iş bütçesi 240 sn. Migration uygulanana kadar route `200 {skipped:true}` döner (workflow kırmızı olmaz).
+Route: `app/api/cron/sync-media` · Zamanlama: saatlik, **QStash** (`apex-sync-media`, `41 * * * *`; kurulum `npm run qstash:sync`, bkz. `apex-reference.md` "Zamanlayıcı"); yedek olarak GitHub Actions (`.github/workflows/sync-media.yml`, `17 * * * *`, GitHub bunu ~5 kez/gün çalıştırır). `vercel.json`'da değil çünkü Vercel Hobby cron'ları günde bir kez çalışır ve saatlik ifade deploy'u reddeder · `maxDuration=300`, iş bütçesi 240 sn. Migration uygulanana kadar route `200 {skipped:true}` döner (workflow kırmızı olmaz).
 
 - **Auth:** `Authorization: Bearer <CRON_SECRET>` (`isCronAuthorized`, fail-closed) + `isCronTriggerAllowed` (60 sn alt sınır).
 - **Keşif:** Jolpica'dan sezon başına pilot/takım/pist listesi. En yeni sezon her çalışmada, eski sezonlar çalışma başına en fazla 2 tane geriye doğru (2018'e kadar). Ek olarak ikonik araçlar ve tarihî pistler (`data/media/curated.ts`). **Yeni sezon (2027, 2028…) için kod değişikliği gerekmez.**
 - **İşleme:** vadesi gelenler (önce `pending`), toplu kimlik çözümü (Wikipedia→Wikidata→görsel talepleri) sonra varlık başına aday arama/puanlama/indirme.
+- **Çözümleyici sürümü (`RESOLVER_VERSION`, `lib/media/sync.ts`):** kapılar/puanlama/arama aşamaları/curated veri iyileştiğinde sürüm artırılır; bir sonraki çalışma **bir kez** tüm `missing` satırları vadesi gelmiş yapar (`next_check_at = now`) ve sürümü `media_sync_state.resolver_version` içine yazar. Böylece iyileştirme, 7–21 gün beklemeden vazgeçilmiş varlıklara ulaşır; kayıt başarısız olsa bile çalışma düşmez. Yanıtta `requeued` sayısı döner.
 - **Vade takvimi:** `resolved` 90 gün · `approved` 180 gün · `missing`: son iki sezonun aracı 7 gün (yeni sezon fotoğrafları haftalar sonra çıkar), diğerleri 21 gün · hata: 10 dk × 2ⁿ (en çok 6 saat).
 - **Rate limit koruması:** host başına istek aralığı (Wikimedia ≥ 1.1 sn), `Retry-After`'a uyulur, açıklayıcı `User-Agent` (`MEDIA_CONTACT` env veya site URL'si). Art arda 3 geçici hata → çalışma durur.
-- **İdempotent:** aynı dosya seçilirse indirme yapılmaz. Eski sürümün Storage dosyaları temizlenir.
+- **İdempotent:** aynı dosya seçilirse indirme yapılmaz; vadesi gelmemiş satıra (çözülmüş: 90 gün, onaylı: 180 gün) dokunulmaz — elle veya zamanlı her tetikleme yalnızca vadesi gelen (yeni, hatalı, vadesi dolmuş `missing`) varlıkları arar. Eski sürümün Storage dosyaları temizlenir.
+- **Storage yükleme:** geçici ağ geçidi hataları (HTTP 5xx, boş mesaj; 2026-10-07'de `hockenheimring` için 520) 3 denemeye kadar tekrarlanır; 4xx hatalar hemen düşer (`uploadWithRetry`).
+- **Teşhis:** `missing` satırın `last_error` alanı elenme nedenlerini ve gerekli eşiğin altında kalan en iyi iki adayı yazar (`best below bar: …`).
 - **İlk dolum:** ~300 varlık için birkaç saatlik çalışma yeter (Wikimedia'nın hız sınırı yüzünden). İş boşken tek ucuz sorgudur.
 - `?only=driver:norris,team:ferrari` yalnızca vadesi gelen bu varlıkları işler.
 
@@ -334,12 +339,15 @@ Görsel **anında** herkese kapanır. Bir sonraki cron çalışması dosyayı ka
 
 **El ile görsel ekleme/değiştirme:** `data/media/curated.ts` içinde ilgili `files` listesine Commons dosya adını ekleyin (lisans kapısı yine uygulanır).
 
+**2026-10-07 ek arama sonucu (gerçek Wikimedia'ya karşı kuru çalıştırma, DB'ye yazmadan):** 26 `missing` + 5 `pending` varlıktan 14 araç (hepsi) ve 4 pist (Kyalami, Red Bull Ring, Miami, Hockenheimring) çözüldü; Aintree, AVUS, Yeongam, Jeddah, Losail, Madring, Las Vegas ve 6 takım logosu (Ferrari, Racing Bulls, Cadillac, Toro Rosso, AlphaTauri, Force India) bilinçli olarak placeholder'da kaldı (serbest/uygun fotoğraf yok ya da uygun olmayanlar elendi). Canlıya geçince `RESOLVER_VERSION = 2` bu satırları kendiliğinden yeniden dener.
+
 **Eski sezonlar (1950–2017):** Şimdilik kapsam dışı. `MEDIA_MIN_SEASON` (`lib/media/sync.ts`) düşürülünce aynı sistem geriye doğru genişler. **Sistem oturunca bu genişletmeyi hatırlatın.**
 
 ---
 
 ## 14. Bilinen sınırlar
 
+- **Serbest fotoğrafı olmayan pistler:** Losail (yalnızca MotoGP kareleri), Madring/Jeddah (yalnızca SVG şema), Las Vegas (yalnızca etkinlik anlık görüntüleri), Yeongam (yalnızca yarış karesi), Aintree (yalnızca at yarışı pisti), AVUS (yalnızca pul/fuar). Commons'a uygun bir fotoğraf eklendiğinde ya da `EXTRA_CIRCUITS[].files` / `curatedFiles` ile elle bir dosya verildiğinde çözülür.
 - **Ferrari (Scuderia) logosu Commons'ta yok** (serbest sürüm yüklenmemiş/silinmiş); Ferrari ve Racing Bulls için tipografik placeholder görünür. Red Bull için yalnızca eski/ara sürüm PD logo bulunur. Bu bir kod değil kaynak sınırıdır.
 - **Görsel kalite çeşitliliği:** pilot fotoğrafları çoğunlukla pist kenarı/hayran bölgesi çekimleri (stüdyo portresi değil). Puanlama yalnızca metadata'ya bakar, pikselleri görmez; aday sırası iyi ama kusursuz değildir. Kötü olanı `rejected` yapın.
 - **Araç fotoğrafları:** yeni sezonun görselleri genellikle testlerden/ilk yarışlardan sonra Commons'a girer; o zamana kadar placeholder. Garaj içi/müze çekimleri ikinci sırada tutulur ama yalnızca onlar varsa seçilir.

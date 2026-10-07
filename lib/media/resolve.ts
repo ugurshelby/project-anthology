@@ -1,3 +1,4 @@
+import { CAR_MODELS } from '@/data/media/curated';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { FetchOptions } from '@/lib/media/http';
 import { classifyLicense } from '@/lib/media/license';
@@ -101,6 +102,13 @@ function buildStages(entity: MediaEntity, ctx: ResolveContext): Stage[] {
         const queries = names.flatMap((n) => [`${n} ${season} Formula One`, `${season} ${n} F1 car`]);
         stages.push({ source: 'commons-search', stopOnHit: false, titles: search(queries.slice(0, 4), 30) });
       }
+      // Chassis designation ('Red Bull RB16B'): finds race photos whose titles only say '2021 United States Grand Prix 17'.
+      // Read from the registry at resolve time, not from the stored row: seasons already discovered are never re-discovered,
+      // so a model added later would otherwise never reach their rows.
+      {
+        const model = CAR_MODELS[String(entity.key)];
+        if (season && model) stages.push({ source: 'commons-search', stopOnHit: false, titles: search([model, `${model} ${season}`], 30) });
+      }
       if (typeof extra.curatedQuery === 'string') {
         stages.push({ source: 'commons-search', stopOnHit: false, titles: search([extra.curatedQuery], 25) });
       }
@@ -109,9 +117,18 @@ function buildStages(entity: MediaEntity, ctx: ResolveContext): Stage[] {
       if (wd?.p18.length) stages.push({ source: 'wikidata-p18', stopOnHit: true, titles: async () => wd.p18 });
       if (wd?.commonsCategory) {
         const cat = wd.commonsCategory;
-        stages.push({ source: 'commons-search', stopOnHit: false, titles: () => listCategoryFiles(cat, 50, ctx.fetchOpts) });
+        stages.push({ source: 'commons-category', stopOnHit: false, titles: () => listCategoryFiles(cat, 50, ctx.fetchOpts) });
       }
-      if (name) stages.push({ source: 'commons-search', stopOnHit: false, titles: search([`${name} aerial`, `${name} circuit`], 20) });
+      if (name) {
+        stages.push({ source: 'commons-search', stopOnHit: false, titles: search([`${name} aerial`, `${name} circuit`], 20) });
+        // Venue parts: a grandstand or paddock photo rarely says 'circuit' but is exactly the place.
+        const place = typeof (entity.extra ?? {}).locality === 'string' ? String((entity.extra ?? {}).locality) : '';
+        stages.push({
+          source: 'commons-search',
+          stopOnHit: false,
+          titles: search([`${name} grandstand`, `${name} paddock pit lane`, `${name} Formula One`, ...(place ? [`${place} Grand Prix`] : [])], 15),
+        });
+      }
       break;
   }
   return stages;
@@ -173,15 +190,25 @@ export async function resolveEntity(
     const winner = pickBest(stageCandidates, entity.type);
     if (winner) {
       const stop = typeof stage.stopOnHit === 'function' ? stage.stopOnHit(winner) : stage.stopOnHit;
-      if (stop) return { best: winner, inspected, notes };
+      if (stop) return { best: winner, inspected, notes, candidates: byScore(candidates) };
     }
   }
 
-  return { best: pickBest(candidates, entity.type), inspected, notes };
+  return { best: pickBest(candidates, entity.type), inspected, notes, candidates: byScore(candidates) };
+}
+
+function byScore(candidates: Candidate[]): Candidate[] {
+  return [...candidates].sort((a, b) => b.score - a.score);
 }
 
 /** Search-friendly summary of why an entity ended up missing (stored in last_error-less diagnostics). */
 export function describeMiss(entity: MediaEntity, outcome: ResolveOutcome): string {
   const tokens = nameTokens(entity.displayName).join('/');
-  return `no candidate reached ${MIN_SCORE[entity.type]} for ${entity.type}:${entity.key} [${tokens}] — ${outcome.notes.join(' | ')}`.slice(0, 900);
+  // Candidates that cleared the hard gates but not the score bar: what to look at first when reviewing a miss.
+  const near = outcome.candidates
+    .slice(0, 2)
+    .map((c) => `${c.file.title.replace(/^File:/, '')} (${c.score})`)
+    .join('; ');
+  const nearNote = near ? ` (best below bar: ${near})` : '';
+  return `no candidate reached ${MIN_SCORE[entity.type]} for ${entity.type}:${entity.key} [${tokens}]${nearNote} — ${outcome.notes.join(' | ')}`.slice(0, 900);
 }
