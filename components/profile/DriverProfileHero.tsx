@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ApexImage } from '@/components/media/ApexImage';
+import { MediaCredit } from '@/components/media/MediaCredit';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { MediaResult } from '@/lib/media/read';
 import type { CSSProperties } from 'react';
@@ -311,24 +312,8 @@ export function DriverProfileHero({
 
             {/* CC BY / CC BY-SA Attribution Badge */}
             {isMediaImage && mediaResult.attribution?.text ? (
-              <div className="pointer-events-auto absolute bottom-4 right-4 z-30 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] text-text-mid shadow-lg backdrop-blur-md">
-                <span className="font-mono text-[9px] uppercase tracking-wider text-text-low">
-                  Foto:
-                </span>
-                <span className="max-w-[220px] truncate text-white/90">
-                  {mediaResult.attribution.text}
-                </span>
-                {mediaResult.attribution.sourceUrl ? (
-                  <a
-                    href={mediaResult.attribution.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-1 text-accent hover:underline"
-                    aria-label="Wikimedia Commons Source"
-                  >
-                    ↗
-                  </a>
-                ) : null}
+              <div className="pointer-events-auto absolute bottom-4 right-4 z-30 max-w-[calc(100%-2rem)] rounded-full border border-white/15 bg-black/70 px-3 py-1 shadow-lg backdrop-blur-md sm:max-w-[320px]">
+                <MediaCredit attribution={mediaResult.attribution} />
               </div>
             ) : null}
           </div>

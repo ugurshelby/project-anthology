@@ -534,7 +534,9 @@
       "fairUseMark": "Fair use mark",
       "source": "Wikimedia Commons source",
       "sourceAria": "Open the original file on Wikimedia Commons (opens in a new tab)",
-      "trademarkNote": "Unofficial fan project. Trademarks belong to their respective owners."
+      "trademarkNote": "Unofficial fan project. Trademarks belong to their respective owners.",
+      "photoLabel": "Photo:",
+      "markLabel": "Mark:"
     }
   },
   "legal": {
