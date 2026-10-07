@@ -88,7 +88,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
 
   const career = view.asOf;
   const born = view.born ? view.born.slice(0, 4) : null;
-  const machineryCars = getMachineryCarsForDriver(view.id);
+  const machineryCars = getMachineryCarsForDriver(view.id, view.name);
 
   return (
     <main
