@@ -142,7 +142,9 @@ describe('read path — stale-while-revalidate', () => {
     mockFetchSiteJson.mockResolvedValue(live);
     mockDbRow.mockImplementation((_s, type) => {
       if (type === 'calendar') return { data: calendarWithRace(-5), fetched_at: isoHoursAgo(1) };
-      if (type === 'results') return { data: roundData, fetched_at: isoHoursAgo(24 * 5) }; // 5 days > 3-day cap
+      // Fetched 6 days ago: always before the race (5 days ago, 12:00Z) whatever the time of day, and > 3-day cap.
+      // (5 days ago failed between 14:30Z and midnight: the row then postdated the results due window.)
+      if (type === 'results') return { data: roundData, fetched_at: isoHoursAgo(24 * 6) };
       return null;
     });
     const { fetchRoundSnapshot } = await loadF1();
