@@ -49,7 +49,7 @@ docs/
     ├── apex-reference.md               # Master yaşayan referans (ölçülmüş gerçekler, test sonuçları)
     ├── mimari.md                       # Backend mimarisi, saat mekanizması veri akışı, Supabase & cron
     ├── muhendislik-dersleri.md         # Yaşanmış tuzaklar, Next.js/DB mimari dersleri ve çözümler
-    ├── stories-assets-ledger.md        # public/stories 56 görsel varlık dökümü ve lisans envanteri
+    ├── hikaye-gorselleri-kaynak-listesi.md # public/stories görsellerinin kaynağı doğrulanacak listesi (üretilir; hepsi doğrulanınca silinir)
     ├── anthology-image-map.md          # 17 antoloji hikayesinin görsel kullanım eşlemesi
     └── glossary-icon-prompts.md        # Tech Glossary teknik CAD / blueprint ikon üretim promptları
 ```
