@@ -48,6 +48,8 @@ export interface FetchOptions {
   deadlineMs?: number;
   maxRetries?: number;
   accept?: string;
+  /** 'manual' returns 3xx responses to the caller instead of following them. */
+  redirect?: 'follow' | 'manual';
 }
 
 /** Throttled fetch with 429/5xx backoff. Throws MediaHttpError. */
@@ -70,6 +72,7 @@ export async function throttledFetch(url: string, opts: FetchOptions = {}): Prom
     try {
       res = await fetch(url, {
         signal: ctrl.signal,
+        redirect: opts.redirect ?? 'follow',
         headers: { 'User-Agent': mediaUserAgent(), Accept: opts.accept ?? 'application/json' },
       });
     } catch (err) {
@@ -89,6 +92,7 @@ export async function throttledFetch(url: string, opts: FetchOptions = {}): Prom
       await sleep(Math.min(backoffMs, 60_000));
       continue;
     }
+    if (opts.redirect === 'manual' && res.status >= 300 && res.status < 400) return res;
     if (!res.ok) throw new MediaHttpError(`HTTP ${res.status} from ${host}`, res.status, false);
     return res;
   }
