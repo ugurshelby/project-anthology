@@ -28,18 +28,21 @@ No file in the repo states a business owner, a company, or a revenue model. Thos
 
 ## 2. Current state summary (what works, what is broken, what is half-built; measured, not described)
 
-Last verified: 2026-10-06
+Last verified: 2026-10-08
 
 The web app is a working Next.js product, not a skeleton and not an idea with little code. `components/` contains 95+ `.ts`/`.tsx` files and `app/[locale]/` contains 22 `page.tsx` files [VERIFIED: file search].
 
-### Measured as working on 2026-10-06
+### Measured as working on 2026-10-06 (gates re-measured 2026-10-08)
 
 | Check | Result |
 |---|---|
-| Unit tests | `npx vitest run`: 49 test files, 407/407 passed (19.8s, exit 0) [VERIFIED: 2026-10-06] |
-| Lint | `npm run lint`: exit 0, 0 errors, 15 warnings [VERIFIED: 2026-10-06] |
-| Typecheck | `npx tsc --noEmit`: exit 0, no diagnostics [VERIFIED: 2026-10-06] |
-| Production build | `npm run build`: exit 0 (Next.js Turbopack). 50/50 static pages and dynamic routes compiled [VERIFIED: 2026-10-06] |
+| Unit tests | `npx vitest run`: 59 test files, 514/514 passed (exit 0) [VERIFIED: 2026-10-08] |
+| Lint | `npm run lint`: exit 0, 0 errors, 11 warnings (8 intentionally unused params of deprecated no-op helpers in `lib/assets/f1-icons.ts`, 3 in gitignored `scratch/`) [VERIFIED: 2026-10-08] |
+| Typecheck | `npx tsc --noEmit`: exit 0, no diagnostics [VERIFIED: 2026-10-08] |
+| Production build | `npm run build`: exit 0 (Next.js Turbopack). 50/50 static pages and dynamic routes compiled [VERIFIED: 2026-10-08] |
+| Media coverage | `media_assets`: 233/246 resolved (hockenheimring resolved 2026-10-07 23:05 UTC), 13 `missing` by design (7 circuits without a free photo, 6 team logos) [VERIFIED: Supabase MCP SELECT, 2026-10-08] |
+| Locale leaks | 20 live EN pages scanned for Turkish UI text on 2026-10-08: only `/circuits/spa` and `/circuits/monaco` leaked (elevation + lore panels); fixed in `35fd2f0`, plus the season chart title, driver/team photo labels and circuit HUD (`0e06b06`, `8dc5e9b`) [VERIFIED: curl scan before, local production build after] |
+| Core Web Vitals (lab) | Lighthouse 13.5 (local Chrome, live site, mobile simulated 4G, 2026-10-08): home LCP 6.5–7.2 s, CLS ≤ 0.04, TBT ~300 ms, score 64–66; `/season/2026` LCP 3.6 s; `/grid` 5.2 s; `/drivers/norris` 4.5 s; `/circuits/spa` 3.4 s, CLS 0.115. Desktop home: LCP 1.7 s, score 91. Home LCP element is the hero circuit photo; its breakdown is ~0.35–0.6 s TTFB, ~1.6–1.9 s resource load delay (the image arrives in the streamed Suspense chunk of the force-dynamic page), ~0.1–0.2 s load, 0.5–0.7 s render delay. Field data (CrUX): none, PageSpeed Insights API returned 429 (keyless daily quota) [VERIFIED: Lighthouse JSON reports] |
 | Live home | HTTP 200 [VERIFIED] |
 | Live `sitemap.xml` | HTTP 200; first URL is the eight host, with `en` / `tr` / `x-default` alternates [VERIFIED] |
 | Live `robots.txt` | HTTP 200; allows `/` and the legal paths; disallows `/api/` and `/api/cron/` [VERIFIED] |
@@ -151,7 +154,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 
 ## 4. Data and infrastructure (DB, schema, migrations, external APIs, cron jobs, deployment, branch and deploy triggers)
 
-Last verified: 2026-10-06
+Last verified: 2026-10-08
 
 ### Tables
 
@@ -212,6 +215,8 @@ GitHub Actions [VERIFIED: the three YAML files]:
 | `notify-sessions.yml` | every 10 minutes, plus dispatch | `curl` to `/api/cron/notify-sessions` |
 
 All five cron routes (`sync-media` added 2026-10-06) call `isCronAuthorized` [VERIFIED: grep of `app/api/**/route.ts`]. On 2026-10-05, the four routes that existed then (`sync-news`, `sync-f1`, `sync-radio`, `notify-sessions`) returned HTTP 401 when accessed without authorization [VERIFIED: live curl]. `maxDuration` is 300s for sync-f1, sync-news, and sync-radio, and 60s for notify-sessions [VERIFIED: those files]. GitHub Actions runs on 2026-10-05 completed successfully for notify-sessions, sync-f1 race-aware, and sync-news [VERIFIED: `gh run list`].
+
+`notify-sessions` dedupe (2026-10-08): the route reads subscribers first (a failed read returns 500 and claims nothing, so the next run inside the ±5 min window retries), then claims each due session by inserting its `notified_sessions` row and only sends after a successful claim. A unique violation (`23505`) means an earlier or overlapping caller already sent it (`deduped`); any other insert error skips the send and makes the run return 500 with the session in `failed` (no silent re-send every run). Response fields: `sessionsChecked`, `claimed`, `deduped`, `notified` (accepted Expo tickets only), `failed` [VERIFIED: `app/api/cron/notify-sessions/route.ts`, `tests/notify-sessions-route.test.ts` 7 tests].
 
 **Measured 2026-10-07 (`gh run list`, `schedule` events): GitHub does not honour these schedules.** `notify-sessions` (nominal every 10 min) ran with a median gap of 308 min (min 142, max 562; ~5 runs/day instead of 144); `sync-news` and `sync-media` (nominal hourly) ~5 runs/day with median gaps of 327 and 249 min; `sync-f1-race-aware` (nominal hourly) ~5 runs/day, longest gap 9.4 h. GitHub runs scheduled workflows best-effort and delays or drops them on low-activity repositories. Consequences: the 30-minute push window of `notify-sessions` cannot be hit reliably, and `sync-f1-scheduled.ts` used to look back only 65 minutes (now 12 h, 2026-10-07) so most due windows were missed. A reliable external scheduler is open (master-plan 1.6) [VERIFIED: `gh run list` gap statistics, `scripts/sync-f1-scheduled.ts`, simulated due-check].
 
@@ -295,7 +300,7 @@ Placeholder legal mailboxes mean a privacy or DMCA request sent from the site go
 
 ## 6. Quality gates (tests, lint, build, typecheck: what exists, what actually passes)
 
-Last verified: 2026-10-01
+Last verified: 2026-10-01 (current numbers: section 2, 2026-10-08)
 
 | Gate | Exists | This run (2026-10-01, Node v22.18.0, npm 10.9.3, `node_modules` already present) |
 |---|---|---|

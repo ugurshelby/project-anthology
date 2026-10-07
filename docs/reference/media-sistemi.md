@@ -257,7 +257,7 @@ Ortak: koyu/açık tema, WCAG AA kontrast, sabit en-boy oranı (görsel yerine g
 
 ## 10. Güvenlik notları
 
-- **İstek anında dış çağrı yok** → SSRF yüzeyi yok. İndirme yalnızca `https://upload.wikimedia.org` ve `https://thumb.wikimedia.org` hostlarına izinlidir (kod allow-list'i; kullanıcı girdisi buraya ulaşmaz).
+- **İstek anında dış çağrı yok** → SSRF yüzeyi yok. İndirme yalnızca `https://upload.wikimedia.org` ve `https://thumb.wikimedia.org` hostlarına izinlidir (kod allow-list'i; kullanıcı girdisi buraya ulaşmaz). Yönlendirmeler elle izlenir (en çok 3) ve allow-list **her adımda** uygulanır; gövde akış hâlinde okunur ve `MAX_DOWNLOAD_BYTES` (12 MB) aşılınca `Content-Length` olmasa da kesilir (2026-10-08, `tests/media-process.test.ts`).
 - **Public API yalnızca tür + doğrulanmış anahtar alır, URL almaz.** Anahtar deseni sıkıdır; tek geçersiz anahtar isteği reddeder. Okuma katmanı ayrıca filtre ifadesine girmeden önce anahtarları yeniden doğrular (PostgREST filtre enjeksiyonuna karşı).
 - **RLS + kolon bazlı yetki:** `anon`/`authenticated` yalnızca `status = 'resolved' AND review <> 'rejected'` satırları ve yalnızca arayüz kolonlarını okuyabilir. `last_error`, `attempts`, `content_sha256`, `rejected_files`, vade kolonları **özeldir**. Yazma yalnızca `service_role`.
 - **Service role anahtarı yalnızca sunucuda** (`getSupabaseAdmin()`). Cron route'u `isCronAuthorized` (fail-closed, sabit zamanlı karşılaştırma) ve tetik sınırı ile korunur.
