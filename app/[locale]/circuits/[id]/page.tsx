@@ -13,6 +13,8 @@ import { SeasonResultsPanel } from '@/components/circuit/SeasonResultsPanel';
 import { CircuitCharacter } from '@/components/circuit/CircuitCharacter';
 import { CircuitWeatherCard } from '@/components/circuit/CircuitWeatherCard';
 import { CircuitElevationProfile } from '@/components/circuit/CircuitElevationProfile';
+import { hasElevationProfile } from '@/data/circuits/topography';
+import { hasCircuitLore } from '@/data/circuits/lore';
 import { CircuitLoreCards } from '@/components/circuit/CircuitLoreCards';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
 import { MediaAssetView } from '@/components/media/MediaAssetView';
@@ -172,15 +174,21 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </div>
             </BentoCard>
 
-            {/* Elevation & Topography Profile */}
-            <BentoCard span={12}>
-              <CircuitElevationProfile
-                circuitId={id}
-                lengthKm={circuit.editorial.lapLengthKm ? parseFloat(circuit.editorial.lapLengthKm) : undefined}
-                drsZones={circuit.editorial.drsZones ? parseInt(circuit.editorial.drsZones, 10) : undefined}
-                corners={facts?.corners}
-              />
-            </BentoCard>
+            {/* Elevation & Topography Profile (curated circuits only) */}
+            {hasElevationProfile(id) ? (
+              <BentoCard span={12}>
+                <CircuitElevationProfile
+                  circuitId={id}
+                  lengthKm={
+                    circuit.editorial.lapLengthKm ? parseFloat(circuit.editorial.lapLengthKm) : facts?.lengthKm
+                  }
+                  drsZones={
+                    circuit.editorial.drsZones ? parseInt(circuit.editorial.drsZones, 10) : facts?.drsZones
+                  }
+                  corners={facts?.corners}
+                />
+              </BentoCard>
+            ) : null}
 
             {/* Authentic Aerial Venue Photograph (when available) */}
             {circuitMedia.status === 'image' ? (
@@ -211,10 +219,12 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </BentoCard>
             ) : null}
 
-            {/* Historical Lore Cards */}
-            <BentoCard span={12}>
-              <CircuitLoreCards circuitId={id} />
-            </BentoCard>
+            {/* Historical Lore Cards (circuits with recorded moments only) */}
+            {hasCircuitLore(id) ? (
+              <BentoCard span={12}>
+                <CircuitLoreCards circuitId={id} />
+              </BentoCard>
+            ) : null}
 
             {circuit.winners.length > 0 ? (
               <BentoCard span={12}>

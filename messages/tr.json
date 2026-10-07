@@ -397,7 +397,38 @@
       "weekend": "Hafta Sonu Programı",
       "lapRecordShort": "Tur rekoru",
       "noRaces": "Henüz tamamlanan yarış yok",
-      "roundLine": "{round}. Y · {name}"
+      "roundLine": "{round}. Y · {name}",
+      "elevation": {
+        "eyebrow": "Telemetri ve İrtifa",
+        "title": "Pist topoğrafyası ve mühendislik indeksi",
+        "lengthCorners": "{km} km · {corners} viraj",
+        "lengthOnly": "{km} km",
+        "cornersOnly": "{corners} viraj",
+        "drsZones": "{count} DRS bölgesi",
+        "elevationDelta": "İrtifa farkı",
+        "metres": "metre",
+        "range": "{low} m → {high} m",
+        "fullThrottle": "Tam gaz oranı",
+        "throttleValue": "%{value}",
+        "perLap": "tur boyu",
+        "gearShifts": "Vites değişimi",
+        "shiftsPerLap": "vites / tur",
+        "gearboxLoad": "Şanzıman yükü indeksi",
+        "braking": "Fren sertliği",
+        "severity": {
+          "HIGH": "Yüksek",
+          "MEDIUM": "Orta",
+          "LOW": "Düşük"
+        },
+        "brakingEnergy": "{kj} kJ fren enerjisi",
+        "signature": "İmza eğimi:",
+        "source": "Editoryal tahmin; resmî FIA verisi değildir"
+      },
+      "lore": {
+        "eyebrow": "Pist efsaneleri",
+        "title": "Pistin tarihini yazan anlar",
+        "count": "{count} ikonik anlatı"
+      }
     },
     "glossary": {
       "metaTitle": "Teknik Sözlük",

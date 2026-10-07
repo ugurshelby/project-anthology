@@ -124,6 +124,11 @@ export const CIRCUIT_LORE: Record<string, CircuitLoreMoment[]> = {
   ],
 };
 
+/** True when the circuit has lore moments; the page renders the lore card only then. */
+export function hasCircuitLore(circuitId: string): boolean {
+  return getCircuitLoreMoments(circuitId).length > 0;
+}
+
 export function getCircuitLoreMoments(circuitId: string): CircuitLoreMoment[] {
   const norm = circuitId.toLowerCase().replace(/-/g, '_');
   return (
