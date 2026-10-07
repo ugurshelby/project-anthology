@@ -366,22 +366,42 @@ export function getAllMachineryCars(): MachineryCar[] {
   return MACHINERY_CARS;
 }
 
-export function getMachineryCarsForDriver(driverId: string): MachineryCar[] {
-  const norm = driverId.toLowerCase().trim().replace(/-/g, '_');
+/** Accent-free, lower-case, underscore-separated id: "Sergio Pérez" / "sergio-perez" -> "sergio_perez". */
+function idSlug(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+/**
+ * Cars a driver raced in. Matching is EXACT (no substring): "bruno_senna" must never match
+ * Ayrton Senna's car. When the profile name is known it is authoritative; otherwise the id is
+ * compared with the listed id or the slug of the listed full name (F1DB ids are name slugs).
+ */
+export function getMachineryCarsForDriver(driverId: string, driverName?: string): MachineryCar[] {
+  const idNorm = idSlug(driverId);
+  const nameNorm = driverName ? idSlug(driverName) : null;
   return MACHINERY_CARS.filter((c) =>
     c.drivers.some((d) => {
-      const dNorm = d.id.toLowerCase().replace(/-/g, '_');
-      return dNorm === norm || norm.includes(dNorm) || dNorm.includes(norm);
+      const listedName = idSlug(d.name);
+      if (nameNorm) return nameNorm === listedName;
+      return idNorm === idSlug(d.id) || idNorm === listedName;
     }),
   );
 }
 
+/**
+ * Cars a team built. Exact match on the listed constructor id or the slug of its name
+ * ("Team Lotus" -> team_lotus), so the 2012 `lotus_f1` team does not pick up the 1970 Lotus 72.
+ */
 export function getMachineryCarsForTeam(constructorId: string): MachineryCar[] {
-  const norm = constructorId.toLowerCase().trim().replace(/-/g, '_');
-  return MACHINERY_CARS.filter((c) => {
-    const cNorm = c.constructorId.toLowerCase().replace(/-/g, '_');
-    return cNorm === norm || norm.includes(cNorm) || cNorm.includes(norm);
-  });
+  const norm = idSlug(constructorId);
+  return MACHINERY_CARS.filter(
+    (c) => norm === idSlug(c.constructorId) || norm === idSlug(c.constructorName),
+  );
 }
 
 export function getMachineryCarsForSeason(year: number): MachineryCar[] {
