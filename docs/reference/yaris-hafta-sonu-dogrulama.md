@@ -1,6 +1,6 @@
 # Yarış Hafta Sonu Canlı Doğrulama Rehberi
 
-Last verified: 2026-10-07
+Last verified: 2026-10-08
 
 Bu doküman, **gerçek bir yarış hafta sonunda** yapılabilecek canlı doğrulamaları (master-plan 1.1, 1.3, 1.4, 6.1, 6.2, 6.3 ve medya) tek yerde toplar. Sahip yarış zamanı yeni bir oturum açıp "**yarış hafta sonu doğrulamasını başlat — `docs/reference/yaris-hafta-sonu-dogrulama.md`**" dediğinde ajan bu dokümanı okur ve sırayla uygular. Sonuçlar `logs/YYYY-MM-DD.md` içine, geçen maddeler `docs/plans/master-plan.md` içine işlenir (ölçülmeden kutu işaretlenmez).
 
@@ -56,7 +56,7 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 | # | Koşul | Durum |
 |---|---|---|
 | 1 | Medya migration'ı (`20261006000001_media_assets.sql`) | **Uygulandı** (2026-10-06, MCP). Kod ve workflow canlıda (2026-10-06); tablo ilk `sync-media` koşusuna kadar boş. Yarış doğrulamasının zorunlu parçası değil. |
-| 2 | **Push tablolarında `service_role` yetkisi** (`20261006000002_push_service_role_grants.sql`) | **Uygulandı** (2026-10-06, MCP; `has_table_privilege` ile doğrulandı). Önceki ölçümde yetki yoktu. |
+| 2 | **Push tablolarında `service_role` yetkisi** (`20261006000002_push_service_role_grants.sql`) | **Uygulandı** (2026-10-06, MCP; `has_table_privilege` ile doğrulandı). 2026-10-08 yeniden ölçüldü: `service_role` iki tabloda SELECT/INSERT/UPDATE/DELETE true, `anon` SELECT ve `authenticated` INSERT false. |
 | 3 | Test aboneliği (push için) | `push_subscriptions` 0 satır; mobil uygulama yayında değil. Bölüm 3.C'deki yöntemle sahibin onayıyla bir test satırı eklenebilir. |
 | 4 | `MEDIA_CONTACT` Vercel Production | Eklendi (sahip, 2026-10-06). |
 | 5 | GitHub secret `CRON_SECRET_KEY` + var `SITE_URL` | Diğer workflow'larla ortak, kullanımda. |
@@ -111,12 +111,12 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 - **Ne:** `notify-sessions` doğru anda oturumu buluyor, `notified_sessions` dedupe satırı yazılıyor, abone varsa gönderim deneniyor.
 - **Ön koşul:** bölüm 2 madde 2 (grant migration'ı) **uygulandı**. 2026-10-06 ölçümü: `notified_sessions` 0 satır, `push_subscriptions` 0 satır (henüz abone/oturum yok); yetki düzeltmesi öncesinde rota hataları yutup 200 dönüyordu, bu yüzden hafta sonunda yetkinin hâlâ yerinde olduğunu da ilk iş olarak `has_table_privilege('service_role', ...)` ile teyit edin.
 - **Nasıl:**
-  1. Oturumdan ~30 dk önceki koşuyu bul: `gh run list --workflow=notify-sessions.yml --limit 12`, `gh run view <id> --log` → `sessionsChecked: 1` ve `notified: N` (abone yoksa 0).
+  1. Oturumdan ~30 dk önceki koşuyu bul: `gh run list --workflow=notify-sessions.yml --limit 12`, `gh run view <id> --log` → `sessionsChecked: 1`, `claimed: 1`, `deduped: 0`, `failed: []` ve `notified: N` (abone yoksa 0). Aynı pencerede ikinci bir koşu `claimed: 0, deduped: 1` döner.
   2. `select * from notified_sessions where season = 2026 and round = 17 order by notified_at;` → sprint, qualifying ve race için birer satır, `notified_at` ilgili oturumdan 25–35 dk önce.
   3. Aynı oturum için ikinci satır **olmamalı** (dedupe; her 10 dk'lık koşuda tekrar bildirilmemeli).
 - **Test aboneliği (sahip onayıyla):** gerçek abone yoksa, Expo biçiminde sahte bir token ile `/api/push/register` (POST) çağrısı yapılabilir; bu canlı DB'ye yazar, bu yüzden o anda sahibin açık onayı alınır ve iş bitince sahip SQL Editor'den satırı siler. Sahte token'a gönderim Expo tarafında `DeviceNotRegistered` ile düşer; amaç yalnızca "bildirim denendi + dedupe satırı yazıldı" kanıtıdır.
 - **Geçme ölçütü:** 2'de üç satır, 3'te tekrar yok, 1'de koşu log'unda hata yok.
-- **Bilinen zayıf nokta:** `notify-sessions` `notified_sessions` insert hatasını kontrol etmiyor (yetki hatası sessiz kalır); düzeltme önerisi master-plan 1.4'te.
+- **Düzeltildi (2026-10-08):** rota artık önce `notified_sessions` satırını yazıp ("claim") sonra gönderiyor. `23505` = daha önce gönderilmiş (`deduped`); başka bir yazma hatası gönderimi engeller ve koşu 500 döner (`failed` listesinde oturum), yani yetki hatası artık sessiz kalmaz ve her koşuda tekrar gönderim olmaz. Aboneler okunamazsa hiçbir oturum talep edilmez, sonraki koşu yeniden dener.
 
 ### D. JSON-LD ve SEO (master-plan 6.1)
 
