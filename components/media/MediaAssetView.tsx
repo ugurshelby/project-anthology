@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { MediaEntityType } from '@/lib/media/types';
 import type { MediaResult } from '@/lib/media/read';
 import { CircuitPlaceholder } from './placeholders/CircuitPlaceholder';
@@ -54,6 +55,8 @@ export function MediaAssetView({
   const [fetchedResult, setFetchedResult] = useState<MediaResult | null>(null);
   const [imageError, setImageError] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const t = useTranslations('ui.media');
+  const infoId = useId();
 
   const result = initialResult ?? fetchedResult;
 
@@ -155,7 +158,9 @@ export function MediaAssetView({
             type="button"
             onClick={() => setShowInfo(!showInfo)}
             title={attribution.text}
-            aria-label={`Image license: ${attribution.text}`}
+            aria-label={t('licenseAria', { text: attribution.text })}
+            aria-expanded={showInfo}
+            aria-controls={showInfo ? infoId : undefined}
             className="flex h-5 w-5 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm text-[10px] text-white/70 border border-white/10 transition-colors hover:bg-black/90 hover:text-white"
           >
             ⓘ
@@ -163,9 +168,12 @@ export function MediaAssetView({
 
           {/* Expanded or hover attribution popover */}
           {showInfo ? (
-            <div className="absolute bottom-6 right-0 w-64 rounded-lg border border-white/15 bg-black/90 p-2.5 text-[11px] text-text-mid shadow-2xl backdrop-blur-md">
+            <div
+              id={infoId}
+              className="absolute bottom-6 right-0 w-64 rounded-lg border border-white/15 bg-black/90 p-2.5 text-[11px] text-text-mid shadow-2xl backdrop-blur-md"
+            >
               <span className="block font-semibold text-text-hi mb-1">
-                {attribution.trademark ? 'Fair Use Mark' : 'Verified License'}
+                {attribution.trademark ? t('fairUseMark') : t('verifiedLicense')}
               </span>
               <p className="text-[10px] leading-tight text-white/80">
                 {attribution.text}
@@ -175,14 +183,15 @@ export function MediaAssetView({
                   href={attribution.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1.5 inline-block text-[10px] text-accent hover:underline"
+                  aria-label={t('sourceAria')}
+                  className="mt-1.5 inline-block text-[10px] text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
                 >
-                  Wikimedia Commons Source →
+                  {t('source')} →
                 </a>
               ) : null}
               {attribution.trademark ? (
                 <span className="mt-1 block text-[9px] text-text-low italic">
-                  Unofficial fan project. Trademarks belong to their respective owners.
+                  {t('trademarkNote')}
                 </span>
               ) : null}
             </div>

@@ -44,7 +44,9 @@
     "longRead": "Derin Okuma",
     "nextStory": "Antolojideki Sıradaki Hikâye",
     "teamRadio": "Takım Telsizi",
-    "noStories": "Henüz yayınlanmış bir hikâye bulunmuyor. Yakında tekrar kontrol edin."
+    "noStories": "Henüz yayınlanmış bir hikâye bulunmuyor. Yakında tekrar kontrol edin.",
+    "imageNotice": "Bu hikâyedeki fotoğraflar ticari olmayan, editoryal amaçla kullanılır. Tüm hakları sahiplerine aittir; kaynağı bilinen görselde kaynak belirtilir. Hak sahipleri <dmca>kaldırma süreci</dmca> üzerinden bir görselin kaldırılmasını isteyebilir.",
+    "imageSourceAria": "Bu görselin özgün kaynağı: {source} (yeni sekmede açılır)"
   },
   "glossary": {
     "title": "Teknik Sözlük",
@@ -494,6 +496,14 @@
       "archiveFooter": "APEX ARŞİVİ // TELEMETRİ",
       "systemChassis": "SİSTEM ŞASİ",
       "deepCut": "Derin Not"
+    },
+    "media": {
+      "licenseAria": "Görsel lisansı: {text}",
+      "verifiedLicense": "Doğrulanmış lisans",
+      "fairUseMark": "Adil kullanım işareti",
+      "source": "Wikimedia Commons kaynağı",
+      "sourceAria": "Özgün dosyayı Wikimedia Commons'ta aç (yeni sekmede açılır)",
+      "trademarkNote": "Resmî olmayan hayran projesi. Ticari markalar sahiplerine aittir."
     }
   },
   "legal": {
@@ -553,7 +563,7 @@
       "eyebrow": "Yasal / 05",
       "title": "Görsel kaynakları, lisanslar ve telif politikası.",
       "intro": "Apex'te sunulan tüm görseller sıkı bir lisans kapısından geçer. Sitemiz üçüncü taraf sitelere anlık çağrı yapmaz; yalnızca doğrulanmış açık lisansa (CC BY, CC BY-SA, Kamu Malı) sahip varlıklar kendi depolama alanımızda saklanır ve atıfları eksiksiz gösterilir.",
-      "updated": "06 Ekim 2026",
+      "updated": "08 Ekim 2026",
       "s1Title": "Açık Lisanslar ve Atıf Standardı",
       "s1p1": "Sistemimiz yalnızca Wikimedia Commons üzerinde açıkça belgelenmiş Creative Commons (CC BY, CC BY-SA) ve Kamu Malı (Public Domain, CC0) lisansına sahip görselleri kabul eder. Tüm telifli basın ajansı, FOM/Formula 1 resmi portalları veya takım basın bültenleri kesin olarak engellenir.",
       "s1p2": "Her görselin altında veya detay penceresinde yazar adı, kaynak Wikimedia Commons sayfası ve lisans türü açıkça belirtilir. Yeniden boyutlandırılmış türev WebP kopyaları orijinal lisans şartlarına (CC BY-SA Paylaşımcı lisansı dahil) tam uyumla sunulur.",
@@ -562,7 +572,12 @@
       "s3Title": "Prosedürel Vektör Çizimleri (Parametrik SVG)",
       "s3p1": "Fotoğrafı veya açık lisansı bulunmayan pilotlar, araçlar ve takımlar için Apex tasarım diliyle hazırlanan özgün, hafif parametrik SVG rozetleri ve CAD siluetleri kullanılır. Pist harita konturları MIT lisanslı açık kaynak geometri verisinden üretilir.",
       "s4Title": "Telif ve İçerik Kaldırma (Takedown)",
-      "s4p1": "Bir görselin telif haklarınızı ihlal ettiğini veya yanlış lisanslandığını düşünüyorsanız, lütfen DMCA sayfamızdaki adımları takip ederek <mail>contact@apexstats.example</mail> adresine bildirin. Bildirilen görsel gecikmeksizin yayından kaldırılır ve tekrar seçilmemek üzere kilitlenir."
+      "s4p1": "Bir görselin telif haklarınızı ihlal ettiğini veya yanlış lisanslandığını düşünüyorsanız, lütfen DMCA sayfamızdaki adımları takip ederek <mail>contact@apexstats.example</mail> adresine bildirin. Bildirilen görsel gecikmeksizin yayından kaldırılır ve tekrar seçilmemek üzere kilitlenir.",
+      "storiesTitle": "Hikâye fotoğrafları",
+      "storiesP1": "Antoloji hikâyelerinde gerçek fotoğraflar ticari olmayan, editoryal amaçla kullanılır. Bu görseller yukarıdaki açık lisans hattının dışındadır; tüm hakları sahiplerine aittir. Özgün kaynağı bilinen görselin altında kaynak yazılır ve görsel o kaynağa bağlanır. Hak sahipleri aşağıdaki süreçle bir görselin kaldırılmasını isteyebilir.",
+      "storiesCount": "{total} hikâye görselinden {sourced} tanesinin kaynağı kayıtlı.",
+      "storiesEmpty": "Henüz kaynağı kayıtlı hikâye görseli yok; kaynaklar doğrulandıkça bu liste dolacak.",
+      "storiesListLabel": "Kaynağı kayıtlı hikâye görselleri"
     }
   }
 }

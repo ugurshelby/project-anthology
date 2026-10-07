@@ -107,3 +107,40 @@ export function getStoryImageCredit(src: string): StoryImageCredit | null {
 export function isSourcedStoryImage(credit: StoryImageCredit | null): credit is SourcedStoryImage {
   return credit?.status === 'sourced';
 }
+
+/** Story slug of an image path ('/stories/<slug>/<layout>/NN.png'); null for any other path. */
+export function storyImageSlug(src: string): string | null {
+  const m = /^\/stories\/([^/]+)\//.exec(src);
+  return m ? m[1] : null;
+}
+
+/** One-line credit for a sourced image: '<author> / <sourceName> · <license>', skipping missing parts. */
+export function formatStoryImageCredit(credit: SourcedStoryImage): string {
+  const who = credit.author ? `${credit.author} / ${credit.sourceName}` : credit.sourceName;
+  return credit.license ? `${who} · ${credit.license}` : who;
+}
+
+/** Counts for the public /media-sources page (unverified entries are the owner's internal list and stay private). */
+export function storyImageCreditSummary(credits: Record<string, StoryImageCredit> = STORY_IMAGE_CREDITS): {
+  total: number;
+  sourced: number;
+  bySlug: Array<{ slug: string; images: Array<{ src: string; credit: SourcedStoryImage }> }>;
+} {
+  const entries = Object.entries(credits);
+  const bySlug = new Map<string, Array<{ src: string; credit: SourcedStoryImage }>>();
+  for (const [src, credit] of entries) {
+    if (!isSourcedStoryImage(credit)) continue;
+    const slug = storyImageSlug(src);
+    if (!slug) continue;
+    const list = bySlug.get(slug) ?? [];
+    list.push({ src, credit });
+    bySlug.set(slug, list);
+  }
+  return {
+    total: entries.length,
+    sourced: entries.filter(([, c]) => isSourcedStoryImage(c)).length,
+    bySlug: [...bySlug.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([slug, images]) => ({ slug, images: images.sort((x, y) => x.src.localeCompare(y.src)) })),
+  };
+}

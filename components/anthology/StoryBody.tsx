@@ -2,6 +2,7 @@ import { ApexImage } from '@/components/media/ApexImage';
 import type { StoryBlock } from '@/data/stories/types';
 import { Reveal } from './Reveal';
 import { GlossaryLinkedText } from '@/components/glossary/GlossaryLinkedText';
+import { StoryImageSourceLine, StoryImageSourceLink } from './StoryImageSource';
 
 /**
  * Editorial story body — reading column (~max-w-3xl), framed image cards,
@@ -52,24 +53,27 @@ export function StoryBody({ blocks }: { blocks: StoryBlock[] }) {
             return (
               <Reveal key={i}>
                 <figure className="flex flex-col gap-2">
-                  <div
-                    className={[
-                      frame,
-                      'relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline',
-                    ].join(' ')}
-                  >
-                    <ApexImage
-                      src={block.src ?? '/placeholder.svg'}
-                      alt={block.caption ?? ''}
-                      fill
-                      kind="media"
-                      sizes="(max-width: 768px) 100vw, 768px"
-                      className="object-cover"
-                    />
-                  </div>
+                  <StoryImageSourceLink src={block.src}>
+                    <div
+                      className={[
+                        frame,
+                        'relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline',
+                      ].join(' ')}
+                    >
+                      <ApexImage
+                        src={block.src ?? '/placeholder.svg'}
+                        alt={block.caption ?? ''}
+                        fill
+                        kind="media"
+                        sizes="(max-width: 768px) 100vw, 768px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </StoryImageSourceLink>
                   {block.caption ? (
                     <figcaption className="label-caps text-text-mid">{block.caption}</figcaption>
                   ) : null}
+                  <StoryImageSourceLine src={block.src} />
                 </figure>
               </Reveal>
             );
