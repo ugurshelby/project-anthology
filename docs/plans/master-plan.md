@@ -44,7 +44,8 @@
 - **Antigravity:** yalnızca arayüz, tasarım ve arayüz metinleri (`components/`, `app/[locale]/**` içindeki görsel kısımlar, `messages/*.json`, `public/` tasarım varlıkları). **Commit ve push yetkisi yoktur** (`AGENTS.md`). İşini bitirince günün log'una yazar, dokunduğu plan maddesini `[~]` bırakır (asla `[x]` yapmaz), Claude doğrular ve commit eder.
 - **Antigravity'nin dokunmadığı yerler:** `lib/`, `app/api/`, `supabase/`, `scripts/`, `data/media/`, `data/stories/image-credits.ts` (sahip doldurur), `.github/`, `vercel.json`, `AGENTS.md`, `mobile/`. Bir arayüz işi için bunlardan birinde değişiklik gerekirse plana not düşer, Claude yapar.
 - **Aynı çalışma ağacı:** iki ajan paralel çalışırken yalnızca kendi dosyalarını düzenler; başka birinin değişikliğini geri almaz, stash'lemez.
-- **Hatırlatma listesi (sahibin isteği):** site denetimi başlarken → 8.3 (medya kalite incelemesi) + 7.1 kaynak listesi + 7.2 editoryal inceleme; denetim düzeltmeleri bittikten sonra → 8.6 (1950–2017 genişletmesi); yarış hafta sonu → `docs/reference/yaris-hafta-sonu-dogrulama.md`.
+- **Oturum devri ("nerede kalmıştık"):** güncel durum, bekleyen eylemler ve push durumu `logs/2026-10-07.md` sonundaki "Devir notu" bölümünde.
+- **Hatırlatma listesi (sahibin isteği):** site denetimi başlarken → 8.3 (medya kalite incelemesi) + 7.1 kaynak listesi + 7.2 editoryal inceleme; denetim düzeltmeleri bittikten sonra → 8.6 (1950–2017 genişletmesi); yarış hafta sonu → `docs/reference/yaris-hafta-sonu-dogrulama.md`; web/arayüz/mimari oturunca (mobil ile birlikte) veya bir cron rotası 300 sn sınırına dayanınca → 9.1 (Vercel + GCP hibrit).
 
 ### 🎨 Antigravity İş Listesi (frontend) — bu sırayla
 
@@ -136,6 +137,21 @@
 - [ ] **8.7 Küçük Sertleştirmeler (Claude, isteğe bağlı, düşük risk):**
   - `/api/media` istemci IP'si belirsizken hız sınırını atlıyor; `downloadImage` host allow-list'ini yalnızca ilk URL'de uyguluyor (yönlendirmeler izlenir) ve gövde boyutunu `Content-Length` yoksa indirdikten sonra denetliyor; `notify-sessions` `notified_sessions` insert hatasını kontrol etmiyor.
   - Atıf rozeti `aria-label` yerelleştirmesi → **AG-2** (Antigravity).
+
+---
+
+---
+
+### ☁️ Faz 9: Hibrit Mimari — Vercel (arayüz) + GCP (ağır işler) — ileride
+*Sahibin fikri (2026-10-07). Şimdi yapılmaz; aşağıdaki tetikleyicilerden biri doğunca veya sahip "nerede kalmıştık" dediğinde hatırlatılır.*
+
+- [ ] **9.1 Vercel + GCP hibrit mimari (Sahip kararı gerekir; hesap/faturalama sahipte):**
+  - **Fikir:** Next.js arayüzü, routing ve edge Vercel'de kalır; uzun süren, ağır veya yüksek CPU/RAM isteyen işler GCP'de çalışır. Tercih sırası: **Cloud Run** (istek geldikçe ayağa kalkar, boşta ücret yok), yalnızca sürekli açık süreç gerekiyorsa Compute Engine VM (boşta da fatura işler; iş bitince Stop). Kuyruk gerekirse Cloud Tasks/Pub/Sub; Redis tabanlı kuyruk (BullMQ/Celery) yalnızca gerçekten gerekiyorsa.
+  - **Bugünkü durum (ölçülmüş): ihtiyaç yok.** En uzun iş `sync-media` 215 sn iş bütçesiyle Vercel'in 300 sn `maxDuration` sınırının içinde; zamanlama sorunu QStash ile çözülüyor (1.6). Ek bir sistem ek hata yüzeyi, ek maliyet ve bakım demektir.
+  - **Aday işler:** `sync-media` (sharp, indirme/yükleme; `MediaRepo` soyutlaması taşımayı kolaylaştırır), `sync-news` (AI yeniden yazma, 300 sn), 8.6 eski sezon genişletmesi (binlerce varlık), `seed:f1db` tohumlama, ileride ağır analiz/simülasyon, Lighthouse/CWV otomasyonu. Ayrıca sahibin "GCP'yi öğrenme laboratuvarı" olarak bu repodan bağımsız küçük bir servis kurması da seçenek.
+  - **Hatırlatma tetikleyicileri (biri yeter):** bir cron rotası `time budget` ile sık duruyor veya 300 sn'ye yaklaşıyor; 8.6 başlıyor; Vercel limit/fatura sorunu; web + arayüz + mimari oturup mobil (7.3) gündeme geliyor; sahip öğrenmek istediğini söylüyor.
+  - **Tasarım notları (karar verilmedi, araştırma gerekir):** bölge Supabase bölgesine yakın seçilmeli (önce Supabase bölgesi kontrol edilecek; Avrupa için `europe-west1/west3`); sunucudan sunucuya çağrıda CORS gerekmez, yalnızca tarayıcıdan çağrılacaksa gerekir — AGENTS.md kuralı korunur: cron ve upstream API'ler tarayıcıdan çağrılmaz; kimlik: mevcut `CRON_SECRET` Bearer + istenirse Cloud Run IAM/OIDC; gizli anahtarlar GCP Secret Manager'da, repoda asla; QStash zamanlaması hedefi GCP URL'sine çevrilebilir (`lib/cron/qstashSchedules.ts` bugün yalnızca site yolunu destekliyor, tam URL desteği eklenmeli); bütçe alarmı ve ücretsiz kota/kredi önceden kontrol edilecek; Vercel ile GCP arasındaki gecikme ölçülecek.
+  - Ajan GCP hesabı açamaz, faturalama ayarlayamaz; sahibin projeyi ve servis hesabını oluşturması gerekir.
 
 ---
 
