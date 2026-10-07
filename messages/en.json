@@ -325,7 +325,13 @@
       "roundShort": "R{round}",
       "prev": "Previous season",
       "pick": "Select season year",
-      "nextSeason": "Next season"
+      "nextSeason": "Next season",
+      "progression": {
+        "eyebrow": "Championship trajectory · {season}",
+        "title": "Points progression and lead swings",
+        "aria": "{season} season: cumulative points of the top contenders by round",
+        "footer": "Cumulative points, top 5 contenders"
+      }
     },
     "table": {
       "lap": "Lap",
@@ -428,7 +434,9 @@
         "eyebrow": "Circuit lore",
         "title": "Moments that defined history",
         "count": "{count, plural, one {# iconic moment} other {# iconic moments}}"
-      }
+      },
+      "blueprint": "Track blueprint",
+      "circuitIdLabel": "Circuit ID: {id}"
     },
     "glossary": {
       "metaTitle": "Tech Glossary",

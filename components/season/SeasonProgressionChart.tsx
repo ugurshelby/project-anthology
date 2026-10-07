@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import type { DriverCumulativePoints } from '@/lib/f1/mrdata';
 
@@ -15,6 +16,7 @@ interface SeasonProgressionChartProps {
  */
 export function SeasonProgressionChart({ series, season }: SeasonProgressionChartProps) {
   const [hoveredDriver, setHoveredDriver] = useState<string | null>(null);
+  const t = useTranslations('ui.season.progression');
   const [activeRound, setActiveRound] = useState<number | null>(null);
   const chartId = useId();
 
@@ -87,11 +89,11 @@ export function SeasonProgressionChart({ series, season }: SeasonProgressionChar
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             <span className="label-caps text-accent tracking-widest text-[11px]">
-              CHAMPIONSHIP TRAJECTORY · {season}
+              {t('eyebrow', { season })}
             </span>
           </div>
           <h3 className="font-condensed text-xl font-700 uppercase tracking-tight text-text-hi md:text-2xl">
-            Puan İlerleme Eğrisi & Liderlik Salınımı
+            {t('title')}
           </h3>
         </div>
 
@@ -136,7 +138,7 @@ export function SeasonProgressionChart({ series, season }: SeasonProgressionChar
           viewBox={`0 0 ${width} ${height}`}
           className="h-auto w-full min-w-[580px] overflow-visible select-none"
           role="img"
-          aria-label={`Season ${season} Driver Points Progression Chart`}
+          aria-label={t('aria', { season })}
         >
           <defs>
             {series.map((s) => {
@@ -284,8 +286,7 @@ export function SeasonProgressionChart({ series, season }: SeasonProgressionChar
 
       {/* Footer Info */}
       <div className="mt-2 flex items-center justify-between border-t border-hairline pt-3 text-[11px] text-text-low font-mono">
-        <span>FIA Points Trajectory (Top 5 Contenders)</span>
-        <span>Standard Point Matrix (25-18-15...)</span>
+        <span>{t('footer')}</span>
       </div>
     </div>
   );
