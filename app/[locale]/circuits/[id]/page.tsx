@@ -133,18 +133,18 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                   <span className="uppercase tracking-widest text-text-hi text-[11px] font-bold">
-                    {circuit.circuitName} {'//'} TRACK BLUEPRINT
+                    {circuit.circuitName} {'//'} {t('blueprint')}
                   </span>
                 </div>
                 <div className="hidden sm:flex items-center gap-3">
                   {circuit.editorial.lapLengthKm ? (
                     <span className="rounded bg-white/[0.04] px-2 py-0.5 border border-white/5">
-                      {circuit.editorial.lapLengthKm} KM
+                      {t('km', { value: circuit.editorial.lapLengthKm })}
                     </span>
                   ) : null}
                   {circuit.editorial.drsZones ? (
                     <span className="rounded bg-white/[0.04] px-2 py-0.5 border border-white/5 text-accent">
-                      {circuit.editorial.drsZones} DRS ZONES
+                      {t('elevation.drsZones', { count: Number(circuit.editorial.drsZones) })}
                     </span>
                   ) : null}
                 </div>
@@ -169,7 +169,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
               {/* Bottom Telemetry Bar */}
               <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-2 text-[11px] font-mono text-text-mid">
-                <span>CIRCUIT ID: {circuit.circuitId.toUpperCase()}</span>
+                <span>{t('circuitIdLabel', { id: circuit.circuitId.toUpperCase() })}</span>
                 <span>{circuit.locality}, {countryName(circuit.country, locale)}</span>
               </div>
             </BentoCard>

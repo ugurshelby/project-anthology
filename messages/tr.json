@@ -325,7 +325,13 @@
       "roundShort": "{round}. Y",
       "prev": "Önceki sezon",
       "pick": "Sezon yılını seç",
-      "nextSeason": "Sonraki sezon"
+      "nextSeason": "Sonraki sezon",
+      "progression": {
+        "eyebrow": "Şampiyona gidişatı · {season}",
+        "title": "Puan ilerleme eğrisi ve liderlik salınımı",
+        "aria": "{season} sezonu: önde gelen pilotların tur tur toplam puanları",
+        "footer": "Toplam puan, ilk 5 aday"
+      }
     },
     "table": {
       "lap": "Tur",
@@ -428,7 +434,9 @@
         "eyebrow": "Pist efsaneleri",
         "title": "Pistin tarihini yazan anlar",
         "count": "{count} ikonik anlatı"
-      }
+      },
+      "blueprint": "Pist planı",
+      "circuitIdLabel": "Pist kimliği: {id}"
     },
     "glossary": {
       "metaTitle": "Teknik Sözlük",
