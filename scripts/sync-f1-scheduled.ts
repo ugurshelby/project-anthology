@@ -3,7 +3,7 @@
  *
  * Hourly workflow runs this script. It fetches the current-season calendar from
  * Jolpica, computes sync windows, and if any window fell due in the last
- * lookback period, calls production /api/cron/sync-f1?scope=live.
+ * lookback period (12 h, see LOOKBACK_MS), calls production /api/cron/sync-f1?scope=live.
  *
  * Env:
  *   CRON_SECRET_KEY  — Bearer token (required)
@@ -25,7 +25,13 @@ try {
 }
 
 const JOLPICA_CALENDAR = `https://api.jolpi.ca/ergast/f1/${CURRENT_SEASON}.json`;
-const LOOKBACK_MS = 65 * 60 * 1000;
+/**
+ * How far back a due window may lie and still trigger a sync. The workflow is "hourly" on paper,
+ * but GitHub fires scheduled runs best-effort: measured 2026-10-07, ~5 runs/day with gaps up to
+ * ~9.4 h (median 5 h). A 65-minute lookback therefore missed most windows. The sync endpoint is
+ * idempotent and skips settled snapshots, so re-triggering within 12 h of a window is cheap.
+ */
+const LOOKBACK_MS = 12 * 60 * 60 * 1000;
 
 async function fetchCalendarRaces(): Promise<CalendarRace[]> {
   const res = await fetch(JOLPICA_CALENDAR, {
