@@ -13,6 +13,10 @@ const SPAN: Record<Span, string> = {
 /**
  * Generic loading skeleton for force-dynamic bento pages — shown by Next.js
  * while the route's async data (Supabase/Jolpica fetches) resolves.
+ *
+ * At least one viewport tall: a shorter skeleton lets the footer appear on
+ * screen and then jump down when the content streams in (Lighthouse measured
+ * CLS 0.115 on /circuits/spa, all of it the footer).
  */
 export function BentoSkeleton({
   heroSpan = 12,
@@ -25,7 +29,7 @@ export function BentoSkeleton({
 }) {
   const t = useTranslations('system');
   return (
-    <PageShell>
+    <PageShell className="min-h-[100svh]">
       <span className="sr-only" role="status">
         {t('loading')}
       </span>
