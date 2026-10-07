@@ -22,11 +22,13 @@ Design authority is `docs/design/apex-design.md` (master design system architect
 - Do not decide owner questions (analytics consent, legal mailbox addresses, `public/stories` licensing, the `mobile/` app, Node version, branch retirement, state of Vercel/Upstash/Sentry/GitHub variables). List them in the report.
 - Start every task with `git status`. If the tree is dirty with work that is not yours, stop and report; do not stash, discard or commit it.
 - Do not skip hooks, do not change git config.
+- Two agents share one working tree: Claude Code (backend, data, API, database, review) and Antigravity (frontend, design, UI copy). Only Claude Code commits and pushes. Antigravity never runs `git commit`, `git push`, `git stash`, `git reset` or `git checkout -- <path>`; when its work is done it writes what it did and what it measured into the day's log, marks the plan items it worked on `[~]` with what is still open (it never marks one done), and says so in its final report. Claude Code verifies the work, ticks or reopens the plan items, commits with pathspec-scoped adds, and pushes only after the owner approves.
 
 ## Forbidden
 
 - Hardcoded season, driver or team lists. Time and season come from `lib/f1Calendar.ts`; data comes from the snapshot layer.
 - Official F1, team or sponsor logos, and photographs without a license record (source, author, license, date) in the same change.
+- AI-generated images, SVGs or drawn illustrations under `public/stories` (owner rule, 2026-10-07): story images are real photographs, each with a record in `data/stories/image-credits.ts` (`tests/story-images.test.ts` enforces it). Story pages say the images are used editorially, not commercially, name the source where it is recorded and link the image to its original page; an image whose source is unknown stays on the owner's list (`docs/reference/hikaye-gorselleri-kaynak-listesi.md`).
 - A second site-origin constant. The only origin is `getSiteUrl()` in `lib/data/siteUrl.ts` (fallback must be a live host).
 - A cron handler without `isCronAuthorized` (fail closed). Cron and upstream APIs are never called from the browser.
 - Committing `.env*` (except `.env.example`).
