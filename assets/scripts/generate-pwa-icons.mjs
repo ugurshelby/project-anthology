@@ -3,7 +3,7 @@
  * Outputs the sizes the manifest + apple-touch-icon reference. Run with:
  *   node assets/scripts/generate-pwa-icons.mjs
  */
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';

@@ -9,7 +9,6 @@ const DRIVERS_ROOT = join(ROOT, "public", "drivers");
 const TEAMS_ROOT = join(ROOT, "public", "teams");
 
 const SEASON_START = 2000;
-const SEASON_END = 2026;
 
 const MANUAL_2026 = {
   constructors: [
