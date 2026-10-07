@@ -77,10 +77,10 @@ Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
 
 | Rota | Amaç |
 |---|---|
-| `/api/cron/sync-news` | RSS → kümeleme → `news_stories` (+ `news_cache`). Vercel günlük 06:00 UTC + GitHub Actions `sync-news.yml` saatlik (:07) |
-| `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (Vercel 07:00 UTC); `scope=live` GitHub Actions `sync-f1-race-aware.yml` saatlik due-check. İdempotent: due penceresinden ≥ 24 sa sonra çekilmiş Jolpica satırı final sayılır, tekrar çekilmez; `?force=1` zorlar. Okuma yolu stale-while-revalidate: bayat (≤ 3 gün) satır anında sunulur, `after()` ile arkada yenilenir (puan durumu hariç, onu cron yeniler) |
+| `/api/cron/sync-news` | RSS → kümeleme → `news_stories` (+ `news_cache`). Vercel günlük 06:00 UTC + QStash saatlik (`apex-sync-news`, :11; yedek: GitHub `sync-news.yml`) |
+| `/api/cron/sync-f1?scope=season` | Jolpica → f1_snapshots (Vercel 07:00 UTC); QStash `apex-sync-f1` her 30 dk, kapsam otomatik (yarış hafta sonunda `live`); yedek: GitHub `sync-f1-race-aware.yml` due-check (12 sa geriye bakar). İdempotent: due penceresinden ≥ 24 sa sonra çekilmiş Jolpica satırı final sayılır, tekrar çekilmez; `?force=1` zorlar. Okuma yolu stale-while-revalidate: bayat (≤ 3 gün) satır anında sunulur, `after()` ile arkada yenilenir (puan durumu hariç, onu cron yeniler) |
 | `/api/cron/sync-radio` | OpenF1 → radio_moments (08:00 UTC) |
-| `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (GitHub Actions `notify-sessions.yml`, 10dk) |
+| `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (QStash `apex-notify-sessions`, her 5 dk; yedek: GitHub `notify-sessions.yml`) |
 | `/api/push/register` | Expo push token kayıt (rate-limit 10/dk) |
 | `/api/f1-season` | Canlı Jolpica proxy |
 | `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. |
@@ -90,10 +90,7 @@ Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
 
 Cron auth: `Authorization: Bearer <secret>`; `lib/cronAuth.ts` `isCronAuthorized` hem `CRON_SECRET` (Vercel enjekte eder) hem `CRON_SECRET_KEY` (eski ad) kabul eder, timing-safe, ikisi de yoksa reddeder. Dört cron route'unun hepsi çağırır.
 
-**GitHub Actions (5-10dk granülerlik gereken işler, Vercel Hobby günde-1-cron sınırını aşar):**
-`sync-f1-race-aware.yml` (saatlik, due-window tetikleme) ve `notify-sessions.yml` (10dk, doğrudan çağrı) —
-ikisi de aynı repo secret/var'ı kullanır (`CRON_SECRET_KEY`, `SITE_URL`). Ayrı bir hesap/servis (Railway
-vb.) gerekmiyor.
+**Zamanlayıcı (Vercel Hobby günde-1-cron sınırını aşan işler): Upstash QStash.** `lib/cron/qstashSchedules.ts` dört zamanlamayı tanımlar (`notify-sessions` */5, `sync-f1` */30, `sync-news` ve `sync-media` saatlik; günde 384 mesaj, ücretsiz kota 1.000), `npm run qstash:sync` bunları kurar/günceller; QStash `Authorization: Bearer <CRON_SECRET>` başlığını rotalara iletir. GitHub Actions `schedule` tetikleri best-effort olduğu için (ölçülen: ~5 koşu/gün) yalnızca yedektir; QStash doğrulanınca kaldırılacak (master-plan 1.6). Workflow'lar aynı repo secret/var'ı kullanır (`CRON_SECRET_KEY`, `SITE_URL`).
 
 ---
 
