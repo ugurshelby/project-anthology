@@ -41,6 +41,8 @@ export const metadata: Metadata = {
   description: SITE_TAGLINE,
   keywords: ['Formula 1 statistics', 'F1 telemetry', 'F1 archive', 'Grand Prix results'],
   applicationName: SITE_NAME,
+  // Search Console ownership token (the `content` of the HTML-tag method). Set in Vercel; nothing to commit.
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   appleWebApp: {
     capable: true,
     title: SITE_NAME,
