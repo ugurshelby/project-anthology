@@ -1,5 +1,6 @@
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import { MediaAssetView } from '@/components/media/MediaAssetView';
+import { MediaCredit } from '@/components/media/MediaCredit';
 import type { MediaResult } from '@/lib/media/read';
 
 /**
@@ -74,20 +75,7 @@ export function TeamSeasonHero({
             </p>
           ) : null}
           {mediaResult?.status === 'image' && mediaResult.attribution?.text ? (
-            <div className="mt-3 flex items-center gap-1.5 text-[10px] text-text-low">
-              <span>{mediaResult.attribution.trademark ? 'Marka:' : 'Görsel:'}</span>
-              <span className="max-w-[260px] truncate text-text-mid">{mediaResult.attribution.text}</span>
-              {mediaResult.attribution.sourceUrl ? (
-                <a
-                  href={mediaResult.attribution.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-0.5 text-accent hover:underline"
-                >
-                  ↗
-                </a>
-              ) : null}
-            </div>
+            <MediaCredit attribution={mediaResult.attribution} className="mt-3 max-w-[300px]" />
           ) : null}
         </div>
 

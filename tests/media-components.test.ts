@@ -214,3 +214,49 @@ describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () =>
     });
   });
 });
+
+describe('MediaCredit and responsive variants', () => {
+  const attribution = {
+    text: 'Dietmar Rabich / Wikimedia Commons, CC BY-SA 4.0',
+    author: 'Dietmar Rabich',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: null,
+    sourceUrl: 'https://commons.wikimedia.org/wiki/File:Example.jpg',
+    trademark: false,
+  };
+
+  it('shows a localized label, the credit text and a labelled source link', async () => {
+    const { MediaCredit } = await import('@/components/media/MediaCredit');
+    const enHtml = renderIntl(React.createElement(MediaCredit, { attribution }));
+    expect(enHtml).toContain('Photo:');
+    expect(enHtml).toContain('Dietmar Rabich / Wikimedia Commons, CC BY-SA 4.0');
+    expect(enHtml).toContain('href="https://commons.wikimedia.org/wiki/File:Example.jpg"');
+    expect(enHtml).toContain('aria-label="Open the original file on Wikimedia Commons (opens in a new tab)"');
+    const trHtml = renderIntl(React.createElement(MediaCredit, { attribution: { ...attribution, trademark: true } }), 'tr');
+    expect(trHtml).toContain('Marka:');
+    expect(renderIntl(React.createElement(MediaCredit, { attribution: null }))).toBe('');
+  });
+
+  it('lets the browser pick the smallest fitting WebP variant', async () => {
+    const { ApexImage } = await import('@/components/media/ApexImage');
+    const base = 'https://example.supabase.co/storage/v1/object/public/media/circuit/x/abc';
+    const html = renderToStaticMarkup(
+      React.createElement(ApexImage, {
+        src: `${base}/1600.webp`,
+        alt: '',
+        fill: true,
+        sizes: '100vw',
+        variants: [
+          { w: 480, src: `${base}/480.webp` },
+          { w: 960, src: `${base}/960.webp` },
+          { w: 1600, src: `${base}/1600.webp` },
+        ],
+      }),
+    );
+    const srcset = /srcSet="([^"]+)"|srcset="([^"]+)"/.exec(html);
+    const value = srcset?.[1] ?? srcset?.[2] ?? '';
+    expect(value).toContain(`${base}/960.webp 640w`);
+    expect(value).toContain(`${base}/960.webp 828w`);
+    expect(value).toContain(`${base}/1600.webp 1080w`);
+  });
+});

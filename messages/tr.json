@@ -534,7 +534,9 @@
       "fairUseMark": "Adil kullanım işareti",
       "source": "Wikimedia Commons kaynağı",
       "sourceAria": "Özgün dosyayı Wikimedia Commons'ta aç (yeni sekmede açılır)",
-      "trademarkNote": "Resmî olmayan hayran projesi. Ticari markalar sahiplerine aittir."
+      "trademarkNote": "Resmî olmayan hayran projesi. Ticari markalar sahiplerine aittir.",
+      "photoLabel": "Foto:",
+      "markLabel": "Marka:"
     }
   },
   "legal": {

@@ -1,5 +1,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
+import { MediaCredit } from '@/components/media/MediaCredit';
+import type { MediaAttribution } from '@/lib/media/read';
 import { weatherSummary } from '@/lib/i18n/labels';
 import { Link } from '@/i18n/routing';
 import type { WeekendSessionChip } from '@/lib/f1Calendar';
@@ -14,6 +16,8 @@ export function WeekendHero({
   subtitle,
   countdownTargetMs,
   circuitCoverSrc,
+  circuitCoverVariants,
+  circuitCoverCredit,
   sessions,
   circuitTimeZone,
   lastWinnerName,
@@ -26,6 +30,10 @@ export function WeekendHero({
   subtitle?: string;
   countdownTargetMs: number | null;
   circuitCoverSrc: string | null;
+  /** WebP variants of the cover (media system) so phones get a smaller file. */
+  circuitCoverVariants?: ReadonlyArray<{ w: number; src: string }>;
+  /** Credit for a license-checked cover photo; CC BY / BY-SA require it on screen. */
+  circuitCoverCredit?: MediaAttribution | null;
   sessions: WeekendSessionChip[];
   /** Circuit's IANA timezone (data/circuits/facts.ts) — shown as secondary reference next to each session's visitor-local time. */
   circuitTimeZone?: string | null;
@@ -52,6 +60,7 @@ export function WeekendHero({
           priority
           kind="circuit"
           sizes="100vw"
+          variants={circuitCoverVariants}
           className="pointer-events-none object-cover object-center"
         />
       ) : (
@@ -125,6 +134,13 @@ export function WeekendHero({
           ) : null}
         </div>
       </div>
+
+      {circuitCoverSrc && circuitCoverCredit ? (
+        <MediaCredit
+          attribution={circuitCoverCredit}
+          className="absolute bottom-1.5 right-5 z-20 max-w-[calc(100%-2.5rem)] md:right-8 lg:right-16"
+        />
+      ) : null}
     </section>
   );
 }

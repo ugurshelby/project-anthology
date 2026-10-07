@@ -107,7 +107,8 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const nextRaceDate = nextRace?.date ? formatDate(`${nextRace.date}T12:00:00Z`, locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
-  const circuitCover = (circuitMedia && circuitMedia.status === 'image' ? circuitMedia.image.src : null) ?? circuitCoverSrc(nextRace?.Circuit?.circuitId);
+  const coverImage = circuitMedia && circuitMedia.status === 'image' ? circuitMedia : null;
+  const circuitCover = coverImage?.image.src ?? circuitCoverSrc(nextRace?.Circuit?.circuitId);
   const nextRaceFacts = getCircuitFacts(nextRace?.Circuit?.circuitId);
 
   const eyebrow = nextRace?.round
@@ -139,6 +140,8 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
         subtitle={subtitle || undefined}
         countdownTargetMs={nextRaceStart}
         circuitCoverSrc={circuitCover}
+        circuitCoverVariants={coverImage?.image.variants}
+        circuitCoverCredit={coverImage?.attribution}
         sessions={weekendSessionChips(nextRace, locale)}
         circuitTimeZone={nextRaceLocation?.timeZone ?? nextRaceFacts?.timeZone}
         lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
