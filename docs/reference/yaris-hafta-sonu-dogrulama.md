@@ -63,6 +63,15 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 
 ---
 
+## 2b. Zamanlayıcı gerçeği (2026-10-07 ölçümü)
+
+GitHub Actions `schedule` tetikleri kâğıt üzerindeki sıklıkta çalışmıyor: `notify-sessions` (10 dk) ve saatlik workflow'lar gerçekte günde ~5 kez, medyan ~5 saat aralıkla koşuyor (en uzun ~9,4 sa). Bu yüzden oturum sırasında "saatlik koşuyu bul" yaklaşımı çoğu zaman sonuç vermez. Doğrulama oturumunda:
+- Belirli bir pencereyi sınamak için ilgili workflow'u **elle** tetikleyin: `gh workflow run notify-sessions.yml` (oturumdan ~30 dk önce), `gh workflow run sync-f1-race-aware.yml` (due zamanından sonra). Bu, canlı veriyi okuyup yazan normal işi çalıştırır; sahibin o anki onayıyla yapılır.
+- `sync-f1-scheduled.ts` artık 12 saat geriye bakıyor, yani geç gelen bir koşu da kaçan pencereyi tetikler. `notify-sessions` için böyle bir telafi yoktur (bildirim zaman duyarlıdır): güvenilir dış zamanlayıcı kurulana kadar push penceresi ancak elle tetikleme ile sınanabilir (master-plan 1.6).
+- Bir koşunun "yok" olması hata sayılmaz; önce `gh run list --workflow=<ad>.yml --limit 10` ile gerçekten tetiklenip tetiklenmediğine bakın.
+
+---
+
 ## 3. Doğrulamalar
 
 Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarısızsa**.

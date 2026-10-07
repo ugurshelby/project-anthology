@@ -56,37 +56,20 @@
   - Ölçüm (Supabase MCP, salt-okunur, 2026-10-06): `notified_sessions` 0 satır, `push_subscriptions` 0 satır ve **`service_role`'ün bu iki tabloda hiçbir yetkisi yok** (migration'lar yalnızca `anon/authenticated` için `REVOKE` yazmış, varsayılan yetkilere güvenmiş). Sonuç: `/api/push/register` ve `notify-sessions` bu tabloları okuyup yazamıyor; rota hataları yutuyor (`insert` hatası kontrol edilmiyor). Önceki "tablo devrede" notu yanlıştı.
   - Uygulandı (2026-10-06, sahip onayıyla): `supabase/migrations/20261006000002_push_service_role_grants.sql` — `service_role` artık iki tabloda SELECT/INSERT/UPDATE/DELETE yapabiliyor (`has_table_privilege` ile doğrulandı), anon/authenticated kapalı (gerçek anon REST: 401), `set_updated_at` uyarısı kalktı.
   - Açık: yarış hafta sonunda oturumdan ~30 dk önce `notified_sessions` satırının oluşması (abone yoksa gönderim 0, satır yine yazılır); `insert` hatasının loglanması (küçük kod iyileştirmesi). Prosedür: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.C.
-- [~] **2.3 Takım İçi Pilot Düellosu (Head-to-Head):**
-- [x] **2.3 Takım İçi Pilot Düellosu (Head-to-Head):**
-  - Doğrulandı (2026-10-06): `getSeasonHeadToHead(year)` grid sayfasına (`app/[locale]/grid/page.tsx`) bağlandı; `GarageTeamPanel.tsx` içindeki `TeammateHeadToHead` gerçek Sıralama Turları (`Q 14:10`) ve Yarış (`R 16:8`) düello skorlarını ve iki seviyeli telemetri oran çubuklarını render ediyor (eksik/veri yok durumunda puan oranı fallback'i devrede). Testler: `tests/head-to-head.test.ts` (6 test, yeşil).
-- [x] **2.4 Ana Sayfa Sezon Renk Senkronizasyonu:**
-  - Doğrulandı (2026-10-06): `app/[locale]/page.tsx` `searchParams.season` parametresini okuyacak şekilde güncellendi; `HomeStandingsColumn`, `ChampionshipPulse` ve `HomeWireColumn` (`HomeWireFeed items={news} season={season}`) bileşenlerine `season` bağlamı aktarıldı. `ChampionshipPulse` içindeki lider, takipçi ve markalar listesi seçilen sezonun renk kimliğiyle senkronize edildi.
-
----
-
-### ⚙️ Faz 4: Machinery — İkonik Araçlar Koleksiyonu
-*Vizyonun 4. önceliği: Formula 1'in ikonik şasi, motor ve mühendislik şaheserlerini sergileyen vitrin.*
-
-- [x] **4.3 Çapraz Bağlantılar:**
-  - Doğrulandı (2026-10-06): `data/machinery/cars.ts` içine `getMachineryCarsForDriver`, `getMachineryCarsForTeam` ve `getMachineryCarsForSeason` yardımcı fonksiyonları eklendi. `components/machinery/MachineryCrossLink.tsx` bileşeniyle pilot (`/drivers/[driverId]`), takım (`/teams/[constructorId]`) ve sezon (`/season/[year]`) sayfalarından ilgili ikonik araca (`/machinery/[id]`) ters vitrin ve yönlendirme bağlantısı kuruldu.
-
----
-
-### 📖 Faz 5: Tech Glossary 2.0 (Regülasyonlar ve Çağlar)
-*Vizyonun 5. önceliği: Teknik kuralların sporu nasıl şekillendirdiğini gösteren eğitici arşiv.*
-
-- [x] **5.3 Dinamik Sözlük Köprüleri:**
-  - Doğrulandı (2026-10-06): `lib/glossary/linker.ts` içinde Türkçe/İngilizce terim ve alias'ları kelime sınırlarıyla güvenli token'laştıran `tokenizeWithGlossary` fonksiyonu ve `GlossaryLinkedText` bileşeni geliştirildi. Hikâye okuyucusu (`StoryBody.tsx`) ve tur sayfası teknik brifingi teknik terimleri otomatik algılayıp `/tech-glossary#slug` rotasına kesikli alt çizgili mikro-köprülerle bağlıyor. Testler: `tests/glossary-linker.test.ts` (5 test, yeşil).
+- [ ] **1.6 Zamanlayıcı Güvenilirliği (GitHub Actions `schedule` seyrek tetikleniyor):**
+  - Ölçüm (2026-10-07, `gh run list`, `schedule` olayları): `notify-sessions` kâğıt üzerinde 10 dk'da bir, gerçekte medyan 308 dk aralık (en az 142, en çok 562; ~5 koşu/gün, beklenen 144); `sync-news` ve `sync-media` saatlik, gerçekte medyan 327/249 dk (~5/gün); `sync-f1-race-aware` saatlik, son günlerde ~5/gün (en uzun aralık 9,4 sa). GitHub zamanlanmış koşuları "best effort" çalıştırır ve seyrek repolarda sıkça geciktirir/atlar.
+  - Etki: (a) `notify-sessions` yalnızca oturumdan 25–35 dk önceki 10 dakikalık pencerede bildirim atabilir; ~5 saatlik aralıklarla bu pencere pratikte tutturulamaz → push bildirimi (1.4) bu zamanlayıcıyla çalışamaz. (b) `sync-f1` due penceresi 65 dk geriye bakıyordu → pencerelerin çoğu kaçıyordu; sonuçlar yalnızca sayfa kaynaklı arka plan yenilemesi ve günlük Vercel cron'u (07:00 UTC) ile yetişir, puan durumu ertesi sabaha kalabilir.
+  - Yapıldı: `scripts/sync-f1-scheduled.ts` geriye bakış 65 dk → 12 sa (endpoint idempotent ve settled satırları atlıyor, tekrar tetiklemek ucuz). Simülasyon: Singapur sprint penceresinden 4 sa sonraki bir koşu eskiden atlıyordu, artık `R17 sprint` için tetikliyor.
+  - Açık (sahip kararı): güvenilir dış zamanlayıcı — Upstash QStash (Upstash hesabı zaten var), cron-job.org (ücretsiz, 1 dk) veya Vercel Pro cron; hedef `GET /api/cron/notify-sessions` (her 5–10 dk) ve `sync-f1?scope=live` (saatlik), başlık `Authorization: Bearer <CRON_SECRET>`. Ajan hesap/gizli anahtar kuramaz. Kurulana kadar yarış hafta sonunda ilgili workflow'lar `workflow_dispatch` ile elle tetiklenebilir (runbook bölüm 3).
 
 ---
 
 ### 🔍 Faz 6: Production Release, SEO & Core Web Vitals
 *Vizyonun 6. önceliği: Ürünün arama motorlarında kusursuz indekslenmesi ve performans tescili.*
 
-- [x] **6.1 Structured Data (JSON-LD) Doğrulaması:**
-  - Ölçüm (canlı & yerel, 2026-10-06): ana sayfa `WebSite`, sürücü `Person`, takım `SportsTeam`, tur `SportsEvent`, hikâye `Article` ve Machinery `Vehicle` JSON-LD'leri mevcut ve doğrulanıyor.
-  - Doğrulandı (2026-10-06): tur sayfası (`app/[locale]/season/[year]/round/[n]/page.tsx`) `sportsEventJsonLd` kurucusuna bağlandı; zorunlu alan koruması eklendi (`name`, `circuitName`, `country`, `startDate` alanlarından biri eksikse JSON-LD hiç basılmaz). Testler: `tests/localized-seo.test.ts` (6 test, yeşil).
-  - Doğrulama adımları: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.D.
+- [~] **6.1 Structured Data (JSON-LD) Doğrulaması:**
+  - Doğrulandı (2026-10-07): ana sayfa `WebSite`, sürücü `Person`, takım `SportsTeam`, tur `SportsEvent`, hikâye `Article` ve Machinery `Vehicle` JSON-LD'leri mevcut ve parse ediliyor; ana sayfada `og:image` var. Tur sayfası artık `sportsEventJsonLd`'ye bağlı ve zorunlu alan koruması var (`name`, `circuitName`, `country`, `startDate` eksikse JSON-LD basılmaz; `tests/localized-seo.test.ts`). Yerelde `/season/2025/round/3`: `name` "Japanese Grand Prix", `location` "Suzuka"/"Japan", `startDate`/`endDate` dolu.
+  - Açık (sahip): Rich Results Test, Schema Markup Validator ve Search Console URL denetimi (ajanın erişimi yok). Adımlar: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.D.
 - [ ] **6.2 Core Web Vitals & Lighthouse Baseline:**
   - Canlı prod ortamında LCP (<2.5s), INP (<200ms) ve CLS (<0.1) performans eşiklerinin ölçülerek tescillenmesi.
   - Prosedür: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.E.
@@ -117,18 +100,15 @@
 - [~] **8.1 Migration'ı Canlıya Uygula ve İlk Dolumu Başlat:**
   - **Uygulandı (sahip onayıyla, 2026-10-06, Supabase MCP `execute_sql`):** `20261006000001_media_assets.sql` (yalnızca satır içi SQL yorumları çıkarılarak) ve `20261006000002_push_service_role_grants.sql`; `supabase_migrations.schema_migrations` kayıtları repo sürümleriyle eklendi (10 kayıt, repodaki 10 dosyayla birebir). Doğrulama: `media_assets` + `media_sync_state` + 6 indeks, RLS açık; `media_assets` politikası yalnızca `resolved` ve `rejected` olmayan satırlar; anon yalnızca 20 arayüz kolonunu okuyabiliyor (13 özel kolon kapalı); gerçek anon REST: genel kolonlar 200, `last_error` ve `select=*` 401; `media` bucket (public, 3 MB, `image/webp`); `service_role` 4 tabloda tam yetkili; `set_updated_at` `search_path=""`, güvenlik uyarısı kalktı.
   - `MEDIA_CONTACT` Vercel Production'a eklendi (sahip, 2026-10-06); değer repoya yazılmaz.
-  - Canlıya çıktı (2026-10-06): `/media-sources`, `/api/media` (anahtarlar placeholder döner) ve `/api/cron/sync-media` (yetkisiz 401) canlıda; `sync-media` workflow'u aktif listede. Açık: ilk koşu (saatlik tetik ya da `workflow_dispatch`; ilk dolum ~245 varlık, birkaç saat) ve `media-sistemi.md` Bölüm 13'teki SQL ile ilerleme kontrolü.
+  - Canlıya çıktı (2026-10-06): `/media-sources`, `/api/media` ve `/api/cron/sync-media` canlıda (yetkisiz 401). İlk dolum (2026-10-07): zamanlanmış 3 + elle 5 koşu sonrası 246 varlıktan 215 çözüldü (60/60 pilot, 12 takım logosu, 102 araç, 41 pist), 26 `missing` (beklenen: Ferrari/Racing Bulls/Cadillac/Toro Rosso/AlphaTauri/Force India logoları, `haas:2026`, 4 tarihî pist ve bazı eski sezon araçları), 5 beklemede (geri çekilme süresinde); Storage'da ~16 MB / 272 nesne. Her koşu ~215 sn bütçeyle ~35–50 varlık işliyor (zamanlanmış koşular ~4–5 saatte bir geldiği için elle tetiklendi; bkz. 1.6). Açık: 5 bekleyenin yeniden denenmesi, özellikle `hockenheimring` (Storage'a yüklerken Cloudflare 520, geçici; yeniden denenecek, yerel kuru çalıştırma 153 KB ile sorunsuz).
   - `.github/workflows/sync-media.yml` saatlik (Vercel Hobby sub-daily cron'a izin vermediği için `vercel.json`'a konmadı), repo secret `CRON_SECRET_KEY` + var `SITE_URL` diğer workflow'larla ortak. Henüz koşmadı.
-- [~] **8.2 Arayüz Entegrasyonu (frontend):**
-  - Doğrulandı (2026-10-06, yerel build, tarayıcı): `MediaAssetView` + 4 türde parametrik SVG placeholder (`components/media/placeholders/`) pilot, takım, grid paneli, makine, pist ve ana sayfa yüzeylerine bağlı; DB boşken tüm sayfalar placeholder ile hatasız açılıyor (kırık görsel 0, hydration hatası 0, istemci `/api/media` çağrısı yok). `/media-sources` (lisans, marka ve takedown sayfası) ve altbilgi bağlantısı çalışıyor. Testler: `media-components.test.ts` (7), `media-machinery-keys.test.ts` (7).
-  - Machinery eşlemesi düzeltildi: `redbull-rb19` slug'ı curated ile hizalandı, `lotus-72` curated listeye eklendi (Commons'tan elle seçilen 3 dosya, kuru çalıştırmada CC BY-SA 3.0 ile çözüldü); 6/6 araç için `iconic:<id>` girdisi var ve test koruyor.
-  - Açık: gerçek bir görsel + atıf rozeti (ⓘ) + marka notunun tarayıcıda görülmesi — migration ve ilk dolumdan sonra yapılabilir (şu an yalnızca birim testlerle doğrulandı).
 - [ ] **8.3 İlk Dolum Sonrası Kalite İncelemesi (sahip — site denetimi başlarken hatırlatılacak):**
   - Düşük güvenli seçimlerin SQL ile listelenip yanlışların `review='rejected'` yapılması (görsel anında gizlenir, sistem sıradakini seçer). Bilinen zayıflar: bazı pistlerde etkinlik karesi (`anderstorp`, `estoril`, `watkins_glen`), Nürburgring tek viraj fotoğrafı, 2021 McLaren/Alfa/Williams garaj kareleri. Serbest logosu bulunamayan takımlar placeholder'da kalır (bilinçli): Ferrari, Racing Bulls, Cadillac, Toro Rosso, AlphaTauri, Force India.
 - [ ] **8.6 Eski Sezonlar (1950–2017) Genişletmesi (sahip — görsel site denetimi ve düzeltmeler bittikten sonra hatırlatılacak):**
   - `MEDIA_MIN_SEASON` (`lib/media/sync.ts`) düşürülerek aynı sistemle geriye genişletilecek.
 - [ ] **8.7 Küçük Sertleştirmeler (isteğe bağlı, düşük risk):**
   - `/api/media` istemci IP'si belirsizken hız sınırını atlıyor; `downloadImage` host allow-list'ini yalnızca ilk URL'de uyguluyor (yönlendirmeler izlenir) ve gövde boyutunu `Content-Length` yoksa indirdikten sonra denetliyor.
+  - Atıf rozetinin (ⓘ) `aria-label` değeri sabit İngilizce (`Image license: …`), Türkçe sayfalarda da; `messages/*.json` anahtarıyla yerelleştirilmeli (antigravity, küçük).
 
 ---
 
