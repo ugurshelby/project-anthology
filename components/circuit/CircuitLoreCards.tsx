@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { getCircuitLoreMoments } from '@/data/circuits/lore';
 
 interface CircuitLoreCardsProps {
@@ -12,6 +12,7 @@ interface CircuitLoreCardsProps {
  */
 export function CircuitLoreCards({ circuitId }: CircuitLoreCardsProps) {
   const locale = useLocale();
+  const t = useTranslations('ui.circuit.lore');
   const moments = getCircuitLoreMoments(circuitId);
 
   if (!moments || moments.length === 0) return null;
@@ -30,15 +31,15 @@ export function CircuitLoreCards({ circuitId }: CircuitLoreCardsProps) {
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             <span className="label-caps text-accent text-[11px] tracking-widest font-mono">
-              CIRCUIT LORE · PİST EFSANELERİ
+              {t('eyebrow')}
             </span>
           </div>
           <h3 className="font-condensed text-xl font-700 uppercase tracking-tight text-text-hi md:text-2xl">
-            {locale === 'tr' ? 'Pistin Tarihini Yazan Anlar' : 'Moments That Defined History'}
+            {t('title')}
           </h3>
         </div>
         <span className="font-mono text-xs text-text-low">
-          {moments.length} {locale === 'tr' ? 'İkonik Anlatı' : 'Iconic Moments'}
+          {t('count', { count: moments.length })}
         </span>
       </div>
 
@@ -73,11 +74,8 @@ export function CircuitLoreCards({ circuitId }: CircuitLoreCardsProps) {
                 </p>
               </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-hairline/60 pt-2.5 font-mono text-[11px] text-text-low">
+              <div className="mt-4 border-t border-hairline/60 pt-2.5 font-mono text-[11px] text-text-low">
                 <span>{detail}</span>
-                <span className="text-accent opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-                  Apex Archive ↗
-                </span>
               </div>
             </div>
           );

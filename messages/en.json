@@ -397,7 +397,38 @@
       "weekend": "Weekend Schedule",
       "lapRecordShort": "Lap record",
       "noRaces": "No completed races yet",
-      "roundLine": "R{round} · {name}"
+      "roundLine": "R{round} · {name}",
+      "elevation": {
+        "eyebrow": "Telemetry & Topography",
+        "title": "Track topography and engineering index",
+        "lengthCorners": "{km} km · {corners} corners",
+        "lengthOnly": "{km} km",
+        "cornersOnly": "{corners} corners",
+        "drsZones": "{count, plural, one {# DRS zone} other {# DRS zones}}",
+        "elevationDelta": "Elevation change",
+        "metres": "metres",
+        "range": "{low} m → {high} m",
+        "fullThrottle": "Full throttle",
+        "throttleValue": "{value}%",
+        "perLap": "of the lap",
+        "gearShifts": "Gear shifts",
+        "shiftsPerLap": "shifts / lap",
+        "gearboxLoad": "Gearbox load index",
+        "braking": "Braking severity",
+        "severity": {
+          "HIGH": "High",
+          "MEDIUM": "Medium",
+          "LOW": "Low"
+        },
+        "brakingEnergy": "{kj} kJ braking energy",
+        "signature": "Signature gradient:",
+        "source": "Editorial estimates, not official FIA data"
+      },
+      "lore": {
+        "eyebrow": "Circuit lore",
+        "title": "Moments that defined history",
+        "count": "{count, plural, one {# iconic moment} other {# iconic moments}}"
+      }
     },
     "glossary": {
       "metaTitle": "Tech Glossary",
