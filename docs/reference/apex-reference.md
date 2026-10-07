@@ -137,7 +137,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 | `supabase/migrations/` | 8 SQL migrations. `supabase/config.toml` exists |
 | `scripts/` | `seed-f1-history.ts`, `seed-stories.ts`, `sync-f1-scheduled.ts`, `verify-seed-coverage.ts`, `dedupe-f1-snapshots.ts` |
 | `tests/` | 22 Vitest files. `vitest.config.ts` includes only `tests/**/*.test.ts` |
-| `public/` | Client runtime assets: `brand/` (logos), `circuits/` (25 SVGs), `tyres/` (11 SVGs), `glossary-icons/` (20 webp), `stories/` (56 PNGs in 17 story folders; ledger: `docs/reference/stories-assets-ledger.md`). Cleaned of duplicate or unreferenced assets [VERIFIED: 2026-10-06] |
+| `public/` | Client runtime assets: `brand/` (logos), `circuits/` (25 SVGs), `tyres/` (11 SVGs), `glossary-icons/` (20 webp), `stories/` (56 PNGs in 17 story folders; source records: `data/stories/image-credits.ts`, owner worklist: `docs/reference/hikaye-gorselleri-kaynak-listesi.md`). Cleaned of duplicate or unreferenced assets [VERIFIED: 2026-10-06] |
 | `assets/` | Build-time datasets and source assets: `brand/`, `data/`, `f1-circuits/`, `raw-glossary-icons/`, `scripts/`, `icons/` |
 | `stories-images/` | Retired on 2026-10-06 (100% duplicate of `public/stories/`; backed up to `backup/pre-asset-cleanup-20261006` and removed from git) |
 | `.github/workflows/` | `sync-f1-race-aware.yml`, `sync-news.yml`, `notify-sessions.yml`, `sync-media.yml` |
@@ -214,6 +214,19 @@ GitHub Actions [VERIFIED: the three YAML files]:
 All five cron routes (`sync-media` added 2026-10-06) call `isCronAuthorized` [VERIFIED: grep of `app/api/**/route.ts`]. On 2026-10-05, the four routes that existed then (`sync-news`, `sync-f1`, `sync-radio`, `notify-sessions`) returned HTTP 401 when accessed without authorization [VERIFIED: live curl]. `maxDuration` is 300s for sync-f1, sync-news, and sync-radio, and 60s for notify-sessions [VERIFIED: those files]. GitHub Actions runs on 2026-10-05 completed successfully for notify-sessions, sync-f1 race-aware, and sync-news [VERIFIED: `gh run list`].
 
 **Measured 2026-10-07 (`gh run list`, `schedule` events): GitHub does not honour these schedules.** `notify-sessions` (nominal every 10 min) ran with a median gap of 308 min (min 142, max 562; ~5 runs/day instead of 144); `sync-news` and `sync-media` (nominal hourly) ~5 runs/day with median gaps of 327 and 249 min; `sync-f1-race-aware` (nominal hourly) ~5 runs/day, longest gap 9.4 h. GitHub runs scheduled workflows best-effort and delays or drops them on low-activity repositories. Consequences: the 30-minute push window of `notify-sessions` cannot be hit reliably, and `sync-f1-scheduled.ts` used to look back only 65 minutes (now 12 h, 2026-10-07) so most due windows were missed. A reliable external scheduler is open (master-plan 1.6) [VERIFIED: `gh run list` gap statistics, `scripts/sync-f1-scheduled.ts`, simulated due-check].
+
+**Why GitHub does this (researched 2026-10-07).** GitHub's own docs say scheduled events can be delayed during periods of high load, that load is highest at the start of every hour, and that queued jobs may be dropped under sufficient load; delivery is best-effort, not a timer. Our crons are valid (5-minute minimum respected, none on minute 0) and the repo is public, so this is a platform limit, not a bug in our workflows. The mistake was architectural: time-critical jobs (push 30 minutes before a session, results 2.5 hours after the flag) were put on a best-effort trigger. [VERIFIED: `gh run list` gaps, workflow files; docs wording via web search, not re-read on the GitHub docs site in this pass]
+
+**Primary scheduler: Upstash QStash (code ready 2026-10-07, owner setup pending, master-plan 1.6).** `lib/cron/qstashSchedules.ts` defines four schedules, `scripts/qstash-sync.ts` (`npm run qstash:sync`) creates or updates them idempotently (fixed `Upstash-Schedule-Id`), and QStash forwards `Authorization: Bearer <CRON_SECRET>` to the existing routes, so no route changed:
+
+| Schedule id | Route | Cron (UTC) | Runs/day | Retries |
+|---|---|---|---|---|
+| `apex-notify-sessions` | `/api/cron/notify-sessions` | `*/5 * * * *` | 288 | 0 |
+| `apex-sync-f1` | `/api/cron/sync-f1` (auto scope: live on a race weekend, season otherwise) | `*/30 * * * *` | 48 | 1 |
+| `apex-sync-news` | `/api/cron/sync-news` | `11 * * * *` | 24 | 1 |
+| `apex-sync-media` | `/api/cron/sync-media` | `41 * * * *` | 24 | 1 |
+
+Free-plan limits (Upstash pricing page, checked 2026-10-07): 1,000 messages/day, 10 active schedules, 15 minutes max HTTP response duration; each delivery attempt including each retry counts as a message, and the limits are soft (short spikes are not blocked, sustained overage may return 429). Our load: **384 messages on a normal day, 480 worst case (every run fails and retries), 4 of 10 schedules**. `tests/qstash-schedules.test.ts` fails if the worst case exceeds 60% of the quota, if a schedule points at a route that does not exist or lacks `isCronAuthorized`, or if a timeout does not fit the route's `maxDuration`. The routes' 60-second trigger throttle (`isCronTriggerAllowed`) still applies. The GitHub `schedule` triggers stay as a harmless fallback until QStash is verified; then they are removed (workflows keep `workflow_dispatch`) so two callers cannot overlap.
 
 The YAML comments say Vercel Hobby allows one cron run per day, which is why the finer jobs moved to GitHub Actions [VERIFIED: workflow comments]. The actual Vercel plan on the current account was not opened [UNVERIFIED: no Vercel dashboard access in this pass].
 
@@ -404,7 +417,7 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 | `docs/reference/media-sistemi.md` | Media (image) system: sources, license gate, DB model, API contract, frontend rules, placeholder brief, operations | Current (2026-10-06). Migration applied and code deployed 2026-10-06; `media_assets` is empty until the first `sync-media` run |
 | `docs/reference/yaris-hafta-sonu-dogrulama.md` | Race-weekend live verification runbook (live timing, sync/settled/SWR, push window, JSON-LD, CWV, Sentry), 2026 calendar, pass criteria | Current (2026-10-06). Delete when every item is closed |
 | `docs/reference/muhendislik-dersleri.md` | Incident list, traps, and “do not break” rules (renamed from `PROJECT_LESSONS_AND_ROADMAP.md`) | Historical engineering memory |
-| `docs/reference/stories-assets-ledger.md` | Read-only per-file inventory of `public/stories` (references, source, license, type) | Current (2026-10-02) |
+| `docs/reference/hikaye-gorselleri-kaynak-listesi.md` | Owner worklist: which story image still has no verified source (generated by `npm run stories:credits -- --write` from `data/stories/image-credits.ts`) | Current (2026-10-07). Delete when no image is `unverified` |
 | `docs/reference/anthology-image-map.md` | Canonical mapping of 17 stories to 57 image assets | Current (moved from `docs/` root) |
 | `docs/reference/glossary-icon-prompts.md` | Generative prompts for glossary CAD / blueprint line-art icons | Current (moved from `docs/` root) |
 
@@ -418,7 +431,6 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 | `docs/procedures.md` | Repeatable operational and maintenance procedures (Procedures 1–8) | Current (Procedure 8 added 2026-10-06) |
 | `docs/F1_Anlati_Stil_Kilavuzu.md` | House voice for anthology prose, derived from named YouTube channels, with an anti-plagiarism section | Editorial standard. Base reference. v2 layer in `docs/F1_Anlati_Stil_Kilavuzu_v2.md` |
 | `docs/F1_Anlati_Stil_Kilavuzu_v2.md` | Acoustic signal analysis, page prosody, bilingual TR/EN cadence, and multiformat narrative matrix | Editorial standard v2 (2026-10-05) |
-| `docs/reference/stories-assets-ledger.md` | Asset inventory and license gap ledger for stories assets | Current (2026-10-06) |
 
 ### docs/design
 
@@ -446,7 +458,7 @@ Last verified: 2026-10-05
 
 1. **Legal mailboxes are placeholders.** `privacy@`, `dmca@`, `contact@apexstats.example` go nowhere. The consent gate now makes the privacy page true; the addresses are an owner decision. `ROADMAP.md` phase 1 and `AGENTS.md` still require a real contact before production is acceptable.
 2. **Production hostname drift.** Fixed in code 2026-10-01 (one `PROD_SITE_URL`, eight host). Still open: `NEXT_PUBLIC_SITE_URL` is absent from `.env.local`, so a local production build warns `metadataBase` is localhost; the Vercel and GitHub `SITE_URL` values are owner-side (section 13).
-3. **Anthology serves 56 files under `public/stories` with no license record.** Ledger: `docs/reference/stories-assets-ledger.md`. Before 2026-10-02 there were 124 files; 0 had an author, source or license recorded, and 68 were referenced by nothing. The owner kept the folder and had the 68 unreferenced files deleted; the 56 remaining files are all referenced by `data/stories/content.ts` (checked: every path exists on disk), and every story's hero image is among them. `AGENTS.md` says an asset with an unclear license does not ship, so this stays open until the owner decides on rights (license, replace, or remove).
+3. **Anthology serves 56 files under `public/stories` and none has a verified source yet.** Owner rules of 2026-10-07: real photographs only (never AI-generated, never SVG), editorial non-commercial use stated on the page, original-source links where known, unknown sources listed for the owner (`data/stories/image-credits.ts`, `docs/reference/hikaye-gorselleri-kaynak-listesi.md`, `tests/story-images.test.ts`; UI is Antigravity task AG-1). The old ledger `docs/reference/stories-assets-ledger.md` was retired (its per-file facts moved into the credit records). Before 2026-10-02 there were 124 files; 0 had an author, source or license recorded, and 68 were referenced by nothing. The owner kept the folder and had the 68 unreferenced files deleted; the 56 remaining files are all referenced by `data/stories/content.ts` (checked: every path exists on disk), and every story's hero image is among them. `AGENTS.md` says an asset with an unclear license does not ship, so this stays open until the owner decides on rights (license, replace, or remove).
 5. **PR gate exists but is unproven and not enforced by the repo.** `ci.yml` was added 2026-10-01; making it a required check is a GitHub setting (owner).
 6. **Rate limiting and cron locking are only as strong as Upstash in production, which is unconfirmed for the current Vercel project.** The code degrades to per-instance memory. The news and F1 crons are also scheduled twice (Vercel daily and GitHub hourly).
 7. **Sentry is wired and the upload failed** with `Project not found` for the org and project hardcoded in `next.config.ts`. Error monitoring may be dark. [UNVERIFIED: live Sentry ingest.]
