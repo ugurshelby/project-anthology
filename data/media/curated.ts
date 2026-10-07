@@ -176,6 +176,19 @@ export const ICONIC_CARS: IconicCar[] = [
   },
 ];
 
+/**
+ * Chassis designations for team-seasons the automatic season search cannot surface: the photos exist on Commons, but
+ * their titles only say '2021 United States Grand Prix 17.jpg' and Commons ranks other files first. A query with the
+ * designation finds them; the constructor, year and event gates still decide what is accepted. Keys are car entity
+ * keys (`<constructorId>:<season>`). Add an entry only when a team-season stays `missing` although photos exist.
+ */
+export const CAR_MODELS: Record<string, string> = {
+  'red_bull:2021': 'Red Bull RB16B',
+  'renault:2020': 'Renault R.S.20',
+  'alphatauri:2021': 'AlphaTauri AT02',
+  'haas:2026': 'Haas VF-26',
+};
+
 export const LOGO_OVERRIDES: LogoOverride[] = [
   // Commons hosts no free Scuderia Ferrari logo as of 2026-10 (checked by direct title and search);
   // these queries keep looking for one in case a free version appears. Until then Ferrari uses the placeholder.

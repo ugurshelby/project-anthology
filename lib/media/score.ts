@@ -91,7 +91,14 @@ const NEVER =
 /** Other series — a Formula 2/3/E car is not "the" F1 car. */
 const OTHER_SERIES = /(formula 2\b|formula two|\bf2\b|formula 3\b|formula three|\bf3\b|formula e\b|\bgt3\b|motogp|nascar|indycar|\bdtm\b|\bwrc\b|\bwec\b)/i;
 
-const CAR_DESIGNATION = /\b(?:mcl|sf|rb|w|amr|a5|c4|vf|fw|vcarb|rb|sf-|ar|mp4|f1)[ -]?\d{1,3}[a-z]?\b/i;
+/**
+ * Chassis designations: 'MCL39', 'SF1000' (four digits since 2020), 'C39' / 'W14' (one letter needs two digits so
+ * 'C 4' or 'W 1' in a title is not a car), 'AT01', 'RP20', 'R.S.20', 'A524', 'STR14', 'VF-19', 'F1-75'.
+ * The old pattern stopped at three digits and had no AlphaTauri/Racing Point/Renault/Alfa prefixes, so whole
+ * seasons of correctly categorised photos ('Ferrari SF1000 of Charles Leclerc') were rejected.
+ */
+const CAR_DESIGNATION =
+  /\b(?:(?:mcl|sf|rb|vf|fw|vcarb|amr|ar|mp4|f1|at|rp|str)[ -]?\d{1,4}[a-z]?|(?:w|c)[ -]?\d{2}[a-z]?|a[ -]?\d{3}|r\.?s\.?[ -]?\d{2})\b/i;
 
 /** Format check. SVG is only accepted for team logos (rendered to PNG by Commons). */
 function formatOk(file: CommonsFileInfo, type: MediaEntityType): boolean {
@@ -249,7 +256,7 @@ function evalCar(file: CommonsFileInfo, ctx: EvalContext): Evaluation {
 
   // Heritage / exhibition / merchandise / non-car subjects (dry run: a 1984 MP4-2C, a W196S road car,
   // a steering wheel, a sponsor booth, a podium celebration).
-  if (/(classic|historic|vintage|legend|goodwood|festival of speed|demo run|museum|exhibition|booth|partner|ceremony|steering wheel|\btire\b|\btyre\b|rubber|\btoy\b|miniature|replica|\bscene\b|celebrat|\bwin\b|winner|victory|fan ?zone|fashion|trophy|helmet|jumpsuit|interview|press conference|cutaway|engine\b|merchandise)/i.test(file.title)) {
+  if (/(classic|historic|vintage|legend|goodwood|festival of speed|demo run|museum|exhibition|booth|partner|ceremony|steering wheel|\btire\b|\btyre\b|rubber|\btoy\b|miniature|replica|\bscene\b|celebrat|\bwin\b|winner|victory|fan ?zone|fashion|trophy|helmet|jumpsuit|interview|press conference|cutaway|engine\b|merchandise|stradale|spider|roadster|cabrio|assetto fiorano)/i.test(file.title)) {
     return no('not a current-season car shot');
   }
   if (file.categories.some((c) => /(historic|classic|vintage|museum|collection|goodwood|legends?|retro|heritage)/i.test(c))) {
@@ -265,7 +272,10 @@ function evalCar(file: CommonsFileInfo, ctx: EvalContext): Evaluation {
   const yearOk = titleYears.includes(ctx.season) || (titleYears.length === 0 && file.year === ctx.season);
   if (!yearOk) return no(`year mismatch (want ${ctx.season}, title ${titleYears.join('/') || '-'}, meta ${file.year ?? '-'})`);
   // Only the upload date to go on (no year in the title): demand an event word so it is a race-weekend shot.
-  if (titleYears.length === 0 && !/(grand prix|\bgp\b|testing|test days|pre-?season|\bfp[123]\b|qualifying|\brace\b|sprint)/i.test(file.title) && !carSpecificCategory(file, tokens)) {
+  // A car-specific category alone is not enough: it also names show cars ('AlphaTauri AT02' on display at a Honda
+  // office in 2023), so the categories must carry the event too ('..., Formula One Catalonia test, 19-21 February 2020').
+  const EVENT_WORD = /(grand prix|\bgp\b|testing|\btests?\b|test days|pre-?season|\bfp[123]\b|qualifying|\brace\b|sprint|shakedown)/i;
+  if (titleYears.length === 0 && !EVENT_WORD.test(file.title) && !(carSpecificCategory(file, tokens) && file.categories.some((c) => EVENT_WORD.test(c)))) {
     return no('year only from metadata and no event/car signal');
   }
 
@@ -275,6 +285,9 @@ function evalCar(file: CommonsFileInfo, ctx: EvalContext): Evaluation {
   let score = sourceBase(ctx.source) + 25; // name + year gates passed
   if (tokenInTitle) score += 12;
   if (CAR_DESIGNATION.test(file.title) || carSpecificCategory(file, tokens)) score += 15;
+  // 'AlphaTauri AT02 of Pierre Gasly' = the photo is about that car; a bare model category also tags wide
+  // grandstand/pit views where the car is a speck.
+  if (file.categories.some((c) => CAR_DESIGNATION.test(c) && hasAny(fold(c), tokens) && /\bof\b/i.test(c))) score += 8;
   // On-track action shows the whole car. Pit-garage walks ("Thursday"), show cars, fan zones and launches
   // often hide it behind crew/crowds (seen in the 2025 dry run), so they are accepted but ranked lower.
   if (/\b(fp[123]|practice|qualifying|sprint|race|test|testing|shakedown|grand prix|gp)\b/i.test(file.title)) score += 10;
@@ -306,30 +319,43 @@ function evalCircuit(file: CommonsFileInfo, ctx: EvalContext): Evaluation {
   // Racing context: the file must say it is a racing venue (title or Commons categories). This is what
   // separates "Donington Park Farmhouse Hotel", "Long Beach, NY" or "Aerial View of Baku" from the circuit.
   // A Wikidata P18 on a circuit item is already editor-curated for that venue, so it only needs the name.
-  const RACING_CONTEXT = /(circuit|race ?track|racetrack|racing|\brace\b|motor ?sport|motorsport|autodrom|autodromo|speedway|raceway|nordschleife|rennstrecke|karussell|carousel|boxengasse|haupttribune|\bf1\b|formula (one|1)|grand prix|\bgp\b|pit (lane|building|complex)|paddock|grandstand|tribuna|tribune|main straight|hairpin|chicane|schikane|\bturn \d|kurve|corner|street circuit|start[- ]finish)/;
+  const RACING_CONTEXT = /(circuit|race ?track|racetrack|racing|\brace\b|motor ?sport|motorsport|autodrom|autodromo|speedway|raceway|nordschleife|rennstrecke|karussell|carousel|boxengasse|haupttribune|\bf1\b|formula (one|1)|grand prix|\bgp\b|pit (lane|building|complex)|paddock|grandstand|tribuna|tribune|main straight|hairpin|chicane|schikane|\bturn \d|kurve|corner|street circuit|start[- ]?finish)/;
   const hasContext = RACING_CONTEXT.test(lowered);
   const tokenInTitle = hasAny(fold(title), tokens);
   // A PHYSICAL venue word in the title ('racing'/'race'/'F1' alone describe an event, not a place: a Daytona
   // prototype photo passed on 'Racing' in its title).
-  const VENUE_WORD = /(circuit|circuito|autodrom|speedway|raceway|race ?track|racetrack|nordschleife|rennstrecke|karussell|carousel|grandstand|tribuna|tribune|haupttribune|paddock|pit (lane|building|complex)|boxengasse|main straight|start[- ]finish|hairpin|chicane|schikane|\bturn \d|kurve|control tower|infield)/;
+  const VENUE_WORD = /(circuit|circuito|autodrom|speedway|raceway|race ?track|racetrack|nordschleife|rennstrecke|karussell|carousel|grandstand|tribuna|tribune|haupttribune|paddock|pit (lane|building|complex)|boxengasse|main straight|start[- ]?finish|hairpin|chicane|schikane|\bturn \d|kurve|control tower|infield)/;
   const contextInTitle = VENUE_WORD.test(fold(title));
   // Categories alone are not enough: a NASCAR driver's portrait sat in 'Watkins Glen' categories and was even the
   // Wikidata image of the circuit. The TITLE must name the venue or contain a racing word; categories add context.
   if (!tokenInTitle && !contextInTitle) return no('title names neither the venue nor a racing word');
-  if (!hasContext && !(ctx.source === 'wikidata-p18' && tokenInTitle)) return no('no racing context in title/categories');
+  // Venues whose name has no racing word ('Red Bull Ring', 'Kyalami', 'AVUS') are only recognisable by their own category.
+  const venueOwnCategory = ctx.source === 'commons-category' && tokenInTitle;
+  if (!hasContext && !venueOwnCategory && !(ctx.source === 'wikidata-p18' && tokenInTitle)) return no('no racing context in title/categories');
   // 'Kyalami 1968 - 1987.jpg': a year range is a layout/history diagram, not a photo.
   if (/\b(19|20)\d{2}\s*[-–—]\s*(19|20)\d{2}\b/.test(title)) return no('year range = layout diagram');
   // City/landscape views and traffic scenes that carry the place name (dry run: Baku seen from a plane, a Dutch
   // 'File op de Nürburgring' = traffic jam seen in a car mirror). A real venue photo names a venue part.
   if (!contextInTitle && /(aerial view of|view of|skyline|cityscape|downtown|panorama of)/i.test(title)) return no('city/landscape view, not the venue');
   if (/(\bfile op\b|\bstau\b|traffic|queue|\bjam\b|mirror|spiegel|rétroviseur|retrovisor)/i.test(title)) return no('traffic scene');
+  // Stamps, first-day covers and postcards are filed under the venue's category too ('Avus.jpg' is a 1971 stamp sheet).
+  if (file.categories.some((c) => /(stamp|philatel|first day cover|ersttagsbrief|postcard|banknote|\bcoins?\b|medal|poster)/i.test(c))) return no('stamp/print, not a photo');
+  // Horse racing shares venue names (Aintree Racecourse hosts the Grand National; the motor circuit ran around it).
+  if (/(racecourse|horse|steeplechase|grand national|jockey|equestrian|greyhound)/i.test(`${title} | ${file.categories.join(' | ')}`)) return no('horse racing, not the motor circuit');
+  // Trade fairs and exhibitions held at the venue ('AVUS-Tribüne with Grüne Woche banner' is a foggy exhibition hall).
+  if (/(banner|trade ?fair|exhibition|\bmesse\b|\bexpo\b)/i.test(`${title} | ${file.categories.join(' | ')}`)) return no('fair/exhibition, not the racing venue');
+  // Mass-participation events on the same road ('Fahrradsternfahrt Berlin on AVUS') are not racing photos.
+  if (/(fahrrad|bicycle|cycling|\bbike ride\b|marathon|demonstration|protest|\bparade\b)/i.test(`${title} | ${file.categories.join(' | ')}`)) return no('not a racing photo (cycling/event on the road)');
   if (/(hotel|farmhouse|restaurant|\bchurch\b|cathedral|\bcastle\b|village|hospital|school|\bmarket\b|\bstation\b|airport terminal|\bmap\b|\bflag\b|funkturm|\btower\b(?!.*control))/i.test(title)) {
     return no('not the venue (building/place)');
   }
 
   let score = sourceBase(ctx.source) + 25;
-  if (/(aerial|a[eé]re[ao]|luftbild|vue a[eé]rienne|veduta|overview|panoram|from above|bird|drone|skyline)/i.test(title)) score += 20;
-  else if (/(grandstand|main straight|start[- ]finish|pit lane|pit building|paddock|infield|control tower|tribuna|tribune|hairpin|chicane|\bturn \d|nordschleife)/i.test(title)) score += 10;
+  if (/(aerial|\bair\b|a[eé]re[ao]|luftbild|luftaufnahme|luftansicht|vue a[eé]rienne|veduta|overview|panoram|from above|bird|drone|skyline)/i.test(title)) score += 20;
+  else if (/(grandstand|main straight|start[- ]?finish|pit lane|pit building|paddock|infield|control tower|tribuna|tribune|hairpin|chicane|\bturn \d|nordschleife)/i.test(title)) score += 10;
+  // A title that only says '<venue> Grand Prix (123456)' is an event snapshot that can show anything (VIP guests, a crowd):
+  // without a word naming what part of the venue it shows, it needs more than a large file to clear the bar.
+  else if (!contextInTitle) score -= 10;
   if (/\b(circuit|track|autodrom\w*|speedway|raceway)\b/i.test(title)) score += 6;
   if (CAR_DESIGNATION.test(title) || /(shakedown|helmet|portrait|driver|pit stop|podium|trophy|cockpit|steering|tyre|tire|wheel|livery|fan zone|fanzone|race start|\bstart of\b|lap \d|qualifying|practice)/i.test(title)) {
     score -= 45;
@@ -337,7 +363,9 @@ function evalCircuit(file: CommonsFileInfo, ctx: EvalContext): Evaluation {
   // Event/action photos show cars and crowds, not the place (WEC/IMSA/ETCR rounds, safety car…).
   if (/(\brace\b|\brd\d|\bround\b|championship|challenge|clubsport|\bseries\b|\bcup\b|\bwec\b|\belms\b|\bimsa\b|\betcr\b|\bdtm\b|\bbtcc\b|safety car|winner|prototype|daytona)/i.test(title)) score -= 30;
   // Teams / drivers named in the title mean it is a racing-action photo.
-  if (/(ferrari|mclaren|mercedes|red bull|williams|lotus|brabham|tyrrell|renault|alpine|sauber|haas|benetton|\bgp\b|grand prix \d{4}|\b(19|20)\d{2} .*grand prix)/i.test(title)) score -= 25;
+  // A team word that is part of the venue's own name ('Red Bull Ring', 'Alpine ...') is not a racing-action signal.
+  const teamHit = /(ferrari|mclaren|mercedes|red bull|williams|lotus|brabham|tyrrell|renault|alpine|sauber|haas|benetton|\bgp\b|grand prix \d{4}|\b(19|20)\d{2} .*grand prix)/i.exec(title);
+  if (teamHit && !fold(ctx.displayName ?? '').includes(fold(teamHit[0]))) score -= 25;
   if (file.width >= 2400) score += 6;
   if (file.width >= 4000) score += 3;
   return { ok: true, score };

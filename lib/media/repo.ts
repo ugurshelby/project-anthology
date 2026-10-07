@@ -39,8 +39,35 @@ export interface MediaRepo {
   touch(entity: MediaEntity, nextCheckAt: string): Promise<void>;
   /** Owner rejected the current image: persist the file in `rejected_files` and hand the row back to the pipeline (review = auto). */
   acknowledgeRejection(entity: MediaEntity, rejectedFiles: string[]): Promise<void>;
+  /** Make every `missing` row due now (the resolver improved, so a previous "nothing found" may be stale). Returns how many. */
+  requeueMissing(nowIso: string): Promise<number>;
   getState<T>(key: string): Promise<T | null>;
   setState(key: string, value: unknown): Promise<void>;
+}
+
+interface UploadBucket {
+  upload(
+    path: string,
+    body: Buffer,
+    options: { contentType: string; cacheControl: string; upsert: boolean },
+  ): Promise<{ error: { message?: string; status?: number; statusCode?: string | number } | null }>;
+}
+
+/**
+ * Storage uploads occasionally fail with a gateway error from the CDN in front of Storage (seen 2026-10-07: HTTP 520,
+ * empty message, one circuit image). Those are transient: retry a few times before the entity is marked as failed.
+ * Client errors (bad request, forbidden, payload too large) are final and surface immediately.
+ */
+export async function uploadWithRetry(bucket: UploadBucket, path: string, body: Buffer, sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms))): Promise<void> {
+  const attempts = 3;
+  for (let i = 1; i <= attempts; i++) {
+    const { error } = await bucket.upload(path, body, { contentType: 'image/webp', cacheControl: '31536000', upsert: true });
+    if (!error) return;
+    const status = Number(error.status ?? error.statusCode);
+    const clientError = Number.isFinite(status) && status >= 400 && status < 500;
+    if (clientError || i === attempts) throw new Error(`storage upload ${path}: ${error.message || 'no message'}${Number.isFinite(status) ? ` (HTTP ${status})` : ''}`);
+    await sleep(1_000 * i);
+  }
 }
 
 /** Content-addressed path: a replaced image gets a NEW url, so CDN caching can be immutable. */
@@ -126,12 +153,7 @@ export function createSupabaseRepo(): MediaRepo {
       const out: MediaVariant[] = [];
       for (const v of processed.variants) {
         const path = variantPath(entity.type, entity.key, processed.sha256, v.w);
-        const { error } = await db.storage.from(MEDIA_BUCKET).upload(path, v.buffer, {
-          contentType: 'image/webp',
-          cacheControl: '31536000',
-          upsert: true,
-        });
-        if (error) throw new Error(`storage upload ${path}: ${error.message}`);
+        await uploadWithRetry(db.storage.from(MEDIA_BUCKET), path, v.buffer);
         out.push({ w: v.w, h: v.h, path, bytes: v.bytes });
       }
       return out;
@@ -236,6 +258,16 @@ export function createSupabaseRepo(): MediaRepo {
         .eq('entity_type', entity.type)
         .eq('entity_key', entity.key);
       if (error) throw new Error(`media_assets acknowledgeRejection: ${error.message}`);
+    },
+
+    async requeueMissing(now) {
+      const { data, error } = await db
+        .from('media_assets')
+        .update({ next_check_at: now, updated_at: now })
+        .eq('status', 'missing')
+        .select('entity_key');
+      if (error) throw new Error(`media_assets requeueMissing: ${error.message}`);
+      return (data ?? []).length;
     },
 
     async getState<T>(key: string) {
@@ -371,6 +403,15 @@ export function createMemoryRepo(outDir?: string): MediaRepo & { records: Map<st
     async acknowledgeRejection(entity, rejectedFiles) {
       const r = records.get(id(entity));
       if (r) r.rejectedFiles = rejectedFiles;
+    },
+    async requeueMissing(now) {
+      let n = 0;
+      for (const r of records.values()) {
+        if (r.status !== 'missing') continue;
+        r.nextCheckAt = now;
+        n++;
+      }
+      return n;
     },
     async getState<T>(key: string) {
       return (state.get(key) as T | undefined) ?? null;

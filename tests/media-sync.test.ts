@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeFile } from './media-helpers';
-import { createMemoryRepo } from '@/lib/media/repo';
+import { createMemoryRepo, uploadWithRetry } from '@/lib/media/repo';
 import type { Candidate, MediaEntity } from '@/lib/media/types';
 import { MediaHttpError } from '@/lib/media/http';
 
@@ -34,7 +34,7 @@ vi.mock('@/lib/media/wikimedia', async (orig) => ({
   getCommonsFileInfos: (...a: unknown[]) => getCommonsFileInfos(...a),
 }));
 
-const { runMediaSync, nextCheckFor, backoffFor } = await import('@/lib/media/sync');
+const { runMediaSync, nextCheckFor, backoffFor, RESOLVER_VERSION } = await import('@/lib/media/sync');
 
 const candidate = (title = 'File:A.jpg'): Candidate => ({
   file: makeFile({ title }),
@@ -86,6 +86,41 @@ describe('runMediaSync', () => {
     expect(rec.status).toBe('missing');
     expect(downloadImage).not.toHaveBeenCalled();
     expect(new Date(rec.nextCheckAt).getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it('retries every `missing` row once when RESOLVER_VERSION changes, then leaves them on their normal schedule', async () => {
+    resolveEntity.mockResolvedValue({ best: null, inspected: 3, notes: ['x'] });
+    const repo = createMemoryRepo();
+    const first = await run(repo);
+    expect(first.missing).toBe(4);
+    // an older resolver wrote these rows; their re-check is weeks away
+    repo.state.set('resolver_version', { version: RESOLVER_VERSION - 1 });
+    const before = repo.records.get('driver|norris')!.nextCheckAt;
+    expect(new Date(before).getTime()).toBeGreaterThan(Date.now());
+
+    resolveEntity.mockResolvedValue({ best: candidate('File:Found.jpg'), inspected: 1, notes: [] });
+    const upgraded = await run(repo);
+    expect(upgraded).toMatchObject({ requeued: 4, due: 4, resolved: 4 });
+    expect(repo.state.get('resolver_version')).toMatchObject({ version: RESOLVER_VERSION, requeued: 4 });
+
+    // same version again: nothing is forced
+    for (const r of repo.records.values()) {
+      r.status = 'missing';
+      r.nextCheckAt = new Date(Date.now() + 20 * 86_400_000).toISOString();
+    }
+    const quiet = await run(repo);
+    expect(quiet).toMatchObject({ requeued: 0, due: 0 });
+  });
+
+  it('a failing resolver-version bookkeeping never fails the run', async () => {
+    resolveEntity.mockResolvedValue({ best: candidate(), inspected: 1, notes: [] });
+    const repo = createMemoryRepo();
+    repo.requeueMissing = async () => {
+      throw new Error('db down');
+    };
+    repo.state.set('resolver_version', { version: 0 });
+    const report = await run(repo, { log: () => {} });
+    expect(report).toMatchObject({ requeued: 0, resolved: 4 });
   });
 
   it('does not re-download when the best file is unchanged', async () => {
@@ -201,5 +236,38 @@ describe('scheduling helpers', () => {
     const mins = (a: number) => Math.round((new Date(backoffFor(a, now)).getTime() - now.getTime()) / 60_000);
     expect([mins(1), mins(2), mins(3)]).toEqual([20, 40, 80]);
     expect(mins(10)).toBe(360);
+  });
+});
+
+describe('uploadWithRetry (Storage gateway errors are transient)', () => {
+  const body = Buffer.from('x');
+  const bucket = (answers: Array<{ message?: string; status?: number } | null>) => {
+    const calls: string[] = [];
+    return {
+      calls,
+      upload: async (path: string) => {
+        calls.push(path);
+        return { error: answers[Math.min(calls.length - 1, answers.length - 1)] ?? null };
+      },
+    };
+  };
+  const noSleep = async () => {};
+
+  it('retries an empty-message gateway failure (the 520 seen on hockenheimring) and then succeeds', async () => {
+    const b = bucket([{ message: '', status: 520 }, { message: '', status: 520 }, null]);
+    await expect(uploadWithRetry(b, 'circuit/x/aaa/1600.webp', body, noSleep)).resolves.toBeUndefined();
+    expect(b.calls).toHaveLength(3);
+  });
+
+  it('gives up after three attempts and reports the status', async () => {
+    const b = bucket([{ message: '', status: 502 }]);
+    await expect(uploadWithRetry(b, 'p.webp', body, noSleep)).rejects.toThrow(/storage upload p\.webp: no message \(HTTP 502\)/);
+    expect(b.calls).toHaveLength(3);
+  });
+
+  it('does not retry a client error (forbidden, too large, bad request)', async () => {
+    const b = bucket([{ message: 'The object exceeded the maximum allowed size', status: 413 }]);
+    await expect(uploadWithRetry(b, 'p.webp', body, noSleep)).rejects.toThrow(/maximum allowed size \(HTTP 413\)/);
+    expect(b.calls).toHaveLength(1);
   });
 });
