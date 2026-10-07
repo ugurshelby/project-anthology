@@ -57,3 +57,16 @@ describe('rateLimit — in-memory fallback', () => {
     expect((await rateLimit('ip', OPTS)).success).toBe(true);
   });
 });
+
+describe('getClientIP', () => {
+  it('prefers x-real-ip, then the rightmost x-forwarded-for hop', async () => {
+    const { getClientIP } = await loadRateLimit();
+    expect(getClientIP(new Headers({ 'x-real-ip': ' 1.2.3.4 ', 'x-forwarded-for': '9.9.9.9' }))).toBe('1.2.3.4');
+    expect(getClientIP(new Headers({ 'x-forwarded-for': '6.6.6.6, 5.5.5.5' }))).toBe('5.5.5.5');
+  });
+
+  it('puts header-less requests in one shared fallback bucket (fail closed)', async () => {
+    const { getClientIP } = await loadRateLimit();
+    expect(getClientIP(new Headers())).toBe('fallback:unknown');
+  });
+});

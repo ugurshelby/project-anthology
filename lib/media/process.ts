@@ -49,15 +49,62 @@ export function isAllowedDownloadUrl(url: string): boolean {
   }
 }
 
+const MAX_DOWNLOAD_REDIRECTS = 3;
+
+/**
+ * Read a response body but stop as soon as it passes `limit` bytes, so a file
+ * without (or with a lying) Content-Length is never buffered in full.
+ */
+async function readCapped(res: Response, limit: number): Promise<Buffer> {
+  if (!res.body) return Buffer.alloc(0);
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limit) {
+      await reader.cancel().catch(() => {});
+      throw new MediaHttpError(`file too large (>${limit} bytes)`, null, false);
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks, total);
+}
+
 export async function downloadImage(url: string, opts: FetchOptions = {}): Promise<Buffer> {
-  if (!isAllowedDownloadUrl(url)) throw new MediaHttpError(`download host not allowed: ${url}`, null, false);
-  const res = await throttledFetch(url, { ...opts, accept: 'image/*', timeoutMs: opts.timeoutMs ?? 30_000 });
+  // Redirects are followed by hand so the host allow-list applies to EVERY hop,
+  // not just the first URL.
+  let current = url;
+  let res: Response | null = null;
+  for (let hop = 0; hop <= MAX_DOWNLOAD_REDIRECTS; hop++) {
+    if (!isAllowedDownloadUrl(current)) {
+      throw new MediaHttpError(`download host not allowed: ${current}`, null, false);
+    }
+    const r = await throttledFetch(current, {
+      ...opts,
+      accept: 'image/*',
+      timeoutMs: opts.timeoutMs ?? 30_000,
+      redirect: 'manual',
+    });
+    if (r.status < 300 || r.status >= 400) {
+      res = r;
+      break;
+    }
+    const location = r.headers.get('location');
+    await r.body?.cancel().catch(() => {});
+    if (!location) throw new MediaHttpError(`redirect without location from ${current}`, r.status, false);
+    current = new URL(location, current).toString();
+  }
+  if (!res) throw new MediaHttpError(`too many redirects for ${url}`, null, false);
+
   const declared = Number(res.headers.get('content-length'));
   if (Number.isFinite(declared) && declared > MAX_DOWNLOAD_BYTES) {
+    await res.body?.cancel().catch(() => {});
     throw new MediaHttpError(`file too large (${declared} bytes)`, null, false);
   }
-  const buf = Buffer.from(await res.arrayBuffer());
-  if (buf.length > MAX_DOWNLOAD_BYTES) throw new MediaHttpError(`file too large (${buf.length} bytes)`, null, false);
+  const buf = await readCapped(res, MAX_DOWNLOAD_BYTES);
   if (!sniffImageMime(buf)) throw new MediaHttpError('downloaded bytes are not jpeg/png/webp', null, false);
   return buf;
 }

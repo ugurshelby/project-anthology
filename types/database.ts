@@ -266,6 +266,25 @@ export interface PushSubscriptionInsert {
 }
 export type PushSubscriptionUpdate = Partial<PushSubscriptionInsert>;
 
+// ── notified_sessions ────────────────────────────────────────────────────────
+// Dedupe guard for /api/cron/notify-sessions (migration 20260714000001):
+// unique (season, round, session_type).
+export type NotifiedSessionType = 'qualifying' | 'sprint' | 'race';
+export interface NotifiedSessionRow {
+  id: number;
+  season: number;
+  round: number;
+  session_type: NotifiedSessionType;
+  notified_at: string;
+}
+export interface NotifiedSessionInsert {
+  season: number;
+  round: number;
+  session_type: NotifiedSessionType;
+  notified_at?: string;
+}
+export type NotifiedSessionUpdate = Partial<NotifiedSessionInsert>;
+
 // ── Database (supabase-js generic) ───────────────────────────────────────────
 // supabase-js v2 requires `Relationships: []` on each table entry to correctly
 // resolve Insert/Update types through its generic machinery.
@@ -306,6 +325,12 @@ export interface Database {
         Row: PushSubscriptionRow;
         Insert: PushSubscriptionInsert;
         Update: PushSubscriptionUpdate;
+        Relationships: never[];
+      };
+      notified_sessions: {
+        Row: NotifiedSessionRow;
+        Insert: NotifiedSessionInsert;
+        Update: NotifiedSessionUpdate;
         Relationships: never[];
       };
       news_stories: {

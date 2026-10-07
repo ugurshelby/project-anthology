@@ -15,8 +15,9 @@ import { CURRENT_SEASON } from '@/lib/f1Calendar';
 function request(path: string | null): NextRequest {
   const url = new URL('http://localhost/api/f1-season');
   if (path !== null) url.searchParams.set('path', path);
-  // No x-real-ip / x-forwarded-for → getClientIP() returns 'unknown', so the
-  // route skips rate limiting. That keeps these tests focused on the whitelist.
+  // No x-real-ip / x-forwarded-for → getClientIP() returns 'fallback:unknown',
+  // one shared in-memory bucket; these tests stay far below its limit and focus
+  // on the whitelist.
   return new NextRequest(url);
 }
 

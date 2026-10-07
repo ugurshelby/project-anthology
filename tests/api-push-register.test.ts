@@ -25,8 +25,8 @@ const VALID_TOKEN = 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]';
 function request(body: unknown, { raw = false }: { raw?: boolean } = {}): NextRequest {
   return new NextRequest('http://localhost/api/push/register', {
     method: 'POST',
-    // No x-real-ip / x-forwarded-for → getClientIP() is 'unknown' → rate limiting
-    // is skipped, keeping these tests focused on validation.
+    // No x-real-ip / x-forwarded-for → getClientIP() is 'fallback:unknown', which
+    // the route skips (and NODE_ENV=test skips limiting anyway): validation only.
     body: raw ? (body as string) : JSON.stringify(body),
   });
 }
