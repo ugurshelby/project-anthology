@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/routing';
 import type { MachineryCar } from '@/data/machinery/cars';
-import { MachineryCadWireframe } from '@/components/machinery/MachineryCadWireframe';
+import { MachineryVisual } from '@/components/machinery/MachineryVisual';
+import { getMediaBatch } from '@/lib/media/read';
 
 interface MachineryCrossLinkProps {
   cars: MachineryCar[];
@@ -9,7 +10,7 @@ interface MachineryCrossLinkProps {
   kicker?: string;
 }
 
-export function MachineryCrossLink({
+export async function MachineryCrossLink({
   cars,
   locale = 'tr',
   title,
@@ -17,6 +18,7 @@ export function MachineryCrossLink({
 }: MachineryCrossLinkProps) {
   if (!cars || cars.length === 0) return null;
   const isTr = locale === 'tr';
+  const media = await getMediaBatch('car', cars.map((c) => `iconic:${c.id}`));
 
   return (
     <div className="relative w-full overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface/40 p-5 md:p-6 backdrop-blur-md">
@@ -45,64 +47,76 @@ export function MachineryCrossLink({
 
       {/* Grid of matched cars */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {cars.map((car) => (
-          <Link
-            key={car.id}
-            href={`/machinery/${car.id}`}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-hairline bg-[#080808]/90 p-4 transition-all duration-200 hover:border-white/25 hover:bg-[#0d0d0d]"
-          >
-            {/* Top accent line */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-75"
-              style={{
-                background: `linear-gradient(90deg, ${car.accentColor}, transparent)`,
-              }}
-            />
+        {cars.map((car) => {
+          const shot = media.get(`iconic:${car.id}`);
+          return (
+            <Link
+              key={car.id}
+              href={`/machinery/${car.id}`}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-hairline bg-[#080808]/90 p-4 transition-all duration-200 hover:border-white/25 hover:bg-[#0d0d0d]"
+            >
+              {/* Top accent line */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-75"
+                style={{
+                  background: `linear-gradient(90deg, ${car.accentColor}, transparent)`,
+                }}
+              />
 
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs font-bold text-accent">
-                  {car.year}
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-text-mid">
-                  {isTr ? car.eraTr : car.era}
-                </span>
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs font-bold text-accent">
+                    {car.year}
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-text-mid">
+                    {isTr ? car.eraTr : car.era}
+                  </span>
+                </div>
+
+                <div className="mt-2">
+                  <span className="label-caps block text-[10px] text-text-mid">
+                    {car.constructorName}
+                  </span>
+                  <h4
+                    className="font-condensed text-lg font-700 uppercase tracking-tight text-text-hi transition-colors group-hover:text-accent md:text-xl"
+                    style={{ fontFamily: 'var(--font-condensed)' }}
+                  >
+                    {car.name}
+                  </h4>
+                </div>
+
+                {/* Archive photo, or the livery silhouette when there is none */}
+                <div className="my-3 overflow-hidden rounded-[10px] border border-hairline">
+                  <MachineryVisual
+                    car={car}
+                    media={shot}
+                    showAttribution={false}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
+                {/* The card is a link, so the photo credit is plain text (no nested button or link). */}
+                {shot?.status === 'image' && shot.attribution.text ? (
+                  <p className="-mt-1 mb-2 truncate font-mono text-[10px] text-text-low">{shot.attribution.text}</p>
+                ) : null}
+
+                <p className="line-clamp-2 text-xs leading-relaxed text-text-mid">
+                  {isTr ? car.keyInnovationTr : car.keyInnovationEn}
+                </p>
               </div>
 
-              <div className="mt-2">
-                <span className="label-caps block text-[10px] text-text-mid">
-                  {car.constructorName}
+              <div className="mt-4 flex items-center justify-between border-t border-hairline/60 pt-3 font-mono text-[11px]">
+                <span className="text-text-mid">
+                  {car.achievements.wins} {isTr ? 'G' : 'W'} · {car.achievements.titles.join('/')}
                 </span>
-                <h4
-                  className="font-condensed text-lg font-700 uppercase tracking-tight text-text-hi transition-colors group-hover:text-accent md:text-xl"
-                  style={{ fontFamily: 'var(--font-condensed)' }}
-                >
-                  {car.name}
-                </h4>
+                <span className="flex items-center gap-1 font-semibold text-accent group-hover:underline">
+                  <span>{isTr ? 'İncele' : 'Inspect'}</span>
+                  <span aria-hidden="true">→</span>
+                </span>
               </div>
-
-              {/* Miniature CAD wireframe */}
-              <div className="my-2 h-20 w-full overflow-hidden">
-                <MachineryCadWireframe car={car} interactive={false} />
-              </div>
-
-              <p className="line-clamp-2 text-xs leading-relaxed text-text-mid">
-                {isTr ? car.keyInnovationTr : car.keyInnovationEn}
-              </p>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between border-t border-hairline/60 pt-3 font-mono text-[11px]">
-              <span className="text-text-mid">
-                {car.achievements.wins} {isTr ? 'G' : 'W'} · {car.achievements.titles.join('/')}
-              </span>
-              <span className="flex items-center gap-1 font-semibold text-accent group-hover:underline">
-                <span>{isTr ? 'İncele' : 'Inspect'}</span>
-                <span aria-hidden="true">→</span>
-              </span>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

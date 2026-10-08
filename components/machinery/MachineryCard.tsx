@@ -3,13 +3,16 @@
 import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import type { MachineryCar } from '@/data/machinery/cars';
-import { MachineryCadWireframe } from './MachineryCadWireframe';
+import type { MediaResult } from '@/lib/media/read';
+import { MachineryVisual } from './MachineryVisual';
 
 interface MachineryCardProps {
   car: MachineryCar;
+  /** Server lookup for `iconic:<id>`: the photo when one exists, else the livery silhouette. */
+  media?: MediaResult | null;
 }
 
-export function MachineryCard({ car }: MachineryCardProps) {
+export function MachineryCard({ car, media }: MachineryCardProps) {
   const locale = useLocale();
   const isTr = locale === 'tr';
 
@@ -48,9 +51,13 @@ export function MachineryCard({ car }: MachineryCardProps) {
           </h2>
         </div>
 
-        {/* CAD Blueprint Wireframe */}
-        <div className="my-3">
-          <MachineryCadWireframe car={car} interactive={false} />
+        {/* Archive photo, or the livery silhouette when there is none */}
+        <div className="my-3 overflow-hidden rounded-[10px] border border-hairline">
+          <MachineryVisual
+            car={car}
+            media={media}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
         </div>
 
         {/* Innovation Tagline */}

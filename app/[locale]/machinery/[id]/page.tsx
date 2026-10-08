@@ -6,8 +6,7 @@ import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { getMachineryCar, getAllMachineryCars } from '@/data/machinery/cars';
-import { MachineryCadWireframe } from '@/components/machinery/MachineryCadWireframe';
-import { MediaAssetView } from '@/components/media/MediaAssetView';
+import { MachineryVisual } from '@/components/machinery/MachineryVisual';
 import { getMedia } from '@/lib/media/read';
 import { localizedAlternates, vehicleJsonLd } from '@/lib/seo';
 
@@ -33,8 +32,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = `${car.fullName} (${car.year}) — Machinery`;
   const description = isTr
-    ? `${car.fullName} teknik CAD analizi, ${car.engine.spec} motor verileri, aerodinamik inovasyonlar ve ${car.year} sezonu mühendislik dosyası.`
-    : `${car.fullName} technical CAD dossier, ${car.engine.spec} powertrain data, aerodynamic breakthroughs and ${car.year} championship pedigree.`;
+    ? `${car.fullName} teknik dosyası, ${car.engine.spec} motor verileri, aerodinamik inovasyonlar ve ${car.year} sezonu mühendislik dosyası.`
+    : `${car.fullName} technical dossier, ${car.engine.spec} powertrain data, aerodynamic breakthroughs and ${car.year} championship pedigree.`;
 
   return {
     title,
@@ -128,34 +127,49 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         </p>
       </header>
 
-      {/* CAD Blueprint & Authentic Archive Photo Grid */}
+      {/* One visual: the licensed archive photo, or the livery silhouette when there is none */}
       <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <MachineryCadWireframe car={car} interactive={true} />
-        </div>
-        <div className="flex flex-col justify-between rounded-[16px] border border-white/10 bg-[#090d14] p-4 lg:col-span-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="label-caps font-mono text-[10px] tracking-wider text-text-low">
-              {isTr ? 'ARŞİV FOTOĞRAFI // CC BY' : 'ARCHIVE DOSSIER // CC BY'}
-            </span>
-            <span className="font-mono text-[10px] text-accent">
-              {car.year} SPEC
+        <figure className="overflow-hidden rounded-[16px] border border-hairline bg-surface lg:col-span-8">
+          <MachineryVisual
+            car={car}
+            media={carMedia}
+            priority
+            sizes="(max-width: 1024px) 100vw, 66vw"
+            className="h-full"
+          />
+        </figure>
+
+        <aside
+          aria-label={isTr ? 'Temel veriler' : 'Key figures'}
+          className="flex flex-col justify-between gap-6 rounded-[16px] border border-hairline bg-surface p-5 sm:p-6 lg:col-span-4"
+        >
+          <div>
+            <span className="label-caps block text-text-low">{car.constructorName}</span>
+            <span
+              className="mt-1 block font-condensed text-3xl font-700 uppercase tracking-tight text-text-hi"
+              style={{ fontFamily: 'var(--font-condensed)' }}
+            >
+              {car.name}
             </span>
           </div>
-          <div className="relative min-h-[220px] w-full flex-1 overflow-hidden rounded-lg">
-            <MediaAssetView
-              type="car"
-              entityKey={`iconic:${car.id}`}
-              initialResult={carMedia}
-              alt={car.fullName}
-              name={car.fullName}
-              teamColor={car.accentColor}
-              season={car.year}
-              aspectRatio="16/9"
-              className="h-full w-full object-cover"
-            />
+          <dl className="divide-y divide-hairline font-mono text-xs">
+            {[
+              { label: isTr ? 'SEZON' : 'SEASON', value: String(car.year) },
+              { label: isTr ? 'GÜÇ ÜNİTESİ' : 'POWER UNIT', value: car.engine.spec },
+              { label: isTr ? 'AĞIRLIK' : 'WEIGHT', value: `${car.chassis.weightKg} kg` },
+              { label: isTr ? 'GALİBİYET' : 'WINS', value: `${car.achievements.wins} / ${car.achievements.races}` },
+            ].map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-text-low">{row.label}</dt>
+                <dd className="truncate text-right font-semibold text-text-hi">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="flex items-baseline justify-between border-t border-hairline pt-4">
+            <span className="label-caps text-text-low">{isTr ? 'KAZANMA ORANI' : 'WIN RATE'}</span>
+            <span className="hero-number text-4xl text-text-hi tabular-nums">{car.achievements.winRate}</span>
           </div>
-        </div>
+        </aside>
       </div>
 
       <BentoGrid>

@@ -48,7 +48,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 | Live `robots.txt` | HTTP 200; allows `/` and the legal paths; disallows `/api/` and `/api/cron/` [VERIFIED] |
 | Live cron without a token | `GET /api/cron/sync-news`, `/sync-f1`, `/sync-radio`, `/notify-sessions` returned HTTP 401 [VERIFIED] |
 | Database reachability from this machine | The build logged successful Supabase reads of `news_stories`, `stories`, `radio_moments`, and `f1_snapshots` for season 2026 [VERIFIED: build log] |
-| Machinery & CAD Blueprints | `/machinery` index and `/machinery/[id]` dossier routes with interactive SVG wireframes [VERIFIED: 2026-10-06] |
+| Machinery | `/machinery` index and `/machinery/[id]` dossier routes; each car shows its licensed archive photo (`iconic:<id>`, server `getMediaBatch`) or, only when none exists, a minimal two-tone livery silhouette (`MachineryVisual` → `CarPlaceholder` → `F1CarSilhouette`) [VERIFIED: 2026-10-08] |
 | Tech Glossary 2.0 | `RegulationErasPanel` (1994–2026) and `TyreThermalWindows` (C1–C5) live in `/tech-glossary` [VERIFIED: 2026-10-06] |
 | Circuits & Telemetry | Topography elevation profiles and curated lore cards live in `/circuits/[id]` [VERIFIED: 2026-10-06] |
 | Season & Grid Dynamics | `SeasonProgressionChart`, `GridDeltaBadge`, and `TeammateHeadToHead` live in season and grid [VERIFIED: 2026-10-06] |

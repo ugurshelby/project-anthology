@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import type { MediaEntityType } from '@/lib/media/types';
 import type { MediaResult } from '@/lib/media/read';
+import { loadMedia, peekMedia } from '@/lib/media/client';
 import { CircuitPlaceholder } from './placeholders/CircuitPlaceholder';
 import { TeamPlaceholder } from './placeholders/TeamPlaceholder';
 import { CarPlaceholder } from './placeholders/CarPlaceholder';
@@ -17,6 +18,8 @@ export interface MediaAssetViewProps {
   alt: string;
   name?: string;
   teamColor?: string;
+  /** Second livery colour for the car placeholder (two-tone). */
+  teamAccent?: string;
   driverNumber?: number | string;
   driverCode?: string;
   season?: number | string;
@@ -32,8 +35,9 @@ export interface MediaAssetViewProps {
  * Adheres strictly to `docs/reference/media-sistemi.md` Section 8 & 9.
  *
  * 1. Checks `status === 'image'` -> renders license-checked WebP with srcSet, blurDataURL, and dominantColor.
- * 2. Fallbacks gracefully to type-specific parametric SVG placeholder if missing, pending, or on error.
- * 3. Never queries Wikimedia directly; only reads our DB / CDN storage.
+ * 2. While the lookup is still pending (no server result), shows a neutral surface, never the SVG:
+ *    the placeholder appears only once we know there is no image, or the image fails to load.
+ * 3. Never queries Wikimedia directly; only reads our DB / CDN storage (batched via lib/media/client).
  * 4. Displays verified CC-BY / Wikimedia attribution safely as plain text.
  */
 export function MediaAssetView({
@@ -43,6 +47,7 @@ export function MediaAssetView({
   alt,
   name,
   teamColor,
+  teamAccent,
   driverNumber,
   driverCode,
   season,
@@ -52,33 +57,25 @@ export function MediaAssetView({
   aspectRatio,
   showAttribution = true,
 }: MediaAssetViewProps) {
-  const [fetchedResult, setFetchedResult] = useState<MediaResult | null>(null);
+  const [fetchedResult, setFetchedResult] = useState<MediaResult | null>(() =>
+    initialResult ? null : (peekMedia(type, entityKey) ?? null),
+  );
   const [imageError, setImageError] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const t = useTranslations('ui.media');
   const infoId = useId();
 
-  const result = initialResult ?? fetchedResult;
+  // A result fetched for an earlier key never stands in for the current one.
+  const current = fetchedResult && fetchedResult.key === entityKey.toLowerCase() ? fetchedResult : null;
+  const result = initialResult ?? current;
 
-  // If no initialResult provided in client render, fetch from /api/media
+  // No server result: ask /api/media (batched and cached per page).
   useEffect(() => {
     if (initialResult) return;
-
     let cancelled = false;
-    async function load() {
-      try {
-        const res = await fetch(`/api/media?type=${type}&keys=${encodeURIComponent(entityKey)}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled && data?.items?.[entityKey]) {
-          setFetchedResult(data.items[entityKey]);
-        }
-      } catch {
-        // Fallback remains active on network failure
-      }
-    }
-
-    load();
+    void loadMedia(type, entityKey).then((loaded) => {
+      if (!cancelled) setFetchedResult(loaded);
+    });
     return () => {
       cancelled = true;
     };
@@ -92,7 +89,16 @@ export function MediaAssetView({
       case 'team':
         return <TeamPlaceholder seed={entityKey} name={name} teamColor={teamColor} className="h-full w-full" />;
       case 'car':
-        return <CarPlaceholder seed={entityKey} name={name} teamColor={teamColor} season={season} className="h-full w-full" />;
+        return (
+          <CarPlaceholder
+            seed={entityKey}
+            name={name}
+            teamColor={teamColor}
+            accentColor={teamAccent}
+            season={season}
+            className="h-full w-full"
+          />
+        );
       case 'driver':
       default:
         return (
@@ -108,8 +114,21 @@ export function MediaAssetView({
     }
   };
 
-  // If missing or errored, render the custom SVG placeholder immediately
-  if (!result || result.status !== 'image' || imageError) {
+  // Lookup still pending: a quiet neutral surface, so the SVG never flashes before a real photo.
+  if (!result) {
+    return (
+      <div
+        aria-busy="true"
+        aria-label={alt}
+        role="img"
+        className={`relative overflow-hidden rounded-[var(--radius-md)] bg-surface-raised motion-safe:animate-pulse ${className}`}
+        style={aspectRatio ? { aspectRatio } : undefined}
+      />
+    );
+  }
+
+  // No licensed image (or it failed to load): the type-specific SVG placeholder.
+  if (result.status !== 'image' || imageError) {
     return (
       <div
         className={`relative overflow-hidden rounded-[var(--radius-md)] ${className}`}

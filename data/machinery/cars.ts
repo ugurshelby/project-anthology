@@ -57,7 +57,6 @@ export interface MachineryCar {
   accentColor: string;
   secondaryColor: string;
   relatedGlossaryTerms: string[];
-  cadSilhouetteSvg: string; // Architectural wireframe side profile
 }
 
 export const MACHINERY_CARS: MachineryCar[] = [
@@ -108,7 +107,6 @@ export const MACHINERY_CARS: MachineryCar[] = [
     accentColor: '#ff1801',
     secondaryColor: '#ffffff',
     relatedGlossaryTerms: ['Turbocharger', 'Monocoque', 'Downforce', 'Drag'],
-    cadSilhouetteSvg: 'M 10 70 L 60 70 L 80 52 L 140 45 L 210 38 L 260 38 L 300 48 L 360 52 L 410 52 L 440 65 L 470 65 L 470 75 L 400 75 L 390 68 L 340 68 L 330 75 L 120 75 L 110 68 L 70 68 L 60 75 Z',
   },
   {
     id: 'williams-fw14b',
@@ -157,7 +155,6 @@ export const MACHINERY_CARS: MachineryCar[] = [
     accentColor: '#005aff',
     secondaryColor: '#f5d300',
     relatedGlossaryTerms: ['Active Suspension', 'Traction Control', 'Blown Diffuser', 'Downforce'],
-    cadSilhouetteSvg: 'M 10 72 L 55 72 L 75 55 L 130 46 L 205 39 L 265 39 L 310 46 L 370 50 L 420 50 L 450 63 L 475 63 L 475 74 L 410 74 L 398 67 L 345 67 L 335 74 L 125 74 L 115 67 L 72 67 L 62 74 Z',
   },
   {
     id: 'ferrari-f2004',
@@ -206,7 +203,6 @@ export const MACHINERY_CARS: MachineryCar[] = [
     accentColor: '#e80020',
     secondaryColor: '#ffffff',
     relatedGlossaryTerms: ['Downforce', 'Diffuser', 'Monocoque', 'Power-to-weight ratio'],
-    cadSilhouetteSvg: 'M 12 70 L 60 70 L 82 53 L 138 43 L 210 36 L 270 36 L 315 45 L 368 49 L 425 49 L 452 64 L 478 64 L 478 74 L 412 74 L 400 66 L 348 66 L 336 74 L 126 74 L 114 66 L 70 66 L 58 74 Z',
   },
   {
     id: 'brawn-bgp-001',
@@ -255,7 +251,6 @@ export const MACHINERY_CARS: MachineryCar[] = [
     accentColor: '#e1f700',
     secondaryColor: '#ffffff',
     relatedGlossaryTerms: ['Double Diffuser', 'Outwash', 'Downforce', 'Aerodynamic Wake'],
-    cadSilhouetteSvg: 'M 10 71 L 58 71 L 80 54 L 135 44 L 205 38 L 265 38 L 312 47 L 365 51 L 420 51 L 448 64 L 474 64 L 474 74 L 408 74 L 396 67 L 344 67 L 332 74 L 122 74 L 110 67 L 68 67 L 56 74 Z',
   },
   {
     id: 'lotus-72',
@@ -305,7 +300,6 @@ export const MACHINERY_CARS: MachineryCar[] = [
     accentColor: '#d4af37',
     secondaryColor: '#1a1a1a',
     relatedGlossaryTerms: ['Monocoque', 'Downforce', 'Inboard Brakes'],
-    cadSilhouetteSvg: 'M 10 74 L 50 74 L 70 60 L 125 52 L 195 44 L 255 44 L 295 50 L 350 54 L 405 54 L 435 66 L 465 66 L 465 75 L 400 75 L 390 69 L 340 69 L 330 75 L 118 75 L 108 69 L 68 69 L 58 75 Z',
   },
   {
     id: 'redbull-rb19',
@@ -354,7 +348,6 @@ export const MACHINERY_CARS: MachineryCar[] = [
     accentColor: '#1e41ff',
     secondaryColor: '#f5d300',
     relatedGlossaryTerms: ['Ground Effect', 'Porpoising', 'Venturi Tunnels', 'DRS', 'Downforce'],
-    cadSilhouetteSvg: 'M 10 71 L 62 71 L 84 53 L 142 42 L 215 35 L 275 35 L 320 44 L 372 48 L 430 48 L 456 63 L 482 63 L 482 73 L 416 73 L 404 65 L 352 65 L 340 73 L 130 73 L 118 65 L 72 65 L 60 73 Z',
   },
 ];
 
