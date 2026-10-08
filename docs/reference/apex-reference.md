@@ -244,7 +244,7 @@ Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`.
 - Current shipping branch is `main`, even with `origin/main` [VERIFIED: `git status` at the start of this analysis].
 - No workflow deploys the site; `ci.yml` only checks pull requests [VERIFIED].
 - Docs say Vercel deploys the web app [VERIFIED: `README.md`]. The git event that triggers that deploy was not read from a Vercel project setting [UNVERIFIED].
-- `feat/apex-frontend-rebuild` still exists locally and on the remote. `HEAD` is `main` [VERIFIED]. Whether the branch is still needed is an owner question (section 13).
+- Only `main` is worked on; side branches are not opened, and merged or commit-less ones are deleted (owner rule 2026-10-08, `AGENTS.md`). On 2026-10-08 `agent/season-history`, `claude/admiring-feynman-60ofyp` and `claude/blissful-curie-q5c4ck` had no commit missing from `main` and were deleted; `feat/apex-frontend-rebuild` was no longer on the remote. `agent/pilot-setup` has 255 commits not in `main` and stays until the owner decides (section 13) [VERIFIED: `git rev-list --count origin/main..origin/<branch>`, 2026-10-08].
 - `railway/` was removed. The 2026-09-29 log says the Railway cron was never deployed and was replaced by GitHub Actions [VERIFIED: log plus `Test-Path railway` is false].
 
 ---
@@ -515,7 +515,7 @@ Last verified: 2026-10-02
 5. `public/stories` stays (owner, 2026-10-02) and the 68 unreferenced files were deleted. Still open: whether the remaining 56 files may be used (no license record); to be discussed.
 6. Are `privacy@apexstats.example`, `dmca@apexstats.example`, and `contact@apexstats.example` intentional placeholders? If a real address exists, it is not in the legal pages. Was the privacy text reviewed by anyone who can approve a KVKK notice? The repo does not say.
 7. Is the Expo app in `mobile/` still a product? It is on disk and gitignored, so `main` does not contain it.
-8. Is `feat/apex-frontend-rebuild` still needed, or is it an abandoned branch?
+8. `agent/pilot-setup` has 255 commits that `main` lacks (oldest docs/CI/origin work from the pilot setup). Merge it, or delete it?
 9. ~~Analytics for every visitor?~~ Resolved 2026-10-02: opt-in (owner decision), implemented.
 10. Sentry org `anthology-z0` and project `project-anthology` were not found during this build. Is that the project to keep, or should source-map upload stay off?
 11. The master plan’s unchecked UI and Lighthouse items were not re-measured in a browser in this pass. Which of WEB-UI.4, WEB-UI.5, WEB-UI.7, and WEB-UI.8 are still wanted?

@@ -1,6 +1,6 @@
 # Procedures
 
-The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.md` apply to all of them: work on `main` (small commits, gates green before every push; risky changes go on an `agent/<short-task>` branch for the owner to merge), never force-push, never use secrets or the live database, never decide owner questions.
+The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.md` apply to all of them: work on `main` (small commits, gates green before every push; never a side branch, risky changes are asked first and then done on `main`), never force-push, never use secrets or the live database, never decide owner questions.
 
 ## Common ending (every procedure)
 
@@ -68,7 +68,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 ## 6. Merge readiness
 
 - Triggers: "main'e hazır mı", "merge öncesi kontrol", "ready to merge".
-- Scope: the unpushed commits or the current agent branch compared with `origin/main`.
+- Scope: the unpushed commits on `main` compared with `origin/main`.
 - Steps: `git diff --stat origin/main...HEAD`; confirm every changed screen was used in a browser (otherwise list it as not verified); run `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; list risks (migrations, env names, routes, cron, copyright, docs drift); recommend merge or not.
 - May change: nothing except trivial fixes the gates require.
 - Only report: the recommendation. Do not push if a gate fails.
