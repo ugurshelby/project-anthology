@@ -2,6 +2,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { MediaAssetView } from '@/components/media/MediaAssetView';
 import { resolveTeamUiColor } from '@/config/team-colors';
+import { paletteFor } from '@/lib/history/palette';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { DriverGridRow } from '@/lib/data/entities';
 
@@ -281,6 +282,7 @@ function TeammateHeadToHead({
 export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: number }) {
   const t = useTranslations('ui.common');
   const color = resolveTeamUiColor(undefined, unit.constructorName, season);
+  const livery = paletteFor(unit.constructorName, season);
   const [d1, d2] = unit.drivers;
 
   return (
@@ -328,7 +330,8 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
               entityKey={`${unit.constructorId}:${season}`}
               alt={`${unit.constructorName} ${season} car`}
               name={`${unit.constructorName} ${season}`}
-              teamColor={color}
+              teamColor={livery.curated ? livery.secondary : color}
+              teamAccent={livery.curated ? livery.accent : undefined}
               season={season}
               className="h-full w-full object-contain"
               showAttribution={false}
