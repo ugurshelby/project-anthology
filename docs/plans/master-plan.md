@@ -44,8 +44,8 @@
 - **Antigravity:** yalnızca arayüz, tasarım ve arayüz metinleri (`components/`, `app/[locale]/**` içindeki görsel kısımlar, `messages/*.json`, `public/` tasarım varlıkları). **Commit ve push yetkisi yoktur** (`AGENTS.md`). İşini bitirince günün log'una yazar, dokunduğu plan maddesini `[~]` bırakır (asla `[x]` yapmaz), Claude doğrular ve commit eder.
 - **Antigravity'nin dokunmadığı yerler:** `lib/`, `app/api/`, `supabase/`, `scripts/`, `data/media/`, `data/stories/image-credits.ts` (sahip doldurur), `.github/`, `vercel.json`, `AGENTS.md`, `mobile/`. Bir arayüz işi için bunlardan birinde değişiklik gerekirse plana not düşer, Claude yapar.
 - **Aynı çalışma ağacı:** iki ajan paralel çalışırken yalnızca kendi dosyalarını düzenler; başka birinin değişikliğini geri almaz, stash'lemez.
-- **Oturum devri ("nerede kalmıştık"):** güncel durum, bekleyen eylemler ve push durumu `logs/2026-10-08.md` sonundaki "Devir notu" bölümünde.
-- **Hatırlatma listesi (sahibin isteği):** site denetimi başlarken → 8.3 (medya kalite incelemesi) + 7.1 kaynak listesi + 7.2 editoryal inceleme; denetim düzeltmeleri bittikten sonra → 8.6 (1950–2017 genişletmesi); yarış hafta sonu → `docs/reference/yaris-hafta-sonu-dogrulama.md`; web/arayüz/mimari oturunca (mobil ile birlikte) veya bir cron rotası 300 sn sınırına dayanınca → 9.1 (Vercel + GCP hibrit).
+- **Oturum devri ("nerede kalmıştık"):** güncel durum, bekleyen eylemler ve push durumu `logs/2026-10-09.md` sonundaki "Devir notu" bölümünde.
+- **Hatırlatma listesi (sahibin isteği):** site denetimi başlarken → 8.3 (medya kalite incelemesi) + 7.1 kaynak listesi + 7.2 editoryal inceleme; denetim düzeltmeleri bittikten sonra → 8.6 (1950–2017 genişletmesi); yarış hafta sonu → `docs/reference/yaris-hafta-sonu-dogrulama.md`; Kasım başında (GCP kredisi 2026-12-18'de bitiyor) → 9.3 tek seferlik işler ve 8.6 zamanlaması; bir cron rotası 300 sn sınırına dayanınca veya mobil gündeme gelince → 9.1 (Vercel + GCP hibrit); sahip bileşen/düzen kaynaklarını incelemeyi bitirince → `docs/design/apex-component-rules.md` kurulur (sahip kararı 2026-10-09: iskelet şimdilik kurulmaz, kuralları sahip tek tek yazar).
 
 ### 🎨 Antigravity İş Listesi (frontend)
 
@@ -133,16 +133,30 @@
 
 ---
 
-### ☁️ Faz 9: Hibrit Mimari — Vercel (arayüz) + GCP (ağır işler) — ileride
-*Sahibin fikri (2026-10-07). Şimdi yapılmaz; aşağıdaki tetikleyicilerden biri doğunca veya sahip "nerede kalmıştık" dediğinde hatırlatılır.*
+### ☁️ Faz 9: Google Cloud — kredi dönemi (18 Aralık 2026'ya kadar) ve sonrası
+*Sahip kararı (2026-10-09): Free Trial kredisinin tamamı 18 Aralık 2026'ya kadar Apex için harcanabilir (testler, tek seferlik üretimler, geliştirme). Kredi bittikten sonra kalıcı yürütme maliyeti **en fazla ~₺50/ay** (sahibin kartından); sistem buna göre kurulur. Hesap ödemeli (`FreeTrialUpgrade`): kredi bitince ücret otomatik kesilir. Hesap ölçümleri (Claude in Chrome, salt-okunur): `logs/2026-10-09.md`. Groq yedek olarak kalır.*
 
-- [ ] **9.1 Vercel + GCP hibrit mimari (Sahip kararı gerekir; hesap/faturalama sahipte):**
-  - **Fikir:** Next.js arayüzü, routing ve edge Vercel'de kalır; uzun süren, ağır veya yüksek CPU/RAM isteyen işler GCP'de çalışır. Tercih sırası: **Cloud Run** (istek geldikçe ayağa kalkar, boşta ücret yok), yalnızca sürekli açık süreç gerekiyorsa Compute Engine VM (boşta da fatura işler; iş bitince Stop). Kuyruk gerekirse Cloud Tasks/Pub/Sub; Redis tabanlı kuyruk (BullMQ/Celery) yalnızca gerçekten gerekiyorsa.
-  - **Bugünkü durum (ölçülmüş): ihtiyaç yok.** En uzun iş `sync-media` 215 sn iş bütçesiyle Vercel'in 300 sn `maxDuration` sınırının içinde; zamanlama sorunu QStash ile çözülüyor (1.6). Ek bir sistem ek hata yüzeyi, ek maliyet ve bakım demektir.
-  - **Aday işler:** `sync-media` (sharp, indirme/yükleme; `MediaRepo` soyutlaması taşımayı kolaylaştırır), `sync-news` (AI yeniden yazma, 300 sn), 8.6 eski sezon genişletmesi (binlerce varlık), `seed:f1db` tohumlama, ileride ağır analiz/simülasyon, Lighthouse/CWV otomasyonu. Ayrıca sahibin "GCP'yi öğrenme laboratuvarı" olarak bu repodan bağımsız küçük bir servis kurması da seçenek.
-  - **Hatırlatma tetikleyicileri (biri yeter):** bir cron rotası `time budget` ile sık duruyor veya 300 sn'ye yaklaşıyor; 8.6 başlıyor; Vercel limit/fatura sorunu; web + arayüz + mimari oturup mobil (7.3) gündeme geliyor; sahip öğrenmek istediğini söylüyor.
-  - **Tasarım notları (karar verilmedi, araştırma gerekir):** bölge Supabase bölgesine yakın seçilmeli (önce Supabase bölgesi kontrol edilecek; Avrupa için `europe-west1/west3`); sunucudan sunucuya çağrıda CORS gerekmez, yalnızca tarayıcıdan çağrılacaksa gerekir — AGENTS.md kuralı korunur: cron ve upstream API'ler tarayıcıdan çağrılmaz; kimlik: mevcut `CRON_SECRET` Bearer + istenirse Cloud Run IAM/OIDC; gizli anahtarlar GCP Secret Manager'da, repoda asla; QStash zamanlaması hedefi GCP URL'sine çevrilebilir (`lib/cron/qstashSchedules.ts` bugün yalnızca site yolunu destekliyor, tam URL desteği eklenmeli); bütçe alarmı ve ücretsiz kota/kredi önceden kontrol edilecek; Vercel ile GCP arasındaki gecikme ölçülecek.
-  - Ajan GCP hesabı açamaz, faturalama ayarlayamaz; sahibin projeyi ve servis hesabını oluşturması gerekir.
+- [ ] **9.0 Hesap, proje ve anahtar kurulumu (Sahip; Claude in Chrome yardımıyla):**
+  - Eski `GEMINI_API_KEY`'in kaynağı bulunup silinir. Bilinen: `docs/vision/technical.md` "AI Studio'dan" diyor; Vercel'deki değer 2026-10-01 09:51 UTC'de proje yeniden kurulurken diğer değişkenlerle birlikte kopyalandı; hangi Google hesabı/GCP projesinde oluşturulduğu bilinmiyor (Chrome raporundaki 5 projede `gen-lang-client-…` yok).
+  - **Sıra (haber hattı kesilmesin):** yeni anahtar oluşturulur → sahip Vercel'e (Production + Preview, sensitive) ve `.env.local`'a `GEMINI_API_KEY` adıyla yazar → yeni deploy → Claude haber cron yanıtında Gemini'nin çalıştığını ölçer → eski anahtar silinir. Anahtar değeri sohbete, log'a veya repoya girmez.
+  - Apex için ayrı GCP projesi (Avrupa), faturalama bağlı, **Generative Language API** etkin; API anahtarı yalnızca bu API'ye kısıtlı. Testler ve görsel üretimi de aynı anahtarı kullanır.
+  - Ana kredinin bu API'yi (ve Cloud Run / Vertex'i) kapsadığı doğrulanır; kapsam metni yalnızca "Certain usage" diyor.
+  - Bütçe ve alarmlar: proje bütçesi kredi dönemi için (toplam, 18 Aralık'a kadar) ve kredi sonrası aylık ₺50 gerçek ücret alarmı (%50 / %90 / %100). Bütçe harcamayı durdurmaz, yalnızca uyarır.
+- [ ] **9.2 Gemini ana sağlayıcı, Groq yedek (Claude; 9.0 bitince):**
+  - Bugün sıra Groq → Gemini ve kod "yalnızca ücretsiz katman" diyor (`lib/news/rewrite.ts`). Sıra ortam değişkeniyle seçilebilir hale gelir (ad `.env.example`'a), varsayılan Gemini → Groq; yorum ve README/`technical.md` güncellenir.
+  - Hangi sağlayıcının kaç haber yazdığı cron yanıtına ve log'a eklenir (migration gerekmez); aylık Gemini maliyeti bundan ölçülür.
+  - **Kredi bitince kural:** ölçülen aylık Gemini maliyeti ₺50'yi aşıyorsa varsayılan sıra Groq → Gemini'ye döner (ücretsiz katman önce).
+  - Ölçüm (2026-10-09, canlı DB salt-okunur): son 7 günde 212 haber, 212'si yeniden yazılmış, bekleyen 0, günde 18–42 haber. Bugün kota sorunu yok; geçişin amacı tek anahtar, kalite ve aynı anahtarla görsel/test erişimi.
+  - Anahtarla erişilebilen modeller (`models.list`) listelenip `docs/reference/apex-reference.md`'ye yazılır.
+- [ ] **9.3 Kredi dönemi tek seferlik işler (Claude öneri, Sahip onayı; 18 Aralık'a kadar, Kasım başında hatırlat):**
+  - 8.6 (1950–2017 medya genişletmesi) kredi bitmeden, gerekirse Cloud Run Job ile. Zamanlama sahip kararı.
+  - Haftalık PageSpeed / Core Web Vitals ölçümü ve Cloud Monitoring uptime check (ücretsiz kota; kalıcı maliyet ~0).
+  - **AI görsel ve ikon denemeleri (sahip izni, 2026-10-09: "gerçekten iyi sonuç alırsak"):** `public/stories` yasağı sürer (`AGENTS.md`); gerçek kişi yüzü, takım logosu/livery'si, F1/FIA markası üretilmez. Sonuçlar önce sahibe gösterilir; sitede kullanılacaksa önce `AGENTS.md`'ye kayıt kuralı (model, prompt, tarih, kullanıldığı yer) sahip onayıyla eklenir.
+- [ ] **9.1 Vercel + GCP hibrit mimari (kalıcı Cloud Run servisi; ileride):**
+  - **Fikir:** Next.js arayüzü, routing ve edge Vercel'de kalır; uzun süren, ağır işler GCP'de çalışır. Tercih: **Cloud Run** (boşta ücret yok; Jobs ücretsiz kotası saatlik bir işe yetiyor), Compute Engine VM değil (ücretsiz e2-micro yalnızca ABD bölgelerinde).
+  - **Bugünkü durum (ölçülmüş): ihtiyaç yok.** `sync-media` 240 sn, `sync-news` 200 sn iş bütçesiyle Vercel'in 300 sn sınırının içinde; süre dolunca kalan iş sonraki koşuya kalıyor. Zamanlama QStash ile (1.6).
+  - **Tetikleyiciler (biri yeter):** bir cron rotası sık sık `time budget` ile duruyor; 8.6 Vercel'de sığmıyor; Vercel limit/fatura sorunu; mobil (7.3) gündeme geliyor.
+  - **Tasarım notları:** bölge Supabase bölgesine yakın (Avrupa); cron ve upstream API'ler tarayıcıdan çağrılmaz; kimlik `CRON_SECRET` Bearer (+ istenirse Cloud Run IAM/OIDC); gizli değerler Secret Manager'da; QStash hedefi GCP URL'sine çevrilebilir (`lib/cron/qstashSchedules.ts` tam URL desteği ister); kredi sonrası ₺50/ay sınırına uymayan hiçbir şey kalıcı kurulmaz.
 
 ---
 
