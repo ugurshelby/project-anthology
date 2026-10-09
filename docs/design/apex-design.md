@@ -3,7 +3,7 @@
 > **Nihai Otorite:** Bu doküman, Apex (Project Anthology) platformunun tek ve bağlayıcı tasarım anayasasıdır.  
 > Temel felsefesi: Apple'ın rafine tasarım ilkeleri (kısıtlama, optik tipografi, yay fiziği, akışkan yüzeyler) ile Formula 1 motor sporlarının yüksek kontrastlı, teknik ve sinematik ruhunun sentezidir.  
 > **Temel Amaç ve Vizyon:** `docs/vision/apex-vision.md`  
-> **Tarih:** 2026-10-05
+> **Tarih:** 2026-10-05 · **Token ve tipografi koda göre düzeltildi:** 2026-10-09
 
 ---
 
@@ -14,9 +14,9 @@ Apex'in tasarım dili; gürültüden arındırılmış, karanlık bir garajda ç
 | İlke | Apple İlkesi | Apex Uygulaması |
 | :--- | :--- | :--- |
 | **Kısıtlama (Restraint)** | Tek bir mavi switch kuralı | Yalnızca tek bir global aksiyon rengi: **Apex Red** (`#ff1801`). Aşırı süsleme, neon ve anlamsız gradyanlar yasaktır. |
-| **Optik Tipografi** | SF Pro negative tracking | Başlık büyüdükçe daralan negatif harf aralığı (Barlow Condensed), gövdede yüksek okunabilirlik (Inter/Geist), telemetride monospaced veri (JetBrains Mono). |
-| **Akışkan Yüzeyler** | Translucent Materials & Frost | Derin koyu zemin üzerine `backdrop-filter: blur(20px)` ile oturan cam plakalar, `rgba(255,255,255,0.08)` hairline sınırlar ve üst kenar ışık çizgileri (inset highlight). |
-| **Yay Fiziği (Spring Motion)** | Kütle, sertlik ve sönümleme | Mekanik lineer geçişler yerine interruptible (kesintiye uğrayabilir) yay fiziği; sayfa geçişlerinde View Transitions. |
+| **Optik Tipografi** | SF Pro negative tracking | Başlık büyüdükçe daralan negatif harf aralığı (Barlow Condensed), gövdede yüksek okunabilirlik (Inter), telemetride monospaced veri (JetBrains Mono). |
+| **Akışkan Yüzeyler** | Translucent Materials & Frost | Derin koyu zemin üzerinde `--surface` kartlar, `--hairline` sınırlar, ortam gölgesi ve üst kenar ışık çizgisi. Gerçek `backdrop-filter` yalnızca tekil, görsel üstü yüzeylerde (§5.3). |
+| **Yay Fiziği (Spring Motion)** | Kütle, sertlik ve sönümleme | Mekanik lineer geçişler yerine interruptible (kesintiye uğrayabilir) yay fiziği; sayfa geçişlerinde View Transitions (hedef, §6). |
 | **Yüksek Bilgi Yoğunluğu** | Dashboard disiplini | Sadece telemetri ve zamanlama tablolarında filtrelenmiş brutalist monospaced bilgi yoğunluğu; kart içinde kart yığılması yok. |
 
 ---
@@ -57,126 +57,113 @@ Tasarım araçlarının çelişmesini engellemek için kurulan bağlayıcı katm
 
 ## 3. Renk Mimarisi ve Token'lar
 
-Apex, Apple'ın yüksek kontrastlı koyu mod (Dark Mode First) felsefesini kullanır. Saf siyah (`#000000`) yerine gözü yormayan derin nötrler ve tek bir imza kırmızısı hakimdir.
+> **Token'ların tek kaynağı koddur: `app/globals.css` (`:root` ve `@theme inline`).** Bu bölüm ve `docs/design/tokens.json` onun aynasıdır; ayrışırlarsa kod doğrudur ve doküman aynı commit'te düzeltilir. `docs/design/apex-design-language.md` token tekrarlamaz, buraya bağlanır.
 
-### 3.1 Zemin ve Yüzeyler
+Apex karanlık mod öncelikli çalışır. Saf siyah (`#000000`) yerine derin nötrler ve tek bir imza kırmızısı kullanılır.
 
-| Token | Değer | Rol & Kullanım |
-| :--- | :--- | :--- |
-| `--bg` | `#0a0a0a` | Birincil sayfa zemini (OLED dostu, hafif sıcak koyu) |
-| `--surface` | `#121212` | Standart bento kartları, paneller ve kapalı yüzeyler |
-| `--surface-raised` | `#1c1c1c` | Hover durumları, açılır menüler, modal zeminleri |
-| `--surface-glass` | `rgba(255, 255, 255, 0.05)` | Apple translucent cam yüzey (`backdrop-blur: 20px`) |
-| `--hairline` | `rgba(255, 255, 255, 0.08)` | Minimum kart sınırları, ayırıcı çizgiler |
-| `--hairline-raised` | `rgba(255, 255, 255, 0.16)` | Odaklanan veya aktif olan kart sınırları |
-
-### 3.2 Vurgu ve Aksiyon (Interactive Accent)
+### 3.1 Zemin ve Yüzeyler (kodda var)
 
 | Token | Değer | Rol & Kullanım |
 | :--- | :--- | :--- |
-| `--accent` | `#ff1801` | **Apex Red** — Birincil etkileşim, canlı seans, aktif sekme |
-| `--accent-hover` | `#e01500` | Buton ve link hover durumu |
-| `--accent-subtle` | `rgba(255, 24, 1, 0.12)` | Kırmızı rozet arka planı, seans canlılık halesi |
-| `--accent-border` | `rgba(255, 24, 1, 0.35)` | Seçili öğe veya odak sınırı |
+| `--bg` | `#0a0a0a` | Birincil sayfa zemini |
+| `--surface` | `#141414` | Bento kartları, paneller |
+| `--surface-raised` | `#1c1c1c` | Hover, açılır menü, modal zemini |
+| `--hairline` | `#262626` | Kart sınırları, ayırıcı çizgiler (opak; cam üstünde de aynı ton) |
 
-### 3.3 Tipografik Kontrast (WCAG 2.2 AA)
+### 3.2 Vurgu (kodda var)
 
-| Token | Değer | Kontrast | Rol |
-| :--- | :--- | :--- | :--- |
-| `--text-hi` | `#fafafa` | 19.5:1 | Büyük başlıklar, pilot isimleri, puan rakamları |
-| `--text` | `#e0e0e0` | 15.6:1 | Gövde metinleri, makale paragrafları |
-| `--text-mid` | `#a3a3a3` | 8.5:1 | Alt başlıklar, ikincil etiketler, meta bilgiler |
-| `--text-low` | `#737373` | 4.7:1 | Dipnotlar, devre dışı elemanlar, pasif simgeler |
-
-### 3.4 Telemetri Durum Renkleri (FIA & F1 Standartları)
-
-| Token | Değer | Anlam |
+| Token | Değer | Rol & Kullanım |
 | :--- | :--- | :--- |
-| `--telemetry-purple` | `#b356fe` | En Hızlı Tur / En Hızlı Sektör (Purple Sector) |
-| `--telemetry-green` | `#00d26a` | Kişisel En İyi Sektör / Sıralama Kazanımı (Green Sector) |
-| `--telemetry-yellow` | `#fecb00` | Sarı Bayrak / Sektör İçi Zaman Kaybı |
-| `--telemetry-red` | `#ff3b30` | Kırmızı Bayrak / Kaza / DNF |
+| `--accent` | `#ff1801` | **Apex Red** — tek global aksiyon rengi: birincil etkileşim, canlı seans, aktif sekme. Değerin kaynağı `config/team-colors.ts` |
+| `--team-primary` / `--team-secondary` / `--team-accent` | varsayılan `--bg` / `--accent` / `--accent` | Takım temalı sayfalarda kök elemanın `style`'ı ile ezilir |
+
+Hover, yumuşak arka plan ve odak sınırı için ayrı token yok; bunlar `--accent` üzerinden opaklıkla (`bg-accent/10`, `border-accent/40` gibi) üretilir.
+
+### 3.3 Metin ve Kontrast (kodda var, WCAG 2.2 AA)
+
+Kontrast oranları `--bg` / `--surface` / `--surface-raised` zeminlerine göre hesaplanmıştır (2026-10-09).
+
+| Token | Değer | `--bg` | `--surface` | `--surface-raised` | Rol |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `--text-hi` | `#ffffff` | 19.8:1 | 18.4:1 | 17.0:1 | Büyük başlıklar, pilot isimleri, puan rakamları |
+| `--text` | `#e6e6e6` | 15.9:1 | 14.8:1 | 13.7:1 | Gövde metinleri |
+| `--text-mid` | `#A1A6AE` | 8.1:1 | 7.5:1 | 7.0:1 | Alt başlıklar, ikincil etiketler, meta |
+| `--text-low` | `#8A8F98` | 6.1:1 | 5.7:1 | 5.2:1 | Dipnotlar, pasif öğeler |
+
+### 3.4 Telemetri Durum Renkleri (henüz token değil)
+
+Bu renkler kodda bileşen içinde sabit hex olarak kullanılıyor (`components/circuit/CircuitElevationProfile.tsx`, `components/season/ResultsTable.tsx`, `components/standings/GarageTeamPanel.tsx`). Token'a taşınmaları açık iştir; o zamana kadar yeni kod aynı değerleri kullanır, yeni ton eklemez.
+
+| Önerilen token | Değer | Anlam |
+| :--- | :--- | :--- |
+| `--telemetry-purple` | `#b356fe` | En hızlı tur / sektör |
+| `--telemetry-green` | `#00d26a` | Kişisel en iyi / pozisyon kazancı |
+| `--telemetry-yellow` | `#fecb00` | Sarı bayrak / zaman kaybı |
+| `--telemetry-red` | `#ff3b30` | Kırmızı bayrak / kaza / DNF / pozisyon kaybı |
+
+Renk hiçbir zaman tek bilgi taşıyıcısı değildir: yanında ikon, işaret (`+`/`−`) veya metin bulunur.
 
 ---
 
 ## 4. Tipografi Sistemi ve Optik Ölçekleme
 
-Apex, hiyerarşik netlik için 3 font ailesi kullanır:
+Apex, hiyerarşik netlik için 3 font ailesi kullanır (`next/font`, `app/layout.tsx`):
 
 1. **Barlow Condensed (`--font-condensed`):** Başlıklar, editoryal afişler, büyük yarış numaraları.
-2. **Inter / Geist / system-ui (`--font-sans`):** Gövde metinleri, navigasyon, düğmeler, açıklamalar.
-3. **JetBrains Mono (`--font-mono`):** Telemetri, zaman farkları, tur süreleri, teknik parametreler (`tabular-nums`).
+2. **Inter (`--font-body`):** Gövde metinleri, navigasyon, düğmeler, açıklamalar.
+3. **JetBrains Mono (`--font-mono`):** Telemetri, zaman farkları, tur süreleri, etiketler (`tabular-nums`).
 
-### 4.1 Optik Harf Aralığı Kuralı (Apple Negative Tracking)
+### 4.1 Tip Ölçeği (kodda var, `app/globals.css`)
 
-Büyük başlıklar font büyüdükçe optik olarak gevşer; bunu önlemek için eksi harf aralığı uygulanır:
+Büyük başlıklarda negatif harf aralığı uygulanır (Apple optik tracking ilkesi); etiketlerde pozitif.
 
-| Stil | Boyut | Satır Yüksekliği | Letter Spacing | Font & Ağırlık |
+| Sınıf | Boyut | Satır Yüksekliği | Letter Spacing | Font & Ağırlık |
 | :--- | :--- | :--- | :--- | :--- |
-| `.display-hero` | 56px–72px | 1.05 | `-0.03em` | Barlow Condensed 700 |
-| `.headline-lg` | 34px–48px | 1.10 | `-0.02em` | Barlow Condensed 700 |
-| `.headline-md` | 24px–32px | 1.18 | `-0.015em` | Barlow Condensed 600 |
-| `.body-lg` | 18px–20px | 1.45 | `-0.015em` | Sans (Inter) 400 |
-| `.body-md` | 15px–16px | 1.50 | `-0.011em` | Sans (Inter) 400 |
-| `.label-caps` | 11px–12px | 1.30 | `+0.06em` | Mono / Sans 600 (Uppercase) |
-| `.data-tabular` | 13px–15px | 1.20 | `0.00em` | JetBrains Mono (Tabular) |
-| `.hero-number` | 48px–80px | 1.00 | `-0.035em` | Barlow Condensed 800 |
+| `.display-hero` | `clamp(40px, 12vw, 120px)` | 0.92 | `-0.02em` | Barlow Condensed 700 |
+| `.headline-lg` | `clamp(34px, 4vw, 48px)` | 1.05 | `-0.01em` | Barlow Condensed 600 |
+| `.headline-md` | `clamp(24px, 2.6vw, 32px)` | 1.1 | — | Barlow Condensed 600 |
+| `.body-lg` | 18px | 1.75 | — | Inter 400 |
+| `.body-md` | 16px | 1.5 | — | Inter 400 |
+| `.body-sm` | 14px | 1.5 | — | Inter 400 |
+| `.data-tabular` | 14px | 1.43 | `-0.01em` | JetBrains Mono 500, `tabular-nums` |
+| `.label-caps` | 12px | 1.33 | `+0.1em` | JetBrains Mono 700, büyük harf |
+| `.hero-number` | kullanım yerinde verilir | 0.9 | `-0.02em` | Barlow Condensed 700, `tabular-nums` |
 
 ---
 
-## 5. Spacing, Geometri ve Cam Yüzeyler
+## 5. Spacing, Geometri ve Yüzeyler
 
 ### 5.1 Boşluk Izgarası (4px / 8px Sistemi)
 - **Mikro boşluklar:** `4px`, `8px`, `12px` (Rozetler, ikon-metin aralıkları)
-- **Bileşen içi:** `16px`, `20px`, `24px` (Kart padding'leri)
+- **Kart içi:** `--card-pad` `24px` (mobil), `--card-pad-md` `32px` (md+)
 - **Bölüm arası:** `48px`, `64px`, `80px` (Masaüstü sayfa dikey ritmi)
 - **Maksimum genişlik:** `1440px` (`--container-max`)
 
-### 5.2 Yarıçap (Border Radius)
-- **Kartlar & Paneller:** `12px` ila `16px` (`--radius-lg: 16px`, `--radius: 12px`)
-- **İç Elemanlar & Resimler:** `8px` ila `10px`
-- **Etiketler & Haplar (Pills):** `9999px` (Tam yuvarlak)
+### 5.2 Yarıçap (kodda var)
+- **Kartlar & büyük container'lar:** `16px` (`--radius-lg`, Tailwind `rounded-card`)
+- **Buton & çip:** `8px` (`--radius`, Tailwind `rounded-chip`)
+- **Etiketler & haplar:** `9999px` (`--radius-pill`)
 
-### 5.3 Apple Cam Malzeme Spesifikasyonu
-```css
-.apex-glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-```
+### 5.3 Kart Yüzeyi ve Cam
+Standart kart (`components/bento/BentoCard.tsx`): `--surface` + 1px `--hairline` + `16px` radius + ortam gölgesi. Kartlarda **gerçek `backdrop-filter` kullanılmaz** (kaydırma performansı, vizyonun 2. önceliği); "cam" hissi gölge ve üst kenar ışığıyla taklit edilir. Gerçek bulanıklık yalnızca arkasında görsel olan tekil yüzeylerde kullanılır (ör. `DriverProfileHero` mobil paneli) ve sayfa başına bir veya iki öğeyle sınırlıdır.
 
 ---
 
 ## 6. Hareket, Fizik ve Geçişler (Motion Physics)
 
-Mekanik CSS `ease-in-out` geçişleri yerine Apple'ın fizik tabanlı yay parametreleri esastır:
+Kodda var: `framer-motion` bağımlılığı ve `app/globals.css` içindeki `prefers-reduced-motion` blokları. Ortak bir yay parametresi sabiti henüz yok; aşağıdaki değerler **hedeftir** ve yeni hareket kodu bunları kullanır. Sabit eklendiğinde (önerilen yer `lib/motion.ts`) bu bölüm ona bağlanır.
 
 ```ts
 export const APEX_MOTION = {
-  spring: {
-    type: 'spring',
-    mass: 0.8,
-    stiffness: 200,
-    damping: 25,
-  },
-  snappy: {
-    type: 'spring',
-    mass: 0.6,
-    stiffness: 280,
-    damping: 30,
-  },
-  reduced: {
-    duration: 0.01,
-  },
+  spring: { type: 'spring', mass: 0.8, stiffness: 200, damping: 25 },
+  snappy: { type: 'spring', mass: 0.6, stiffness: 280, damping: 30 },
+  reduced: { duration: 0.01 },
 };
 ```
 
-- **Sayfa Geçişleri:** View Transitions API ile kesintisiz shared-element geçişi.
-- **Kullanıcı Hareketi Kesintisi (Interruptible):** Kullanıcı tıklamayı geri aldığında veya hızlı kaydırdığında animasyon donmaz, yeni yöne yumuşakça uçar.
-- **Erişilebilirlik:** `@media (prefers-reduced-motion: reduce)` altında animasyonlar sıfırlanır.
+- **Kesintiye uğrayabilir hareket:** Kullanıcı yön değiştirdiğinde animasyon donmaz, yeni hedefe yumuşakça döner.
+- **Sayfa geçişleri:** View Transitions API hedeftir; henüz uygulanmadı.
+- **Erişilebilirlik:** `@media (prefers-reduced-motion: reduce)` altında animasyonlar sıfırlanır (zorunlu).
 
 ---
 
