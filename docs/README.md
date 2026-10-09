@@ -40,7 +40,7 @@ docs/
 ├── design/                             # Tasarım Sistemi ve Arayüz Standartları
 │   ├── apex-design.md                  # Master Tasarım Sistemi Mimarisi (Apple HIG + F1 Ruhu)
 │   ├── apex-design-language.md         # Tipografi, renk, yüzey derinliği ve layout kuralları
-│   ├── tokens.json                     # Resmi tasarım değişkenleri (renkler, fontlar, aralıklar)
+│   ├── tokens.json                     # app/globals.css token'larının aynası
 │   ├── README.md                       # Tasarım kütüphanesi rehberi
 │   ├── skills/                         # Onaylı 5 katmanlı tasarım skill orkestrasyonu
 │   └── [arka plan denemeleri]          # premium-design-philosophy, universal-principles vb.
@@ -71,7 +71,7 @@ docs/
 
 ### 🎨 `docs/design/` (Tasarım Sistemi)
 - **[`apex-design.md`](design/apex-design.md):** F1 dinamizmini Apple tasarım ilkeleri (titiz mikro-etkileşimler, fizik temelli yay hareketleri, saydam malzemeler, hiyerarşik tipografi) ile birleştiren master rehber.
-- **[`tokens.json`](design/tokens.json):** Kod tabanındaki Tailwind ve CSS tokenlarının referans kaynağı.
+- **[`tokens.json`](design/tokens.json):** `app/globals.css` token'larının aynası; ayrışırlarsa CSS dosyası doğrudur.
 
 ### ⚙️ `docs/reference/` (Mühendislik ve Veri Referansı)
 - **[`apex-reference.md`](reference/apex-reference.md):** Ölçülmüş durumlar, canlı hostlar, bağımlılıklar, güvenlik açıkları ve dokümantasyon envanteri.

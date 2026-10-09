@@ -1,8 +1,8 @@
 # README — `docs/design/` Kullanım Kılavuzu
 
-> **Tasarım Otoritesi:** Apex için bağlayıcı tasarım anayasası `docs/design/apex-design.md` (Apple tasarım prensipleri sentezi) ve `docs/design/apex-design-language.md`'dir. Resmi token tanımları `docs/design/tokens.json` dosyasındadır.  
+> **Tasarım Otoritesi:** Apex için bağlayıcı tasarım anayasası `docs/design/apex-design.md` (Apple tasarım prensipleri sentezi) ve `docs/design/apex-design-language.md`'dir. Token değerlerinin tek kaynağı `app/globals.css`; `docs/design/tokens.json` ve `apex-design.md` §3–§5 onun aynasıdır (ayrışırlarsa kod doğrudur).  
 > **Temel Amaç ve Vizyon:** `docs/vision/apex-vision.md`  
-> **Son güncelleme:** 2026-10-06
+> **Son güncelleme:** 2026-10-09
 
 ---
 
@@ -13,7 +13,7 @@ docs/design/
 ├── README.md                      ← Bu dosya (kılavuz & dizin)
 ├── apex-design.md                 ← MASTER TASARIM SİSTEMİ (Tek anayasa)
 ├── apex-design-language.md        ← Apex görsel dili ve kabuk kararları
-├── tokens.json                    ← W3C formatında resmi tasarım token'ları
+├── tokens.json                    ← `app/globals.css` token'larının W3C formatında aynası
 ├── universal-design-principles.md ← Evrensel UX ilkeleri (arkaplan)
 ├── ux-laws-reference.md           ← Davranışsal UX yasaları (arkaplan)
 ├── premium-design-philosophy.md   ← Premium tasarım felsefesi (arkaplan)
@@ -33,10 +33,10 @@ docs/design/
 ## 2. Tasarım Sistemi Hiyerarşisi
 
 1. **Birincil Otorite (`apex-design.md`):**  
-   Tipografi ölçekleri (Barlow Condensed optik negatif tracking, Inter gövde, JetBrains Mono telemetri), renk skalası (Apex Red `#ff1801`, OLED zemin `#0a0a0a`), Apple cam yüzeyleri (`backdrop-blur: 20px`), yay fiziği (Framer Motion springs) ve telemetri yoğunluk kuralları buradan okunur.
+   Tipografi ölçekleri (Barlow Condensed optik negatif tracking, Inter gövde, JetBrains Mono telemetri), renk skalası (Apex Red `#ff1801`, zemin `#0a0a0a`), kart yüzeyleri (§5.3: kartlarda gerçek blur yok), yay fiziği hedefleri (Framer Motion springs) ve telemetri yoğunluk kuralları buradan okunur.
 2. **Kabuk & Sayfa Düzeni (`apex-design-language.md`):**  
    Masaüstü Split Cinema ve Mobil Poster Dense düzenleri, safe-area ve tab-bar mimarisi.
 3. **Resmi Token'lar (`tokens.json`):**  
-   Tüm CSS/Tailwind değişkenlerinin W3C uyumlu tek kaynağı.
+   `app/globals.css` değişkenlerinin W3C uyumlu aynası; tek kaynak CSS dosyasıdır.
 4. **Katmanlı Skill Orkestrasyonu (`skills/`):**  
    Tasarım araçlarının birbiriyle çelişmesini engelleyen 5 katmanlı yapı.

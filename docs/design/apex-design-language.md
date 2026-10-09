@@ -3,7 +3,7 @@
 > **Otorite:** Bu dosya Apex'e özel tasarım kararlarının tek kaynağıdır.
 > Genel prensipler ve tasarım sistemi: `docs/design/apex-design.md` (Apple tasarım prensipleri sentezi).
 >
-> **Son güncelleme:** 2026-10-05
+> **Son güncelleme:** 2026-10-09 (token ve tipografi tekrarı kaldırıldı; tek kaynak `apex-design.md` §3–§5)
 
 ---
 
@@ -19,29 +19,9 @@ F1 poster ve motorsport editoryalinin karanlık, yüksek kontrastlı dili.
 | AI slop yasak | Saf siyah, neon, generic gradient, template hissi yok |
 | Hareket | `prefers-reduced-motion` zorunlu; accent animasyonları ölçülü |
 
-### Token'lar (mevcut `app/globals.css` ile uyumlu)
+### Token'lar ve tipografi ölçeği
 
-```css
---bg: #0a0a0a;
---surface: #141414;
---surface-raised: #1c1c1c;
---hairline: #262626;
---text-hi / --text / --text-mid / --text-low
---accent: #ff1801;  /* Apex Red — tek global accent */
---radius-lg: 16px; --radius: 8px;
---container-max: 1440px;
-```
-
-### Tipografi ölçeği
-
-| Sınıf | Kullanım | Mobil | Masaüstü |
-|---|---|---|---|
-| `.display-hero` | Yarış/poster başlık | 40–48px | 56–72px |
-| `.headline-lg` | Sayfa başlığı | 28–34px | 34–48px |
-| `.headline-md` | Kart başlığı | 20–24px | 24–32px |
-| `.label-caps` | Eyebrow, sekme, meta | 10–12px | 10–12px |
-| `.data-tabular` | Puan, süre, sıra | 12–14px | 13–14px |
-| `.hero-number` | Büyük puan rakamı | 40–56px | 48–80px |
+Bu dosya token veya tip ölçeği tekrarlamaz. Değerlerin tek kaynağı `app/globals.css`; dokümandaki aynası `docs/design/apex-design.md` §3 (renk, kontrast), §4 (tipografi) ve §5 (radius, boşluk). Buradaki kurallar o değerleri kullanır, yeni değer tanımlamaz.
 
 ---
 
