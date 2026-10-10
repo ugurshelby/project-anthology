@@ -71,7 +71,7 @@
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Retry",
-    "circuitLocalTime": "Local"
+    "circuitLocalTime": "Track time"
   },
   "consent": {
     "title": "Analytics",
@@ -279,6 +279,12 @@
         "wonGp": "{winner} claimed victory in the {season} {race} behind the wheel for {team}.",
         "wonAt": "{winner} took the chequered flag at {race} for {team} in {season}.",
         "also": "Also on this day:"
+      },
+      "schedule": {
+        "heading": "Weekend schedule",
+        "yourTime": "Your time · {zone}",
+        "trackTime": "Track {time}",
+        "done": "Done"
       }
     },
     "common": {

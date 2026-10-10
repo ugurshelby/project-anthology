@@ -15,7 +15,7 @@ export function HomeAnthologyCard({ story }: { story: Story }) {
   return (
     <Link
       href={`/anthology/${story.slug}`}
-      className="group relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface shadow-[0_8px_32px_-8px_rgba(0,0,0,0.7)] transition-all duration-300 ease-out hover:border-white/20 active:scale-[0.98]"
+      className="group relative flex h-full min-h-[240px] flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface shadow-[0_8px_32px_-8px_rgba(0,0,0,0.7)] transition-all duration-300 ease-out hover:border-white/20 active:scale-[0.98]"
     >
       {/* Background Image with Apple-grade smooth zoom */}
       <ApexImage

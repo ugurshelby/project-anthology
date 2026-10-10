@@ -2,15 +2,15 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ApexImage } from '@/components/media/ApexImage';
 import { formatDate, raceName } from '@/lib/i18n/format';
 import type { OnThisDayEntry } from '@/lib/data/f1';
-import { circuitCoverSrc } from '@/lib/assets/f1-icons';
+import { MediaCredit } from '@/components/media/MediaCredit';
+import type { OnThisDayImage } from '@/lib/home/onThisDayImage';
 
-export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
+export function OnThisDayCard({ entries, image }: { entries: OnThisDayEntry[]; image?: OnThisDayImage | null }) {
   const t = useTranslations('ui.home.otd');
   const locale = useLocale();
   if (entries.length === 0) return null;
 
   const featured = entries[0];
-  const cover = circuitCoverSrc(featured.circuitId);
   const dateLabel = formatDate(new Date(), locale, { day: 'numeric', month: 'long', timeZone: 'UTC' });
   const featuredRace = raceName(featured.raceName, locale);
   const isGp = /grand prix/i.test(featured.raceName);
@@ -25,14 +25,15 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
 
       {/* Left Media Area */}
       <div className="relative min-h-[220px] overflow-hidden md:col-span-5 md:min-h-[280px]">
-        {cover ? (
+        {image ? (
           <ApexImage
-            src={cover}
+            src={image.image.src}
+            variants={image.image.variants}
             alt=""
             fill
-            kind="circuit"
+            kind={image.type === 'circuit' ? 'circuit' : 'media'}
             sizes="(max-width: 768px) 100vw, 42vw"
-            className="object-cover grayscale contrast-125 opacity-70 transition-transform duration-700 ease-out group-hover:scale-105"
+            className="object-cover grayscale-[40%] contrast-110 opacity-80 transition-transform duration-700 ease-out group-hover:scale-105"
           />
         ) : (
           <span aria-hidden className="absolute inset-0 bg-surface-raised" />
@@ -64,6 +65,10 @@ export function OnThisDayCard({ entries }: { entries: OnThisDayEntry[] }) {
         >
           {featured.season}
         </span>
+
+        {image ? (
+          <MediaCredit attribution={image.attribution} className="absolute bottom-2 right-3 z-10 max-w-[70%] md:right-6" />
+        ) : null}
       </div>
 
       {/* Right Content Area */}

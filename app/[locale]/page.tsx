@@ -27,10 +27,14 @@ import { getCircuitWeather, getCircuitLocation } from '@/lib/data/circuits';
 import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { getMedia } from '@/lib/media/read';
 import { pickWeekendStory } from '@/lib/home/pickWeekendStory';
+import { pickOnThisDayImage } from '@/lib/home/onThisDayImage';
 import { WeekendHero } from '@/components/home/WeekendHero';
 import { ChampionshipPulse } from '@/components/home/ChampionshipPulse';
 import { HomeWireFeed } from '@/components/home/HomeWireFeed';
+import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
 import { HomeAnthologyCard } from '@/components/home/HomeAnthologyCard';
+import { LastWinnerCard } from '@/components/home/LastWinnerCard';
+import { resolveTeamUiColor } from '@/config/team-colors';
 import { OnThisDayCard } from '@/components/home/OnThisDayCard';
 import { SeasonTicker } from '@/components/home/SeasonTicker';
 import { HomePaddockRail } from '@/components/home/HomePaddockRail';
@@ -78,7 +82,7 @@ export async function generateMetadata({
   };
 }
 
-const paddockCardClass = 'min-h-[320px] min-w-[min(85vw,22rem)] shrink-0 snap-start md:min-w-0';
+const paddockCardClass = 'min-h-[320px] w-[min(85vw,22rem)] min-w-[min(85vw,22rem)] shrink-0 snap-start md:w-auto md:min-w-0';
 
 async function HomeHeroBlock({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'ui.home' });
@@ -86,22 +90,15 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const renderNowMs = nowMs();
   const now = new Date(renderNowMs);
   const races = getRacesFromCalendar(calendarData);
-  const previousRace = getLastFinishedRace(races);
   const nextRace = getLiveOrNextRace(races, now);
 
-  const previousRound = previousRace?.round != null ? Number(previousRace.round) : null;
   const circuitId = nextRace?.Circuit?.circuitId;
 
-  const [previousResults, circuitWeather, nextRaceLocation, circuitMedia] = await Promise.all([
-    previousRound != null && Number.isFinite(previousRound)
-      ? fetchRoundSnapshot(CURRENT_SEASON, previousRound, 'results')
-      : Promise.resolve(null),
+  const [circuitWeather, nextRaceLocation, circuitMedia] = await Promise.all([
     circuitId ? getCircuitWeather(circuitId) : Promise.resolve(null),
     circuitId ? getCircuitLocation(circuitId) : Promise.resolve(null),
     circuitId ? getMedia('circuit', circuitId) : Promise.resolve(null),
   ]);
-  const lastRaceRecap = getLastRaceResult(previousResults);
-
   const nextRaceTitle = raceName(nextRace?.raceName ?? nextRace?.Circuit?.Location?.country ?? t('seasonFallback'), locale);
   const nextRaceCircuit = circuitName(nextRace?.Circuit?.circuitName, locale);
   const nextRaceDate = nextRace?.date ? formatDate(`${nextRace.date}T12:00:00Z`, locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
@@ -144,8 +141,6 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
         circuitCoverCredit={coverImage?.attribution}
         sessions={weekendSessionChips(nextRace, locale)}
         circuitTimeZone={nextRaceLocation?.timeZone ?? nextRaceFacts?.timeZone}
-        lastWinnerName={lastRaceRecap?.podium[0]?.driverName}
-        lastRaceName={raceName(lastRaceRecap?.raceName, locale)}
         weather={circuitWeather}
         isLive={isLive}
       />
@@ -171,7 +166,7 @@ async function HomeStandingsColumn({ season }: { season: number }) {
 }
 
 async function HomeWireColumn({ season }: { season: number }) {
-  const news = await getLatestNews(8);
+  const news = await getLatestNews(HOME_NEWS_COUNT);
   return (
     <BentoCard span={4} className={paddockCardClass}>
       <HomeWireFeed items={news} season={season} />
@@ -179,7 +174,33 @@ async function HomeWireColumn({ season }: { season: number }) {
   );
 }
 
-async function HomeAnthologyColumn({ locale }: { locale: string }) {
+/**
+ * Right column of the home bento: last race winner on top, anthology story
+ * underneath — two equal-height cards (owner rule, apex-component-rules.md §2.4).
+ */
+async function HomeRightStack({ locale }: { locale: string }) {
+  return (
+    <div className={`col-span-1 grid grid-rows-2 gap-4 md:col-span-4 md:gap-5 lg:col-span-4 lg:gap-6 ${paddockCardClass}`}>
+      <HomeLastWinnerCell />
+      <HomeAnthologyCell locale={locale} />
+    </div>
+  );
+}
+
+async function HomeLastWinnerCell() {
+  const calendarData = await fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
+  const previousRace = getLastFinishedRace(getRacesFromCalendar(calendarData));
+  const round = previousRace?.round != null ? Number(previousRace.round) : null;
+  const results = round != null && Number.isFinite(round) ? await fetchRoundSnapshot(CURRENT_SEASON, round, 'results') : null;
+  const recap = getLastRaceResult(results);
+  const winner = recap?.podium[0];
+  if (!recap || !winner) return <HomePaddockCardFallback className="!min-h-[240px] !min-w-0" />;
+  const driverMedia = winner.driverId ? await getMedia('driver', winner.driverId) : null;
+  const teamColor = resolveTeamUiColor(undefined, winner.constructorName, CURRENT_SEASON);
+  return <LastWinnerCard recap={recap} teamColor={teamColor} driverMedia={driverMedia} />;
+}
+
+async function HomeAnthologyCell({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'ui.home' });
   const [calendarData, stories] = await Promise.all([
     fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
@@ -193,12 +214,11 @@ async function HomeAnthologyColumn({ locale }: { locale: string }) {
     nextRace?.Circuit?.Location?.country,
   ]);
 
-  return (
-    <BentoCard span={4} className={`${paddockCardClass} !p-0`}>
-      {featuredStory ? (
-        <HomeAnthologyCard story={featuredStory} />
-      ) : (
-        <Link href="/anthology" className="flex h-full min-h-[280px] flex-col justify-end p-6">
+  return featuredStory ? (
+    <HomeAnthologyCard story={featuredStory} />
+  ) : (
+    <BentoCard span={4} className="!col-span-1 !p-0">
+        <Link href="/anthology" className="flex h-full min-h-[240px] flex-col justify-end p-6">
           <span className="label-caps text-accent">{t('anthologyKicker')}</span>
           <span
             className="mt-2 font-condensed text-2xl font-700 uppercase italic text-text-hi"
@@ -208,7 +228,6 @@ async function HomeAnthologyColumn({ locale }: { locale: string }) {
           </span>
           <span className="mt-2 body-md text-text-mid">{t('openArchive')}</span>
         </Link>
-      )}
     </BentoCard>
   );
 }
@@ -216,7 +235,8 @@ async function HomeAnthologyColumn({ locale }: { locale: string }) {
 async function HomeArchiveBlock() {
   const onThisDay = await getOnThisDay();
   if (onThisDay.length === 0) return null;
-  return <OnThisDayCard entries={onThisDay} />;
+  const image = await pickOnThisDayImage(onThisDay[0], getMedia);
+  return <OnThisDayCard entries={onThisDay} image={image} />;
 }
 
 export default async function HomePage({
@@ -247,7 +267,7 @@ export default async function HomePage({
             <HomeWireColumn season={season} />
           </Suspense>
           <Suspense fallback={<HomePaddockCardFallback />}>
-            <HomeAnthologyColumn locale={locale} />
+            <HomeRightStack locale={locale} />
           </Suspense>
         </HomePaddockRail>
 

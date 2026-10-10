@@ -112,11 +112,23 @@ export interface RacePodiumDriver {
   driverName: string;
   driverCode: string;
   constructorName: string;
+  /** Jolpica ids (lowercase) — media keys and team palette lookups. Empty when absent. */
+  driverId: string;
+  constructorId: string;
+  /** Race number the driver carried in this race, or null. */
+  number: string | null;
+  /** Winner: total race time; others: gap ("+5.2s") or status ("+1 Lap"). */
+  time: string | null;
 }
 
 export interface LastRaceRecap {
   raceName: string;
   round: string;
+  season: string | null;
+  date: string | null;
+  circuitId: string | null;
+  circuitName: string | null;
+  locality: string | null;
   podium: RacePodiumDriver[];
   fastestLapDriver: string | null;
   fastestLapTime: string | null;
@@ -136,8 +148,11 @@ export function getLastRaceResult(data: MrData | null): LastRaceRecap | null {
   const results = (race.Results as
     | Array<{
         position?: string;
-        Driver?: { givenName?: string; familyName?: string; code?: string };
-        Constructor?: { name?: string };
+        number?: string;
+        status?: string;
+        Time?: { time?: string };
+        Driver?: { driverId?: string; givenName?: string; familyName?: string; code?: string };
+        Constructor?: { constructorId?: string; name?: string };
         FastestLap?: { rank?: string; Time?: { time?: string } };
       }>
     | undefined) ?? [];
@@ -152,6 +167,10 @@ export function getLastRaceResult(data: MrData | null): LastRaceRecap | null {
       driverName: `${given} ${family}`.trim() || '—',
       driverCode: (r.Driver?.code ?? '').toLowerCase(),
       constructorName: r.Constructor?.name ?? '—',
+      driverId: (r.Driver?.driverId ?? '').toLowerCase(),
+      constructorId: (r.Constructor?.constructorId ?? '').toLowerCase(),
+      number: r.number ?? null,
+      time: r.Time?.time ?? (r.status && r.status !== 'Finished' ? r.status : null),
     };
   });
 
@@ -160,9 +179,17 @@ export function getLastRaceResult(data: MrData | null): LastRaceRecap | null {
     ? `${flEntry.Driver?.givenName ?? ''} ${flEntry.Driver?.familyName ?? ''}`.trim() || null
     : null;
 
+  const circuit = race.Circuit as
+    | { circuitId?: string; circuitName?: string; Location?: { locality?: string } }
+    | undefined;
   return {
     raceName: (race.raceName as string) ?? 'Grand Prix',
     round: (race.round as string) ?? '—',
+    season: (race.season as string) ?? null,
+    date: (race.date as string) ?? null,
+    circuitId: circuit?.circuitId ?? null,
+    circuitName: circuit?.circuitName ?? null,
+    locality: circuit?.Location?.locality ?? null,
     podium,
     fastestLapDriver,
     fastestLapTime: flEntry?.FastestLap?.Time?.time ?? null,

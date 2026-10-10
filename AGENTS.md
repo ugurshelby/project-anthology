@@ -11,7 +11,7 @@ Every agent tool (Claude Code, Cursor, others) follows this file. Nothing else i
 4. Everything else (plans, logs, design essays, vendored skill packs). If it disagrees with 1-3, it is wrong: fix it or delete it.
 
 The foundational purpose and vision of this project is `docs/vision/apex-vision.md` (bu projenin temel amacı ve vizyonu `docs/vision/apex-vision.md` dökümanıdır; çalışmalar bu vizyon çerçevesinde yapılmalıdır).
-Design authority is `docs/design/apex-design.md` (master design system architecture) and `docs/design/apex-design-language.md`. The other files under `docs/design/` are a library, not law.
+Design authority is `docs/design/apex-design.md` (master design system architecture) and `docs/design/apex-design-language.md`. The owner's own component and layout rules are in `docs/design/apex-component-rules.md`: they are binding, they win over any other design doc or skill pack, and agents never relax or reinterpret them (ask the owner instead). The other files under `docs/design/` are a library, not law.
 
 ## Permission model
 

@@ -71,7 +71,7 @@
     "loading": "Yükleniyor…",
     "error": "Bir şeyler ters gitti",
     "retry": "Yeniden Dene",
-    "circuitLocalTime": "Yerel"
+    "circuitLocalTime": "Pist saati"
   },
   "consent": {
     "title": "Analitik",
@@ -279,6 +279,12 @@
         "wonGp": "{winner}, {season} {race} zaferine {team} direksiyonunda ulaştı.",
         "wonAt": "{winner}, {season} yılında {race} pistinde {team} direksiyonunda damalı bayrağı ilk sırada gördü.",
         "also": "Aynı günde:"
+      },
+      "schedule": {
+        "heading": "Hafta sonu programı",
+        "yourTime": "Senin saatin · {zone}",
+        "trackTime": "Pist {time}",
+        "done": "Bitti"
       }
     },
     "common": {

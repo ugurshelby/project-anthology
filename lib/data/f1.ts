@@ -349,6 +349,9 @@ export interface OnThisDayEntry {
   winnerName: string;
   winnerConstructor: string;
   circuitId: string | null;
+  /** Jolpica ids of the winner (lowercase) — media keys for the card image. */
+  winnerDriverId: string | null;
+  winnerConstructorId: string | null;
   p2Name: string | null;
   p3Name: string | null;
 }
@@ -393,7 +396,8 @@ export const getOnThisDay = cache(async function getOnThisDay(): Promise<OnThisD
               Circuit?: { circuitId?: string; circuitName?: string };
               Results?: Array<{
                 position?: string;
-                Driver?: { givenName?: string; familyName?: string };
+                Driver?: { driverId?: string; givenName?: string; familyName?: string };
+                Constructor?: { constructorId?: string };
               }>;
             }>;
           }
@@ -405,6 +409,7 @@ export const getOnThisDay = cache(async function getOnThisDay(): Promise<OnThisD
       const winner = getRaceWinner(row.data as MrData);
       if (!winner) continue;
 
+      const winnerRow = first.Results?.find((x) => x.position === '1') ?? first.Results?.[0];
       const nameAt = (pos: string) => {
         const r = first.Results?.find((x) => x.position === pos);
         if (!r) return null;
@@ -428,6 +433,8 @@ export const getOnThisDay = cache(async function getOnThisDay(): Promise<OnThisD
         winnerName: winner.driverName,
         winnerConstructor: winner.constructorName,
         circuitId: first.Circuit?.circuitId ?? null,
+        winnerDriverId: winnerRow?.Driver?.driverId?.toLowerCase() ?? null,
+        winnerConstructorId: winnerRow?.Constructor?.constructorId?.toLowerCase() ?? null,
         p2Name: nameAt('2'),
         p3Name: nameAt('3'),
       });
