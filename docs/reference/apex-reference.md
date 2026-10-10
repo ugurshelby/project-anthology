@@ -439,9 +439,9 @@ Logs older than 15 days were removed from the tree on purpose (`c23acc2`). They 
 
 ### docs/design
 
-Last verified: 2026-10-09
+Last verified: 2026-10-10
 
-Design authority is `docs/design/apex-design.md` (master design system architecture, synthesizing Apple design principles with Formula 1 identity) and `docs/design/apex-design-language.md` [VERIFIED: `AGENTS.md`, master plan]. Token values live in `app/globals.css` (source of truth); `docs/design/apex-design.md` §3–§5 and `docs/design/tokens.json` mirror it, and `apex-design-language.md` no longer repeats tokens [VERIFIED 2026-10-09: values compared line by line].
+Design authority is `docs/design/apex-design.md` (master design system architecture, synthesizing Apple design principles with Formula 1 identity) and `docs/design/apex-design-language.md` [VERIFIED: `AGENTS.md`, master plan]. Token values live in `app/globals.css` (source of truth); `docs/design/apex-design.md` §3–§5 and `docs/design/tokens.json` mirror it, and `apex-design-language.md` no longer repeats tokens [VERIFIED 2026-10-09: values compared line by line]. Owner component/layout rules: `docs/design/apex-component-rules.md` (binding per `AGENTS.md`; navigation and home page rules since 2026-10-10, enforced by `tests/nav-items.test.ts` and `tests/on-this-day-image.test.ts`).
 
 On 2026-10-05, conflicting design essays (`design-styles/`, `colours/`, `typography/`, `trends/`, `design-techniques/`, `design.md/`) and unapproved skill directories were consolidated and removed. The single approved skill directory is `docs/design/skills/` containing the 5-layer orchestrated skills: `apple-design` (foundational), `high-end-visual-design` + `minimalist-ui` (execution), `industrial-brutalist-ui` (filtered telemetry), `react-view-transitions` (motion), and `ui-ux-pro-max` + `accesslint-audit` (quality audit).
 

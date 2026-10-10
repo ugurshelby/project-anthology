@@ -9,10 +9,10 @@ export function HomeHeroFallback() {
   );
 }
 
-export function HomePaddockCardFallback() {
+export function HomePaddockCardFallback({ className = '' }: { className?: string }) {
   return (
     <div
-      className="min-h-[320px] min-w-[min(85vw,22rem)] shrink-0 snap-start animate-pulse rounded-[var(--radius-lg)] border border-hairline bg-surface md:col-span-4 md:min-w-0 lg:col-span-4"
+      className={`min-h-[320px] min-w-[min(85vw,22rem)] shrink-0 snap-start animate-pulse rounded-[var(--radius-lg)] border border-hairline bg-surface md:col-span-4 md:min-w-0 lg:col-span-4 ${className}`}
       aria-hidden
     />
   );

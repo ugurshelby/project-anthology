@@ -13,6 +13,7 @@ docs/design/
 ├── README.md                      ← Bu dosya (kılavuz & dizin)
 ├── apex-design.md                 ← MASTER TASARIM SİSTEMİ (Tek anayasa)
 ├── apex-design-language.md        ← Apex görsel dili ve kabuk kararları
+├── apex-component-rules.md        ← SAHİP KURALLARI (bileşen ve sayfa düzeni; bağlayıcı)
 ├── tokens.json                    ← `app/globals.css` token'larının W3C formatında aynası
 ├── universal-design-principles.md ← Evrensel UX ilkeleri (arkaplan)
 ├── ux-laws-reference.md           ← Davranışsal UX yasaları (arkaplan)

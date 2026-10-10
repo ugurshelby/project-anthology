@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { Link } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import type { NewsItem } from '@/lib/data/types';
 import { localizedNewsTitle } from '@/lib/news/i18n';
 import { detectTeamTag, formatWireTime, hasRealImage } from '@/lib/news/categories';
 import { resolveTeamUiColor } from '@/config/team-colors';
+import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
 
 function WireThumbnail({
   src,
@@ -21,7 +22,7 @@ function WireThumbnail({
 
   return (
     <div
-      className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-white/[0.08] bg-white/[0.02] shadow-sm transition-colors duration-150 group-hover:border-white/20"
+      className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-white/[0.08] bg-white/[0.02] shadow-sm transition-colors duration-150 group-hover:border-white/20"
       style={
         teamColor
           ? {
@@ -36,7 +37,7 @@ function WireThumbnail({
           alt=""
           fill
           unoptimized
-          sizes="44px"
+          sizes="64px"
           loading="lazy"
           className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
           onError={() => setError(true)}
@@ -68,10 +69,11 @@ function WireThumbnail({
 
 export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: number }) {
   const locale = useLocale();
-  const feed = items.slice(0, 6);
+  const tNav = useTranslations('nav');
+  const feed = items.slice(0, HOME_NEWS_COUNT);
 
   return (
-    <div className="flex h-full flex-col justify-between gap-3">
+    <div className="flex h-full flex-col gap-3">
       {/* Header with live pulse indicator */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -80,14 +82,14 @@ export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: nu
             <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
           </span>
           <h2 className="label-caps tracking-wider text-text-mid font-mono">
-            {locale === 'tr' ? 'Telgraf Akışı' : 'The Wire'}
+            {tNav('news')}
           </h2>
         </div>
         <Link
           href="/news"
           className="group/link inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-wider text-text-mid transition-colors duration-150 hover:text-white active:scale-95"
         >
-          <span>{locale === 'tr' ? 'Tüm Haberler' : 'All Dispatches'}</span>
+          <span>{locale === 'tr' ? 'Tüm Haberler' : 'All News'}</span>
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-150 ease-out group-hover/link:translate-x-0.5"
@@ -99,10 +101,10 @@ export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: nu
 
       {feed.length === 0 ? (
         <p className="body-md text-text-mid font-mono">
-          {locale === 'tr' ? 'Şu anda yeni bir bülten bulunmuyor.' : 'No dispatches right now.'}
+          {locale === 'tr' ? 'Şu anda yeni haber yok.' : 'No news right now.'}
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-hairline/60">
+        <ul className="flex flex-1 flex-col divide-y divide-hairline/60">
           {feed.map((item) => {
             const title = localizedNewsTitle(item, locale);
             const team = detectTeamTag(item.title, item.summary);
@@ -111,10 +113,10 @@ export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: nu
             const rawTime = formatWireTime(item.publishedTs).replace(' UTC', '');
 
             return (
-              <li key={item.id} className="first:pt-0">
+              <li key={item.id} className="flex flex-1 items-center">
                 <Link
                   href={`/news/${item.id}`}
-                  className="group flex items-start gap-3 rounded-[var(--radius-chip)] px-2 py-2.5 transition-all duration-150 ease-out hover:bg-white/[0.03] active:scale-[0.99]"
+                  className="group flex w-full items-center gap-4 rounded-[var(--radius-chip)] px-2 py-3 transition-all duration-150 ease-out hover:bg-white/[0.03] active:scale-[0.99]"
                 >
                   <WireThumbnail src={thumb} teamColor={teamColor} />
 
@@ -147,7 +149,7 @@ export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: nu
                     </div>
 
                     {/* Headline */}
-                    <span className="mt-1 line-clamp-2 block text-sm font-medium leading-snug text-text-hi transition-colors duration-150 group-hover:text-white break-words">
+                    <span className="mt-1.5 line-clamp-3 block text-[15px] font-medium leading-snug text-text-hi transition-colors duration-150 group-hover:text-white break-words">
                       {title}
                     </span>
                   </div>

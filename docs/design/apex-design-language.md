@@ -39,9 +39,9 @@ Bu dosya token veya tip ölçeği tekrarlamaz. Değerlerin tek kaynağı `app/gl
 | **Alt nav** | Sabit 72px + safe-area 20px; aktif sekme **accent pill** (kırmızı arka plan) |
 | **Padding** | `main` alt: `pb-[88px]` (tab-bar + safe-area) |
 
-### Tab-bar sekmeleri (5)
+### Tab-bar sekmeleri
 
-`Home` · `Season` · `Drivers` · `Anthology` · `More` (Teams, Circuits, News, Glossary sheet/menu)
+Sıra ve içerik sahip kuralıdır: `docs/design/apex-component-rules.md` §1.3 (Ana sayfa + önem sırasındaki ilk sayfalar, kalanlar "+" menüsünde).
 
 ### Breakpoint
 

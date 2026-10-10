@@ -5,12 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS } from './nav-items';
+import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS, isNavItemActive } from './nav-items';
 import { NavIcon } from './NavIcons';
 import { LocaleSwitcher } from './LocaleSwitcher';
 
 /**
- * Floating mobile dock — portaled to document.body so ancestor
+ * Floating mobile dock — Home + the top-ranked pages, the rest behind "+" in
+ * rank order (order comes from NAV_PAGES_BY_RANK; rules in
+ * docs/design/apex-component-rules.md §1). Portaled to document.body so ancestor
  * transform/filter/contain never traps `position: fixed` mid-page.
  */
 export function MobileNav() {
@@ -54,9 +56,7 @@ export function MobileNav() {
   }, []);
 
 
-  const moreActive = MOBILE_MORE_HREFS.some(
-    (href) => pathname === href || pathname.startsWith(href + '/'),
-  );
+  const moreActive = MOBILE_MORE_HREFS.some((href) => isNavItemActive(pathname, href));
 
   useEffect(() => {
     if (!moreOpen) return;
@@ -99,9 +99,7 @@ export function MobileNav() {
             </div>
             <div className="grid min-w-0 grid-cols-2 gap-3">
               {MOBILE_MORE_ITEMS.map((item, i) => {
-                const normalizedPath = pathname.replace(/^\/tr(\/|$)/, '$1') || '/';
-                const active =
-                  normalizedPath === item.href || (item.href !== '/' && normalizedPath.startsWith(item.href + '/'));
+                const active = isNavItemActive(pathname, item.href);
                 const label = item.key ? t(item.key) : item.label;
                 return (
                   <Link
@@ -145,11 +143,7 @@ export function MobileNav() {
       >
         <ul className="pointer-events-auto flex min-w-0 items-center justify-between gap-0.5 overflow-hidden rounded-full border border-white/10 bg-black/70 px-1.5 py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)] backdrop-blur-md">
           {MOBILE_NAV_ITEMS.map((item) => {
-            const normalizedPath = pathname.replace(/^\/tr(\/|$)/, '$1') || '/';
-            const active =
-              item.href === '/'
-                ? normalizedPath === '/'
-                : normalizedPath === item.href || normalizedPath.startsWith(item.href + '/');
+            const active = isNavItemActive(pathname, item.href);
             const label = item.key ? t(item.key) : item.label;
             return (
               <li key={item.href} className="min-w-0 flex-1">
@@ -161,7 +155,11 @@ export function MobileNav() {
                   aria-current={active ? 'page' : undefined}
                   className={[
                     'touch-target label-caps mx-auto flex min-h-11 w-full max-w-[4.75rem] min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-full px-1 transition-all duration-150 active:scale-95',
-                    active ? 'bg-accent text-text-hi' : 'text-text-mid',
+                    active
+                      ? item.href === '/'
+                        ? 'bg-accent text-text-hi'
+                        : 'bg-accent/15 text-accent'
+                      : 'text-text-mid',
                   ].join(' ')}
                 >
                   <NavIcon icon={item.icon!} className="h-4 w-4" />
