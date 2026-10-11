@@ -175,7 +175,7 @@
 | :--- | :--- | :--- |
 | **`ci.yml` (PR Kapısı)** | GitHub'da henüz koşmadı | Pull request'te test edilip required check yapılması (sahip ayarı) |
 | **Yasal Mailbox'lar** | `.example` yer tutucular | En sonda gerçek adreslerle güncellenecek (7.4, sahip kararı) |
-| **Node Sürüm Uyumu** | Yerel: Node 22; `.nvmrc`: 24 | `.nvmrc` ve motor tanımları 22 ile uyumlu çalışıyor |
+| **Node Sürüm Uyumu** | Vercel `nodeVersion` 24.x (2026-10-11, Vercel MCP), `.nvmrc` 24, `engines` 24.x; GitHub Actions `checkout@v7` + `setup-node@v7`, iki iş akışı da `.nvmrc`'den okur (2026-10-11). Yerel makine 22.18 | Sahip yerelde Node 24'e geçer (nvm-windows: `nvm install 24`, `nvm use 24`); sonra satır silinir |
 | **Vercel & Prod Değişkenleri** | Sentry, Upstash, Cron Secret; yeni: `GOOGLE_SITE_VERIFICATION` (6.1) | Prod ortam değişkenlerinin senkronizasyonu |
 | **Supabase MCP bağlantısı** | Bağlayıcı yazma işlemlerini de kabul ediyor (salt-okunur amaçlanmıştı) | Ajanlar yalnızca sahibin onayladığı yazmaları yapar; istenirse bağlantıyı salt-okunur token ile yeniden kurun |
 | **`lib/assets/f1-icons.ts` eski no-op yardımcıları** | `driverIconSrc`, `teamIconSrc`, `circuitCoverSrc`, `carSrc` hep `null` döner; 10 bileşen hâlâ çağırıyor, 8 lint uyarısının kaynağı | Çağrı yerleri medya sistemine (`getMedia`/`MediaAssetView`) taşınınca silinecek (Claude, düşük öncelik) |
