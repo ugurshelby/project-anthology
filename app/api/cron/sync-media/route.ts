@@ -41,7 +41,7 @@ function parseOnly(raw: string | null): Array<{ type: string; key: string }> | u
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isCronAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isCronAuthorized(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isCronTriggerAllowed('sync-media', MIN_TRIGGER_INTERVAL_MS))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }

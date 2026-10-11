@@ -168,7 +168,7 @@ async function notifyLeaderChanges(
 const MIN_TRIGGER_INTERVAL_MS = 60_000;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isCronAuthorized(req)) return authError();
+  if (!(await isCronAuthorized(req))) return authError();
   if (!(await isCronTriggerAllowed('sync-f1', MIN_TRIGGER_INTERVAL_MS))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
