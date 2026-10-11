@@ -212,6 +212,19 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Race-day panel (components/home/LiveRaceTracker.tsx): the five start lights
+   come on one by one, then all go out together — "lights out". Each light gets
+   a later delay and a shorter duration so they all end at the same instant.
+   Ends dark; under reduced motion it simply renders dark. */
+@keyframes apexStartLight {
+  0% { background-color: var(--surface-raised); box-shadow: none; }
+  6%, 96% {
+    background-color: var(--accent);
+    box-shadow: 0 0 12px 2px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  100% { background-color: var(--surface-raised); box-shadow: none; }
+}
+
 /* Analog film grain — subtle texture on season/cockpit surfaces */
 .film-grain {
   opacity: 0.03;

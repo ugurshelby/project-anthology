@@ -21,6 +21,7 @@ export function WeekendHero({
   circuitTimeZone,
   weather,
   isLive = false,
+  resultsHref,
 }: {
   eyebrow: string;
   title: string;
@@ -37,6 +38,8 @@ export function WeekendHero({
   weather?: CircuitWeather | null;
   /** True while the current session falls within RACE_LIVE_WINDOW_MS — swaps the countdown for LiveRaceTracker. */
   isLive?: boolean;
+  /** Round page of the race on screen (race-day panel links there after the flag). */
+  resultsHref?: string;
 }) {
   const t = useTranslations('ui.home');
   const locale = useLocale();
@@ -95,7 +98,7 @@ export function WeekendHero({
 
         <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           {isLive ? (
-            <LiveRaceTracker />
+            <LiveRaceTracker startMs={countdownTargetMs} resultsHref={resultsHref} />
           ) : countdownTargetMs ? (
             <Countdown targetMs={countdownTargetMs} />
           ) : (

@@ -267,13 +267,14 @@
         "fullResults": "Tüm sonuçlar →"
       },
       "live": {
-        "unavailable": "Canlı zamanlama şu an yok",
-        "connecting": "Canlı zamanlamaya bağlanılıyor…",
-        "pending": "Seans sürüyor, sıralama bekleniyor",
         "live": "Canlı",
         "session": "Seans",
-        "restrictedTitle": "Canlı veri seans boyunca kilitli",
-        "restrictedBody": "Canlı veri kaynağımız OpenF1, seans sürerken sıralamayı yalnızca abonelerine açıyor. Sonuçlar bayraktan sonra burada."
+        "lightsOut": "Lights out",
+        "raceClock": "Yarış saati",
+        "lockedBody": "Canlı sıralama burada yayınlanmıyor; resmî sonuç ve puan durumu bayraktan birkaç dakika sonra burada.",
+        "finishedTitle": "Bayrak düştü",
+        "finishedBody": "Resmî sonuç ve puan durumu birkaç dakika içinde burada.",
+        "resultsLink": "Yarış sayfası →"
       },
       "otd": {
         "badge": "Tarihte Bugün · {date}",

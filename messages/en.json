@@ -267,13 +267,14 @@
         "fullResults": "Full results →"
       },
       "live": {
-        "unavailable": "Live timing unavailable",
-        "connecting": "Connecting to live timing…",
-        "pending": "Session in progress — classification pending",
         "live": "Live",
         "session": "Session",
-        "restrictedTitle": "Live data locked during the session",
-        "restrictedBody": "Our live source, OpenF1, opens timing only to subscribers while a session runs. Results appear here after the flag."
+        "lightsOut": "Lights out",
+        "raceClock": "Race clock",
+        "lockedBody": "The running order isn't shown live here; official results and standings land a few minutes after the flag.",
+        "finishedTitle": "Chequered flag",
+        "finishedBody": "Official results and standings land here within minutes.",
+        "resultsLink": "Race page →"
       },
       "otd": {
         "badge": "On This Day · {date}",
