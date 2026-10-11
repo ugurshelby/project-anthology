@@ -154,7 +154,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 
 ## 4. Data and infrastructure (DB, schema, migrations, external APIs, cron jobs, deployment, branch and deploy triggers)
 
-Last verified: 2026-10-08
+Last verified: 2026-10-08 (OpenF1 row: 2026-10-11)
 
 ### Tables
 
@@ -186,7 +186,7 @@ Whether the remote migration history matches these eight files one-for-one was n
 |---|---|---|
 | Jolpica / Ergast | `lib/f1/sources/jolpica.ts`, `app/api/f1-season/route.ts`, `scripts/sync-f1-scheduled.ts` | Proxy path is a whitelist regex. Host is hardcoded. Snapshot is returned before a live call [VERIFIED: `app/api/f1-season/route.ts`] |
 | F1DB | `lib/f1/sources/f1db.ts`, `npm run seed:f1db`, and `scripts/build-f1-history-index.ts` (committed history index). **License CC BY 4.0: attribution is shown in the footer** | Historical seed. Local index is `v2026.16.0` (updated 2026-10-05); upstream release is `v2026.16.0` (published 2026-10-04) [VERIFIED: local build + GitHub API] |
-| OpenF1 | `lib/f1/sources/openf1.ts`, `app/api/live-timing/route.ts`, `sync-radio` | Code comment: 3 requests/second shared, not per visitor. Live route uses 5s edge cache, an in-memory stampede guard, and an 8s timeout [VERIFIED: route comments] |
+| OpenF1 | `lib/f1/sources/openf1.ts`, `app/api/live-timing/route.ts`, `sync-radio` | Code comment: 3 requests/second shared, not per visitor. Live route uses 5s edge cache, an in-memory stampede guard, and an 8s timeout [VERIFIED: route comments]. **While a session is live OpenF1 answers every unauthenticated request with 401, historical queries included** (measured 2026-10-11 13:16Z–13:55Z on six endpoints). The adapter sends no credentials, so `live-timing` returns 502 for the whole live session; historical data is free outside live sessions. Token flow per OpenF1: `POST /token` (form `username`+`password`) → 1 h bearer token, backend only [VERIFIED: `logs/2026-10-11.md` §2, `openf1.org/auth.html`]. Work item: master-plan 1.7 |
 | Open-Meteo | circuit weather cron path described in `docs/plans/master-plan.md` and `20260929000002_circuit_weather.sql` | Page reads are documented as DB-only |
 | RSS | `lib/news/aggregate.ts`, `sync-news` | Clustered into `news_stories` |
 | Groq, then Gemini | `lib/news/rewrite.ts` | Default models `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, then `gemini-3.5-flash-lite`, `gemini-3.8-flash`. Overridable by `GROQ_NEWS_MODELS` and `GEMINI_NEWS_MODELS` |
@@ -251,7 +251,7 @@ Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`.
 
 ## 5. Security, secrets and cost exposure (env handling, .gitignore coverage, auth, abuse and quota risks)
 
-Last verified: 2026-10-02
+Last verified: 2026-10-02 (abuse and quota, `live-timing` bullet: 2026-10-11)
 
 ### Env handling
 
@@ -288,7 +288,7 @@ Cron writes use the service role on the server [VERIFIED: `lib/supabase.ts` comm
 - Public JSON routes call `rateLimit` or `applyRateLimit`: news, season, careers, circuits, live-timing (30/min), push register (10/min) [VERIFIED: grep and the two route files read]. If Upstash env is absent, the limit is per server instance only [VERIFIED: `lib/rateLimit.ts`]. The master plan still lists “Upstash env on Vercel” as debt [VERIFIED: `docs/plans/master-plan.md`]. Local `.env.local` has the Upstash names. Production presence was not confirmed in this pass, and the 2026-09-28 log already said it could not be confirmed [VERIFIED: log]. [UNVERIFIED] for the current eight project.
 - Cron routes have a trigger lock. With Upstash it is a distributed SET NX. Without it, the lock is in-memory [VERIFIED: `lib/cronAuth.ts`]. A leaked cron secret can still start a 300s function on every instance if the distributed lock is absent [INFERRED: from that fallback].
 - `f1-season` cannot be turned into an open proxy: the only user input is `path`, matched to a whitelist, appended to a fixed Jolpica host [VERIFIED: route].
-- `live-timing` can still spend OpenF1 quota on a cache miss. The code treats a fan-out as the failure mode it already fixed once [VERIFIED: route comments and `logs/2026-09-28.md`].
+- `live-timing` can still spend OpenF1 quota on a cache miss. The code treats a fan-out as the failure mode it already fixed once [VERIFIED: route comments and `logs/2026-09-28.md`]. The failure path is not cached: the 502 carries no `Cache-Control`, `_cache` is filled only on success, and each viewer polls every 12 s, so while OpenF1 refuses (401 during a live session) every poll reaches the function and OpenF1 [VERIFIED: route and `LiveRaceTracker.tsx` read, 502 headers measured 2026-10-11]; the resulting request rate (about N/12 per second for N viewers) is [INFERRED]. Work item: master-plan 1.7.
 - News rewrite runs on the hourly GitHub cron and can call Groq and Gemini for up to 300s [VERIFIED: `maxDuration` and `sync-news.yml`]. The 2026-10-01 log records one real run of about 200s, 94 stories, 51 original EN+TR rewrites [VERIFIED: log text; this pass did not repeat the cron].
 - `sync-f1-race-aware.yml` no longer runs `npm ci`: the due-check was run in a copy with no `node_modules` and printed its skip line (2026-10-01). It still wakes hourly; only the install was removed. Not run in GitHub Actions itself.
 - Analytics and Speed Insights are now opt-in (see section 2); no vendor call happens before Accept.
