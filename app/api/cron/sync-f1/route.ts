@@ -10,7 +10,11 @@
  *   from upstream (at most) once after it settles, not on every hourly run.
  *   `?force=1` ignores that and re-fetches everything in scope.
  *
- * Response shape: { source, scope, season, upserted, skipped, settled, errors, durationMs }
+ * - After the Jolpica steps, OpenF1 provisional results + standings for the
+ *   race that just finished (lib/f1/provisionalSync.ts); Jolpica's rows replace
+ *   them once Jolpica publishes.
+ *
+ * Response shape: { source, scope, season, upserted, skipped, settled, provisional, errors, durationMs }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -54,6 +58,7 @@ import {
   sprintSyncDueMs,
 } from '@/lib/f1/syncSchedule';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { keepProvisionalStandings, syncProvisionalFromOpenF1, type ProvisionalOutcome } from '@/lib/f1/provisionalSync';
 import { sendExpoPushNotifications } from '@/lib/push/sendExpoPush';
 import type { ExpoPushMessage } from 'expo-server-sdk';
 import type { Json, SnapshotType } from '@/types/database';
@@ -121,6 +126,45 @@ function buildLeaderChangeMessages(
   }
 }
 
+/**
+ * Push a "new championship leader" message when the leader differs between
+ * the previous and the new standings (drivers and/or constructors). Shared by
+ * the Jolpica standings step and the OpenF1 provisional step, so whichever
+ * source lands first notifies once and the other sees no change.
+ */
+async function notifyLeaderChanges(
+  db: ReturnType<typeof getSupabaseAdmin>,
+  prev: { drivers: unknown; constructors: unknown },
+  next: { drivers: unknown; constructors: unknown },
+): Promise<void> {
+  const prevDriverLeaderId = extractDriverLeaderId(prev.drivers);
+  const prevConstrLeaderId = extractConstructorLeaderId(prev.constructors);
+  const newDriverLeaderId = extractDriverLeaderId(next.drivers);
+  const newConstrLeaderId = extractConstructorLeaderId(next.constructors);
+  const driverChanged = Boolean(prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId);
+  const constrChanged = Boolean(prevConstrLeaderId && newConstrLeaderId && prevConstrLeaderId !== newConstrLeaderId);
+  if (!driverChanged && !constrChanged) return;
+
+  const { data: subs } = await db.from('push_subscriptions')
+    .select('token, preferences')
+    .not('token', 'is', null);
+  // `preferences` is jsonb: keep only boolean flags (anything else = no preference).
+  const subscribers: { token: string; preferences: Record<string, boolean> }[] = (subs ?? []).map((s) => ({
+    token: s.token,
+    preferences:
+      s.preferences && typeof s.preferences === 'object' && !Array.isArray(s.preferences)
+        ? Object.fromEntries(
+            Object.entries(s.preferences).filter((e): e is [string, boolean] => typeof e[1] === 'boolean'),
+          )
+        : {},
+  }));
+
+  const pendingMessages: ExpoPushMessage[] = [];
+  if (driverChanged) buildLeaderChangeMessages('driver', next.drivers, subscribers, pendingMessages);
+  if (constrChanged) buildLeaderChangeMessages('constructor', next.constructors, subscribers, pendingMessages);
+  if (pendingMessages.length > 0) await sendExpoPushNotifications(pendingMessages);
+}
+
 const MIN_TRIGGER_INTERVAL_MS = 60_000;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -172,74 +216,49 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (refreshStandings) {
       const db = getSupabaseAdmin();
 
-      // ── Read previous leaders before overwriting ──────────────────────────
+      // ── Read previous standings before overwriting ────────────────────────
       // upsertF1Snapshot updates rows in-place — no history after the write.
-      // Both snapshot types are fetched in a single parallel round-trip.
-      const [prevDriverRow, prevConstrRow] = await Promise.all([
+      const [prevDriverRow, prevConstrRow, jolpicaResults] = await Promise.all([
         db.from('f1_snapshots')
-          .select('data')
+          .select('data, source')
           .eq('season', CURRENT_SEASON)
           .is('round', null)
           .eq('type', 'standings_drivers')
           .maybeSingle(),
         db.from('f1_snapshots')
-          .select('data')
+          .select('data, source')
           .eq('season', CURRENT_SEASON)
           .is('round', null)
           .eq('type', 'standings_constructors')
           .maybeSingle(),
+        db.from('f1_snapshots')
+          .select('round')
+          .eq('season', CURRENT_SEASON)
+          .eq('type', 'results')
+          .eq('source', 'jolpica'),
       ]);
-      const prevDriverLeaderId = extractDriverLeaderId(prevDriverRow.data?.data ?? null);
-      const prevConstrLeaderId = extractConstructorLeaderId(prevConstrRow.data?.data ?? null);
+      const jolpicaResultRounds = new Set((jolpicaResults.data ?? []).map((r) => r.round));
 
-      // ── Fetch new standings ───────────────────────────────────────────────
-      const driverSt = await fetchDriverStandings(CURRENT_SEASON);
-      const constrSt = await fetchConstructorStandings(CURRENT_SEASON);
+      // OpenF1 provisional standings stay until Jolpica has the race they include.
+      if (keepProvisionalStandings(prevDriverRow.data, (round) => jolpicaResultRounds.has(round))) {
+        stats.skipped++;
+      } else {
+        // ── Fetch new standings ─────────────────────────────────────────────
+        const driverSt = await fetchDriverStandings(CURRENT_SEASON);
+        const constrSt = await fetchConstructorStandings(CURRENT_SEASON);
 
-      if (hasDriverStandings(driverSt)) {
-        await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_drivers', driverSt as unknown as Json, 'jolpica', stats);
-      }
-      if (hasConstructorStandings(constrSt)) {
-        await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_constructors', constrSt as unknown as Json, 'jolpica', stats);
-      }
-
-      // ── Consolidated push notifications ───────────────────────────────────
-      // Fetch push_subscriptions once; build all messages into one array;
-      // call sendExpoPushNotifications once (even if two changes happened).
-      const pendingMessages: ExpoPushMessage[] = [];
-
-      const newDriverLeaderId = extractDriverLeaderId(driverSt as unknown);
-      const newConstrLeaderId = extractConstructorLeaderId(constrSt as unknown);
-
-      const needsNotification =
-        (prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId) ||
-        (prevConstrLeaderId && newConstrLeaderId && prevConstrLeaderId !== newConstrLeaderId);
-
-      if (needsNotification) {
-        const { data: subs } = await db.from('push_subscriptions')
-          .select('token, preferences')
-          .not('token', 'is', null);
-        // `preferences` is jsonb: keep only boolean flags (anything else = no preference).
-        const subscribers: { token: string; preferences: Record<string, boolean> }[] = (subs ?? []).map((s) => ({
-          token: s.token,
-          preferences:
-            s.preferences && typeof s.preferences === 'object' && !Array.isArray(s.preferences)
-              ? Object.fromEntries(
-                  Object.entries(s.preferences).filter((e): e is [string, boolean] => typeof e[1] === 'boolean'),
-                )
-              : {},
-        }));
-
-        if (prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId) {
-          buildLeaderChangeMessages('driver', driverSt as unknown, subscribers, pendingMessages);
+        if (hasDriverStandings(driverSt)) {
+          await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_drivers', driverSt as unknown as Json, 'jolpica', stats);
         }
-        if (prevConstrLeaderId && newConstrLeaderId && prevConstrLeaderId !== newConstrLeaderId) {
-          buildLeaderChangeMessages('constructor', constrSt as unknown, subscribers, pendingMessages);
+        if (hasConstructorStandings(constrSt)) {
+          await ingestSeasonSnapshot(CURRENT_SEASON, 'standings_constructors', constrSt as unknown as Json, 'jolpica', stats);
         }
 
-        if (pendingMessages.length > 0) {
-          await sendExpoPushNotifications(pendingMessages);
-        }
+        await notifyLeaderChanges(
+          db,
+          { drivers: prevDriverRow.data?.data ?? null, constructors: prevConstrRow.data?.data ?? null },
+          { drivers: driverSt, constructors: constrSt },
+        );
       }
     }
 
@@ -424,6 +443,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       console.warn(`[sync-f1] ${msg}`);
     }
 
+    // 6) OpenF1 provisional results + standings for the race that just finished.
+    const provisional: ProvisionalOutcome = await syncProvisionalFromOpenF1({
+      races,
+      now,
+      stats,
+      onStandings: (prev, next) => notifyLeaderChanges(getSupabaseAdmin(), prev, next),
+    });
+
     return NextResponse.json({
       source: 'jolpica',
       scope,
@@ -431,6 +458,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       upserted: stats.upserted,
       skipped: stats.skipped,
       settled: settledSkips,
+      provisional,
       errors: stats.errors,
       durationMs: Date.now() - startedAt,
     });
