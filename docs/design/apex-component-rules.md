@@ -60,4 +60,5 @@ Testler: `tests/on-this-day-image.test.ts`.
 - Sağ sütun dikey olarak ikiye bölünür: **üstte Son Yarışın Kazananı, altta Antoloji**. İki kart eşit önemdedir: birebir aynı boyutta, aynı kart kabuğunda.
 - Kazanan kartı içeriği: pilot numarası, ad ve soyad, takım (takım rengi sol çizgi, numara ve parıltıda), yarış adı, pist, tarih ve tüm sonuçlara bağlantı. Pilot fotoğrafı varsa kredisiyle birlikte gösterilir.
 - Hero'da ayrıca "son yarışın kazananı" kutusu yoktur; bilgi tek yerde durur.
+- *Uygulama notu (Claude, 2026-10-11, sahip yetkisiyle; sahip değiştirebilir):* yarış bitip resmî sonuç henüz yayımlanmamışken (Jolpica genelde 1–3 saat sonra) kart iskelet göstermez, önceki yarışın kazananını da "son yarış" diye sunmaz. Bitmiş yarışın adı, pisti ve tarihi ile "Resmî sonuçlar yolda" yazar; sonuç gelince kendiliğinden kazanan kartına döner.
 - Mobilde üç sütun aynı genişlikte kaydırılan kartlardır (`w-[min(85vw,22rem)]`); sağ sütun mobilde de iki eşit kart olarak kalır.

@@ -33,7 +33,7 @@ import { ChampionshipPulse } from '@/components/home/ChampionshipPulse';
 import { HomeWireFeed } from '@/components/home/HomeWireFeed';
 import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
 import { HomeAnthologyCard } from '@/components/home/HomeAnthologyCard';
-import { LastWinnerCard } from '@/components/home/LastWinnerCard';
+import { LastWinnerCard, LastWinnerPendingCard } from '@/components/home/LastWinnerCard';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { OnThisDayCard } from '@/components/home/OnThisDayCard';
 import { SeasonTicker } from '@/components/home/SeasonTicker';
@@ -194,7 +194,20 @@ async function HomeLastWinnerCell() {
   const results = round != null && Number.isFinite(round) ? await fetchRoundSnapshot(CURRENT_SEASON, round, 'results') : null;
   const recap = getLastRaceResult(results);
   const winner = recap?.podium[0];
-  if (!recap || !winner) return <HomePaddockCardFallback className="!min-h-[240px] !min-w-0" />;
+  if (!recap || !winner) {
+    // Race finished, official classification not published yet.
+    return previousRace?.round != null ? (
+      <LastWinnerPendingCard
+        raceNameRaw={previousRace.raceName}
+        circuitNameRaw={previousRace.Circuit?.circuitName}
+        dateIso={previousRace.date}
+        round={String(previousRace.round)}
+        season={CURRENT_SEASON}
+      />
+    ) : (
+      <HomePaddockCardFallback className="!min-h-[240px] !min-w-0" />
+    );
+  }
   const driverMedia = winner.driverId ? await getMedia('driver', winner.driverId) : null;
   const teamColor = resolveTeamUiColor(undefined, winner.constructorName, CURRENT_SEASON);
   return <LastWinnerCard recap={recap} teamColor={teamColor} driverMedia={driverMedia} />;

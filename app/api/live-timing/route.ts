@@ -7,6 +7,7 @@ import {
   fetchLiveIntervals,
   fetchLivePositions,
 } from '@/lib/f1/sources/openf1';
+import { isOpenF1Restricted } from '@/lib/f1/sources/openf1Errors';
 
 /**
  * Live in-session timing (position + gap) for the home-page race tracker.
@@ -33,6 +34,14 @@ import {
  *     do reach the function (edge cache miss, or a host without the CDN
  *     layer), so concurrent invocations on one instance still make one
  *     upstream call, not one each.
+ *
+ * Failure paths are bounded too (plan 1.7, measured R17 2026-10-11): while a
+ * live session runs, OpenF1 answers 401 to unauthenticated clients. That is
+ * served as a normal 200 `{ live: true, restricted: true }` state, cached at
+ * the edge for RESTRICTED_TTL_MS and memoised here for the same time, so the
+ * locked upstream is asked at most once a minute per instance instead of once
+ * per viewer poll. Any other upstream failure with nothing cached is memoised
+ * for FAILURE_TTL_MS (502 + Retry-After, no upstream call).
  */
 
 export const runtime = 'nodejs';
@@ -72,6 +81,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
+/** OpenF1 live-session lock: re-check upstream at most this often. */
+const RESTRICTED_TTL_MS = 60_000;
+const RESTRICTED_CACHE_CONTROL = `public, s-maxage=${RESTRICTED_TTL_MS / 1000}, stale-while-revalidate=${RESTRICTED_TTL_MS / 1000}`;
+
+/** Any other upstream failure with nothing cached: answer 502 from memory for this long. */
+const FAILURE_TTL_MS = 15_000;
+
 /** Grace window after a session's official end during which we still serve its classification. */
 const POST_SESSION_GRACE_MS = 10 * 60 * 1000;
 
@@ -88,6 +104,8 @@ export interface LiveTimingDriverRow {
 
 export interface LiveTimingResponse {
   live: boolean;
+  /** True while OpenF1 locks unauthenticated access during a live session (no rows available). */
+  restricted?: boolean;
   sessionName: string | null;
   circuitShortName: string | null;
   rows: LiveTimingDriverRow[];
@@ -159,6 +177,26 @@ async function loadLiveTiming(): Promise<LiveTimingResponse> {
 // Per-warm-instance memo + stampede guard — see the load-safety note above.
 let _cache: { data: LiveTimingResponse; ts: number } | null = null;
 let _inflight: Promise<LiveTimingResponse> | null = null;
+let _restrictedUntil = 0;
+let _failedUntil = 0;
+
+const RESTRICTED_RESPONSE: LiveTimingResponse = {
+  live: true,
+  restricted: true,
+  sessionName: null,
+  circuitShortName: null,
+  rows: [],
+};
+
+function restrictedResponse(): NextResponse {
+  return NextResponse.json(RESTRICTED_RESPONSE, { status: 200, headers: { 'Cache-Control': RESTRICTED_CACHE_CONTROL } });
+}
+
+function unavailableResponse(): NextResponse {
+  const res = jsonApiError('Live timing unavailable', 502);
+  res.headers.set('Retry-After', String(Math.ceil(FAILURE_TTL_MS / 1000)));
+  return res;
+}
 
 async function getLiveTimingCached(): Promise<LiveTimingResponse> {
   if (_cache && Date.now() - _cache.ts < CACHE_TTL_MS) return _cache.data;
@@ -176,7 +214,8 @@ async function getLiveTimingCached(): Promise<LiveTimingResponse> {
   try {
     return await _inflight;
   } catch (err) {
-    if (_cache) return _cache.data; // serve-stale-on-error
+    // The live-session lock beats an old cached state (which would say "not live").
+    if (_cache && !isOpenF1Restricted(err)) return _cache.data; // serve-stale-on-error
     throw err;
   }
 }
@@ -194,11 +233,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     );
   }
 
+  const now = Date.now();
+  if (now < _restrictedUntil) return restrictedResponse();
+  if (now < _failedUntil && !_cache) return unavailableResponse();
+
   try {
     let data: LiveTimingResponse;
     try {
       data = await withTimeout(getLiveTimingCached(), HARD_TIMEOUT_MS);
     } catch (timeoutOrErr) {
+      if (isOpenF1Restricted(timeoutOrErr)) throw timeoutOrErr;
       // Upstream is slow/down — serve the last known-good result rather than
       // hang the function until OpenF1's own retry/backoff chain gives up.
       if (_cache) {
@@ -209,7 +253,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json(data, { status: 200, headers: { 'Cache-Control': CACHE_CONTROL_HEADER } });
   } catch (err) {
+    if (isOpenF1Restricted(err)) {
+      _restrictedUntil = Date.now() + RESTRICTED_TTL_MS;
+      return restrictedResponse();
+    }
     logApiError('live-timing', err);
-    return jsonApiError('Live timing unavailable', 502);
+    _failedUntil = Date.now() + FAILURE_TTL_MS;
+    return unavailableResponse();
   }
 }

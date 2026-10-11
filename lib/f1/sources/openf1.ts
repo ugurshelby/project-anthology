@@ -1,8 +1,16 @@
 /**
- * OpenF1 adapter — team_radio audio moments (Masterplan Karar E).
+ * OpenF1 adapter — team_radio audio moments (Masterplan Karar E) and the
+ * home-page live tracker (/api/live-timing).
  *
  * OpenF1 API: https://api.openf1.org/v1
- * - No auth required.
+ * - Historical data needs no auth. While a live session runs, OpenF1 answers
+ *   401 to every unauthenticated request (past sessions included) — surfaced
+ *   as OpenF1RestrictedError so callers can degrade instead of failing.
+ * - Optional auth (plan 1.7): when OPENF1_USERNAME and OPENF1_PASSWORD are set
+ *   (server env only, never sent to the browser), a bearer token is fetched
+ *   from POST /token (form fields `username`, `password`; `expires_in` 3600 s,
+ *   https://openf1.org/auth.html), kept in memory until shortly before expiry
+ *   and refreshed once on a 401. Without them the adapter behaves as before.
  * - Rate limit: 3 req/s, 30 req/min (Masterplan Karar D constraint).
  *
  * This adapter enforces a per-instance token bucket: at most 3 concurrent
@@ -11,7 +19,12 @@
  * Returns raw team_radio rows which sync-radio maps to `radio_moments` inserts.
  */
 
+import { OpenF1RestrictedError } from './openf1Errors';
+
 const OPENF1_BASE = 'https://api.openf1.org/v1';
+const OPENF1_TOKEN_URL = 'https://api.openf1.org/token';
+/** Refresh this long before the token's stated expiry. */
+const TOKEN_EXPIRY_MARGIN_MS = 5 * 60 * 1000;
 
 // Rate-limit: 3 req/s strict, 30 req/min advisory.
 // Floor: one request per 350 ms ≈ 2.86 req/s — comfortably under the cap.
@@ -25,11 +38,61 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function openf1Credentials(): { username: string; password: string } | null {
+  const username = process.env.OPENF1_USERNAME?.trim();
+  const password = process.env.OPENF1_PASSWORD?.trim();
+  return username && password ? { username, password } : null;
+}
+
+let _token: { value: string; expiresAt: number } | null = null;
+let _tokenInflight: Promise<string | null> | null = null;
+
+/**
+ * Bearer token for OpenF1, or null when no credentials are configured or the
+ * token endpoint fails (callers then fall back to unauthenticated requests).
+ * Never logs the credentials or the token.
+ */
+export async function getOpenF1Token(forceRefresh = false): Promise<string | null> {
+  const creds = openf1Credentials();
+  if (!creds) return null;
+  if (!forceRefresh && _token && Date.now() < _token.expiresAt) return _token.value;
+  if (_tokenInflight) return _tokenInflight;
+
+  _tokenInflight = (async () => {
+    try {
+      const res = await fetch(OPENF1_TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+        body: new URLSearchParams({ username: creds.username, password: creds.password }).toString(),
+      });
+      if (!res.ok) {
+        console.warn(`  openf1 token request failed (${res.status})`);
+        _token = null;
+        return null;
+      }
+      const json = (await res.json()) as { access_token?: string; expires_in?: string | number };
+      if (!json.access_token) return null;
+      const lifetimeMs = (Number(json.expires_in) || 3600) * 1000;
+      _token = { value: json.access_token, expiresAt: Date.now() + Math.max(60_000, lifetimeMs - TOKEN_EXPIRY_MARGIN_MS) };
+      return _token.value;
+    } catch {
+      console.warn('  openf1 token request failed (network)');
+      return null;
+    } finally {
+      _tokenInflight = null;
+    }
+  })();
+  return _tokenInflight;
+}
+
 async function openf1Fetch<T>(path: string, params?: Record<string, string | number>): Promise<T[]> {
   const url = new URL(`${OPENF1_BASE}/${path.replace(/^\//, '')}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
   }
+
+  let token = await getOpenF1Token();
+  let refreshedAfter401 = false;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const now = Date.now();
@@ -44,7 +107,11 @@ async function openf1Fetch<T>(path: string, params?: Record<string, string | num
     try {
       res = await fetch(url.toString(), {
         signal: ctrl.signal,
-        headers: { Accept: 'application/json', 'User-Agent': 'project-anthology/1.0' },
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'project-anthology/1.0',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
     } catch (err) {
       clearTimeout(timer);
@@ -56,6 +123,16 @@ async function openf1Fetch<T>(path: string, params?: Record<string, string | num
     }
 
     if (res.status === 404) return [];
+
+    if (res.status === 401) {
+      // A stale token gets one refresh; otherwise this is OpenF1's live-session lock.
+      if (token && !refreshedAfter401) {
+        refreshedAfter401 = true;
+        token = await getOpenF1Token(true);
+        if (token) continue;
+      }
+      throw new OpenF1RestrictedError(path);
+    }
 
     if (res.status === 429 || res.status >= 500) {
       const backoff = 1_000 * 2 ** attempt;
