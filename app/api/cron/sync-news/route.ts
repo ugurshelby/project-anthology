@@ -34,7 +34,7 @@ const WORK_BUDGET_MS = 200_000;
 const UPSERT_BATCH_SIZE = 50;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isCronAuthorized(req)) return authError();
+  if (!(await isCronAuthorized(req))) return authError();
   if (!(await isCronTriggerAllowed('sync-news', MIN_TRIGGER_INTERVAL_MS))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }

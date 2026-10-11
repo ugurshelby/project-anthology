@@ -20,7 +20,7 @@ export const QSTASH_BUDGET_SHARE = 0.6;
 export interface QStashSchedule {
   /** Upstash-Schedule-Id: letters, digits, '-', '.', '_'. Re-applying the same id updates the schedule in place. */
   id: string;
-  /** Route under app/api/cron (GET, `Authorization: Bearer <CRON_SECRET>` forwarded by QStash). */
+  /** Route under app/api/cron (GET). Authorised by QStash's request signature (lib/cronAuth.ts); a forwarded Bearer is optional. */
   path: string;
   /** Five-field cron in UTC. Day-of-month, month and weekday must be `*` (see runsPerDay). */
   cron: string;
@@ -121,8 +121,11 @@ export interface ScheduleRequestInput {
   siteUrl: string;
   /** QSTASH_TOKEN. */
   token: string;
-  /** CRON_SECRET: forwarded to the route as `Authorization: Bearer <secret>`. */
-  cronSecret: string;
+  /**
+   * Optional CRON_SECRET forwarded as `Authorization: Bearer <secret>`. Not needed: the routes accept
+   * QStash's own signature (QSTASH_CURRENT/NEXT_SIGNING_KEY on the site), so schedules carry no secret.
+   */
+  cronSecret?: string;
 }
 
 /** `POST /v2/schedules/{destination}`: with a fixed Upstash-Schedule-Id this creates the schedule or updates it in place. */
@@ -140,7 +143,7 @@ export function buildScheduleRequest(s: QStashSchedule, input: ScheduleRequestIn
         'Upstash-Method': 'GET',
         'Upstash-Retries': String(s.retries),
         'Upstash-Timeout': s.timeout,
-        'Upstash-Forward-Authorization': `Bearer ${input.cronSecret}`,
+        ...(input.cronSecret ? { 'Upstash-Forward-Authorization': `Bearer ${input.cronSecret}` } : {}),
       },
     },
   };

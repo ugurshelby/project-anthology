@@ -105,7 +105,7 @@ function findUpcomingSessions(races: CalendarRace[], now: number): UpcomingSessi
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  if (!isCronAuthorized(req)) {
+  if (!(await isCronAuthorized(req))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   if (!(await isCronTriggerAllowed('notify-sessions', MIN_TRIGGER_INTERVAL_MS))) {

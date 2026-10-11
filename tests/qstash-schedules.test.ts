@@ -115,6 +115,9 @@ describe('buildScheduleRequest', () => {
     expect(headers.Authorization).toBe('Bearer tok_123');
     // QStash strips the "Upstash-Forward-" prefix, so the route sees "Authorization: Bearer sec_456".
     expect(headers['Upstash-Forward-Authorization']).toBe('Bearer sec_456');
+    // Without a secret the schedule relies on QStash's signature (lib/cronAuth.ts) and forwards nothing.
+    const bare = buildScheduleRequest(QSTASH_SCHEDULES[0], { ...input, cronSecret: undefined }).init.headers;
+    expect(bare['Upstash-Forward-Authorization']).toBeUndefined();
   });
 
   it('the secret and the token never end up in the URL', () => {

@@ -1,6 +1,6 @@
 /**
  * Creates / updates the Upstash QStash schedules that drive our cron routes (lib/cron/qstashSchedules.ts).
- * Idempotent: every schedule has a fixed id, so re-running updates it in place (run it again after rotating CRON_SECRET).
+ * Idempotent: every schedule has a fixed id, so re-running updates it in place.
  *
  *   npm run qstash:sync -- --dry-run            print the plan and the daily message budget; needs no env, loads no env file
  *   npm run qstash:sync                         create/update all schedules
@@ -11,7 +11,8 @@
  * Env (shell or .env.local; values are never printed):
  *   QSTASH_TOKEN      Upstash console -> QStash -> "Details" (required except --dry-run)
  *   QSTASH_URL        same page; the API origin of your region (default https://qstash.upstash.io)
- *   CRON_SECRET       the secret the cron routes check (CRON_SECRET_KEY is accepted too); forwarded as Bearer by QStash
+ *   CRON_SECRET       optional; when set it is also forwarded as Bearer. Not needed: the routes verify QStash's signature
+ *                     (QSTASH_CURRENT_SIGNING_KEY / QSTASH_NEXT_SIGNING_KEY must be set on the SITE, i.e. in Vercel)
  *   SITE_URL          site origin (default: PROD_SITE_URL in lib/data/siteUrl.ts)
  */
 
@@ -101,8 +102,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const cronSecret = process.env.CRON_SECRET ?? process.env.CRON_SECRET_KEY;
-  if (!cronSecret) throw new Error('CRON_SECRET (or CRON_SECRET_KEY) is required: QStash forwards it to the cron routes');
+  const cronSecret = process.env.CRON_SECRET ?? process.env.CRON_SECRET_KEY ?? undefined;
 
   printPlan(schedules, siteUrl);
   let failed = 0;
