@@ -94,6 +94,8 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 
 ### B. Snapshot senkronu, idempotency ve stale-while-revalidate (master-plan 1.3) — oturum sonrası
 
+- **B0. Yarış sonrası OpenF1 geçici verisi (2026-10-11'den beri):** yarış seansı bittikten ve OpenF1 sonucu yayımladıktan sonraki ilk `sync-f1` koşusunda (QStash ile en geç ~30 dk) yanıtta `provisional.status: "written"`; `f1_snapshots`'ta o turun `results` satırı ve iki puan durumu satırı `source='openf1'`, puan durumu `StandingsTable.round` = yarışın turu. Ana sayfa kazanan kartı ve tur sayfası sonucu gösterir. Jolpica sonucu yayımlayınca satırlar `source='jolpica'` olur, yanıtta `provisional.status: "jolpica-has-results"`. Ara durumlar: `session-running`, `not-published`, `locked` (hata değildir).
+
 - **Ne:** `sync-f1` due penceresinde çalışıyor mu, `settled` mantığı doğru mu, bayat satır anında sunulup arkada yenileniyor mu.
 - **Nasıl:**
   1. QStash kuruluysa: Upstash console → *Logs*'ta `apex-sync-f1` teslimatları (HTTP 200 + yanıt gövdesi: `upserted`, `skipped`, `settled`, `errors`). Değilse GitHub Actions: `gh run list --workflow=sync-f1-race-aware.yml --limit 10`; due penceresini izleyen :12 koşusunu bul, `gh run view <id> --log` ile "window(s) due — triggering live sync" ve yanıt JSON'unu (`upserted`, `skipped`, `settled`, `errors`) oku.

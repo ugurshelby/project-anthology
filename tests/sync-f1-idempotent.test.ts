@@ -119,6 +119,11 @@ vi.mock('@/lib/data/circuits', () => ({
 }));
 vi.mock('@/data/circuits/facts', () => ({ getCircuitFacts: () => undefined }));
 vi.mock('@/lib/push/sendExpoPush', () => ({ sendExpoPushNotifications: async () => {} }));
+// The OpenF1 provisional step has its own test (tests/provisional-sync.test.ts); keep this suite offline.
+vi.mock('@/lib/f1/provisionalSync', () => ({
+  keepProvisionalStandings: () => false,
+  syncProvisionalFromOpenF1: async () => ({ status: 'no-race', round: null }),
+}));
 
 const CALENDAR: CalendarRace[] = [
   {

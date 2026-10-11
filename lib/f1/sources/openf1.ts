@@ -190,6 +190,8 @@ export interface OpenF1Driver {
   broadcast_name: string;
   full_name: string;
   name_acronym: string; // 3-letter code, e.g. "VER"
+  first_name?: string | null;
+  last_name?: string | null;
   team_name: string;
   team_colour: string;
   session_key: number;
@@ -265,4 +267,65 @@ export async function fetchLiveIntervals(sessionKey: number | 'latest' = 'latest
 /** Driver roster for a session (name/team/color lookup). */
 export async function fetchLiveDrivers(sessionKey: number | 'latest' = 'latest'): Promise<OpenF1Driver[]> {
   return openf1Fetch<OpenF1Driver>('drivers', { session_key: sessionKey });
+}
+
+// ── Post-session results & championship (free tier, after the session ends) ──
+// Plan 1.7 follow-up: OpenF1 publishes these a few minutes after the official
+// classification, usually well before Jolpica (R17 2026: results + standings
+// available ~1 h after the flag while Jolpica still had none).
+
+export interface OpenF1SessionResult {
+  position: number | null;
+  driver_number: number;
+  number_of_laps: number | null;
+  points: number | null;
+  dnf: boolean;
+  dns: boolean;
+  dsq: boolean;
+  /** Race: total time in seconds (winner) — may be null for non-finishers. */
+  duration: number | number[] | null;
+  /** Race: seconds behind the winner, or a string such as "+1 LAP". */
+  gap_to_leader: number | string | number[] | null;
+  meeting_key: number;
+  session_key: number;
+}
+
+export interface OpenF1ChampionshipDriver {
+  driver_number: number;
+  position_start: number | null;
+  position_current: number | null;
+  points_start: number | null;
+  points_current: number | null;
+  meeting_key: number;
+  session_key: number;
+}
+
+export interface OpenF1ChampionshipTeam {
+  team_name: string;
+  position_start: number | null;
+  position_current: number | null;
+  points_start: number | null;
+  points_current: number | null;
+  meeting_key: number;
+  session_key: number;
+}
+
+/** Race sessions of a season (one row per Grand Prix). */
+export async function fetchRaceSessionsOfYear(year: number): Promise<OpenF1Session[]> {
+  return openf1Fetch<OpenF1Session>('sessions', { year, session_name: 'Race' });
+}
+
+/** Final classification of a session (empty until OpenF1 has published it). */
+export async function fetchSessionResult(sessionKey: number): Promise<OpenF1SessionResult[]> {
+  return openf1Fetch<OpenF1SessionResult>('session_result', { session_key: sessionKey });
+}
+
+/** Drivers' championship during/after a race session (beta endpoint, race sessions only). */
+export async function fetchChampionshipDrivers(sessionKey: number): Promise<OpenF1ChampionshipDriver[]> {
+  return openf1Fetch<OpenF1ChampionshipDriver>('championship_drivers', { session_key: sessionKey });
+}
+
+/** Teams' championship during/after a race session (beta endpoint, race sessions only). */
+export async function fetchChampionshipTeams(sessionKey: number): Promise<OpenF1ChampionshipTeam[]> {
+  return openf1Fetch<OpenF1ChampionshipTeam>('championship_teams', { session_key: sessionKey });
 }

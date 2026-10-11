@@ -143,6 +143,7 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
         circuitTimeZone={nextRaceLocation?.timeZone ?? nextRaceFacts?.timeZone}
         weather={circuitWeather}
         isLive={isLive}
+        resultsHref={nextRace?.round ? `/season/${CURRENT_SEASON}/round/${nextRace.round}` : undefined}
       />
       <div className="mt-6 md:mt-8">
         <SeasonTicker items={ticker} />
