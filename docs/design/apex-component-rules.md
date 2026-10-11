@@ -55,6 +55,7 @@ Testler: `tests/on-this-day-image.test.ts`.
 - Her satırda seans adı, gün/tarih ve büyük saat bulunur. Pistin yerel saati küçük olarak "Pist …" diye yazılır ("Yerel" kelimesi kullanılmaz; kimin yereli olduğu belirsizdir).
 - Yarış satırı accent ile vurgulanır; bitmiş seanslar soluklaşır ve "Bitti" yazar.
 - Gösterilen seanslar: FP1, Sprint (varsa), Sıralama, Yarış; zaman sırasıyla.
+- **Yarış sırasında (sahip, 2026-10-11):** canlı sıralama yoksa (OpenF1 ücretsiz plan) "kilitli" denmez; geri sayımın yerinde **"Lights out"** paneli durur: beş start ışığı yanıp birlikte söner, yeşil ışıktan beri işleyen yarış saati ve sonuçların bayraktan birkaç dakika sonra burada olacağı yazar. "Lights out" her dilde İngilizce kalır (F1'in kendi ifadesi). Bayraktan sonra "Bayrak düştü" ve yarış sayfasına bağlantı.
 
 ### 2.4 Paddock bento: sağ sütun
 - Sağ sütun dikey olarak ikiye bölünür: **üstte Son Yarışın Kazananı, altta Antoloji**. İki kart eşit önemdedir: birebir aynı boyutta, aynı kart kabuğunda.
