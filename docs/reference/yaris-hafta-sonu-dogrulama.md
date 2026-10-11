@@ -60,7 +60,7 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 | 3 | Test aboneliği (push için) | `push_subscriptions` 0 satır; mobil uygulama yayında değil. Bölüm 3.C'deki yöntemle sahibin onayıyla bir test satırı eklenebilir. |
 | 4 | `MEDIA_CONTACT` Vercel Production | Eklendi (sahip, 2026-10-06). |
 | 5 | GitHub secret `CRON_SECRET_KEY` + var `SITE_URL` | Diğer workflow'larla ortak, kullanımda. |
-| 6 | **OpenF1 canlı erişim (kimlik doğrulama)** | **Eksik** (2026-10-11 ölçümü): OpenF1 canlı seans süresince kimliksiz tüm isteklere 401 veriyor, adaptör kimlik göndermiyor. 3.A bu koşul olmadan geçemez; karar ve iş master-plan 1.7'de. |
+| 6 | **OpenF1 canlı erişim (kimlik doğrulama)** | **Kod hazır, kimlik bilgisi yok** (2026-10-11): OpenF1 canlı seans süresince kimliksiz tüm isteklere 401 veriyor. `OPENF1_USERNAME`/`OPENF1_PASSWORD` yoksa rota 200 `{live:true, restricted:true}` döner ve 3.A'nın "kilitli" ölçütü uygulanır; varsa tam ölçüt. Abonelik kararı master-plan 1.7. |
 
 ---
 
@@ -88,7 +88,8 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
   4. Oturum bittikten >10 dk sonra tekrar çağır.
 - **Geçme ölçütü:** oturum sırasında `live:true`, `sessionName` doğru (Sprint/Qualifying/Race), `rows` ≥ 18 ve `position` artan sırada, `teamColour` `#rrggbb`, `Cache-Control: public, s-maxage=5, stale-while-revalidate=15`, tekrarlayan çağrılar tipik olarak `X-Vercel-Cache: HIT`/`STALE` (edge önbelleği; zorunlu ölçüt değil, içerik aynıysa yeterli), tracker sıralamayı güncelliyor; bitişten >10 dk sonra `live:false, rows:[]`.
 - **R17 sonucu (2026-10-11, ölçülemedi):** yarış sırasında `/api/live-timing` 502 verdi. Neden: OpenF1 `401 {"detail":"Live F1 session in progress. Global API access (including past sessions) is restricted to authenticated users until the session ends. …"}` (`sessions`, `meetings`, `drivers`, `position`, `intervals` ve geçmiş `sessions?year=2024` dahil, 13:16Z–13:55Z). Ayrıntı: `logs/2026-10-11.md` §2. Bu sınamayı yapmadan önce her seferinde ilk iş ham OpenF1 yanıtına bakın: `curl -s -i "https://api.openf1.org/v1/sessions?session_key=latest"`; 401 ise 502'nin nedeni budur ve geri kalan ölçütler ölçülemez (1.7).
-- **Başarısızsa:** `502 {"error":"Live timing unavailable"}` → önce yukarıdaki ham OpenF1 yanıtı: **401** = canlı seans kimlik doğrulaması (kimlik bilgisi yok); 429/5xx = OpenF1 hız sınırı/kesinti; Vercel function log'una bakılır (Vercel MCP bu hesapta yok; sahip dashboard'dan log'u paylaşır). `live:false` ama oturum sürüyorsa → OpenF1 `sessions?session_key=latest` ham yanıtını (`curl https://api.openf1.org/v1/sessions?session_key=latest`) karşılaştır (`date_start/date_end`).
+- **Kimlik bilgisi yokken geçme ölçütü (2026-10-11 düzeltmesinden sonra):** oturum sırasında `200 {"live":true,"restricted":true,…,"rows":[]}`, `Cache-Control: public, s-maxage=60, stale-while-revalidate=60`; ana sayfada "Canlı veri seans boyunca kilitli" metni; ağ sekmesinde `/api/live-timing` istekleri ~60 sn aralıkla ve kırmızı (502) istek yok.
+- **Başarısızsa:** `502 {"error":"Live timing unavailable"}` (artık `Retry-After: 15` ile) → önce yukarıdaki ham OpenF1 yanıtı: **401** = canlı seans kimlik doğrulaması (kimlik bilgisi yok); 429/5xx = OpenF1 hız sınırı/kesinti; Vercel function log'una bakılır (Vercel MCP bu hesapta yok; sahip dashboard'dan log'u paylaşır). `live:false` ama oturum sürüyorsa → OpenF1 `sessions?session_key=latest` ham yanıtını (`curl https://api.openf1.org/v1/sessions?session_key=latest`) karşılaştır (`date_start/date_end`).
 - Birim düzeyinde zaten doğrulanan davranışlar: `tests/live-timing-route.test.ts`.
 
 ### B. Snapshot senkronu, idempotency ve stale-while-revalidate (master-plan 1.3) — oturum sonrası

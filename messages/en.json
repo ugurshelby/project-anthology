@@ -271,7 +271,9 @@
         "connecting": "Connecting to live timing…",
         "pending": "Session in progress — classification pending",
         "live": "Live",
-        "session": "Session"
+        "session": "Session",
+        "restrictedTitle": "Live data locked during the session",
+        "restrictedBody": "Our live source, OpenF1, opens timing only to subscribers while a session runs. Results appear here after the flag."
       },
       "otd": {
         "badge": "On This Day · {date}",
@@ -285,7 +287,8 @@
         "yourTime": "Your time · {zone}",
         "trackTime": "Track {time}",
         "done": "Done"
-      }
+      },
+      "resultsPending": "Official results on the way"
     },
     "common": {
       "pts": "PTS",

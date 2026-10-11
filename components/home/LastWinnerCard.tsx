@@ -120,3 +120,64 @@ export function LastWinnerCard({
     </article>
   );
 }
+
+/**
+ * Same slot, between the chequered flag and the official classification
+ * (Jolpica usually publishes 1–3 h after the race): names the race that just
+ * finished and says results are on the way, instead of an endless skeleton or
+ * the previous round's winner presented as "last race" (plan 1.7 follow-up,
+ * measured R17 2026-10-11).
+ */
+export function LastWinnerPendingCard({
+  raceNameRaw,
+  circuitNameRaw,
+  dateIso,
+  round,
+  season,
+}: {
+  raceNameRaw?: string | null;
+  circuitNameRaw?: string | null;
+  dateIso?: string | null;
+  round: string;
+  season: number;
+}) {
+  const t = useTranslations('ui.home');
+  const locale = useLocale();
+  const race = raceName(raceNameRaw ?? undefined, locale);
+  const circuit = circuitName(circuitNameRaw ?? undefined, locale);
+  const date = dateIso
+    ? formatDate(`${dateIso}T12:00:00Z`, locale, { day: 'numeric', month: 'long', timeZone: 'UTC' })
+    : null;
+
+  return (
+    <article className="group relative flex h-full min-h-[240px] flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface shadow-[0_8px_32px_-8px_rgba(0,0,0,0.7)] transition-all duration-300 ease-out hover:border-white/20">
+      <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-accent/60" />
+      <Link
+        href={`/season/${season}/round/${round}`}
+        aria-label={`${t('lastRoundWinner')}: ${race} — ${t('resultsPending')}`}
+        className="absolute inset-0 z-10 rounded-[var(--radius-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+      />
+      <div className="pointer-events-none relative z-[5] flex items-center justify-between gap-2 p-4 sm:p-5">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+          {t('lastRoundWinner')}
+        </span>
+        <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-hi/80">
+          {t('latest.round', { round })}
+        </span>
+      </div>
+      <div className="pointer-events-none relative z-[5] flex flex-col gap-2 p-5 sm:p-6">
+        <span
+          className="block font-condensed text-3xl font-bold uppercase italic leading-none tracking-tight text-white"
+          style={{ fontFamily: 'var(--font-condensed)' }}
+        >
+          {race.toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-US')}
+        </span>
+        <span className="text-sm leading-snug text-text-mid">
+          {[circuit !== race ? circuit : null, date].filter(Boolean).join(' · ')}
+        </span>
+        <span className="label-caps text-accent">{t('resultsPending')}</span>
+      </div>
+    </article>
+  );
+}

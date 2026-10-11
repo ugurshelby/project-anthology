@@ -83,7 +83,7 @@ Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
 | `/api/cron/notify-sessions` | Seans başlangıcından ~30dk önce push (QStash `apex-notify-sessions`, her 5 dk; yedek: GitHub `notify-sessions.yml`) |
 | `/api/push/register` | Expo push token kayıt (rate-limit 10/dk) |
 | `/api/f1-season` | Canlı Jolpica proxy |
-| `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. **Bilinen sınır (2026-10-11 ölçümü):** OpenF1 canlı seans süresince kimliksiz tüm isteklere 401 verir; adaptör kimlik göndermediği için rota o sürede 502 döner ve hata yanıtı önbelleğe alınmaz (master-plan 1.7). |
+| `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. **Canlı seans kilidi (2026-10-11 ölçümü ve düzeltmesi):** OpenF1 canlı seans süresince kimliksiz tüm isteklere 401 verir; rota bunu 200 `{live:true, restricted:true}` olarak 60 sn önbellekli döner, tracker "canlı veri seans boyunca kilitli" yazar ve dakikada bir sorar; diğer hatalar 15 sn hafızada tutulur. `OPENF1_USERNAME`/`OPENF1_PASSWORD` verilirse adaptör token alır (abonelik kararı master-plan 1.7). |
 | `/api/news` | Haber API |
 | `/api/season/[year]`, `/api/season/[year]/last-result` | Sezon snapshot API |
 | `/api/circuits/[id]`, `/api/drivers/[driverId]/career`, `/api/teams/[constructorId]/career` | Detay API'leri |
@@ -125,6 +125,7 @@ Migration kuralı: `YYYYMMDDHHMMSS_*.sql` formatı zorunlu.
 | `NEXT_PUBLIC_SITE_URL` | RSC self-fetch ve canonical; `getSiteUrl()` sırası: bu → `VERCEL_URL` → sabit canlı host |
 | `SITE_URL` | Yalnız GitHub Actions/script'ler (repo variable) |
 | `GEMINI_API_KEY` | Haber birleştirme/yeniden yazım (ücretsiz katman, opsiyonel; AI Studio'dan) |
+| `OPENF1_USERNAME`, `OPENF1_PASSWORD` | Opsiyonel, yalnızca sunucu: OpenF1 ücretli canlı erişim; yoksa canlı seans boyunca "kilitli" durumu gösterilir (master-plan 1.7) |
 | `GROQ_API_KEY` | Haber yazımı ana sağlayıcı (ücretsiz katman; gpt-oss-120b → 20b). Gemini yedek |
 | `GROQ_NEWS_MODELS` / `GEMINI_NEWS_MODELS` | Haber yazım model listesi override (opsiyonel) |
 | `UPSTASH_REDIS_REST_URL/TOKEN` | Rate-limit ve cron kilidi (opsiyonel; yoksa in-memory) |

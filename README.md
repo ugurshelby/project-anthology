@@ -57,6 +57,7 @@ Tarayıcıda [http://localhost:3000](http://localhost:3000) adresini açın.
 | `NEXT_PUBLIC_SITE_URL` | Önerilir | Mutlak site URL'si (canonical ve RSC self-fetch) |
 | `SITE_URL` | Hayır | Yalnızca GitHub Actions/script'ler için |
 | `GROQ_API_KEY`, `GEMINI_API_KEY` | Hayır | Haber yazımı (Groq ana, Gemini yedek); yoksa kaynağın kendi metni kalır |
+| `OPENF1_USERNAME`, `OPENF1_PASSWORD` | Hayır | OpenF1 ücretli canlı erişim; yoksa canlı seans boyunca ana sayfa "canlı veri kilitli" der |
 | `GROQ_NEWS_MODELS`, `GEMINI_NEWS_MODELS` | Hayır | Model listesi override |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Hayır | Dağıtık rate-limit ve cron kilidi; yoksa in-memory |
 | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_UPLOAD_SOURCE_MAPS` | Hayır | Sentry |

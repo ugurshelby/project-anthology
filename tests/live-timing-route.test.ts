@@ -9,6 +9,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
+import { OpenF1RestrictedError } from '@/lib/f1/sources/openf1Errors';
 
 const SESSION_START = Date.parse('2026-10-04T07:00:00Z');
 const SESSION_END = Date.parse('2026-10-04T09:00:00Z');
@@ -201,6 +202,59 @@ describe('GET /api/live-timing — session timeline simulation', () => {
 
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ error: 'Live timing unavailable' });
+  });
+
+  it('turns the OpenF1 live-session lock (401) into a cached 200 "restricted" state', async () => {
+    mockSession.mockRejectedValue(new OpenF1RestrictedError('sessions'));
+    const { GET } = await loadRoute();
+    const res = await GET(request());
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=60');
+    expect(await res.json()).toEqual({ live: true, restricted: true, sessionName: null, circuitShortName: null, rows: [] });
+  });
+
+  it('asks the locked upstream at most once a minute, however many viewers poll', async () => {
+    mockSession.mockRejectedValue(new OpenF1RestrictedError('sessions'));
+    const { GET } = await loadRoute();
+    await GET(request());
+    for (let i = 0; i < 20; i++) {
+      vi.setSystemTime(SESSION_START + 50 * MIN + i * 2_000);
+      const res = await GET(request());
+      expect((await res.json()).restricted).toBe(true);
+    }
+    expect(mockSession).toHaveBeenCalledTimes(1);
+
+    vi.setSystemTime(SESSION_START + 50 * MIN + 61_000);
+    await GET(request());
+    expect(mockSession).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports the lock even when an older "not live" state is cached', async () => {
+    mockSession.mockResolvedValue(raceSession({ date_start: new Date(SESSION_START + 60 * MIN).toISOString() }));
+    const { GET } = await loadRoute();
+    expect((await (await GET(request())).json()).live).toBe(false);
+
+    vi.setSystemTime(SESSION_START + 50 * MIN + 6_000);
+    mockSession.mockRejectedValue(new OpenF1RestrictedError('sessions'));
+    const body = await (await GET(request())).json();
+    expect(body.restricted).toBe(true);
+  });
+
+  it('memoises other failures for 15s (502 + Retry-After, no upstream call)', async () => {
+    mockSession.mockRejectedValue(new Error('OpenF1 503'));
+    const { GET } = await loadRoute();
+    const first = await GET(request());
+    expect(first.status).toBe(502);
+    expect(first.headers.get('Retry-After')).toBe('15');
+
+    vi.setSystemTime(SESSION_START + 50 * MIN + 10_000);
+    expect((await GET(request())).status).toBe(502);
+    expect(mockSession).toHaveBeenCalledTimes(1);
+
+    vi.setSystemTime(SESSION_START + 50 * MIN + 16_000);
+    await GET(request());
+    expect(mockSession).toHaveBeenCalledTimes(2);
   });
 
   it('rate-limits with 429 + Retry-After before any upstream work', async () => {

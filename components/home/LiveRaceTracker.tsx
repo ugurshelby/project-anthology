@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { LiveTimingResponse } from '@/app/api/live-timing/route';
+import { nextPollDelay } from '@/lib/home/livePoll';
 
-const POLL_INTERVAL_MS = 12_000;
 const MAX_ROWS = 8;
 
 /**
  * Simple live classification strip for the home hero's "live" phase.
  * Polls /api/live-timing (server-side OpenF1 proxy) while mounted; the parent
- * only mounts this during lib/f1Calendar's RACE_LIVE_WINDOW_MS.
+ * only mounts this during lib/f1Calendar's RACE_LIVE_WINDOW_MS. Polling slows
+ * down while the data source is locked or failing (plan 1.7).
  */
 export function LiveRaceTracker() {
   const t = useTranslations('ui.home.live');
@@ -19,28 +20,46 @@ export function LiveRaceTracker() {
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
 
     async function poll() {
+      let restricted = false;
       try {
         const res = await fetch('/api/live-timing', { cache: 'no-store' });
         if (!res.ok) throw new Error(String(res.status));
         const json = (await res.json()) as LiveTimingResponse;
+        restricted = json.restricted === true;
+        failures = 0;
         if (!cancelled) {
           setData(json);
           setFailed(false);
         }
       } catch {
+        failures += 1;
         if (!cancelled) setFailed(true);
       }
+      if (!cancelled) timer = setTimeout(poll, nextPollDelay({ failures, restricted }));
     }
 
     poll();
-    const id = setInterval(poll, POLL_INTERVAL_MS);
     return () => {
       cancelled = true;
-      clearInterval(id);
+      if (timer) clearTimeout(timer);
     };
   }, []);
+
+  if (data?.restricted) {
+    return (
+      <div className="flex max-w-sm flex-col gap-1">
+        <span className="label-caps flex items-center gap-2 text-accent">
+          <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+          {t('restrictedTitle')}
+        </span>
+        <span className="text-sm leading-snug text-text-mid">{t('restrictedBody')}</span>
+      </div>
+    );
+  }
 
   if (failed && !data) {
     return <span className="label-caps text-text-low">{t('unavailable')}</span>;

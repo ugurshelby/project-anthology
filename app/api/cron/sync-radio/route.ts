@@ -22,6 +22,7 @@ import {
   type OpenF1TeamRadio,
   type OpenF1Driver,
 } from '@/lib/f1/sources/openf1';
+import { isOpenF1Restricted } from '@/lib/f1/sources/openf1Errors';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { RadioMomentInsert } from '@/types/database';
@@ -51,6 +52,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   let upserted = 0;
   let skipped = 0;
   let sessionsProcessed = 0;
+  // OpenF1 401s every unauthenticated call while a live session runs (plan 1.7):
+  // stop at the first lock instead of burning one request per session; the
+  // upserts are idempotent, so the next daily run catches up.
+  let deferred = false;
 
   try {
     const db = getSupabaseAdmin();
@@ -71,6 +76,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           fetchTeamRadio(session.session_key),
         ]);
       } catch (err) {
+        if (isOpenF1Restricted(err)) {
+          deferred = true;
+          break;
+        }
         errors.push(`session ${session.session_key}: ${err instanceof Error ? err.message : String(err)}`);
         continue;
       }
@@ -118,8 +127,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           published: false,
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await (db.from('radio_moments') as any).upsert(row, { onConflict: 'slug' });
+        const { error } = await db.from('radio_moments').upsert(row, { onConflict: 'slug' });
 
         if (error) {
           errors.push(`radio ${row.slug}: ${error.message}`);
@@ -132,6 +140,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       source: 'openf1',
       year,
+      ...(deferred ? { deferred: 'openf1-live-session' } : {}),
       sessions: sessionsProcessed,
       upserted,
       skipped,
@@ -139,6 +148,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       durationMs: Date.now() - startedAt,
     });
   } catch (err) {
+    if (isOpenF1Restricted(err)) {
+      return NextResponse.json({
+        source: 'openf1',
+        deferred: 'openf1-live-session',
+        sessions: sessionsProcessed,
+        upserted,
+        skipped,
+        errors,
+        durationMs: Date.now() - startedAt,
+      });
+    }
     // Generic client-facing message; full detail goes to logs/Sentry (B-7).
     console.error('[cron sync-radio] failed:', err);
     return NextResponse.json(

@@ -271,7 +271,9 @@
         "connecting": "Canlı zamanlamaya bağlanılıyor…",
         "pending": "Seans sürüyor, sıralama bekleniyor",
         "live": "Canlı",
-        "session": "Seans"
+        "session": "Seans",
+        "restrictedTitle": "Canlı veri seans boyunca kilitli",
+        "restrictedBody": "Canlı veri kaynağımız OpenF1, seans sürerken sıralamayı yalnızca abonelerine açıyor. Sonuçlar bayraktan sonra burada."
       },
       "otd": {
         "badge": "Tarihte Bugün · {date}",
@@ -285,7 +287,8 @@
         "yourTime": "Senin saatin · {zone}",
         "trackTime": "Pist {time}",
         "done": "Bitti"
-      }
+      },
+      "resultsPending": "Resmî sonuçlar yolda"
     },
     "common": {
       "pts": "PUAN",
