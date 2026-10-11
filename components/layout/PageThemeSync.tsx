@@ -12,9 +12,11 @@ import { useEffect } from 'react';
 export function PageThemeSync({ vars }: { vars: Record<string, string> }) {
   const key = JSON.stringify(vars);
 
+  // Depend on the serialised value, not the object identity (a new object on
+  // every render would re-apply the variables each time).
   useEffect(() => {
     const root = document.documentElement;
-    const entries = Object.entries(vars);
+    const entries = Object.entries(JSON.parse(key) as Record<string, string>);
     for (const [k, value] of entries) {
       root.style.setProperty(k, value);
     }
@@ -23,7 +25,6 @@ export function PageThemeSync({ vars }: { vars: Record<string, string> }) {
         root.style.removeProperty(k);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   return null;

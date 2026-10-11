@@ -118,8 +118,7 @@ async function fetchSnapshot(parsed: ParsedPath): Promise<unknown | null> {
   if (!parsed.type) return null; // unrecognised type — skip DB
   try {
     const db = getSupabaseAdmin();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const query = (db.from('f1_snapshots') as any)
+    const query = db.from('f1_snapshots')
       .select('data')
       .eq('season', parsed.season)
       .eq('type', parsed.type);

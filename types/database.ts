@@ -288,73 +288,81 @@ export type NotifiedSessionUpdate = Partial<NotifiedSessionInsert>;
 // ── Database (supabase-js generic) ───────────────────────────────────────────
 // supabase-js v2 requires `Relationships: []` on each table entry to correctly
 // resolve Insert/Update types through its generic machinery.
+//
+// Row/Insert/Update go through `Plain<>`: the row types above are interfaces,
+// and an interface is not assignable to supabase-js's `Record<string, unknown>`
+// table constraint (interfaces carry no implicit index signature), which made
+// every Insert/Update resolve to `never` and forced `as any` casts on writes.
+// A mapped type is a plain object type, so the constraint holds.
+type Plain<T> = { [K in keyof T]: T[K] };
+
 export interface Database {
   public: {
     Tables: {
       stories: {
-        Row: StoryRow;
-        Insert: StoryInsert;
-        Update: StoryUpdate;
+        Row: Plain<StoryRow>;
+        Insert: Plain<StoryInsert>;
+        Update: Plain<StoryUpdate>;
         Relationships: never[];
       };
       radio_moments: {
-        Row: RadioMomentRow;
-        Insert: RadioMomentInsert;
-        Update: RadioMomentUpdate;
+        Row: Plain<RadioMomentRow>;
+        Insert: Plain<RadioMomentInsert>;
+        Update: Plain<RadioMomentUpdate>;
         Relationships: never[];
       };
       circuits: {
-        Row: CircuitRow;
-        Insert: CircuitInsert;
-        Update: CircuitUpdate;
+        Row: Plain<CircuitRow>;
+        Insert: Plain<CircuitInsert>;
+        Update: Plain<CircuitUpdate>;
         Relationships: never[];
       };
       f1_snapshots: {
-        Row: F1SnapshotRow;
-        Insert: F1SnapshotInsert;
-        Update: F1SnapshotUpdate;
+        Row: Plain<F1SnapshotRow>;
+        Insert: Plain<F1SnapshotInsert>;
+        Update: Plain<F1SnapshotUpdate>;
         Relationships: never[];
       };
       news_cache: {
-        Row: NewsCacheRow;
-        Insert: NewsCacheInsert;
-        Update: NewsCacheUpdate;
+        Row: Plain<NewsCacheRow>;
+        Insert: Plain<NewsCacheInsert>;
+        Update: Plain<NewsCacheUpdate>;
         Relationships: never[];
       };
       push_subscriptions: {
-        Row: PushSubscriptionRow;
-        Insert: PushSubscriptionInsert;
-        Update: PushSubscriptionUpdate;
+        Row: Plain<PushSubscriptionRow>;
+        Insert: Plain<PushSubscriptionInsert>;
+        Update: Plain<PushSubscriptionUpdate>;
         Relationships: never[];
       };
       notified_sessions: {
-        Row: NotifiedSessionRow;
-        Insert: NotifiedSessionInsert;
-        Update: NotifiedSessionUpdate;
+        Row: Plain<NotifiedSessionRow>;
+        Insert: Plain<NotifiedSessionInsert>;
+        Update: Plain<NotifiedSessionUpdate>;
         Relationships: never[];
       };
       news_stories: {
-        Row: NewsStoryRow;
-        Insert: NewsStoryInsert;
-        Update: NewsStoryUpdate;
+        Row: Plain<NewsStoryRow>;
+        Insert: Plain<NewsStoryInsert>;
+        Update: Plain<NewsStoryUpdate>;
         Relationships: never[];
       };
       circuit_weather: {
-        Row: CircuitWeatherRow;
-        Insert: CircuitWeatherInsert;
-        Update: CircuitWeatherUpdate;
+        Row: Plain<CircuitWeatherRow>;
+        Insert: Plain<CircuitWeatherInsert>;
+        Update: Plain<CircuitWeatherUpdate>;
         Relationships: never[];
       };
       media_assets: {
-        Row: MediaAssetRow;
-        Insert: MediaAssetInsert;
-        Update: MediaAssetUpdate;
+        Row: Plain<MediaAssetRow>;
+        Insert: Plain<MediaAssetInsert>;
+        Update: Plain<MediaAssetUpdate>;
         Relationships: never[];
       };
       media_sync_state: {
-        Row: MediaSyncStateRow;
-        Insert: MediaSyncStateInsert;
-        Update: MediaSyncStateUpdate;
+        Row: Plain<MediaSyncStateRow>;
+        Insert: Plain<MediaSyncStateInsert>;
+        Update: Plain<MediaSyncStateUpdate>;
         Relationships: never[];
       };
     };

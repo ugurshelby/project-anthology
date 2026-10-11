@@ -52,8 +52,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // 1) Fetch RSS + load the stories already stored (within retention).
     const raw = await fetchRawNews();
     console.log(`[sync-news] fetched ${raw.length} articles in ${Date.now() - startedAt}ms`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existingRows } = await (db.from('news_stories') as any)
+    const { data: existingRows } = await db.from('news_stories')
       .select('*')
       .gte('published_at', cutoff);
 
@@ -67,15 +66,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // 3) Upsert (batched).
     for (let i = 0; i < built.rows.length; i += UPSERT_BATCH_SIZE) {
       const batch = built.rows.slice(i, i + UPSERT_BATCH_SIZE);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (db.from('news_stories') as any).upsert(batch, { onConflict: 'id' });
+      const { error } = await db.from('news_stories').upsert(batch, { onConflict: 'id' });
       if (error) errors.push(`stories upsert offset ${i}: ${error.message}`);
       else stories += batch.length;
     }
 
     // 4) 7-day retention (stories + the legacy raw table).
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const s = await (db.from('news_stories') as any).delete({ count: 'exact' }).lt('published_at', cutoff);
+    const s = await db.from('news_stories').delete({ count: 'exact' }).lt('published_at', cutoff);
     if (s.error) errors.push(`stories retention: ${s.error.message}`);
     else deleted += s.count ?? 0;
     const c = await db.from('news_cache').delete({ count: 'exact' }).lt('published_at', cutoff);
