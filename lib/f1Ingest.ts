@@ -104,8 +104,7 @@ export async function upsertF1Snapshot(
   // to UPDATE. Exactly one container wins the INSERT; the other succeeds on
   // the subsequent UPDATE. No TOCTOU window.
   if (round === null) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: insertError } = await (db.from('f1_snapshots') as any).insert(row);
+    const { error: insertError } = await db.from('f1_snapshots').insert(row);
 
     if (!insertError) return; // fast path: new row inserted cleanly
 
@@ -115,8 +114,7 @@ export async function upsertF1Snapshot(
       throw new Error(`upsertF1Snapshot(${season},${round},${type}): ${insertError.message}`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: updateError } = await (db.from('f1_snapshots') as any)
+    const { error: updateError } = await db.from('f1_snapshots')
       .update({ data: row.data, source: row.source, fetched_at: row.fetched_at })
       .eq('season', season)
       .is('round', null)
@@ -128,8 +126,7 @@ export async function upsertF1Snapshot(
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (db.from('f1_snapshots') as any).upsert(row, {
+  const { error } = await db.from('f1_snapshots').upsert(row, {
     onConflict: 'season,round,type',
   });
   if (error) {
@@ -156,8 +153,7 @@ export async function loadSnapshotFetchTimes(season: number): Promise<SnapshotFe
   const times: SnapshotFetchTimes = new Map();
   try {
     const db = getSupabaseAdmin();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (db.from('f1_snapshots') as any)
+    const { data, error } = await db.from('f1_snapshots')
       .select('round, type, fetched_at')
       .eq('season', season)
       .eq('source', 'jolpica');

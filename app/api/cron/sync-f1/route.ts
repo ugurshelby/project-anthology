@@ -176,15 +176,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       // upsertF1Snapshot updates rows in-place — no history after the write.
       // Both snapshot types are fetched in a single parallel round-trip.
       const [prevDriverRow, prevConstrRow] = await Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (db.from('f1_snapshots') as any)
+        db.from('f1_snapshots')
           .select('data')
           .eq('season', CURRENT_SEASON)
           .is('round', null)
           .eq('type', 'standings_drivers')
           .maybeSingle(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (db.from('f1_snapshots') as any)
+        db.from('f1_snapshots')
           .select('data')
           .eq('season', CURRENT_SEASON)
           .is('round', null)
@@ -218,11 +216,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         (prevConstrLeaderId && newConstrLeaderId && prevConstrLeaderId !== newConstrLeaderId);
 
       if (needsNotification) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: subs } = await (db.from('push_subscriptions') as any)
+        const { data: subs } = await db.from('push_subscriptions')
           .select('token, preferences')
           .not('token', 'is', null);
-        const subscribers: { token: string; preferences: Record<string, boolean> }[] = subs ?? [];
+        // `preferences` is jsonb: keep only boolean flags (anything else = no preference).
+        const subscribers: { token: string; preferences: Record<string, boolean> }[] = (subs ?? []).map((s) => ({
+          token: s.token,
+          preferences:
+            s.preferences && typeof s.preferences === 'object' && !Array.isArray(s.preferences)
+              ? Object.fromEntries(
+                  Object.entries(s.preferences).filter((e): e is [string, boolean] => typeof e[1] === 'boolean'),
+                )
+              : {},
+        }));
 
         if (prevDriverLeaderId && newDriverLeaderId && prevDriverLeaderId !== newDriverLeaderId) {
           buildLeaderChangeMessages('driver', driverSt as unknown, subscribers, pendingMessages);
@@ -332,8 +338,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     try {
       const db = getSupabaseAdmin();
       const ids = races.map((r) => r.Circuit?.circuitId).filter((id): id is string => !!id);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: existing } = await (db.from('circuits') as any).select('id, data').in('id', ids);
+      const { data: existing } = await db.from('circuits').select('id, data').in('id', ids);
       const existingById = new Map<string, Record<string, unknown>>(
         ((existing ?? []) as Array<{ id: string; data: Record<string, unknown> | null }>).map((r) => [
           r.id,
@@ -363,8 +368,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         }),
       );
       if (rows.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await (db.from('circuits') as any).upsert(rows, { onConflict: 'id' });
+        const { error } = await db.from('circuits').upsert(rows, { onConflict: 'id' });
         if (error) stats.errors.push(`circuits location upsert: ${error.message}`);
       }
     } catch (err) {
@@ -392,32 +396,28 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           facts?.lon ?? fallback?.lon,
         );
         if (weather) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { error } = await (db.from('circuit_weather') as any).upsert(
+          const { error } = await db.from('circuit_weather').upsert(
             {
               circuit_id: circuitId,
               season: CURRENT_SEASON,
               round,
-              data: weather,
+              data: { ...weather },
               fetched_at: new Date().toISOString(),
             },
             { onConflict: 'season,round' },
           );
           if (error) stats.errors.push(`circuit_weather upsert: ${error.message}`);
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (db.from('circuit_weather') as any)
+        await db.from('circuit_weather')
           .delete()
           .eq('season', CURRENT_SEASON)
           .neq('round', round);
       } else {
         // Season over, nothing live/upcoming — no forward-looking forecast to keep.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (db.from('circuit_weather') as any).delete().eq('season', CURRENT_SEASON);
+        await db.from('circuit_weather').delete().eq('season', CURRENT_SEASON);
       }
       // Belt-and-braces: drop anything left over from a prior season (year rollover).
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (db.from('circuit_weather') as any).delete().neq('season', CURRENT_SEASON);
+      await db.from('circuit_weather').delete().neq('season', CURRENT_SEASON);
     } catch (err) {
       const msg = `circuit_weather: ${err instanceof Error ? err.message : String(err)}`;
       stats.errors.push(msg);
