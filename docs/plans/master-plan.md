@@ -44,8 +44,58 @@
 - **Antigravity:** yalnızca arayüz, tasarım ve arayüz metinleri (`components/`, `app/[locale]/**` içindeki görsel kısımlar, `messages/*.json`, `public/` tasarım varlıkları). **Commit ve push yetkisi yoktur** (`AGENTS.md`). İşini bitirince günün log'una yazar, dokunduğu plan maddesini `[~]` bırakır (asla `[x]` yapmaz), Claude doğrular ve commit eder.
 - **Antigravity'nin dokunmadığı yerler:** `lib/`, `app/api/`, `supabase/`, `scripts/`, `data/media/`, `data/stories/image-credits.ts` (sahip doldurur), `.github/`, `vercel.json`, `AGENTS.md`, `mobile/`. Bir arayüz işi için bunlardan birinde değişiklik gerekirse plana not düşer, Claude yapar.
 - **Aynı çalışma ağacı:** iki ajan paralel çalışırken yalnızca kendi dosyalarını düzenler; başka birinin değişikliğini geri almaz, stash'lemez.
-- **Oturum devri ("nerede kalmıştık"):** güncel durum, bekleyen eylemler ve push durumu `logs/2026-10-11.md` sonundaki "Devir notu" bölümünde.
+- **Oturum devri ("nerede kalmıştık"):** güncel durum `logs/2026-10-12.md` sonundaki "Devir notu" ve aşağıdaki "Sıradaki Oturum" listesinde.
 - **Hatırlatma listesi (sahibin isteği):** site denetimi başlarken → 8.3 (medya kalite incelemesi) + 7.1 kaynak listesi + 7.2 editoryal inceleme; denetim düzeltmeleri bittikten sonra → 8.6 (1950–2017 genişletmesi); yarış hafta sonu → `docs/reference/yaris-hafta-sonu-dogrulama.md`; Kasım başında (GCP kredisi 2026-12-18'de bitiyor) → 9.3 tek seferlik işler ve 8.6 zamanlaması; bir cron rotası 300 sn sınırına dayanınca veya mobil gündeme gelince → 9.1 (Vercel + GCP hibrit); sahip yeni bileşen/düzen kuralı verdikçe → `docs/design/apex-component-rules.md`'ye sahibin cümlesiyle eklenir (ilk kurallar 2026-10-10: navigasyon ve ana sayfa).
+
+### 🧭 Sıradaki Oturum: Claude'un Açık İşleri (2026-10-12 sonu, sahibin "dur" talimatıyla bırakıldı)
+
+- [ ] **C-1 Lighthouse (canlı, mobil) Sentry değişikliğinden sonra:** `6e8d7c5` canlıda (Vercel READY). 2026-10-12 ölçüm denemesi betik yolu hatasıyla sonuç vermedi (`npx lighthouse@13.5.0` JSON'u Windows yoluna yazmalı, `/c/...` değil). `/tr` ve `/tr/news`, 2 koşu; önceki değerler 6.2'de. Sonuç 6.2 ve log'a.
+- [ ] **C-2 Lastik termal penceresi yeniden tasarımı (aşağıdaki U-1):** sahip "uygula" dedi; brif sahibin sözcükleriyle U-1'de. Önce `docs/design/apex-component-rules.md`'ye sahibin brifinden bağlayıcı maddeler (sahibin cümleleriyle) alınır, sonra `components/glossary/TyreThermalWindows.tsx` baştan yazılır; tarayıcıda EN/TR, 390/768/1440 ve `prefers-reduced-motion` ile doğrulanır.
+- [ ] **C-3 Plan 6.4 açıkları:** bilinmeyen sürücü/takım/pist kimliğinde 200 + `noindex` (karar: kabul mü, `loading.tsx` kaldırma mı); #24 SVG bayraklar için `country-flag-icons` (MIT) bağımlılığı — sahip onayı gerekir.
+- [ ] **C-4 Plan 8.3 McLaren logosu:** "koyu mürekkep" bayrağı + açık plaka önerisi ya da `review='rejected'` — sahip seçimi; bayrak yolu migration ister (sahip onayı).
+- [ ] **C-5 Sentry (6.3):** DSN eklenirse istemci kendiliğinden yüklenir; açmadan önce `sendDefaultPii: true` → `false` önerisi (gizlilik metni) — sahip kararı.
+- [ ] **C-6 `docs/DENETIM.md` (2026-10-05 denetim raporu):** maddeleri plana aktarılmış mı kontrol edilip `AGENTS.md` "rapor yaşam döngüsü" kuralına göre silinecek (örn. "pist kapak görseli `circuitCoverSrc` null" maddesi artık geçersiz).
+- [ ] **C-7 Yerel not:** `next start` ile yerelde dil değiştirince next-intl `https://localhost` yönlendirmesi üretiyor (`ERR_SSL_PROTOCOL_ERROR`, tarayıcı tam sayfa yüklemeye düşüyor); canlıda (https) etkisi yok, kaydırma koruması iki yolda da çalışıyor. İstenirse incelenir.
+- Takvim: 2026-10-19 10:00 (TR) `apex-github-schedules-off` görevi (1.6); R18 ABD 2026-10-25 (1.1, 1.3, 1.4, 1.7 gözlemi); Kasım başı 9.3 + 8.6 hatırlatması.
+
+### 🎨 Sahip Arayüz Talepleri
+
+- [ ] **U-1 "Lastik Sıcaklık Pencereleri ve Aşınma Dinamiği" bileşeninin iOS estetiğinde yeniden tasarımı (Sahip talebi 2026-10-12; uygulayan Claude, C-2):** `components/glossary/TyreThermalWindows.tsx` (`/tech-glossary`). Sahibin brifi, olduğu gibi:
+
+  > Role: Lead Product Designer & Creative Technologist
+  >
+  > Mevcut "Lastik Sıcaklık Pencereleri ve Aşınma Dinamiği" komponentimiz şu anda fazla mühendislik/telemetri odaklı, görsel hiyerarşisi boğucu, renk paleti donuk ve mobil/desktop deneyiminde sert bir yapıda duruyor.
+  >
+  > Senden ricam: Projemizin kendi tasarım sistemini temel alarak; iOS estetiğinde (Human Interface Guidelines ruhunu taşıyan, pürüzsüz frosted-glass dokular, mükemmel border-radius oranları, canlı ama rafine renkler ve akıcı yaylı/spring mikro animasyonlar) bu komponenti baştan aşağı yeniden ele alman.
+  >
+  > Lütfen tasarım ve etkileşim vizyonunu şu prensiplerle kurgula:
+  >
+  > 1. Görsel Dil & Atmosfer (iOS Look & Feel):
+  > - Kaba ve kontrastı düşük kutular yerine; katmanlı derinlik, zarif iç ışıma (inner glow), ince translucent bordürler ve modern bir dark-mode cam dokusu (ultra-refined blur / glassmorphism) kullan.
+  > - Tipografide monospaced/aşırı teknik havayı kır; bilgiyi tek bakışta aktaran, net bir hiyerarşiye sahip modern bir tipografik ritim oluştur.
+  > - Bilgi panellerini (Kabarcıklanma, Granüllenme vb.) sayfanın altına atılmış statik metin kutuları gibi değil; keşfedilebilir, interaktif kartlar, akordeonlar ya da dokunulduğunda yumuşakça açılan bağlamsal bilgi pencereleri (contextual bottom sheet / modal / popover) olarak düşün.
+  >
+  > 2. C1 - C5 Hamur Seçimi (Segmented / Pill Selector):
+  > - Mevcut küçük ve sıkışık radyo butonları yerine; iOS tarzı akıcı, dokunsal geri bildirimi hissettiren bir "segmented pill control" kurgula.
+  > - Bir hamurdan (örn. C5) diğerine geçerken arka plandaki seçim hapı (active pill indicator) spring animasyonuyla akarak kaysın.
+  > - Her hamurun kendi kimlik rengi (yumuşak sarı, kırmızı, beyaz) arayüzün geneline hafif, sofistike bir ambient glow / ambient lighting etkisi yaysın.
+  >
+  > 3. Sıcaklık Penceresi ve Termal Gösterge (Hero Visual):
+  > - Mevcut statik ve boğuk slider/çubuk görüntüsünü kaldır. Burası komponentin kalbi olmalı.
+  > - Sıcaklık aralığını (Soğuk / Optimum Çalışma / Aşırı Isınma) adeta dinamik bir Apple Health halkası ya da lüks bir otomobil kadranı akıcılığında sun.
+  > - "Optimum Aralık" ve "Zirve Tutuş (Peak)" alanını neon sertliğinde değil, zarif bir nefes alma efekti (subtle pulse glow) ve parıltılı bir odak ile göster.
+  > - Hamur değiştiğinde sıcaklık barındaki aralıklar ve ibreler sertçe zıplamak yerine; yaylı fizik (spring physics) ile esneyerek yeni konumuna aksın.
+  > - Kullanıcı parmağıyla veya imleciyle bar üzerinde gezinebilmeli (scrubbing/slider hissi); derece değiştikçe lastiğin termal risk durumu (Graining vs. Blistering) canlı bir geri bildirimle hissettirilmeli.
+  >
+  > 4. İstatistik & Metrik Kartları:
+  > - "Isınma Hızı", "Aşınma Direnci", "Min/Maks Eşik" gibi verileri düz sıkışık tablolar yerine; temiz, geniş boşluklu (airy), mikro göstergelere veya zarif progress barlara sahip modern KPI kartları olarak tasarla.
+  >
+  > 5. Mobil & Tablet Esnekliği:
+  > - Mobilde dikey eksende darmadağın olan ve metinleri sıkışan yapıyı tamamen düzelt; her şey başparmakla kolayca gezilebilir, ritmik ve hafif hissedilmeli.
+  >
+  > Özetle: Ekranı sıkıcı bir telemetri raporu olmaktan çıkar; bir F1 pilotunun kokpit iPad'inde göreceği kadar estetik, sezgisel, büyüleyici ve akıcı bir görsel hikaye anlatımına dönüştür. Kendi tasarım sistemimizin bileşenlerini ve animasyon yeteneklerini sonuna kadar kullan.
+
+  - Uygulama notları (Claude): `AGENTS.md` sınırları geçerli — klavye ile kullanılabilir kaydırıcı (`role="slider"`, ok tuşları), görünür odak, `prefers-reduced-motion`'da yay animasyonları kapalı, WCAG AA kontrast; sıcaklık değerleri bileşendeki mevcut editoryal veriden (7.2 kapsamında, kaynakla doğrulanmadı). Yeni animasyon kütüphanesi eklemek bağımlılık değişikliği sayılır (sahip onayı); önce CSS/`requestAnimationFrame` yay fiziğiyle yapılır.
 
 ### 🎨 Antigravity İş Listesi (frontend)
 
