@@ -1,13 +1,12 @@
-import * as Sentry from "@sentry/nextjs";
+import { loadSentry, sentryEnabled } from '@/lib/monitoring/clientErrors';
 
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  sendDefaultPii: true,
-  tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
-  enableLogs: true,
-  // Session replay removed: adds ~400KB to the client bundle.
-  // Re-enable if replay becomes a product requirement.
-  integrations: [],
-});
+// Sentry loads after the page and only with a DSN (lib/monitoring/clientErrors.ts).
+if (sentryEnabled) {
+  const start = () => void loadSentry();
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) window.requestIdleCallback(start);
+  else setTimeout(start, 1);
+}
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export function onRouterTransitionStart(href: string, navigationType: string): void {
+  void loadSentry()?.then((Sentry) => Sentry.captureRouterTransitionStart(href, navigationType));
+}
