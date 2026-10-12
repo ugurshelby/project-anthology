@@ -39,7 +39,6 @@ import { OnThisDayCard } from '@/components/home/OnThisDayCard';
 import { SeasonTicker } from '@/components/home/SeasonTicker';
 import { HomePaddockRail } from '@/components/home/HomePaddockRail';
 import {
-  HomeHeroFallback,
   HomePaddockCardFallback,
   HomeArchiveFallback,
 } from '@/components/home/HomeFallbacks';
@@ -268,9 +267,10 @@ export default async function HomePage({
 
   return (
     <PageShell className="!pt-0 lg:!pt-0">
-      <Suspense fallback={<HomeHeroFallback />}>
-        <HomeHeroBlock locale={locale} />
-      </Suspense>
+      {/* Not behind its own Suspense: the hero's height depends on the race name and the schedule panel, so a
+          fixed-height fallback made everything below jump when it streamed in (Lighthouse CLS 0.106, 2026-10-12).
+          Rendering it with the page also puts the LCP image in the first page chunk. Its reads are cached DB rows. */}
+      <HomeHeroBlock locale={locale} />
 
       <div className="mt-6 flex flex-col gap-6 md:mt-8 md:gap-8">
         <HomePaddockRail>
