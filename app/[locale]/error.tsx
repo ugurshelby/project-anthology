@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import * as Sentry from '@sentry/nextjs';
+import { captureClientError } from '@/lib/monitoring/clientErrors';
 import { useTranslations } from 'next-intl';
 
 export default function Error({
@@ -14,7 +14,7 @@ export default function Error({
   const t = useTranslations('system.error');
 
   useEffect(() => {
-    Sentry.captureException(error);
+    captureClientError(error);
   }, [error]);
 
   return (
