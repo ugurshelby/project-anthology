@@ -69,3 +69,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'sync-media failed' }, { status: 500 });
   }
 }
+
+/** QStash schedules made through the Upstash MCP can only POST (empty body); same handler, same auth. */
+export const POST = GET;
