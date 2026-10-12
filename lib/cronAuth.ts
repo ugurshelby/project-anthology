@@ -110,7 +110,7 @@ function hasQStashSignature(req: CronRequest): boolean {
   } catch {
     return false;
   }
-  // Cron routes are GET-only and QStash schedules call them with an empty body.
+  // Cron routes take GET (script-made schedules) or POST (Upstash MCP schedules); both carry an empty body.
   return verifyQStashSignature({ token, keys, pathname, body: '' });
 }
 

@@ -100,3 +100,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     );
   }
 }
+
+/** QStash schedules made through the Upstash MCP can only POST (empty body); same handler, same auth. */
+export const POST = GET;
