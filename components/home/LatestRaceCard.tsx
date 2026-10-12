@@ -3,8 +3,6 @@ import { displayUpper } from '@/lib/i18n/caps';
 import { Link } from '@/i18n/routing';
 import { raceName } from '@/lib/i18n/format';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
-import { DriverAvatar } from '@/components/bento/DriverAvatar';
 import type { LastRaceRecap } from '@/lib/f1/mrdata';
 
 const MEDAL: Record<1 | 2 | 3, string> = {
@@ -22,7 +20,6 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
   const locale = useLocale();
   const winner = recap.podium.find((p) => p.position === '1');
   const winnerColor = winner ? resolveTeamUiColor(undefined, winner.constructorName, season) : undefined;
-  const winnerPortrait = winner ? driverIconSrc(winner.driverCode, winner.driverName, season) : null;
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -39,15 +36,6 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
           className="relative flex items-center gap-3 overflow-hidden rounded-[var(--radius)] p-3"
           style={{ background: `linear-gradient(120deg, color-mix(in srgb, ${winnerColor} 22%, transparent), transparent 75%)` }}
         >
-          {winnerPortrait ? (
-            <DriverAvatar
-              driverName={winner.driverName}
-              driverCode={winner.driverCode}
-              season={season}
-              constructorName={winner.constructorName}
-              size={44}
-            />
-          ) : null}
           <div className="flex min-w-0 flex-col">
             <span className="label-caps" style={{ color: MEDAL[1] }}>{t('winner')}</span>
             <span lang="en" className="font-condensed truncate text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>

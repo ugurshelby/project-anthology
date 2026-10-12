@@ -127,7 +127,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
               <TeamTelemetryBars teams={constructors} season={year} />
             ) : null}
             {highlights ? (
-              <SeasonHighlightTiles highlights={highlights} season={year} />
+              <SeasonHighlightTiles highlights={highlights} />
             ) : null}
             <BentoCard span={4}>
               {recap ? (

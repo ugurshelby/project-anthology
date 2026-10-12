@@ -1,35 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { driverIconSrc, teamIconSrc, carSrc, circuitCoverSrc, circuitIconSrc } from '@/lib/assets/f1-icons';
+import * as icons from '@/lib/assets/f1-icons';
 
-// Apex is photo-free by policy (2026-09-28) — driver/team/car photography and
-// aerial circuit covers had no documented license, so the resolvers for them
-// are permanent no-ops. ApexFallback renders a data-driven badge instead;
-// these tests just pin the "always null" contract.
+// Photos come from the license-checked media system (lib/media/read.ts). The
+// old always-null driver/team/car/cover helpers were removed on 2026-10-12;
+// only the MIT-licensed track outline lookup is left here.
 
-describe('driverIconSrc / teamIconSrc / carSrc — photo-free policy', () => {
-  it('driverIconSrc always returns null', () => {
-    expect(driverIconSrc('ver', 'Max Verstappen', 2026)).toBeNull();
-    expect(driverIconSrc(null, null, 2019)).toBeNull();
+describe('f1-icons', () => {
+  it('no longer exports the removed photo helpers', () => {
+    expect(Object.keys(icons)).not.toContain('driverIconSrc');
+    expect(Object.keys(icons)).not.toContain('teamIconSrc');
+    expect(Object.keys(icons)).not.toContain('carSrc');
+    expect(Object.keys(icons)).not.toContain('circuitCoverSrc');
   });
 
-  it('teamIconSrc always returns null', () => {
-    expect(teamIconSrc('Ferrari', 2026)).toBeNull();
-    expect(teamIconSrc('Totally Fake Team')).toBeNull();
-  });
-
-  it('carSrc always returns null', () => {
-    expect(carSrc('red_bull', 'Oracle Red Bull Racing')).toBeNull();
-  });
-});
-
-describe('circuitCoverSrc / circuitIconSrc', () => {
-  it('circuitCoverSrc always returns null (no aerial photography)', () => {
-    expect(circuitCoverSrc('monaco')).toBeNull();
-  });
-
-  it('circuitIconSrc still resolves the MIT-licensed track outline', () => {
-    expect(circuitIconSrc('monaco')).toBe('/circuits/mc-1929.svg');
-    expect(circuitIconSrc('sepang')).toBe('/circuits/my-1999.svg');
-    expect(circuitIconSrc('unknown-circuit')).toBeNull();
+  it('circuitIconSrc resolves the MIT-licensed track outline', () => {
+    expect(icons.circuitIconSrc('monaco')).toBe('/circuits/mc-1929.svg');
+    expect(icons.circuitIconSrc('sepang')).toBe('/circuits/my-1999.svg');
+    expect(icons.circuitIconSrc('unknown-circuit')).toBeNull();
   });
 });

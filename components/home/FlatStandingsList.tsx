@@ -40,10 +40,7 @@ export function FlatStandingsList({
             <span className="data-tabular w-5 shrink-0 text-right text-text-mid">{row.position}</span>
             <DriverAvatar
               driverName={row.driverName}
-              driverCode={row.driverCode}
-              driverId={row.driverId}
               constructorName={row.constructorName}
-              season={season}
               size={avatarSize}
             />
             <span lang="en"

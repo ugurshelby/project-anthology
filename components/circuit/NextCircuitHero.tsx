@@ -3,10 +3,8 @@ import { displayUpper } from '@/lib/i18n/caps';
 import { useLocale, useTranslations } from 'next-intl';
 import { countryName, formatDate, raceName as localRaceName } from '@/lib/i18n/format';
 import { ApexFallback } from '@/components/media/ApexFallback';
-import { ApexImage } from '@/components/media/ApexImage';
 import { Link } from '@/i18n/routing';
 import { Countdown } from '@/components/home/Countdown';
-import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { countryFlag } from '@/lib/data/countryFlags';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { CURRENT_SEASON, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
@@ -35,7 +33,6 @@ export function NextCircuitHero({
 }) {
   const t = useTranslations('ui.circuit');
   const locale = useLocale();
-  const cover = circuitCoverSrc(card.circuitId);
   const flag = countryFlag(card.country);
   const facts = getCircuitFacts(card.circuitId, locale);
   const targetMs = raceStartMs(race);
@@ -111,20 +108,7 @@ export function NextCircuitHero({
         </div>
 
         <div className="relative min-h-[220px] border-t border-white/[0.06] lg:min-h-[360px] lg:border-t-0 lg:border-l">
-          {cover ? (
-            <ApexImage
-              src={cover}
-              alt=""
-              fill
-              kind="circuit"
-              fallbackLabel={card.circuitName}
-              sizes="(max-width: 1024px) 100vw, 46vw"
-              className="object-cover saturate-90 brightness-95"
-              priority
-            />
-          ) : (
-            <ApexFallback kind="circuit" label={card.circuitName} />
-          )}
+          <ApexFallback kind="circuit" label={card.circuitName} />
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10 lg:bg-gradient-to-l lg:from-black/80 lg:via-black/30 lg:to-transparent"

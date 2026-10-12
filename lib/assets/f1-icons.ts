@@ -48,20 +48,6 @@ const CIRCUIT_ID_TO_SVG: Record<string, string> = {
   sepang: 'my-1999.svg',
 };
 
-/** @deprecated Always null — no driver photography is used. Kept as a stable no-op API so call sites don't need to change; ApexFallback renders the badge instead. */
-export function driverIconSrc(
-  _driverCode?: string | null,
-  _driverIdOrName?: string | null,
-  _season?: number,
-): string | null {
-  return null;
-}
-
-/** @deprecated Always null — no team marks/logos are used. Kept as a stable no-op API; ApexFallback renders the badge instead. */
-export function teamIconSrc(_teamName: string | undefined | null, _season?: number): string | null {
-  return null;
-}
-
 /** Track map outline (MIT-licensed geometry, not photography) — the one real asset lookup left. */
 export function circuitIconSrc(circuitId: string | undefined | null): string | null {
   const id = (circuitId ?? '').trim().toLowerCase();
@@ -70,12 +56,3 @@ export function circuitIconSrc(circuitId: string | undefined | null): string | n
   return file ? `/circuits/${file}` : null;
 }
 
-/** @deprecated Always null — no aerial/photographic circuit covers are used. WeekendHero's existing gradient fallback renders instead. */
-export function circuitCoverSrc(_circuitId: string | undefined | null): string | null {
-  return null;
-}
-
-/** @deprecated Always null — no car renders are used. Kept as a stable no-op API; ApexFallback renders the badge instead. */
-export function carSrc(_constructorId: string | undefined | null, _teamName?: string | null): string | null {
-  return null;
-}
