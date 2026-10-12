@@ -46,7 +46,7 @@ export function FlatStandingsList({
               season={season}
               size={avatarSize}
             />
-            <span
+            <span lang="en"
               className="font-condensed min-w-0 flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >

@@ -301,6 +301,8 @@
       "next": "SIRADA",
       "championship": "Şampiyona",
       "seatTbc": "TBA // Koltuk belli değil",
+      "ptsWithTeam": "{points} puanı {team} ile",
+      "ptsFromDriver": "{points} puanı {driver} getirdi",
       "fastestLapShort": "EHT",
       "winsShort": "G",
       "moreMenu": "Daha fazla",
@@ -351,7 +353,16 @@
       "time": "Zaman",
       "fastest": "En hızlı",
       "timeStatus": "Süre / Durum",
-      "best": "En iyi"
+      "best": "En iyi",
+      "gridDelta": "Başlangıç gridine göre kazanılan ya da kaybedilen sıra (grid cezaları ve pit çıkışından başlamalar dahil).",
+      "lapsDown": "+{count} tur",
+      "status": {
+        "retired": "Yarış dışı",
+        "disqualified": "Diskalifiye",
+        "didNotStart": "Başlamadı",
+        "withdrew": "Çekildi",
+        "notClassified": "Sınıflandırılmadı"
+      }
     },
     "grid": {
       "championship": "{season} Şampiyonası",
@@ -445,8 +456,7 @@
         "title": "Pistin tarihini yazan anlar",
         "count": "{count} ikonik anlatı"
       },
-      "blueprint": "Pist planı",
-      "circuitIdLabel": "Pist kimliği: {id}"
+      "blueprint": "Pist planı"
     },
     "glossary": {
       "metaTitle": "Teknik Sözlük",
@@ -613,8 +623,8 @@
       "metaDescription": "Apex Formula 1 görsel temin politikası, açık lisanslar (CC BY, CC BY-SA, Kamu Malı), atıf standartları ve içerik kaldırma süreci.",
       "eyebrow": "Yasal / 05",
       "title": "Görsel kaynakları, lisanslar ve telif politikası.",
-      "intro": "Apex'te sunulan tüm görseller sıkı bir lisans kapısından geçer. Sitemiz üçüncü taraf sitelere anlık çağrı yapmaz; yalnızca doğrulanmış açık lisansa (CC BY, CC BY-SA, Kamu Malı) sahip varlıklar kendi depolama alanımızda saklanır ve atıfları eksiksiz gösterilir.",
-      "updated": "08 Ekim 2026",
+      "intro": "Apex'teki her görselin kaydı tutulan bir kaynağı vardır. Açık lisanslı görseller (CC BY, CC BY-SA, Kamu Malı) kendi depolama alanımıza kopyalanır ve yazar atfıyla gösterilir. Bu hattın dışında kalan iki görsel türü aşağıda ayrıca açıklanır: antoloji hikâye fotoğrafları ve doğrudan yayıncının kendi sunucusundan yüklenen haber görselleri.",
+      "updated": "12 Ekim 2026",
       "s1Title": "Açık Lisanslar ve Atıf Standardı",
       "s1p1": "Sistemimiz yalnızca Wikimedia Commons üzerinde açıkça belgelenmiş Creative Commons (CC BY, CC BY-SA) ve Kamu Malı (Public Domain, CC0) lisansına sahip görselleri kabul eder. Tüm telifli basın ajansı, FOM/Formula 1 resmi portalları veya takım basın bültenleri kesin olarak engellenir.",
       "s1p2": "Her görselin altında veya detay penceresinde yazar adı, kaynak Wikimedia Commons sayfası ve lisans türü açıkça belirtilir. Yeniden boyutlandırılmış türev WebP kopyaları orijinal lisans şartlarına (CC BY-SA Paylaşımcı lisansı dahil) tam uyumla sunulur.",
@@ -624,6 +634,8 @@
       "s3p1": "Fotoğrafı veya açık lisansı bulunmayan pilotlar, araçlar ve takımlar için Apex tasarım diliyle hazırlanan özgün, hafif parametrik SVG rozetleri ve CAD siluetleri kullanılır. Pist harita konturları MIT lisanslı açık kaynak geometri verisinden üretilir.",
       "s4Title": "Telif ve İçerik Kaldırma (Takedown)",
       "s4p1": "Bir görselin telif haklarınızı ihlal ettiğini veya yanlış lisanslandığını düşünüyorsanız, lütfen DMCA sayfamızdaki adımları takip ederek <mail>contact@apexstats.example</mail> adresine bildirin. Bildirilen görsel gecikmeksizin yayından kaldırılır ve tekrar seçilmemek üzere kilitlenir.",
+      "newsTitle": "Haber görselleri",
+      "newsP1": "Haber kartları, yayıncının kendi akışında yayımladığı görseli gösterir (örneğin Motorsport.com, The Race veya BBC Sport). Apex bu görselleri kopyalamaz ve saklamaz: tarayıcınız onları doğrudan yayıncının sunucusundan, yayıncının sunduğu bir boyutta ve özgün habere giden bağlantının yanında yükler. Tüm hakları yayıncıya aittir; yayıncı aşağıdaki süreçle bir görselin kaldırılmasını isteyebilir.",
       "storiesTitle": "Hikâye fotoğrafları",
       "storiesP1": "Antoloji hikâyelerinde gerçek fotoğraflar ticari olmayan, editoryal amaçla kullanılır. Bu görseller yukarıdaki açık lisans hattının dışındadır; tüm hakları sahiplerine aittir. Özgün kaynağı bilinen görselin altında kaynak yazılır ve görsel o kaynağa bağlanır. Hak sahipleri aşağıdaki süreçle bir görselin kaldırılmasını isteyebilir.",
       "storiesCount": "{total} hikâye görselinden {sourced} tanesinin kaynağı kayıtlı.",

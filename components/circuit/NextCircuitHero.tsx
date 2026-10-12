@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { displayUpper } from '@/lib/i18n/caps';
 import { useLocale, useTranslations } from 'next-intl';
 import { countryName, formatDate, raceName as localRaceName } from '@/lib/i18n/format';
 import { ApexFallback } from '@/components/media/ApexFallback';
@@ -69,7 +70,7 @@ export function NextCircuitHero({
               <span aria-hidden className="text-text-low">·</span>
               {formatRaceDate(card.date, locale)}
             </p>
-            <p className="label-caps text-accent">{raceName}</p>
+            <p className="label-caps text-accent">{displayUpper(raceName, locale)}</p>
             <h2 className="headline-lg uppercase text-text-hi">{card.circuitName}</h2>
           </div>
 

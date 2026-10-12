@@ -12,6 +12,14 @@ import { getSupabaseClient } from '@/lib/supabase';
  * otherwise draw the type-specific SVG placeholder. No other fallback exists.
  */
 
+/**
+ * Commons sometimes records a web address as the author (McLaren logo:
+ * "https://www.mclaren.com/"); the credit line shows the site name instead.
+ */
+export function creditText(text: string): string {
+  return text.replace(/https?:\/\/(?:www\.)?([^/\s]+)\/?[^\s]*/gi, '$1');
+}
+
 export interface MediaImageVariant {
   w: number;
   h: number;
@@ -105,7 +113,7 @@ export function rowToResult(row: MediaDbRow): MediaResult {
       dominantColor: row.dominant_color,
     },
     attribution: {
-      text: row.attribution ?? (row.author && row.license ? `${row.author} / Wikimedia Commons, ${row.license}` : 'Wikimedia Commons'),
+      text: creditText(row.attribution ?? (row.author && row.license ? `${row.author} / Wikimedia Commons, ${row.license}` : 'Wikimedia Commons')),
       author: row.author,
       license: row.license,
       licenseUrl: row.license_url,

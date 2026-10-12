@@ -7,6 +7,7 @@ import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { DriverGridRow } from '@/lib/data/entities';
 
 import type { TeamHeadToHead } from '@/lib/f1/headToHead';
+import type { TeamPointsShare } from '@/lib/f1/mrdata';
 
 export interface GarageUnit {
   constructorId: string;
@@ -17,6 +18,10 @@ export interface GarageUnit {
   powerUnit: string | null;
   drivers: DriverGridRow[];
   headToHead?: TeamHeadToHead;
+  /** Per driverId: season points scored for other constructors (mid-season seat changes). */
+  pointsElsewhere?: Record<string, TeamPointsShare[]>;
+  /** Drivers outside the two seats shown whose points count in the team total. */
+  formerScorers?: Array<{ driverId: string; name: string; points: number }>;
 }
 
 function DriverBay({
@@ -24,11 +29,13 @@ function DriverBay({
   season,
   color,
   divided,
+  elsewhere,
 }: {
   row: DriverGridRow;
   season: number;
   color: string;
   divided?: boolean;
+  elsewhere?: TeamPointsShare[];
 }) {
   const t = useTranslations('ui.common');
   const number = row.carNumber ?? row.position;
@@ -66,7 +73,7 @@ function DriverBay({
         className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-2/3 bg-gradient-to-t from-[#050505] via-[#050505]/85 to-transparent"
       />
       <div className="relative z-10 flex flex-col gap-0.5">
-        <span
+        <span lang="en"
           className="font-condensed line-clamp-2 text-base font-700 uppercase leading-tight text-text-hi md:text-xl"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
@@ -76,6 +83,11 @@ function DriverBay({
           <span>P{row.position}</span>
           <span className="text-text-hi">{row.points} {t('pts')}</span>
         </div>
+        {elsewhere?.map((share) => (
+          <span key={share.constructorId} className="data-tabular text-right text-[11px] leading-tight text-text-low">
+            {t('ptsWithTeam', { points: share.points, team: share.constructorName })}
+          </span>
+        ))}
       </div>
     </Link>
   );
@@ -314,7 +326,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
                   showAttribution={false}
                 />
               </span>
-              <span
+              <span lang="en"
                 className="font-condensed truncate text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
                 style={{ fontFamily: 'var(--font-condensed)' }}
               >
@@ -350,12 +362,21 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
               {unit.wins} {t('winsShort')} · {unit.points} {t('pts')}
             </span>
           </div>
+          {unit.formerScorers?.map((s) => (
+            <span key={s.driverId} className="data-tabular -mt-2 text-right text-[11px] leading-tight text-text-low">
+              {t('ptsFromDriver', { points: s.points, driver: s.name })}
+            </span>
+          ))}
         </Link>
 
         <div className="flex flex-col lg:min-h-0 lg:flex-1">
           <div className="grid grid-cols-2 flex-1">
-            {d1 ? <DriverBay row={d1} season={season} color={color} /> : <EmptySeat />}
-            {d2 ? <DriverBay row={d2} season={season} color={color} divided /> : <EmptySeat divided />}
+            {d1 ? <DriverBay row={d1} season={season} color={color} elsewhere={unit.pointsElsewhere?.[d1.driverId]} /> : <EmptySeat />}
+            {d2 ? (
+              <DriverBay row={d2} season={season} color={color} divided elsewhere={unit.pointsElsewhere?.[d2.driverId]} />
+            ) : (
+              <EmptySeat divided />
+            )}
           </div>
           {d1 && d2 ? <TeammateHeadToHead d1={d1} d2={d2} color={color} h2h={unit.headToHead} /> : null}
         </div>

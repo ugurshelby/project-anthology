@@ -20,7 +20,9 @@ export function MediaCredit({
       <span className="shrink-0 font-mono uppercase tracking-wider text-text-low">
         {attribution.trademark ? t('markLabel') : t('photoLabel')}
       </span>
-      <span className="truncate text-text-mid">{attribution.text}</span>
+      <span className="truncate text-text-mid" title={attribution.text}>
+        {attribution.text}
+      </span>
       {attribution.sourceUrl ? (
         <a
           href={attribution.sourceUrl}

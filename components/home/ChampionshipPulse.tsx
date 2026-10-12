@@ -86,8 +86,8 @@ export function ChampionshipPulse({
               </span>
             </div>
 
-            <h3
-              className="line-clamp-1 font-condensed text-xl font-700 uppercase tracking-tight text-white sm:text-2xl"
+            <h3 lang="en"
+              className="line-clamp-2 font-condensed text-xl font-700 uppercase leading-[1.05] tracking-tight text-white sm:text-2xl"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
               {leader.driverName}
@@ -152,7 +152,7 @@ export function ChampionshipPulse({
                   <span className="w-5 shrink-0 font-mono text-xs font-bold text-text-low/80">
                     P{row.position}
                   </span>
-                  <span
+                  <span lang="en"
                     className="truncate font-condensed text-sm font-700 uppercase tracking-tight text-text-hi transition-colors group-hover/row:text-white"
                     style={{ fontFamily: 'var(--font-condensed)' }}
                   >
@@ -207,7 +207,7 @@ export function ChampionshipPulse({
                         style={{ backgroundColor: color }}
                         aria-hidden="true"
                       />
-                      <span className="truncate font-mono text-xs uppercase text-text-hi/90 transition-colors group-hover/team:text-white">
+                      <span lang="en" className="truncate font-mono text-xs uppercase text-text-hi/90 transition-colors group-hover/team:text-white">
                         {row.constructorName}
                       </span>
                     </div>

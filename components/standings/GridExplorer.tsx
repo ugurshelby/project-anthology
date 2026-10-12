@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { displayUpper } from '@/lib/i18n/caps';
 import type { DriverGridRow } from '@/lib/data/entities';
 import { GarageTeamPanel, type GarageUnit } from '@/components/standings/GarageTeamPanel';
 import { GridDriverStandings } from '@/components/standings/GridDriverStandings';
@@ -20,6 +21,7 @@ export function GridExplorer({
   initialView?: GridView;
 }) {
   const t = useTranslations('ui.grid');
+  const locale = useLocale();
   const [view, setView] = useState<GridView>(initialView);
 
   return (
@@ -27,7 +29,7 @@ export function GridExplorer({
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
           <span className="label-caps text-text-mid">{t('championship', { season })}</span>
-          <h1 className="headline-lg uppercase text-text-hi">{t('title')}</h1>
+          <h1 className="headline-lg uppercase text-text-hi">{displayUpper(t('title'), locale)}</h1>
         </div>
         <div
           role="group"

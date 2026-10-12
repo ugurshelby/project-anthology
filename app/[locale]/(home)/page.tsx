@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { displayUpper, latinUpper } from '@/lib/i18n/caps';
 import { Suspense } from 'react';
 import { Link } from '@/i18n/routing';
 import { SITE_NAME, SITE_TAGLINE } from '@/lib/seo';
@@ -118,12 +119,10 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
     ticker.push(t('tickerSeason', { season: CURRENT_SEASON, done: doneCount, total: races.length }));
   }
   if (nextRace) {
-    const nextLabel = (
-      nextRace.Circuit?.Location?.locality ??
-      nextRace.Circuit?.circuitName ??
-      nextRace.raceName ??
-      t('nextRound')
-    ).toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-GB');
+    const locality = nextRace.Circuit?.Location?.locality;
+    const nextLabel = locality
+      ? latinUpper(locality)
+      : displayUpper(nextRace.Circuit?.circuitName ?? nextRace.raceName ?? t('nextRound'), locale);
     const km = nextRaceFacts?.lengthKm != null ? t('tickerKm', { km: nextRaceFacts.lengthKm }) : '';
     ticker.push(t('tickerNext', { label: nextLabel, km }));
   }

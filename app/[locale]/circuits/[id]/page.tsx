@@ -111,17 +111,6 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                 }}
               />
 
-              {/* CAD Crosshairs in corners */}
-              <div aria-hidden="true" className="pointer-events-none absolute top-3 left-3 font-mono text-[10px] text-white/30">
-                + [LAT_LON.CAD_GRID]
-              </div>
-              <div aria-hidden="true" className="pointer-events-none absolute top-3 right-3 font-mono text-[10px] text-accent/60">
-                FIA GRADE 1 // APEX TELEMETRY
-              </div>
-              <div aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 font-mono text-[10px] text-white/30">
-                SCALE: 1:5000 // SECTOR S1-S2-S3
-              </div>
-
               {/* Radial center glow */}
               <div
                 aria-hidden="true"
@@ -168,8 +157,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </div>
 
               {/* Bottom Telemetry Bar */}
-              <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-2 text-[11px] font-mono text-text-mid">
-                <span>{t('circuitIdLabel', { id: circuit.circuitId.toUpperCase() })}</span>
+              <div className="relative z-10 flex items-center justify-end border-t border-white/10 pt-2 text-[11px] font-mono text-text-mid">
                 <span>{circuit.locality}, {countryName(circuit.country, locale)}</span>
               </div>
             </BentoCard>
@@ -243,7 +231,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                           {w.season}
                         </span>
                         <div>
-                          <span
+                          <span lang="en"
                             className={['font-condensed block uppercase text-text-hi', i === 0 ? 'text-lg font-700' : 'text-base font-600'].join(' ')}
                             style={{ fontFamily: 'var(--font-condensed)' }}
                           >

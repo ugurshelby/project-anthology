@@ -33,7 +33,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
       <span className="hero-number relative z-10 shrink-0 text-2xl text-text-hi/25">01</span>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="label-caps text-text-mid">{t('leader')}</span>
-        <span
+        <span lang="en"
           className="font-condensed truncate text-2xl font-700 uppercase leading-none text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
@@ -86,7 +86,7 @@ export function TeamLeaderCard({ row }: { row: ConstructorStandingRow }) {
       <span className="hero-number relative z-10 shrink-0 text-2xl text-text-hi/25">01</span>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="label-caps text-text-mid">{t('leader')}</span>
-        <span
+        <span lang="en"
           className="font-condensed truncate text-2xl font-700 uppercase leading-none text-text-hi"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >

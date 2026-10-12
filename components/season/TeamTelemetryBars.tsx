@@ -41,7 +41,7 @@ export function TeamTelemetryBars({ teams, season }: { teams: ConstructorStandin
                       <Image src={logo} alt="" fill sizes="20px" className="object-contain" />
                     </span>
                   ) : null}
-                  <span className="font-condensed truncate text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                  <span lang="en" className="font-condensed truncate text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                     {row.constructorName}
                   </span>
                 </div>

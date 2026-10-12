@@ -40,10 +40,10 @@ export function MachineryCard({ car, media }: MachineryCardProps) {
 
         {/* Title and Constructor */}
         <div className="mb-4">
-          <span className="label-caps block text-[11px] text-text-mid">
+          <span lang="en" className="label-caps block text-[11px] text-text-mid">
             {car.constructorName}
           </span>
-          <h2
+          <h2 lang="en"
             className="font-condensed text-2xl font-700 uppercase tracking-tight text-text-hi transition-colors group-hover:text-accent sm:text-3xl"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >

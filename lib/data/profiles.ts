@@ -389,6 +389,43 @@ async function liveOnlyTeam(param: string): Promise<TeamView | null> {
   };
 }
 
+/**
+ * Current-season numbers from the live standings over the committed history
+ * index, which is only as fresh as its last build (2026-10 audit: McLaren 316
+ * on the team page vs 339 on /grid). Same idea as `overlayDriver`.
+ */
+function overlayTeamSeason(view: TeamView, data: SeasonData): TeamView {
+  const row = data.constructors.find(
+    (c) => c.constructorId === view.id || resolveConstructorId(c.constructorId || c.constructorName, CURRENT_SEASON) === view.id,
+  );
+  if (!row) return view;
+  const stats = data.constructorStats?.[row.constructorName];
+  const position = num(row.position) ?? view.season.position;
+  return {
+    ...view,
+    season: {
+      ...view.season,
+      position,
+      points: num(row.points) ?? view.season.points,
+      wins: num(row.wins) ?? view.season.wins,
+      podiums: stats?.podiums ?? view.season.podiums,
+    },
+    arc: view.arc.map((a) => (a.year === CURRENT_SEASON ? { ...a, position } : a)),
+    lineup: view.lineup
+      .map((d) => {
+        const live = liveStandingFor(data, d.driverId);
+        if (!live) return d;
+        return {
+          ...d,
+          position: num(live.position) ?? d.position,
+          points: num(live.points) ?? d.points,
+          wins: data.driverStats?.[live.driverName]?.wins ?? d.wins,
+        };
+      })
+      .sort((a, b) => (a.position ?? 999) - (b.position ?? 999) || b.points - a.points),
+  };
+}
+
 export async function getTeamView(param: string, requestedYear?: number): Promise<TeamView | null> {
   const mayUseLive = requestedYear === undefined || requestedYear === CURRENT_SEASON;
   const id = resolveConstructorId(param, requestedYear ?? CURRENT_SEASON) ?? resolveConstructorId(param);
@@ -416,7 +453,7 @@ export async function getTeamView(param: string, requestedYear?: number): Promis
     };
   });
 
-  return {
+  const view: TeamView = {
     id: stage.constructorId,
     headId: dna.headId,
     name: rec.n,
@@ -439,4 +476,10 @@ export async function getTeamView(param: string, requestedYear?: number): Promis
     dna,
     asOf: lineageTotalsAsOf(dna, year),
   };
+  if (year !== CURRENT_SEASON || !mayUseLive) return view;
+  try {
+    return overlayTeamSeason(view, await getSeasonData(CURRENT_SEASON));
+  } catch {
+    return view;
+  }
 }

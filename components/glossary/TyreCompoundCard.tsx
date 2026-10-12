@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { displayUpper } from '@/lib/i18n/caps';
 import type { TyreCompound } from '@/data/glossary/tyres';
 import { TyreCadDiagram } from '@/components/glossary/TermDiagram';
 
@@ -55,6 +56,7 @@ export function TyreCompoundCard({
   onOpen?: (tyre: TyreCompound) => void;
 }) {
   const t = useTranslations('ui.glossary');
+  const locale = useLocale();
   const treadType: 'slick' | 'intermediate' | 'wet' =
     tyre.id === 'intermediate'
       ? 'intermediate'
@@ -116,7 +118,7 @@ export function TyreCompoundCard({
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ backgroundColor: tyre.color }}
               />
-              {tyre.kicker}
+              {displayUpper(tyre.kicker, locale)}
             </span>
 
             {/* CAD Tread Blueprint Badge */}

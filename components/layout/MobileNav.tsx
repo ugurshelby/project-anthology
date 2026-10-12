@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS, isNavItemActive } from './nav-items';
+import { MOBILE_MORE_HREFS, MOBILE_MORE_ITEMS, MOBILE_NAV_ITEMS, isNavItemActive, navLabelLang } from './nav-items';
 import { NavIcon } from './NavIcons';
 import { LocaleSwitcher } from './LocaleSwitcher';
 
@@ -122,7 +122,7 @@ export function MobileNav() {
                     }}
                   >
                     <NavIcon icon={item.icon!} className="h-7 w-7" />
-                    <span className="label-caps max-w-full truncate px-2">{label}</span>
+                    <span lang={navLabelLang(item, label)} className="label-caps max-w-full truncate px-2">{label}</span>
                   </Link>
                 );
               })}
@@ -163,7 +163,7 @@ export function MobileNav() {
                   ].join(' ')}
                 >
                   <NavIcon icon={item.icon!} className="h-4 w-4" />
-                  <span className="max-w-full truncate text-[11px] leading-none tracking-wide">{label}</span>
+                  <span lang={navLabelLang(item, label)} className="max-w-full truncate text-[11px] leading-none tracking-wide">{label}</span>
                 </Link>
               </li>
             );

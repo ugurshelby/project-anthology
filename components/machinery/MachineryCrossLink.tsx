@@ -75,10 +75,10 @@ export async function MachineryCrossLink({
                 </div>
 
                 <div className="mt-2">
-                  <span className="label-caps block text-[10px] text-text-mid">
+                  <span lang="en" className="label-caps block text-[10px] text-text-mid">
                     {car.constructorName}
                   </span>
-                  <h4
+                  <h4 lang="en"
                     className="font-condensed text-lg font-700 uppercase tracking-tight text-text-hi transition-colors group-hover:text-accent md:text-xl"
                     style={{ fontFamily: 'var(--font-condensed)' }}
                   >

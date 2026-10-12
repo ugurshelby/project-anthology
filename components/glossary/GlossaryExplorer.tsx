@@ -1,8 +1,9 @@
 'use client';
 
+import { displayUpper } from '@/lib/i18n/caps';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { GlossaryTerm } from '@/data/glossary/terms';
 import type { TyreCompound } from '@/data/glossary/tyres';
 import {
@@ -24,6 +25,7 @@ export function GlossaryExplorer({
   tyres: TyreCompound[];
 }) {
   const t = useTranslations('ui.glossary');
+  const locale = useLocale();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<GlossaryFilter>('all');
   const [sheetTyre, setSheetTyre] = useState<TyreCompound | null>(null);
@@ -34,16 +36,19 @@ export function GlossaryExplorer({
 
   const totalMatches = visibleTyres.length + visibleTerms.length;
 
+  // Chip counts follow the search text, so "drs" does not still read "All 18".
   const categoryCounts = useMemo(() => {
+    const matchingTerms = filterTerms(terms, query, 'all');
+    const matchingTyres = filterTyres(tyres, query, 'all');
     const counts: Record<string, number> = {
-      all: terms.length + tyres.length,
-      Tyres: tyres.length,
+      all: matchingTerms.length + matchingTyres.length,
+      Tyres: matchingTyres.length,
     };
-    for (const t of terms) {
+    for (const t of matchingTerms) {
       counts[t.category] = (counts[t.category] || 0) + 1;
     }
     return counts;
-  }, [terms, tyres]);
+  }, [terms, tyres, query]);
 
   const byCategory = useMemo(() => {
     const acc: Partial<Record<GlossaryTerm['category'], GlossaryTerm[]>> = {};
@@ -111,7 +116,7 @@ export function GlossaryExplorer({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('search')}
-            className="w-full rounded-full border border-white/10 bg-white/[0.03] py-2.5 pl-10 pr-24 font-mono text-sm text-text-hi placeholder:text-text-low outline-none transition-all focus:border-white/25 focus:bg-white/[0.05]"
+            className="w-full rounded-full border border-white/10 bg-white/[0.03] py-2.5 pl-10 pr-24 font-mono text-sm text-text-hi placeholder:text-text-low outline-none transition-all focus:border-white/25 focus:bg-white/[0.05] [&::-webkit-search-cancel-button]:appearance-none"
           />
 
           {/* Right Action Affordances */}
@@ -324,7 +329,7 @@ export function GlossaryExplorer({
                     className="font-mono text-xs font-semibold uppercase tracking-wider"
                     style={{ color: sheetTyre.color }}
                   >
-                    {sheetTyre.kicker}
+                    {displayUpper(sheetTyre.kicker, locale)}
                   </span>
                 </div>
               </div>

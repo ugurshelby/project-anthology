@@ -146,7 +146,7 @@ function DriverSilhouette({
       ) : null}
       <div className="relative z-10 flex flex-col gap-0.5">
         <span className="label-caps text-text-mid">{position}</span>
-        <span
+        <span lang="en"
           className="font-condensed text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
