@@ -69,7 +69,7 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 GitHub Actions `schedule` tetikleri kâğıt üzerindeki sıklıkta çalışmıyor: `notify-sessions` (10 dk) ve saatlik workflow'lar gerçekte günde ~5 kez, medyan ~5 saat aralıkla koşuyor (en uzun ~9,4 sa). Bu yüzden oturum sırasında "saatlik koşuyu bul" yaklaşımı çoğu zaman sonuç vermez. Doğrulama oturumunda:
 - Belirli bir pencereyi sınamak için ilgili workflow'u **elle** tetikleyin: `gh workflow run notify-sessions.yml` (oturumdan ~30 dk önce), `gh workflow run sync-f1-race-aware.yml` (due zamanından sonra). Bu, canlı veriyi okuyup yazan normal işi çalıştırır; sahibin o anki onayıyla yapılır.
 - `sync-f1-scheduled.ts` artık 12 saat geriye bakıyor, yani geç gelen bir koşu da kaçan pencereyi tetikler. `notify-sessions` için böyle bir telafi yoktur (bildirim zaman duyarlıdır): güvenilir dış zamanlayıcı kurulana kadar push penceresi ancak elle tetikleme ile sınanabilir (master-plan 1.6).
-- **QStash kurulduysa (master-plan 1.6)** bu sorun kalmaz: zamanlayıcı dakikasında çalışır (`notify-sessions` */5, `sync-f1` */30). Koşular Upstash console → *Logs*'ta ve `npm run qstash:sync -- --list` çıktısında (son/sonraki çalışma) görünür; GitHub yalnızca yedektir ve elle `gh workflow run` yine çalışır. QStash kurulu değilse yukarıdaki elle tetikleme kuralları geçerlidir.
+- **QStash kurulduysa (master-plan 1.6)** bu sorun kalmaz: zamanlayıcı dakikasında çalışır (`sync-f1` */30; `notify-sessions` QStash'te kurulu değil, mobil rafta). Koşular Upstash console → *Logs*'ta ve `npm run qstash:sync -- --list` çıktısında (son/sonraki çalışma) görünür; GitHub yalnızca yedektir ve elle `gh workflow run` yine çalışır. QStash kurulu değilse yukarıdaki elle tetikleme kuralları geçerlidir.
 - Bir koşunun "yok" olması hata sayılmaz; önce `gh run list --workflow=<ad>.yml --limit 10` ile gerçekten tetiklenip tetiklenmediğine bakın.
 
 ---
@@ -98,7 +98,7 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 
 - **Ne:** `sync-f1` due penceresinde çalışıyor mu, `settled` mantığı doğru mu, bayat satır anında sunulup arkada yenileniyor mu.
 - **Nasıl:**
-  1. QStash kuruluysa: Upstash console → *Logs*'ta `apex-sync-f1` teslimatları (HTTP 200 + yanıt gövdesi: `upserted`, `skipped`, `settled`, `errors`). Değilse GitHub Actions: `gh run list --workflow=sync-f1-race-aware.yml --limit 10`; due penceresini izleyen :12 koşusunu bul, `gh run view <id> --log` ile "window(s) due — triggering live sync" ve yanıt JSON'unu (`upserted`, `skipped`, `settled`, `errors`) oku.
+  1. QStash kuruluysa: Upstash console → *Logs*'ta `/api/cron/sync-f1` teslimatları (HTTP 200 + yanıt gövdesi: `upserted`, `skipped`, `settled`, `errors`). Değilse GitHub Actions: `gh run list --workflow=sync-f1-race-aware.yml --limit 10`; due penceresini izleyen :12 koşusunu bul, `gh run view <id> --log` ile "window(s) due — triggering live sync" ve yanıt JSON'unu (`upserted`, `skipped`, `settled`, `errors`) oku.
   2. Veritabanı (Supabase MCP, salt-okunur):
      ```sql
      select type, round, source, fetched_at from f1_snapshots
