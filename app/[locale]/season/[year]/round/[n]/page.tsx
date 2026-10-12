@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { displayUpper } from '@/lib/i18n/caps';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { countryName, raceName as localRaceName } from '@/lib/i18n/format';
 import { weatherSummary } from '@/lib/i18n/labels';
@@ -164,7 +165,7 @@ export default async function RoundPage({ params }: PageProps) {
             </div>
           ) : null}
         </div>
-        <h1 className="headline-lg uppercase text-text-hi">{localRaceName(race?.raceName ?? t('fallbackName', { round }), locale)}</h1>
+        <h1 className="headline-lg uppercase text-text-hi">{displayUpper(localRaceName(race?.raceName ?? t('fallbackName', { round }), locale), locale)}</h1>
         {winner ? (
           <p className="data-tabular text-text-mid">
             {t('winner')} <span className="text-text-hi">{winner.driverName}</span> · {winner.constructorName}

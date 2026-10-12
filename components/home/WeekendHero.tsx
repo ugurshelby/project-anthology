@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from 'next-intl';
+import { displayUpper } from '@/lib/i18n/caps';
 import { ApexImage } from '@/components/media/ApexImage';
 import { MediaCredit } from '@/components/media/MediaCredit';
 import type { MediaAttribution } from '@/lib/media/read';
@@ -92,7 +93,7 @@ export function WeekendHero({
           lang={locale}
           className="display-hero mt-2 max-w-[18ch] italic leading-[0.86] text-text-hi"
         >
-          {title.toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-US')}
+          {displayUpper(title, locale)}
         </h1>
         {subtitle ? <p className="data-tabular mt-2 text-text-mid">{subtitle}</p> : null}
 

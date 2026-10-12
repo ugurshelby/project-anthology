@@ -63,6 +63,10 @@ export default async function MediaSourcesPage({ params }: { params: Promise<{ l
           body: <p>{t('s3p1')}</p>,
         },
         {
+          title: t('newsTitle'),
+          body: <p>{t('newsP1')}</p>,
+        },
+        {
           title: t('storiesTitle'),
           body: (
             <>

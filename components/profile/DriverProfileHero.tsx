@@ -156,7 +156,7 @@ export function DriverHeroGraphic({
                 </span>
               </span>
             ) : null}
-            <span className="truncate font-mono text-[10px] uppercase tracking-[0.18em] text-text-low">
+            <span lang="en" className="truncate font-mono text-[10px] uppercase tracking-[0.18em] text-text-low">
               {constructorName || t('paddock')}
             </span>
           </div>

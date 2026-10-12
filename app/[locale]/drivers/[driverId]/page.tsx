@@ -39,7 +39,10 @@ function parseSeason(raw: string | undefined): number | undefined {
 function taglineFromLore(lore: { lore: string }): string | null {
   const first = lore.lore.split(/(?<=[.!?])\s+/)[0]?.trim();
   if (!first) return null;
-  return first.length > 110 ? `${first.slice(0, 107)}…` : first;
+  if (first.length <= 140) return first;
+  // Cut at a word boundary ("…second race of that se…" read as a typo).
+  const cut = first.slice(0, 137);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 80)).replace(/[\s,;:]+$/, '')}…`;
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {

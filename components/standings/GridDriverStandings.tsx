@@ -58,7 +58,7 @@ export function GridDriverStandings({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <span
+                <span lang="en"
                   className="block truncate font-condensed text-lg font-700 uppercase leading-tight text-text-hi"
                   style={{ fontFamily: 'var(--font-condensed)' }}
                 >

@@ -38,6 +38,9 @@ import {
   getDriverSeasonRecords,
   getDriverStandings,
   getPerDriverRoundStats,
+  getPerConstructorRoundStats,
+  getDriverPointsByConstructor,
+  type TeamPointsShare,
   getDriverCumulativePoints,
   buildSeasonRaceSummaries,
   buildSeasonHighlights,
@@ -572,6 +575,8 @@ export interface SeasonData {
   nearestRaceKey: string | null;
   /** Per-driver wins/podiums from finished rounds (keyed by driver name). */
   driverStats: Record<string, DriverRoundStats>;
+  /** Per-constructor wins/podiums from finished rounds (keyed by constructor name). */
+  constructorStats?: Record<string, DriverRoundStats>;
   /** Top-5 drivers' cumulative points per round — for evolution chart. */
   evolutionSeries: DriverCumulativePoints[];
   /** Per-round summaries for the season race strip. */
@@ -641,6 +646,7 @@ export const getSeasonData = cache(async function getSeasonData(year: number): P
     constructorRecords: getConstructorSeasonRecords(constructors, roundData),
     nearestRaceKey: nearestRaceKeyFromCalendar(races, Date.now()),
     driverStats: getPerDriverRoundStats(roundData),
+    constructorStats: getPerConstructorRoundStats(roundData),
     evolutionSeries: getDriverCumulativePoints(roundData, 5, {
       season: year,
       sprintResults: allRoundSprints.map((s) => s.data),
@@ -666,6 +672,16 @@ export const getSeasonHeadToHead = cache(async function getSeasonHeadToHead(
     fetchAllRoundResults(year, races),
   ]);
   return buildSeasonHeadToHead(qualifying, results);
+});
+
+/** Points per driver per constructor for a season (race + sprint), for drivers who changed seats. */
+export const getSeasonDriverTeamPoints = cache(async function getSeasonDriverTeamPoints(
+  year: number,
+): Promise<Record<string, TeamPointsShare[]>> {
+  const calendar = await fetchSeasonSnapshotTyped(year, 'calendar');
+  const races = getRacesFromCalendar(calendar);
+  const [results, sprints] = await Promise.all([fetchAllRoundResults(year, races), fetchAllRoundSprints(year, races)]);
+  return getDriverPointsByConstructor([...results, ...sprints].map((r) => r.data));
 });
 
 export { F1_SEASON_MIN };

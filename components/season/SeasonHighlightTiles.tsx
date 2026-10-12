@@ -26,7 +26,7 @@ export function SeasonHighlightTiles({
           <div className="flex items-end justify-between gap-3">
             <div className="flex flex-col gap-1">
               <span className="hero-number text-4xl text-accent">{fl.count}</span>
-              <span className="font-condensed text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+              <span lang="en" className="font-condensed text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                 {fl.driverName.split(' ').pop()}
               </span>
               <span className="data-tabular text-xs text-text-low">{t('fastestLaps')}</span>

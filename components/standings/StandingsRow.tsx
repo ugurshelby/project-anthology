@@ -23,7 +23,7 @@ export function DriverRow({ row, season }: { row: DriverStandingRow; season: num
         season={season}
         size={32}
       />
-      <span className="font-condensed flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+      <span lang="en" className="font-condensed flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
         {row.driverName}
       </span>
       <span aria-hidden className="hidden h-4 w-1 rounded-full sm:block" style={{ backgroundColor: teamColor }} />
@@ -49,7 +49,7 @@ export function TeamRow({ row }: { row: ConstructorStandingRow }) {
         </span>
       ) : null}
       <span aria-hidden className="h-4 w-1 rounded-full" style={{ backgroundColor: teamColor }} />
-      <span className="font-condensed flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+      <span lang="en" className="font-condensed flex-1 truncate text-lg font-600 uppercase tracking-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
         {row.constructorName}
       </span>
       <span className="data-tabular w-12 text-right text-text">{row.points}</span>

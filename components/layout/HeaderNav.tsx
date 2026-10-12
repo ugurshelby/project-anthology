@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/routing';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { desktopNavSlots, isNavItemActive, type NavItem } from './nav-items';
+import { desktopNavSlots, isNavItemActive, navLabelLang, type NavItem } from './nav-items';
 import { LocaleSwitcher } from './LocaleSwitcher';
 
 /**
@@ -124,7 +124,7 @@ function NavSlots({ slots, style }: { slots: (NavItem | null)[]; style: CSSPrope
                 isNavItemActive(pathname, item.href) ? 'text-accent' : 'text-text-mid hover:text-text-hi',
               ].join(' ')}
             >
-              {item.key ? t(item.key) : item.label}
+              <span lang={navLabelLang(item, item.key ? t(item.key) : item.label)}>{item.key ? t(item.key) : item.label}</span>
               <span
                 aria-hidden
                 className={[

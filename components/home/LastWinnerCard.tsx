@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from 'next-intl';
+import { displayUpper, latinUpper } from '@/lib/i18n/caps';
 import { Link } from '@/i18n/routing';
 import { ApexImage } from '@/components/media/ApexImage';
 import { MediaCredit } from '@/components/media/MediaCredit';
@@ -29,7 +30,6 @@ export function LastWinnerCard({
   const winner = recap.podium[0];
   if (!winner) return null;
 
-  const upper = (s: string) => s.toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-US');
   const [first, ...rest] = winner.driverName.split(' ');
   const surname = rest.join(' ') || first;
   const photo = driverMedia?.status === 'image' ? driverMedia : null;
@@ -80,7 +80,8 @@ export function LastWinnerCard({
       </div>
 
       <div className="pointer-events-none relative z-[5] flex flex-col gap-2 p-5 sm:p-6">
-        <div className="flex items-end gap-3">
+        {/* Container query: the surname scales with the card, so "VERSTAPPEN" fits a narrow column instead of being cut. */}
+        <div className="@container flex items-end gap-3">
           {winner.number ? (
             <span
               className="hero-number text-6xl italic leading-[0.8]"
@@ -91,16 +92,17 @@ export function LastWinnerCard({
             </span>
           ) : null}
           <div className="min-w-0 pb-0.5">
-            {first !== surname ? <span className="label-caps block text-text-mid">{first}</span> : null}
+            {first !== surname ? <span lang="en" className="label-caps block text-text-mid">{first}</span> : null}
             <span
-              className="block truncate font-condensed text-3xl font-bold uppercase italic leading-none tracking-tight text-white transition-colors duration-200 group-hover:text-accent"
+              lang="en"
+              className="block truncate font-condensed text-[clamp(1.25rem,8.5cqi,1.875rem)] font-bold uppercase italic leading-none tracking-tight text-white transition-colors duration-200 group-hover:text-accent"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {upper(surname)}
+              {latinUpper(surname)}
             </span>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-text">
+        <span lang="en" className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-text">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: teamColor }} />
           {winner.constructorName}
         </span>
@@ -171,7 +173,7 @@ export function LastWinnerPendingCard({
           className="block font-condensed text-3xl font-bold uppercase italic leading-none tracking-tight text-white"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
-          {race.toLocaleUpperCase(locale === 'tr' ? 'tr-TR' : 'en-US')}
+          {displayUpper(race, locale)}
         </span>
         <span className="text-sm leading-snug text-text-mid">
           {[circuit !== race ? circuit : null, date].filter(Boolean).join(' · ')}

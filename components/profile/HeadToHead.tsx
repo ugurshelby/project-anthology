@@ -22,11 +22,11 @@ export function HeadToHead({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <span className="font-condensed text-lg font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+        <span lang="en" className="font-condensed text-lg font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
           {leftName}
         </span>
         <span className="label-caps text-text-low">H2H</span>
-        <span
+        <span lang="en"
           className="font-condensed text-lg font-600 uppercase"
           style={{ fontFamily: 'var(--font-condensed)', color: 'var(--team-secondary)' }}
         >

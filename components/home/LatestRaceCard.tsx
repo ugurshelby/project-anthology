@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from 'next-intl';
+import { displayUpper } from '@/lib/i18n/caps';
 import { Link } from '@/i18n/routing';
 import { raceName } from '@/lib/i18n/format';
 import { resolveTeamUiColor } from '@/config/team-colors';
@@ -30,7 +31,7 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
         <span className="label-caps text-text-low">{t('round', { round: recap.round })}</span>
       </div>
       <span className="font-condensed text-xl font-600 uppercase leading-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
-        {raceName(recap.raceName, locale)}
+        {displayUpper(raceName(recap.raceName, locale), locale)}
       </span>
 
       {winner ? (
@@ -49,7 +50,7 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
           ) : null}
           <div className="flex min-w-0 flex-col">
             <span className="label-caps" style={{ color: MEDAL[1] }}>{t('winner')}</span>
-            <span className="font-condensed truncate text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+            <span lang="en" className="font-condensed truncate text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
               {winner.driverName}
             </span>
             <span className="data-tabular text-text-mid" style={{ color: winnerColor }}>{winner.constructorName}</span>
@@ -68,7 +69,7 @@ export function LatestRaceCard({ recap, season }: { recap: LastRaceRecap; season
               >
                 P{p.position}
               </span>
-              <span className="font-condensed min-w-0 flex-1 truncate text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+              <span lang="en" className="font-condensed min-w-0 flex-1 truncate text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                 {p.driverName}
               </span>
               <span className="data-tabular shrink-0 text-xs text-text-low">{p.constructorName}</span>

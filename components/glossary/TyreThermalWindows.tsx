@@ -1,5 +1,6 @@
 'use client';
 
+import { displayUpper } from '@/lib/i18n/caps';
 import { useState } from 'react';
 import { useLocale } from 'next-intl';
 
@@ -276,7 +277,7 @@ export function TyreThermalWindows() {
               className="font-condensed text-xl font-700 uppercase tracking-tight text-text-hi"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {isTr ? 'Kabarcıklanma (Blistering) Nedir?' : 'Thermal Blistering Physics'}
+              {displayUpper(isTr ? 'Kabarcıklanma (Blistering) Nedir?' : 'Thermal Blistering Physics', locale)}
             </h4>
           </div>
           <p className="text-xs leading-relaxed text-text-mid sm:text-sm">
@@ -294,7 +295,7 @@ export function TyreThermalWindows() {
               className="font-condensed text-xl font-700 uppercase tracking-tight text-text-hi"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {isTr ? 'Granüllenme (Graining) Nedir?' : 'Cold Graining Physics'}
+              {displayUpper(isTr ? 'Granüllenme (Graining) Nedir?' : 'Cold Graining Physics', locale)}
             </h4>
           </div>
           <p className="text-xs leading-relaxed text-text-mid sm:text-sm">

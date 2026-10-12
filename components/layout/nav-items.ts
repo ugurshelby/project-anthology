@@ -45,6 +45,15 @@ export const NAV_PAGES_BY_RANK: NavItem[] = [
   { href: '/tech-glossary', label: 'Glossary', key: 'glossary', icon: 'glossary' },
 ];
 
+/**
+ * A translated label that is the English word itself (Turkish "Grid") is an
+ * English loanword: it gets English casing, or uppercase CSS in Turkish turns
+ * it into "GRİD".
+ */
+export function navLabelLang(item: NavItem, label: string): 'en' | undefined {
+  return label === item.label ? 'en' : undefined;
+}
+
 export const HOME_ITEM: NavItem = { href: '/', label: 'Home', key: 'home', icon: 'home' };
 
 /**

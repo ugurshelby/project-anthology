@@ -1,7 +1,8 @@
 'use client';
 
 import { Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { displayUpper } from '@/lib/i18n/caps';
 import { reopenConsent } from '@/lib/consent';
 
 const YEAR = new Date().getFullYear();
@@ -28,6 +29,7 @@ const LEGAL_LINKS: { href: string; footerKey: 'legalDisclaimer' | 'legalPrivacy'
 export function SiteFooter() {
   const tFooter = useTranslations('footer');
   const tNav = useTranslations('nav');
+  const locale = useLocale();
   const tCommon = useTranslations('ui.common');
 
   return (
@@ -53,23 +55,23 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-4 md:items-end">
           <span className="label-caps text-text-mid">{tFooter('explore')}</span>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label={tCommon('explore')}>
+          <nav className="flex flex-wrap gap-x-5 md:justify-end" aria-label={tCommon('explore')}>
             {EXPLORE_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="label-caps text-text-mid transition-colors hover:text-text-hi"
+                className="label-caps inline-flex min-h-8 items-center text-text-mid transition-colors hover:text-text-hi"
               >
-                {tNav(l.navKey)}
+                {displayUpper(tNav(l.navKey), locale)}
               </Link>
             ))}
           </nav>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 md:justify-end" aria-label={tCommon('legal')}>
+          <nav className="flex flex-wrap gap-x-5 md:justify-end" aria-label={tCommon('legal')}>
             {LEGAL_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="label-caps text-text-low transition-colors hover:text-text-hi"
+                className="label-caps inline-flex min-h-8 items-center text-text-low transition-colors hover:text-text-hi"
               >
                 {tFooter(l.footerKey)}
               </Link>
@@ -77,7 +79,7 @@ export function SiteFooter() {
             <button
               type="button"
               onClick={reopenConsent}
-              className="label-caps text-text-low transition-colors hover:text-text-hi"
+              className="label-caps inline-flex min-h-8 items-center text-text-low transition-colors hover:text-text-hi"
             >
               {tFooter('analyticsSettings')}
             </button>
@@ -98,7 +100,7 @@ export function SiteFooter() {
               href="https://github.com/f1db/f1db"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline decoration-white/30 underline-offset-4 transition-colors hover:text-text-hi"
+              className="inline-flex min-h-8 items-center underline decoration-white/30 underline-offset-4 transition-colors hover:text-text-hi"
             >
               F1DB
             </a>{' '}

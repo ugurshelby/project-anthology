@@ -84,6 +84,17 @@ describe('weekendSessionChips', () => {
     expect(chips[2]?.label).toBe('Race');
   });
 
+  it('lists sessions in time order, not slot order (2026 audit: Sprint after a later Qualifying)', () => {
+    const chips = weekendSessionChips({
+      raceName: 'Singapore Grand Prix',
+      date: '2026-10-11',
+      time: '12:00:00Z',
+      Qualifying: { date: '2026-10-10', time: '13:00:00Z' },
+      Sprint: { date: '2026-10-10', time: '09:00:00Z' },
+    });
+    expect(chips.map((c) => c.id)).toEqual(['sprint', 'qualifying', 'race']);
+  });
+
   it('returns an empty list when the race is missing', () => {
     expect(weekendSessionChips(null)).toEqual([]);
   });

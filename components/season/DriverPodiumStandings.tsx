@@ -46,7 +46,7 @@ export function DriverPodiumStandings({
                   <tr key={row.driverId} className="border-b border-hairline/60 last:border-b-0">
                     <td className="data-tabular w-8 py-1.5 pr-2 text-right text-text-low">{row.position}</td>
                     <td className="py-1.5 pr-2">
-                      <Link href={`/drivers/${row.driverId}?season=${season}`} className="font-condensed text-sm font-600 uppercase text-text-hi hover:text-accent" style={{ fontFamily: 'var(--font-condensed)' }}>
+                      <Link lang="en" href={`/drivers/${row.driverId}?season=${season}`} className="font-condensed text-sm font-600 uppercase text-text-hi hover:text-accent" style={{ fontFamily: 'var(--font-condensed)' }}>
                         {row.driverName.split(' ').pop()}
                       </Link>
                     </td>
@@ -85,7 +85,7 @@ function PodiumBlock({ row, season }: { row: DriverStandingRow; season: number }
           <Image src={portrait} alt="" fill sizes="120px" className="object-contain object-bottom opacity-90" />
         </div>
       ) : null}
-      <span className="font-condensed text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+      <span lang="en" className="font-condensed text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
         {row.driverName.split(' ').pop()}
       </span>
       <span className="data-tabular text-xs" style={{ color }}>{row.constructorName}</span>

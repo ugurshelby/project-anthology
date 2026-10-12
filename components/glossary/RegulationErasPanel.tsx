@@ -1,5 +1,6 @@
 'use client';
 
+import { displayUpper } from '@/lib/i18n/caps';
 import { useState } from 'react';
 import { useLocale } from 'next-intl';
 
@@ -227,7 +228,7 @@ export function RegulationErasPanel() {
         <div className="space-y-4 lg:col-span-7">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded bg-accent/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-accent border border-accent/20">
-              {era.code}
+              {isTr ? `${era.year} kuralları` : `${era.year} regulations`}
             </span>
             <span className="font-mono text-xs text-text-low">
               {'//'} {isTr ? era.focusTr : era.focusEn}
@@ -238,7 +239,7 @@ export function RegulationErasPanel() {
             className="font-condensed text-2xl font-700 uppercase tracking-tight text-text-hi sm:text-3xl"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
-            {isTr ? era.titleTr : era.titleEn}
+            {displayUpper(isTr ? era.titleTr : era.titleEn, locale)}
           </h3>
 
           <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">

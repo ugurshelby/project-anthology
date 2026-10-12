@@ -1,6 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { displayUpper } from '@/lib/i18n/caps';
+import { useLocale, useTranslations } from 'next-intl';
 import type { GlossaryTerm } from '@/data/glossary/terms';
 import { TermDiagram, CategoryDiagram } from '@/components/glossary/TermDiagram';
 
@@ -12,6 +13,7 @@ import { TermDiagram, CategoryDiagram } from '@/components/glossary/TermDiagram'
  */
 export function TermDossierCard({ term }: { term: GlossaryTerm }) {
   const t = useTranslations('ui.glossary');
+  const locale = useLocale();
   return (
     <article
       id={term.slug}
@@ -29,14 +31,14 @@ export function TermDossierCard({ term }: { term: GlossaryTerm }) {
           <div className="flex flex-col gap-1.5">
             <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-text-hi/80">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {term.badge}
+              {displayUpper(term.badge, locale)}
             </span>
 
             <h3
               className="font-condensed text-xl font-700 uppercase tracking-tight text-white transition-colors group-hover:text-text-hi sm:text-2xl"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {term.term}
+              {displayUpper(term.term, locale)}
             </h3>
           </div>
 

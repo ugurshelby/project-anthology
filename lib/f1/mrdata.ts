@@ -461,6 +461,58 @@ export function getPerDriverRoundStats(
   return result;
 }
 
+/** Per-constructor win and podium counts from all finished-round results (keyed by constructor name). */
+export function getPerConstructorRoundStats(
+  allRoundResults: MrData[],
+): Record<string, DriverRoundStats> {
+  const result: Record<string, DriverRoundStats> = {};
+  for (const snapshot of allRoundResults) {
+    for (const row of extractRoundResults(snapshot)) {
+      const pos = Number(row.position);
+      if (!row.constructorName || !(pos >= 1 && pos <= 3)) continue;
+      const stats = (result[row.constructorName] ??= { wins: 0, podiums: 0 });
+      stats.podiums++;
+      if (pos === 1) stats.wins++;
+    }
+  }
+  return result;
+}
+
+export interface TeamPointsShare {
+  constructorId: string;
+  constructorName: string;
+  points: number;
+}
+
+/**
+ * Points each driver scored per constructor, from race and sprint
+ * classifications (keyed by driverId). A driver who changed seats mid-season
+ * carries points for two teams, which is why a team's total can differ from
+ * the sum of its current drivers' season totals (2026: Lawson 61 for RB and
+ * 14 for Red Bull, R12–R14).
+ */
+export function getDriverPointsByConstructor(sessions: MrData[]): Record<string, TeamPointsShare[]> {
+  const out: Record<string, TeamPointsShare[]> = {};
+  for (const snapshot of sessions) {
+    const race = firstRace(snapshot);
+    const rows = (race?.Results ?? race?.SprintResults) as
+      | Array<{ points?: string; Driver?: { driverId?: string }; Constructor?: { constructorId?: string; name?: string } }>
+      | undefined;
+    if (!Array.isArray(rows)) continue;
+    for (const r of rows) {
+      const driverId = r.Driver?.driverId;
+      const constructorId = r.Constructor?.constructorId;
+      const points = Number(r.points);
+      if (!driverId || !constructorId || !(points > 0)) continue;
+      const shares = (out[driverId] ??= []);
+      const share = shares.find((x) => x.constructorId === constructorId);
+      if (share) share.points += points;
+      else shares.push({ constructorId, constructorName: r.Constructor?.name ?? constructorId, points });
+    }
+  }
+  return out;
+}
+
 export interface DriverCumulativePoints {
   driverName: string;
   driverCode: string;
@@ -719,7 +771,20 @@ interface RawSessionResult {
   Constructor?: { constructorId?: string; name?: string };
 }
 
-function toResultRow(r: RawSessionResult): RaceResultRow {
+/**
+ * Time column text. Jolpica marks lapped cars `status: "Lapped"` and still
+ * fills `Time` with a gap that is not to the leader (2026 R17: P11 "+2.171"
+ * after P10 "+1:30.862"), so a lapped car shows its laps down instead.
+ * An empty `Time` falls back to the status (2026 R17 Albon: `""`, "Retired").
+ */
+function timeOrStatusFor(r: RawSessionResult, leaderLaps: number | null): string {
+  const laps = Number(r.laps);
+  const down = leaderLaps !== null && Number.isFinite(laps) ? leaderLaps - laps : 0;
+  if (r.status === 'Lapped' && down > 0) return `+${down} Lap${down === 1 ? '' : 's'}`;
+  return r.Time?.time || r.status || '—';
+}
+
+function toResultRow(r: RawSessionResult, leaderLaps: number | null = null): RaceResultRow {
   const given = r.Driver?.givenName ?? '';
   const family = r.Driver?.familyName ?? '';
   return {
@@ -731,24 +796,30 @@ function toResultRow(r: RawSessionResult): RaceResultRow {
     constructorId: r.Constructor?.constructorId,
     grid: r.grid ?? null,
     laps: r.laps ?? null,
-    timeOrStatus: r.Time?.time ?? r.status ?? '—',
+    timeOrStatus: timeOrStatusFor(r, leaderLaps),
     points: r.points ?? '0',
     fastestLap: r.FastestLap?.rank === '1',
   };
+}
+
+/** Maps a classification, giving each row the winner's lap count for laps-down text. */
+function classificationRows(results: RawSessionResult[]): RaceResultRow[] {
+  const leaderLaps = Number(results[0]?.laps);
+  return results.map((r) => toResultRow(r, Number.isFinite(leaderLaps) && leaderLaps > 0 ? leaderLaps : null));
 }
 
 /** Full race classification from a round `results` snapshot. */
 export function getRaceResultRows(data: MrData | null): RaceResultRow[] {
   const race = firstRace(data);
   const results = (race?.Results as RawSessionResult[] | undefined) ?? [];
-  return results.map(toResultRow);
+  return classificationRows(results);
 }
 
 /** Full sprint classification from a round `sprint` snapshot. */
 export function getSprintResultRows(data: MrData | null): RaceResultRow[] {
   const race = firstRace(data);
   const results = (race?.SprintResults as RawSessionResult[] | undefined) ?? [];
-  return results.map(toResultRow);
+  return classificationRows(results);
 }
 
 export interface SeasonRaceSummary {

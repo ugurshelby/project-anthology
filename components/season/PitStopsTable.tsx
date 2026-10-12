@@ -74,7 +74,7 @@ export function PitStopsTable({ rows, results = [] }: PitStopsTableProps) {
                   style={{ backgroundColor: teamColor }}
                 />
                 <div className="flex flex-col min-w-0 truncate">
-                  <span
+                  <span lang="en"
                     className="font-condensed text-sm sm:text-base font-600 uppercase text-text-hi truncate"
                     style={{ fontFamily: 'var(--font-condensed)' }}
                   >

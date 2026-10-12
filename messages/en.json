@@ -301,6 +301,8 @@
       "next": "NEXT",
       "championship": "Championship",
       "seatTbc": "TBA // Seat unconfirmed",
+      "ptsWithTeam": "incl. {points} pts with {team}",
+      "ptsFromDriver": "incl. {points} pts from {driver}",
       "fastestLapShort": "FL",
       "winsShort": "W",
       "moreMenu": "More",
@@ -351,7 +353,16 @@
       "time": "Time",
       "fastest": "Fastest",
       "timeStatus": "Time / Status",
-      "best": "Best"
+      "best": "Best",
+      "gridDelta": "Places gained or lost against the starting grid (grid penalties and pit-lane starts included).",
+      "lapsDown": "+{count, plural, one {# lap} other {# laps}}",
+      "status": {
+        "retired": "Retired",
+        "disqualified": "Disqualified",
+        "didNotStart": "Did not start",
+        "withdrew": "Withdrew",
+        "notClassified": "Not classified"
+      }
     },
     "grid": {
       "championship": "{season} Championship",
@@ -445,8 +456,7 @@
         "title": "Moments that defined history",
         "count": "{count, plural, one {# iconic moment} other {# iconic moments}}"
       },
-      "blueprint": "Track blueprint",
-      "circuitIdLabel": "Circuit ID: {id}"
+      "blueprint": "Track blueprint"
     },
     "glossary": {
       "metaTitle": "Tech Glossary",
@@ -613,8 +623,8 @@
       "metaDescription": "Apex Formula 1 media acquisition policy, open licenses (CC BY, CC BY-SA, Public Domain), attribution standards and takedown procedures.",
       "eyebrow": "Legal / 05",
       "title": "Media sources, licenses and copyright policy.",
-      "intro": "All media assets displayed on Apex pass through a strict verification gate. Our system never performs unverified client-side requests to third-party hosts; only verified open licenses (CC BY, CC BY-SA, Public Domain) are served from our optimized storage CDN with complete author attributions.",
-      "updated": "08 October 2026",
+      "intro": "Every image on Apex has a recorded source. Open-licence images (CC BY, CC BY-SA, Public Domain) are copied to our own storage and shown with full author credits. Two kinds of image sit outside that pipeline and are described below: anthology story photographs, and news thumbnails, which load straight from the publisher's own servers.",
+      "updated": "12 October 2026",
       "s1Title": "Open Licenses and Attribution Standards",
       "s1p1": "Our automated pipeline exclusively accepts assets documented on Wikimedia Commons under verifiable Creative Commons (CC BY, CC BY-SA) or Public Domain (CC0, PD) licenses. Commercial photo agencies, official FOM/Formula 1 portals, and restrictive team press kits are strictly banned.",
       "s1p2": "Every asset features visible plain-text credits citing the original author, license specification, and direct Wikimedia Commons source links. Optimized WebP variants are hosted under strict compliance with derivative licensing standards (including CC BY-SA share-alike obligations).",
@@ -624,6 +634,8 @@
       "s3p1": "Where photographic assets lack open licensing, Apex renders intentional bespoke parametric SVG telemetry badges, CAD chassis silhouettes, and aerodynamic profiles. Circuit geometry contours are derived from MIT-licensed open datasets.",
       "s4Title": "Copyright Takedowns and Inquiries",
       "s4p1": "If you believe an image violates copyright or carries an incorrect license declaration, please contact us at <mail>contact@apexstats.example</mail> or follow our DMCA process. Flagged assets are instantly hidden from the public read layer.",
+      "newsTitle": "News images",
+      "newsP1": "News cards show the image the publisher attaches to its own feed (for example Motorsport.com, The Race or BBC Sport). Apex does not copy or store these images: your browser loads them directly from the publisher's servers, in a size the publisher offers, next to a link to the original article. All rights remain with the publisher, who can ask for an image to be removed through the process below.",
       "storiesTitle": "Story photographs",
       "storiesP1": "Anthology stories use real photographs for non-commercial, editorial purposes. They are not covered by the open-license pipeline above: all rights remain with their owners. Where the original source is known it is named under the image, and the image links to it. Rights holders can ask for an image to be removed through the process below.",
       "storiesCount": "{sourced} of {total} story images have a recorded source.",

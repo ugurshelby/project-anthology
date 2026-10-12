@@ -107,7 +107,8 @@ export function weekendSessionChips(race: CalendarRace | null | undefined, local
     if (!when || startMs === null) continue;
     out.push({ id, label: sessionLabel(id, label, locale), when, startMs });
   }
-  return out;
+  // Chronological: on sprint weekends qualifying can come after the sprint or before it, depending on the format year.
+  return out.sort((a, b) => a.startMs - b.startMs);
 }
 
 /** UTC epoch ms for a session start, or null when the slot is unusable. */

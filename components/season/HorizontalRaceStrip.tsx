@@ -1,5 +1,6 @@
 'use client';
 
+import { displayUpper } from '@/lib/i18n/caps';
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
@@ -126,7 +127,7 @@ function RaceMicroSummary({
             lang={locale}
             className="headline-md uppercase text-text-hi break-words line-clamp-2"
           >
-            {raceName(race.raceName, locale)}
+            {displayUpper(raceName(race.raceName, locale), locale)}
           </h3>
           {race.done && race.podium.length > 0 ? (
             <div className="flex flex-wrap gap-3">

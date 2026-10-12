@@ -39,15 +39,37 @@ function GridDeltaBadge({ grid, finish }: { grid: string | null; finish: string 
   );
 }
 
+const STATUS_KEYS: Record<string, 'retired' | 'disqualified' | 'didNotStart' | 'withdrew' | 'notClassified'> = {
+  Retired: 'retired',
+  Disqualified: 'disqualified',
+  'Did not start': 'didNotStart',
+  Withdrew: 'withdrew',
+  'Not classified': 'notClassified',
+};
+
+/** Laps down ("+2 Laps", from Jolpica or from `timeOrStatusFor`) and the common statuses in the page language; times and other statuses as they are. */
+function useTimeOrStatus() {
+  const t = useTranslations('ui.table');
+  return (value: string): string => {
+    const lapped = /^\+(\d+) Laps?$/.exec(value);
+    if (lapped) return t('lapsDown', { count: Number(lapped[1]) });
+    const key = STATUS_KEYS[value];
+    return key ? t(`status.${key}`) : value;
+  };
+}
+
 /** Race / sprint classification table — mono, right-aligned, tabular-nums (§6). */
 export function RaceResultsTable({ rows }: { rows: RaceResultRow[] }) {
   const t = useTranslations('ui.table');
   const tc = useTranslations('ui.common');
+  const timeOrStatus = useTimeOrStatus();
   return (
     <div className="flex flex-col">
       <div className="label-caps flex items-center gap-2 border-b border-hairline py-2 text-text-low sm:gap-3">
         <span className="w-6 text-right">P</span>
-        <span className="w-8 text-center text-[10px] font-mono tracking-wider">+/-</span>
+        <span className="w-8 cursor-help text-center text-[10px] font-mono tracking-wider" title={t('gridDelta')}>
+          +/-
+        </span>
         <span className="flex-1">{tc('driver')}</span>
         <span className="hidden w-28 sm:block">{t('timeStatus')}</span>
         <span className="w-10 text-right">{tc('pts')}</span>
@@ -60,16 +82,17 @@ export function RaceResultsTable({ rows }: { rows: RaceResultRow[] }) {
             <GridDeltaBadge grid={r.grid} finish={r.position} />
             <span aria-hidden className="h-4 w-0.5 rounded-full" style={{ backgroundColor: color }} />
             <span className="flex-1 truncate">
-              <span className="font-condensed text-base font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+              <span lang="en" className="font-condensed text-base font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                 {r.driverName}
               </span>
               {r.fastestLap ? <span className="label-caps ml-2 text-accent">{tc('fastestLapShort')}</span> : null}
             </span>
-            <span className="data-tabular hidden w-28 text-text-mid sm:block">{r.timeOrStatus}</span>
+            <span className="data-tabular hidden w-28 text-text-mid sm:block">{timeOrStatus(r.timeOrStatus)}</span>
             <span className="data-tabular w-10 text-right text-text">{r.points}</span>
           </div>
         );
       })}
+      <p className="pt-3 text-[11px] leading-snug text-text-low">+/- · {t('gridDelta')}</p>
     </div>
   );
 }
@@ -90,7 +113,7 @@ export function QualifyingTable({ rows }: { rows: QualifyingRow[] }) {
         return (
           <div key={r.position + r.driverName} className="flex items-center gap-3 border-b border-hairline py-2.5 last:border-b-0">
             <span className="data-tabular w-6 text-right text-text-mid">{r.position}</span>
-            <span className="font-condensed flex-1 truncate text-base font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+            <span lang="en" className="font-condensed min-w-0 flex-1 text-base font-600 uppercase leading-tight text-text-hi [overflow-wrap:anywhere]" style={{ fontFamily: 'var(--font-condensed)' }}>
               {r.driverName}
             </span>
             <span className="data-tabular w-20 text-right text-text">{best}</span>

@@ -115,7 +115,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
           </span>
         </div>
 
-        <h1
+        <h1 lang="en"
           className="font-condensed text-4xl font-700 uppercase tracking-tight text-text-hi sm:text-5xl md:text-6xl"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
@@ -145,7 +145,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         >
           <div>
             <span className="label-caps block text-text-low">{car.constructorName}</span>
-            <span
+            <span lang="en"
               className="mt-1 block font-condensed text-3xl font-700 uppercase tracking-tight text-text-hi"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
@@ -297,7 +297,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
                       #{driver.number}
                     </span>
                   ) : null}
-                  <span
+                  <span lang="en"
                     className="font-condensed text-xl font-700 uppercase text-text-hi"
                     style={{ fontFamily: 'var(--font-condensed)' }}
                   >
