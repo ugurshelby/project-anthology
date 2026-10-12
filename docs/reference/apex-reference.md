@@ -154,7 +154,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 
 ## 4. Data and infrastructure (DB, schema, migrations, external APIs, cron jobs, deployment, branch and deploy triggers)
 
-Last verified: 2026-10-08 (OpenF1 row: 2026-10-11)
+Last verified: 2026-10-08 (OpenF1 row: 2026-10-11; QStash scheduler: 2026-10-12)
 
 ### Tables
 
@@ -222,7 +222,7 @@ All five cron routes (`sync-media` added 2026-10-06) call `isCronAuthorized` [VE
 
 **Why GitHub does this (researched 2026-10-07).** GitHub's own docs say scheduled events can be delayed during periods of high load, that load is highest at the start of every hour, and that queued jobs may be dropped under sufficient load; delivery is best-effort, not a timer. Our crons are valid (5-minute minimum respected, none on minute 0) and the repo is public, so this is a platform limit, not a bug in our workflows. The mistake was architectural: time-critical jobs (push 30 minutes before a session, results 2.5 hours after the flag) were put on a best-effort trigger. [VERIFIED: `gh run list` gaps, workflow files; docs wording via web search, not re-read on the GitHub docs site in this pass]
 
-**Primary scheduler: Upstash QStash (code ready 2026-10-07, owner setup pending, master-plan 1.6).** `lib/cron/qstashSchedules.ts` defines four schedules, `scripts/qstash-sync.ts` (`npm run qstash:sync`) creates or updates them idempotently (fixed `Upstash-Schedule-Id`), and since 2026-10-11 the routes accept QStash's own request signature: `isCronAuthorized` (now async) passes either the Bearer cron secret (Vercel Cron, GitHub Actions) or a valid `Upstash-Signature` HS256 JWT checked with `QSTASH_CURRENT_SIGNING_KEY` / `QSTASH_NEXT_SIGNING_KEY` (issuer `Upstash`, exp/nbf ±30 s, `sub` path must equal the route path, body hash) [VERIFIED: `tests/cronAuth.test.ts`]. Schedules therefore forward no secret (a forwarded Bearer stays optional):
+**Primary scheduler: Upstash QStash (live since 2026-10-12, EU region, master-plan 1.6).** `lib/cron/qstashSchedules.ts` defines four schedules, `scripts/qstash-sync.ts` (`npm run qstash:sync`) creates or updates them idempotently (fixed `Upstash-Schedule-Id`), and since 2026-10-11 the routes accept QStash's own request signature: `isCronAuthorized` (now async) passes either the Bearer cron secret (Vercel Cron, GitHub Actions) or a valid `Upstash-Signature` HS256 JWT checked with `QSTASH_CURRENT_SIGNING_KEY` / `QSTASH_NEXT_SIGNING_KEY` (issuer `Upstash`, exp/nbf ±30 s, `sub` path must equal the route path, body hash) [VERIFIED: `tests/cronAuth.test.ts`]. Schedules therefore forward no secret (a forwarded Bearer stays optional):
 
 | Schedule id | Route | Cron (UTC) | Runs/day | Retries |
 |---|---|---|---|---|
@@ -230,6 +230,8 @@ All five cron routes (`sync-media` added 2026-10-06) call `isCronAuthorized` [VE
 | `apex-sync-f1` | `/api/cron/sync-f1` (auto scope: live on a race weekend, season otherwise) | `*/30 * * * *` | 48 | 1 |
 | `apex-sync-news` | `/api/cron/sync-news` | `11 * * * *` | 24 | 1 |
 | `apex-sync-media` | `/api/cron/sync-media` | `41 * * * *` | 24 | 1 |
+
+**Live state (2026-10-12, Upstash MCP, EU region).** The MCP `create` call can only make `POST` schedules with the QStash default of 3 retries, the default timeout and a generated id (`scd_…`), so the five cron routes export `POST = GET` (same handler, same auth, empty body; commit `5a42b84`) and three schedules exist: `sync-f1` `*/30 * * * *`, `sync-news` `11 * * * *`, `sync-media` `41 * * * *`. `notify-sessions` is not scheduled (mobile app shelved). Budget: 96 messages/day normal, 384 worst case (retries 3) of 1,000. First deliveries `sync-news` 04:11Z, `sync-media` 05:41Z, `sync-f1` 06:00Z all `SUCCESS` (2xx), dead-letter queue empty [VERIFIED: Upstash MCP schedule states, 2026-10-12 06:02Z]. `npm run qstash:sync` would add its `apex-*` ids next to these: remove the MCP-made ones first. The table above is the script's design (GET, retries 0/1), not the live state.
 
 Free-plan limits (Upstash pricing page, checked 2026-10-07): 1,000 messages/day, 10 active schedules, 15 minutes max HTTP response duration; each delivery attempt including each retry counts as a message, and the limits are soft (short spikes are not blocked, sustained overage may return 429). Our load: **384 messages on a normal day, 480 worst case (every run fails and retries), 4 of 10 schedules**. `tests/qstash-schedules.test.ts` fails if the worst case exceeds 60% of the quota, if a schedule points at a route that does not exist or lacks `isCronAuthorized`, or if a timeout does not fit the route's `maxDuration`. The routes' 60-second trigger throttle (`isCronTriggerAllowed`) still applies. The GitHub `schedule` triggers stay as a harmless fallback until QStash is verified; then they are removed (workflows keep `workflow_dispatch`) so two callers cannot overlap.
 
