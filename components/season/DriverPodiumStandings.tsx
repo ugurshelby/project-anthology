@@ -1,9 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import Image from 'next/image';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { getDriverLore } from '@/data/drivers';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
 
@@ -70,7 +68,6 @@ export function DriverPodiumStandings({
 
 function PodiumBlock({ row, season }: { row: DriverStandingRow; season: number }) {
   const color = resolveTeamUiColor(row.constructorId, row.constructorName, season);
-  const portrait = driverIconSrc(row.driverCode, row.driverId, season);
   const number = getDriverLore(row.driverId)?.number;
 
   return (
@@ -80,11 +77,6 @@ function PodiumBlock({ row, season }: { row: DriverStandingRow; season: number }
       style={{ borderTopWidth: 2, borderTopColor: color }}
     >
       <span className="data-tabular text-text-low">P{row.position}</span>
-      {portrait ? (
-        <div className="relative h-20 w-full">
-          <Image src={portrait} alt="" fill sizes="120px" className="object-contain object-bottom opacity-90" />
-        </div>
-      ) : null}
       <span lang="en" className="font-condensed text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
         {row.driverName.split(' ').pop()}
       </span>

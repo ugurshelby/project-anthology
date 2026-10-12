@@ -1,5 +1,3 @@
-import { ApexImage } from '@/components/media/ApexImage';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 
 /** Initials from a driver's display name, e.g. "Lewis Hamilton" → "LH". */
@@ -11,28 +9,21 @@ function initials(name: string): string {
 }
 
 /**
- * Driver avatar with a graceful fallback. When a portrait SVG exists it's shown;
- * otherwise a monogram (initials over a faint team-colour wash) — never an empty
+ * Driver avatar: a monogram
+ * (initials over a faint team-colour wash) — never an empty
  * circle (design.md §6: no blank spaces; ui-ux empty-state guidance).
  */
 export function DriverAvatar({
   driverName,
-  driverCode,
-  driverId,
   constructorName,
-  season,
   size = 64,
   className = '',
 }: {
   driverName: string;
-  driverCode?: string;
-  driverId?: string;
   constructorName?: string;
-  season: number;
   size?: number;
   className?: string;
 }) {
-  const portrait = driverIconSrc(driverCode, driverId ?? driverName, season);
   const color = resolveTeamUiColor(undefined, constructorName);
 
   return (
@@ -40,20 +31,16 @@ export function DriverAvatar({
       className={['relative shrink-0 overflow-hidden rounded-full bg-surface-raised', className].join(' ')}
       style={{ width: size, height: size }}
     >
-      {portrait ? (
-        <ApexImage src={portrait} alt="" fill kind="driver" fallbackLabel={driverName} sizes={`${size}px`} className="object-cover object-top" />
-      ) : (
-        <span
-          className="flex h-full w-full items-center justify-center font-condensed font-700 uppercase text-text-hi"
-          style={{
-            fontFamily: 'var(--font-condensed)',
-            fontSize: size * 0.4,
-            background: `linear-gradient(135deg, ${color}22, transparent 70%)`,
-          }}
-        >
-          {initials(driverName)}
-        </span>
-      )}
+      <span
+        className="flex h-full w-full items-center justify-center font-condensed font-700 uppercase text-text-hi"
+        style={{
+          fontFamily: 'var(--font-condensed)',
+          fontSize: size * 0.4,
+          background: `linear-gradient(135deg, ${color}22, transparent 70%)`,
+        }}
+      >
+        {initials(driverName)}
+      </span>
     </span>
   );
 }

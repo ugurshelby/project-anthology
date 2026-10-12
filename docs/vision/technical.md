@@ -42,7 +42,7 @@ anthology/
 └── tests/          # Vitest (22 dosya)
 ```
 
-**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz olduğu için kaldırıldı. `lib/assets/f1-icons.ts`'teki `driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc` her zaman `null` döner; `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder (isim/kod baş harfleri + `--team-secondary`). İstisna: `circuitIconSrc` — MIT lisanslı pist rota geometrisi (`assets/f1-circuits/`). Anthology görselleri (`public/stories`, 56 dosya; kullanılmayan 68 dosya 2026-10-02'de silindi) bu kapsamda değildi; lisans durumu sahip kararı bekliyor.
+**Görsel politikası (2026-09-28):** Apex fotoğrafsız. Pilot portreleri, takım logoları, araç render'ları ve pist hava fotoğrafları kaynağı/lisansı belgesiz olduğu için kaldırıldı. Lisans doğrulamalı görseller artık medya sisteminden gelir (`lib/media/read.ts`, `MediaAssetView`; 2026-10-06); görseli olmayan yerde `components/media/ApexFallback.tsx` veri-güdümlü rozet render eder. Eski hep-`null` yardımcılar (`driverIconSrc`/`teamIconSrc`/`carSrc`/`circuitCoverSrc`) 2026-10-12'de silindi (isim/kod baş harfleri + `--team-secondary`). İstisna: `circuitIconSrc` — MIT lisanslı pist rota geometrisi (`assets/f1-circuits/`). Anthology görselleri (`public/stories`, 56 dosya; kullanılmayan 68 dosya 2026-10-02'de silindi) bu kapsamda değildi; lisans durumu sahip kararı bekliyor.
 
 ---
 
@@ -147,7 +147,7 @@ npx tsc --noEmit   # tip kontrolü (npm script yok)
 ## Brownfield Uyarıları
 
 1. `isSeasonSnapshotContentInvalid()` — boş DB snapshot atlanır, Jolpica fallback.
-2. Pilot/takım/araç görseli **yok artık** — `driverIconSrc()`/`teamIconSrc()`/`carSrc()` hep `null` döner, `ApexFallback` rozet render eder (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
+2. Pilot/takım/araç/pist görseli yalnızca lisans doğrulamalı medya sisteminden (`getMedia` / `MediaAssetView`); yoksa `ApexFallback` rozeti (bkz. Görsel politikası yukarıda). Yeni bir görsel-tabanlı asset eklemeden önce telif/lisans durumunu netleştir.
 3. Paralel `npm run build` kilitleme riski — tek build aynı anda.
 
 

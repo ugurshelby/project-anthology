@@ -87,7 +87,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ locale:
           <BentoGrid>
             <DriverPodiumStandings drivers={standings} season={CURRENT_SEASON} />
             <TeamTelemetryBars teams={constructors} />
-            <SeasonHighlightTiles highlights={highlights} season={CURRENT_SEASON} />
+            <SeasonHighlightTiles highlights={highlights} />
             <BentoCard span={4}>
               {recap ? (
                 <LatestRaceCard recap={recap} season={CURRENT_SEASON} />

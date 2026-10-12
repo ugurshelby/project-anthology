@@ -1,8 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { ApexImage } from '@/components/media/ApexImage';
+import { ApexFallback } from '@/components/media/ApexFallback';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
@@ -16,7 +15,6 @@ import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata'
 export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; season: number }) {
   const t = useTranslations('ui.common');
   const teamColor = resolveTeamUiColor(undefined, row.constructorName, season);
-  const portrait = driverIconSrc(row.driverCode, row.driverId, season);
 
   return (
     <Link
@@ -48,19 +46,7 @@ export function DriverLeaderCard({ row, season }: { row: DriverStandingRow; seas
         <span className="label-caps text-text-low">{t('pts')}</span>
       </div>
       <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-36 sm:block">
-        <ApexImage
-          src={portrait}
-          alt=""
-          fill
-          kind="driver"
-          fallbackLabel={row.driverName}
-          sizes="144px"
-          className="object-contain object-bottom opacity-90"
-          style={{
-            maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 95%)',
-            WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 95%)',
-          }}
-        />
+        <ApexFallback kind="driver" label={row.driverName} className="object-contain object-bottom opacity-90" />
       </div>
     </Link>
   );

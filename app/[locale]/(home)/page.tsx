@@ -25,7 +25,6 @@ import {
 } from '@/lib/f1Calendar';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { getCircuitWeather, getCircuitLocation } from '@/lib/data/circuits';
-import { circuitCoverSrc } from '@/lib/assets/f1-icons';
 import { getMedia } from '@/lib/media/read';
 import { pickWeekendStory } from '@/lib/home/pickWeekendStory';
 import { pickOnThisDayImage } from '@/lib/home/onThisDayImage';
@@ -105,7 +104,7 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
   const nextRaceStart = nextRace ? raceStartMs(nextRace) : null;
   const isLive = nextRaceStart !== null && getRaceCountdownPhase(nextRaceStart, renderNowMs) === 'live';
   const coverImage = circuitMedia && circuitMedia.status === 'image' ? circuitMedia : null;
-  const circuitCover = coverImage?.image.src ?? circuitCoverSrc(nextRace?.Circuit?.circuitId);
+  const circuitCover = coverImage?.image.src ?? null;
   const nextRaceFacts = getCircuitFacts(nextRace?.Circuit?.circuitId);
 
   const eyebrow = nextRace?.round

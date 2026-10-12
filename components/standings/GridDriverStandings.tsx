@@ -1,8 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ApexFallback } from '@/components/media/ApexFallback';
-import { ApexImage } from '@/components/media/ApexImage';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import type { DriverGridRow } from '@/lib/data/entities';
 
@@ -18,8 +16,6 @@ export function GridDriverStandings({
     <ol className="flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-hairline">
       {rows.map((row) => {
         const color = resolveTeamUiColor(undefined, row.constructorName, season);
-        const portrait = driverIconSrc(row.driverCode, row.driverId, season);
-        const number = row.carNumber ?? row.position;
         return (
           <li key={row.driverId} className="border-b border-hairline last:border-b-0">
             <Link
@@ -35,27 +31,7 @@ export function GridDriverStandings({
                 P{row.position}
               </span>
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface md:h-14 md:w-14">
-                {portrait ? (
-                  <>
-                    <span
-                      aria-hidden
-                      className="hero-number pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-2xl text-white/10"
-                    >
-                      {number}
-                    </span>
-                    <ApexImage
-                      src={portrait}
-                      alt=""
-                      fill
-                      kind="driver"
-                      fallbackLabel={row.driverName}
-                      sizes="56px"
-                      className="relative z-[1] object-contain object-top"
-                    />
-                  </>
-                ) : (
-                  <ApexFallback kind="driver" label={row.driverCode ?? 'DRV'} />
-                )}
+                <ApexFallback kind="driver" label={row.driverCode ?? 'DRV'} />
               </div>
               <div className="min-w-0 flex-1">
                 <span lang="en"

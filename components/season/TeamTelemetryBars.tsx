@@ -1,9 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import Image from 'next/image';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { teamIconSrc } from '@/lib/assets/f1-icons';
 import type { ConstructorStandingRow } from '@/lib/f1/mrdata';
 
 /**
@@ -26,7 +24,6 @@ export function TeamTelemetryBars({ teams, season }: { teams: ConstructorStandin
         {teams.map((row) => {
           const color = resolveTeamUiColor(row.constructorId, row.constructorName, season);
           const pct = Math.round((Number(row.points) / maxPoints) * 100);
-          const logo = teamIconSrc(row.constructorName);
           return (
             <Link
               key={row.constructorId}
@@ -36,11 +33,6 @@ export function TeamTelemetryBars({ teams, season }: { teams: ConstructorStandin
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="data-tabular w-5 text-right text-text-low">{row.position}</span>
-                  {logo ? (
-                    <span className="relative h-5 w-5 shrink-0">
-                      <Image src={logo} alt="" fill sizes="20px" className="object-contain" />
-                    </span>
-                  ) : null}
                   <span lang="en" className="font-condensed truncate text-sm font-600 uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                     {row.constructorName}
                   </span>

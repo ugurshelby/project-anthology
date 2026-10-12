@@ -1,7 +1,5 @@
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import type { SeasonHighlights } from '@/lib/f1/mrdata';
 
 /**
@@ -9,14 +7,11 @@ import type { SeasonHighlights } from '@/lib/f1/mrdata';
  */
 export function SeasonHighlightTiles({
   highlights,
-  season,
 }: {
   highlights: SeasonHighlights;
-  season: number;
 }) {
   const t = useTranslations('ui.season');
   const fl = highlights.fastestLapKing;
-  const portrait = fl ? driverIconSrc(fl.driverCode, fl.driverName, season) : null;
 
   return (
     <>
@@ -31,11 +26,6 @@ export function SeasonHighlightTiles({
               </span>
               <span className="data-tabular text-xs text-text-low">{t('fastestLaps')}</span>
             </div>
-            {portrait ? (
-              <div className="relative h-16 w-12 shrink-0">
-                <Image src={portrait} alt="" fill sizes="48px" className="object-contain object-bottom opacity-80" />
-              </div>
-            ) : null}
           </div>
         ) : (
           <span className="data-tabular text-text-low">{t('noData')}</span>

@@ -1,8 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { resolveTeamUiColor } from '@/config/team-colors';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
-import { ApexImage } from '@/components/media/ApexImage';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
@@ -23,7 +21,6 @@ export function ChampionshipPulse({
   const constructorLead = Number(topConstructors[0]?.points) || 1;
 
   const leaderTeamColor = leader ? resolveTeamUiColor(undefined, leader.constructorName, season) : '#ff1801';
-  const leaderPortrait = leader ? driverIconSrc(leader.driverCode, leader.driverId, season) : null;
 
   return (
     <div className="flex h-full flex-col justify-between gap-4">
@@ -111,23 +108,6 @@ export function ChampionshipPulse({
           </div>
 
           {/* Subtly blended driver portrait */}
-          {leaderPortrait ? (
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-32 select-none opacity-40 transition-opacity duration-300 group-hover:opacity-60 sm:w-36">
-              <ApexImage
-                src={leaderPortrait}
-                alt=""
-                fill
-                kind="driver"
-                fallbackLabel={leader.driverName}
-                sizes="144px"
-                className="object-contain object-bottom"
-                style={{
-                  maskImage: 'linear-gradient(to left, rgba(0,0,0,0.85) 30%, transparent 95%)',
-                  WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.85) 30%, transparent 95%)',
-                }}
-              />
-            </div>
-          ) : null}
         </Link>
       ) : (
         <p className="body-md text-text-mid">{t('unavailable')}</p>

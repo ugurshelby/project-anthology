@@ -1,6 +1,4 @@
 import { useTranslations } from 'next-intl';
-import { ApexImage } from '@/components/media/ApexImage';
-import { driverIconSrc } from '@/lib/assets/f1-icons';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { getDriverLore } from '@/data/drivers';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
@@ -29,10 +27,6 @@ export function SeasonTitleFightHero({
   const challengerColor = challenger
     ? resolveTeamUiColor(challenger.constructorId, challenger.constructorName, year)
     : leaderColor;
-  const leaderPortrait = driverIconSrc(leader.driverCode, leader.driverId, year);
-  const challengerPortrait = challenger
-    ? driverIconSrc(challenger.driverCode, challenger.driverId, year)
-    : null;
   const gap =
     challenger != null
       ? Math.max(0, Number(leader.points) - Number(challenger.points))
@@ -57,7 +51,6 @@ export function SeasonTitleFightHero({
           points={leader.points}
           position="P1"
           number={leaderNum}
-          portrait={leaderPortrait}
           color={leaderColor}
         />
 
@@ -82,7 +75,6 @@ export function SeasonTitleFightHero({
             points={challenger.points}
             position="P2"
             number={challengerNum}
-            portrait={challengerPortrait}
             color={challengerColor}
           />
         ) : (
@@ -100,7 +92,6 @@ function DriverSilhouette({
   points,
   position,
   number,
-  portrait,
   color,
 }: {
   side: 'left' | 'right';
@@ -109,7 +100,6 @@ function DriverSilhouette({
   points: string;
   position: string;
   number: number | null | undefined;
-  portrait: string | null;
   color: string;
 }) {
   const align = side === 'left' ? 'items-start text-left' : 'items-end text-right';
@@ -130,19 +120,6 @@ function DriverSilhouette({
         >
           {number}
         </span>
-      ) : null}
-      {portrait ? (
-        <div className={`relative z-10 mb-2 h-28 w-[5.5rem] sm:mb-3 sm:h-44 sm:w-32 ${side === 'right' ? 'self-end' : ''}`}>
-          <ApexImage
-            src={portrait}
-            alt=""
-            fill
-            kind="driver"
-            sizes="128px"
-            className={`object-contain object-bottom grayscale contrast-125 ${side === 'right' ? 'scale-x-[-1]' : ''}`}
-            priority
-          />
-        </div>
       ) : null}
       <div className="relative z-10 flex flex-col gap-0.5">
         <span className="label-caps text-text-mid">{position}</span>
