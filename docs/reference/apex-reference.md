@@ -79,7 +79,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 
 ## 3. Architecture (stack, structure, data flow, directory map)
 
-Last verified: 2026-10-02
+Last verified: 2026-10-02 (home page path: 2026-10-12)
 
 ### Stack
 
@@ -114,7 +114,7 @@ app/[locale]/**/page.tsx  →  components/*
 Public JSON routes under app/api/*  (rate-limited, snapshot-first where noted)
 ```
 
-[VERIFIED: `README.md` architecture block, `lib/data/f1.ts` usage from pages, cron route imports, `app/[locale]/page.tsx` imports `getLatestNews` rather than a live RSS call.]
+[VERIFIED: `README.md` architecture block, `lib/data/f1.ts` usage from pages, cron route imports, `app/[locale]/(home)/page.tsx` imports `getLatestNews` rather than a live RSS call.]
 
 Rules that the code and the engineering standard both state:
 
@@ -337,7 +337,7 @@ These are patterns the code and the tests actually share. They are reusable. The
 9. **Expensive upstream calls are cached and aborted.** Live timing: edge `s-maxage`, stampede guard, hard timeout. News image checks: bounded concurrency. Cron: `maxDuration` plus a trigger interval.
 10. **SEO helpers are centralized.** `lib/seo.ts` builds canonicals and hreflang (`en` unprefixed, `tr` under `/tr`). `tests/localized-seo.test.ts` covers them. `sitemap.ts` and `robots.ts` are the crawl source.
 11. **Preview deploys send `noindex`.** Both `next.config.ts` and `proxy.ts`.
-12. **Photo-free grid until `sync-media` has filled `media_assets` (the table exists live and the code and workflow are deployed since 2026-10-06; the UI shows parametric SVG placeholders until the first `sync-media` run fills the table).** Driver, team, and car image helpers return null. `ApexFallback` draws initials from live data. `tests/f1-icons.test.ts` and `tests/driver-hero.test.ts` match that policy. Official logos are forbidden in `AGENTS.md`. A license-checked image pipeline (Wikimedia Commons → Supabase Storage → `media_assets`) exists on the backend and the UI reads it through `lib/media/read.ts` + `components/media/MediaAssetView.tsx`; attribution page `/media-sources`. See `docs/reference/media-sistemi.md` (2026-10-06). The migration is **not yet applied** to the live database, so every surface currently shows its placeholder.
+12. **Images come from three places, each stated on `/media-sources`.** (a) License-checked Wikimedia Commons images copied to Supabase Storage (`media_assets`, `sync-media`; live since 2026-10-06, `docs/reference/media-sistemi.md`), read through `lib/media/read.ts` + `components/media/MediaAssetView.tsx`; parametric SVG placeholders where no free image exists; official logos only as Commons public-domain/trademark-tagged files. (b) Story photographs under `public/stories` (owner rule, `data/stories/image-credits.ts`). (c) News images, not copied: the browser loads the publisher's own rendition (`lib/news/imageVariants.ts`); the policy page says so since 2026-10-12 [VERIFIED: code, `/media-sources` render 2026-10-12].
 13. **News is original text plus source links, not copied articles.** `lib/news/rewrite.ts` rejects an overlap of 7 or more consecutive words with the source. `tests/news-stories.test.ts` exists. Pages are not supposed to call the model.
 14. **Logs are dated files.** `logs/YYYY-MM-DD.md`. A commit on 2026-10-01 deleted logs older than 15 days and said they remain in git history (`c23acc2`).
 15. **Small unit tests around pure logic, not a browser, are the default gate.** Vitest config says so in a comment.

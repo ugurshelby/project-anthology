@@ -6,7 +6,7 @@
 > **Tasarım Sistemi Mimarisi:** `docs/design/apex-design.md` (Apple tasarım felsefesi + F1 teknik kimlik sentezi)  
 > **Canlı Canlı Referans & Ölçümler:** `docs/reference/apex-reference.md`  
 > **Canlı Host:** https://project-anthology-eight.vercel.app  
-> **Son Güncelleme & Ölçüm:** 2026-10-11  
+> **Son Güncelleme & Ölçüm:** 2026-10-12  
 
 ---
 
@@ -21,7 +21,7 @@
 
 | Katman | Ölçülen Durum | Kanıt & Metrik |
 | :--- | :--- | :--- |
-| **Birim & Entegrasyon Testleri** | ✅ 59 Test Dosyası, 514 Test Başarılı | `npx vitest run` (2026-10-08) |
+| **Birim & Entegrasyon Testleri** | ✅ 69 Test Dosyası, 589 Test Başarılı | `npx vitest run` (2026-10-12) |
 | **Statik Tip Güvenliği** | ✅ Sıfır Tip Hatası | `npx tsc --noEmit` (kod 0) |
 | **Kod Stili & Linter** | ✅ Sıfır Hata | `npm run lint` (0 error, 11 warnings, kod 0; 8'i `lib/assets/f1-icons.ts` eski no-op yardımcıları, 3'ü gitignored `scratch/`) |
 | **Web Production Build** | ✅ 50/50 Sayfa ve Rota Derlendi | `npm run build` (Next.js Turbopack) |
@@ -107,6 +107,10 @@
   - **Sahip kararı ve yapılan (2026-10-12, `8e42c4e`):** küçük resimler kaldırılmadı, optimize edildi. Haber görselleri yayıncının kendi CDN boyutlarıyla isteniyor (`lib/news/imageVariants.ts`: motorsport `s4…s1200`, Ghost `size/wN/format/webp`, BBC `N/….webp`; kopya yok, Vercel optimizasyonu yok), yüklenirken parıltı (`.apex-img-loading`). Ana sayfa hero'su ayrı Suspense'ten çıkarıldı (yüksekliği yarış adına göre değişiyor, iskelet kaydırıyordu). Lighthouse mobil, canlı, önce → sonra (2 koşu): `/tr` 1.419 → 719 KiB, CLS 0,106 → 0,015 / 0, LCP 6,2 → 5,1 / 5,7 s, TBT 870 → 460 / 3.320 ms (2. koşu aykırı); `/tr/news` 3.388 → 1.089 KiB, LCP 5,8 → 4,2 / 4,9 s. Mobil LCP hâlâ 2,5 s üstünde: kalan pay "element render delay" (JS/hidrasyon, 0,9–3,4 s) ve kaynak yükleme gecikmesi (0,9–1,5 s); sonraki iş JS yükü.
   - Saha verisi için: Search Console (6.1) kurulunca *Core Web Vitals* raporu veya bir PageSpeed Insights API anahtarı (sahip; anahtar dosyaya yazılmaz).
   - Prosedür: `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.E.
+- [~] **6.4 Site denetimi bulguları (Claude in Chrome, 2026-10-12; 27 bulgu; ayrıntı `logs/2026-10-12.md` §3):**
+  - Yapıldı ve ölçüldü: takım sayfası canlı puan (McLaren 316 → 339), grid'de takım değiştiren pilotların puan payı (Red Bull 221 + 97 + Lawson 14 = 332; RB 61 + 38 + Tsunoda 1 = 100), R17 sınıflandırmasında turlanan araç "+N tur" ve boş durum hücresi, +/- sütun açıklaması, kronolojik program, TR büyük harfte İngilizce sözcükler (`lib/i18n/caps.ts`, özel adlarda `lang="en"`), bilinmeyen adreslerde gerçek 404 (ana sayfa iskeleti `(home)` grubuna taşındı), pist sayfasındaki sahte etiketler, sözlük sayaçları ve tek temizle düğmesi, dil değişiminde kaydırma, kazanan kartında soyadı, altbilgi dokunma alanları (≥ 32 px), medya politikası metni (sahip onayı 2026-10-12), kredi satırında ham adres.
+  - Tekrar üretilemedi / bilinçli: #9 (TR çerezli `/` 307 ile `/tr`'ye gider), #10 (gerçek 390 px'te taşma yok), #15 (iskeletin kalması arka plan sekmesinde React'in akış parçasını görünür olana kadar bekletmesi; görünür sekmede açılıyor), #16 (sunucu UTC'yi "UTC" etiketiyle gösteriyor, doğru), #21 (hikâye okuma dili ayrı tercih, gizlilik metninde anlatılıyor), #23 (özel ad).
+  - Açık: (a) bilinmeyen sürücü/takım/pist kimliği hâlâ 200 + `noindex` (bu rotaların kendi `loading.tsx` akışı; Next belgesi: akış başladıktan sonra durum kodu değişemez) — ya bu rotalardan `loading.tsx` kaldırılır ya da kabul edilir (Claude önerisi: kabul, `noindex` var). (b) #24 Windows'ta bayrak emojileri harf çiftine düşüyor: SVG bayrak için bağımlılık eklemek gerekir (`country-flag-icons`, MIT) — sahip onayı. (c) #14 McLaren logosu: 8.3'te.
 - [~] **6.3 Sentry ve Hata Gözlemlenebilirliği (Sahip):**
   - Düzeltildi: kaynak haritası yüklenmediğinde release oluşturma kapatıldı (`next.config.ts`: `release.create` / `finalize` = `SENTRY_UPLOAD_SOURCE_MAPS=true` + token). `npm run build` çıktısında `Project not found` 0 kez (önceki build'de vardı).
   - Açık: prod'da hata yakalama / alert akışının doğrulanması (Sentry projesi `anthology-z0/project-anthology` erişimi — sahip).
@@ -126,7 +130,8 @@
   - Açık: **Sahip:** listedeki görselleri kaynağından doğrulayıp manifest'i doldurmak — **site denetimi başlarken hatırlatılacak**. Bir kayıt `sourced` olduğu anda arayüz kendiliğinden kaynak satırını ve bağlantıyı gösterir.
 - [ ] **7.2 Editoryal İnceleme (Sahip — site denetimi başlarken hatırlatılacak):**
   - Dönem renk listesi (`data/history/liveries.ts`) ve takım DNA metinleri (`data/history/team-dna.ts`). Sahip genel site denetimini kendisi yapıp hataları bildirecek; ajandan ayrıca olgusal doğrulama istenmedi.
-  - Yeni frontend içeriği (kaynakla doğrulanmadı; sahip site denetiminde bildirecek): `data/circuits/lore.ts`, pist irtifa/telemetri sayıları (`data/circuits/topography.ts`, 10 pist), `data/machinery/cars.ts`, `RegulationErasPanel`, `TyreThermalWindows`.
+  - Yeni frontend içeriği (kaynakla doğrulanmadı; sahip site denetiminde bildirecek): `data/circuits/lore.ts`, pist irtifa/telemetri sayıları (`data/circuits/topography.ts`, 10 pist), `RegulationErasPanel`, `TyreThermalWindows`.
+  - **Doğrulandı (sahip isteği 2026-10-12, "ikonik araçlarda veri doğruluğu önemli"):** `data/machinery/cars.ts` altı aracın sezon sayıları F1DB ile (`tests/machinery-facts.test.ts`, tek sezonluk 5 araç), motor/şanzıman/tasarımcı Wikipedia bilgi kutularıyla karşılaştırıldı. Düzeltilen: F2004 podyum 30 → 29, devir 19,100 → 18.800 yarış / 19.000 sıralama, güç 865 hp yarış / 900–940 hp sıralama; FW14B'de olmayan "üflemeli difüzör" kaldırıldı, aktif süspansiyon Frank Dernie'ye atfedildi, güç 700–750 bhp, 14.500 devir; MP4/4 675 hp, Weismann şanzıman; Lotus 72 güç/devir aralığı ve Tony Rudd; kaynaksız iddialar (ör. "%30 daha az ön kesit", "45° anti-dive", "sıfır arıza") yumuşatıldı. Ayrıca Norris'in ilk podyumu sezonun ikinci değil açılış yarışıydı (`data/drivers/index.ts`).
   - Not (2026-10-08, `35fd2f0`): topografi panelinin kaynak satırı doğrulanmamış sayılar için "FIA Circuit Homologation" diyordu; artık "Editoryal tahmin; resmî FIA verisi değildir" yazıyor. Kayıtsız pistlerde uydurma varsayılan profil (ve Spa'da 5,2 km gibi yanlış varsayılan tur uzunluğu) artık gösterilmiyor. Gerçek kaynak bulunursa satır geri değiştirilebilir.
 - [⏸] **7.3 Mobil Uygulama (Sahip — rafta):**
   - Sahip kararı (2026-10-07): `mobile/` **olduğu gibi kalır, geliştirmeye dokunulmaz**; tüm web işleri, mimari ve arayüz oturduktan sonra ele alınır (Expo Go / preview testi, mağaza süreçleri, git durumu). Push bildirimleri (1.4) bu yüzden şimdilik yalnızca zamanlama doğrulaması olarak izlenir.
@@ -140,6 +145,7 @@
 
 - [ ] **8.3 İlk Dolum Sonrası Kalite İncelemesi (Sahip — site denetimi başlarken hatırlatılacak):**
   - Düşük güvenli seçimlerin SQL ile listelenip yanlışların `review='rejected'` yapılması (görsel anında gizlenir, sistem sıradakini seçer; SQL: `docs/reference/media-sistemi.md` §13). Bilinen zayıflar: bazı pistlerde etkinlik karesi (`anderstorp`, `estoril`, `watkins_glen`, `miami` kalabalık karesi, `hockenheimring` aksiyon karesi), Nürburgring tek viraj fotoğrafı, 2021 McLaren/Alfa/Williams garaj kareleri. Serbest logosu bulunamayan takımlar placeholder'da kalır (bilinçli).
+  - **McLaren logosu (site denetimi #14, 2026-10-12):** seçilen dosya (`McLaren_Racing_logo.png`) siyah yazı + turuncu kavis, saydam zemin; koyu kartta siyah kutu gibi görünüyor. Commons'taki diğer McLaren logoları (`McLaren 2018 logo.svg`, `Mclaren Logo 2021.svg`) da siyah yazılı; açık renkli sürüm yok. Öneri (Claude, sahip onayıyla): `media_assets`'e "koyu mürekkep" bayrağı (çözümleyici saydam olmayan piksellerin parlaklığından hesaplar) ve böyle logolar açık bir plaka üzerinde gösterilir; ya da McLaren için `review='rejected'` ile placeholder. Kredi satırındaki ham adres (`https://www.mclaren.com/`) artık site adı olarak gösteriliyor (`creditText`).
 - [ ] **8.6 Eski Sezonlar (1950–2017) Genişletmesi (Sahip — görsel site denetimi ve düzeltmeler bittikten sonra hatırlatılacak):**
   - `MEDIA_MIN_SEASON` (`lib/media/sync.ts`) düşürülerek aynı sistemle geriye genişletilecek.
 

@@ -116,7 +116,7 @@ const DRIVERS: DriverLore[] = [
       '2024: McLaren constructors\' champions, the first since 1998',
       '2025: world champion by two points',
     ],
-    lore: 'He first stood on a podium in 2020, at the Austrian Grand Prix, aged 20, in only his second race of that season.',
+    lore: 'He first stood on a podium in 2020, at the Austrian Grand Prix, aged 20, in the opening race of that season.',
     tr: {
       bio: 'Lando Norris ilk beş sezonunu, herkesin "bir gün kazanır" dediği sürücü olarak geçirdi. O gün, 110. yarışında, 2024 Miami\'ydi. O yılı ikinci olarak bitirirken McLaren 1998\'den beri ilk Markalar Şampiyonluğu\'nu aldı; 2025\'te bir adım daha attı ve iki puan farkla şampiyon oldu. Orta sıradan zirveye uzanan bu uzun tırmanış, onunki kadar McLaren\'ın da hikâyesi.',
       milestones: [
@@ -125,7 +125,7 @@ const DRIVERS: DriverLore[] = [
         '2024: McLaren Markalar Şampiyonu, 1998\'den beri ilk',
         '2025: iki puan farkla dünya şampiyonu',
       ],
-      lore: 'İlk podyumuna 2020\'de, 20 yaşında, o sezonun yalnızca ikinci yarışı olan Avusturya GP\'sinde çıktı.',
+      lore: 'İlk podyumuna 2020\'de, 20 yaşında, o sezonun açılış yarışı olan Avusturya GP\'sinde çıktı.',
     },
   },
   {
