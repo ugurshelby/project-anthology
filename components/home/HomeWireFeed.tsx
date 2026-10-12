@@ -9,6 +9,7 @@ import { localizedNewsTitle } from '@/lib/news/i18n';
 import { detectTeamTag, formatWireTime, hasRealImage } from '@/lib/news/categories';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
+import { hasPublisherSizes, publisherImageLoader } from '@/lib/news/imageVariants';
 
 function WireThumbnail({
   src,
@@ -36,7 +37,8 @@ function WireThumbnail({
           src={src as string}
           alt=""
           fill
-          unoptimized
+          // Publisher-sized rendition (≈ 7 KB instead of a 1200 px press photo); unknown hosts stay as they are.
+          {...(hasPublisherSizes(src) ? { loader: publisherImageLoader } : { unoptimized: true })}
           sizes="64px"
           loading="lazy"
           className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"

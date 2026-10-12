@@ -212,6 +212,20 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Image loading shimmer (components/media/ApexImage.tsx): a soft light sweep
+   across the empty box until the image arrives; removed on load. Static
+   under reduced motion (global rule). */
+@keyframes apexShimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+.apex-img-loading {
+  background-color: var(--surface-raised);
+  background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.06) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: apexShimmer 1.4s ease-in-out infinite;
+}
+
 /* Race-day panel (components/home/LiveRaceTracker.tsx): the five start lights
    come on one by one, then all go out together — "lights out". Each light gets
    a later delay and a shorter duration so they all end at the same instant.

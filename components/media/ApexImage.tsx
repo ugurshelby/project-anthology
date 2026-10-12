@@ -3,6 +3,7 @@
 import Image, { type ImageLoader, type ImageProps } from 'next/image';
 import { useState } from 'react';
 import { ApexFallback, type ApexFallbackKind } from '@/components/media/ApexFallback';
+import { hasPublisherSizes, publisherImageLoader } from '@/lib/news/imageVariants';
 
 type Props = Omit<ImageProps, 'src' | 'alt'> & {
   src?: string | null;
@@ -26,6 +27,15 @@ function variantLoader(variants: ReadonlyArray<{ w: number; src: string }>): Ima
 /**
  * next/image with APEX fallback — missing/null src or load error shows the
  * wireframe surface instead of a broken icon or empty black box.
+ *
+ * Sizing: media-system images use their WebP `variants`; external news
+ * images from publishers with a size scheme (lib/news/imageVariants.ts) get
+ * a loader that asks the publisher's CDN for the width the layout needs, so
+ * a 64 px thumbnail no longer downloads a 1200 px press photo. Other external
+ * images stay unoptimised (never proxied or copied).
+ *
+ * While loading, the box shows a soft shimmer (`.apex-img-loading`, static
+ * under reduced motion) instead of an empty dark rectangle.
  */
 export function ApexImage({
   src,
@@ -37,6 +47,7 @@ export function ApexImage({
   ...rest
 }: Props) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const usable = Boolean(src) && !failed;
 
   if (!usable) {
@@ -44,16 +55,26 @@ export function ApexImage({
   }
 
   const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'));
-  const loader = variants && variants.length > 1 ? variantLoader(variants) : undefined;
+  const loader =
+    variants && variants.length > 1
+      ? variantLoader(variants)
+      : isExternal && hasPublisherSizes(src)
+        ? publisherImageLoader
+        : undefined;
+  const { onLoad, ...imageProps } = rest;
 
   return (
     <Image
-      {...rest}
+      {...imageProps}
       src={src as string}
       alt={alt}
       loader={loader}
       unoptimized={loader ? false : (rest.unoptimized ?? isExternal)}
-      className={className}
+      className={loaded ? className : `${className} apex-img-loading`}
+      onLoad={(e) => {
+        setLoaded(true);
+        onLoad?.(e);
+      }}
       onError={() => setFailed(true)}
     />
   );
