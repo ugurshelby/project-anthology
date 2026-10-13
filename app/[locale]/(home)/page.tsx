@@ -29,6 +29,8 @@ import { getMedia } from '@/lib/media/read';
 import { pickWeekendStory } from '@/lib/home/pickWeekendStory';
 import { pickOnThisDayImage } from '@/lib/home/onThisDayImage';
 import { WeekendHero } from '@/components/home/WeekendHero';
+import { HeroBrandBar } from '@/components/home/HeroBrandBar';
+import { archiveTotals } from '@/lib/history/store';
 import { ChampionshipPulse } from '@/components/home/ChampionshipPulse';
 import { HomeWireFeed } from '@/components/home/HomeWireFeed';
 import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
@@ -141,6 +143,7 @@ async function HomeHeroBlock({ locale }: { locale: string }) {
         weather={circuitWeather}
         isLive={isLive}
         resultsHref={nextRace?.round ? `/season/${CURRENT_SEASON}/round/${nextRace.round}` : undefined}
+        brand={<HeroBrandBar totals={archiveTotals(doneCount)} />}
       />
       <div className="mt-6 md:mt-8">
         <SeasonTicker items={ticker} />

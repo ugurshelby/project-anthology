@@ -10,8 +10,11 @@ import { HeaderNav } from './HeaderNav';
  */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 hidden border-b border-white/[0.1] bg-bg/85 backdrop-blur-xl md:block">
+    <header className="sticky top-0 z-30 hidden bg-bg/70 backdrop-blur-2xl backdrop-saturate-150 md:block">
       <HeaderNav />
+      {/* hairline that fades out at the edges, with a faint accent at the centre under APEX */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12)_20%,rgba(255,255,255,0.12)_80%,transparent)]" />
+      <span aria-hidden className="pointer-events-none absolute bottom-0 left-1/2 h-px w-40 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,var(--accent),transparent)] opacity-50" />
     </header>
   );
 }

@@ -1,8 +1,10 @@
 'use client';
 
-import { displayUpper } from '@/lib/i18n/caps';
-import { useState } from 'react';
+import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useLocale } from 'next-intl';
+import { AnimatePresence, LazyMotion, MotionConfig, domAnimation, m } from 'framer-motion';
+import { Link } from '@/i18n/routing';
+import { APEX_MOTION } from '@/lib/motion';
 
 interface RegulationEra {
   year: number;
@@ -158,169 +160,258 @@ const REGULATION_ERAS: RegulationEra[] = [
   },
 ];
 
+/**
+ * How rule changes shaped F1 (owner rules, apex-component-rules.md §6: "çok metin
+ * olduğu için buna uygun düşün"). A timeline track picks the era; the era reads
+ * as a short story — what the rule said, then how engineers answered — set at a
+ * comfortable line length, with the measurable impact in cards beside it and
+ * previous / next to keep reading. The texts are editorial (plan 7.2).
+ */
 export function RegulationErasPanel() {
   const locale = useLocale();
   const isTr = locale === 'tr';
-  const [selectedYear, setSelectedYear] = useState<number>(2022);
+  const uid = useId();
+  const [index, setIndex] = useState(() => Math.max(0, REGULATION_ERAS.findIndex((e) => e.year === 2022)));
+  const [direction, setDirection] = useState(1);
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const era = REGULATION_ERAS[index];
+  const last = REGULATION_ERAS.length - 1;
 
-  const era = REGULATION_ERAS.find((e) => e.year === selectedYear) ?? REGULATION_ERAS[4];
+  const go = (next: number, focus = false) => {
+    const n = Math.min(last, Math.max(0, next));
+    if (n === index) return;
+    setDirection(n > index ? 1 : -1);
+    setIndex(n);
+    if (focus) tabRefs.current[n]?.focus();
+  };
+  const onKey = (e: KeyboardEvent) => {
+    const map: Record<string, number> = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: last };
+    if (!(e.key in map)) return;
+    e.preventDefault();
+    go(map[e.key], true);
+  };
+
+  const copy = isTr
+    ? {
+        eyebrow: 'Kural dönemleri · 1994–2026',
+        title: 'Kural Değişiklikleri Sporu Nasıl Değiştirdi?',
+        intro: 'FIA kural kitapçığı sporu kısıtlamak istedikçe mühendisler fiziğin sınırlarını yeniden çizdi.',
+        rule: 'Kural ne dedi?',
+        answer: 'Mühendisler nasıl cevap verdi?',
+        impact: 'Etkisi',
+        aero: 'Aerodinamik',
+        speed: 'Hız / güç etkisi',
+        power: 'Motor gücü',
+        risk: 'Kritik risk',
+        car: 'Dönemi tanımlayan araç',
+        openCar: 'Aracı aç',
+        prev: 'Önceki dönem',
+        next: 'Sonraki dönem',
+      }
+    : {
+        eyebrow: 'Regulation eras · 1994–2026',
+        title: 'How Regulations Shaped F1 Eras',
+        intro: 'Every time the FIA attempted to slow cars down, engineers exploited physics to outsmart the rules.',
+        rule: 'What the rule said',
+        answer: 'How engineers answered',
+        impact: 'Impact',
+        aero: 'Aerodynamics',
+        speed: 'Speed / power effect',
+        power: 'Engine power',
+        risk: 'Critical risk',
+        car: 'Era-defining car',
+        openCar: 'Open the car',
+        prev: 'Previous era',
+        next: 'Next era',
+      };
+
+  const metrics = [
+    { label: copy.aero, value: era.impactMetrics.downforceDelta, warn: false },
+    { label: copy.speed, value: era.impactMetrics.speedDelta, warn: false },
+    { label: copy.power, value: era.impactMetrics.enginePower, warn: false },
+    { label: copy.risk, value: isTr ? era.impactMetrics.keyRiskTr : era.impactMetrics.keyRisk, warn: true },
+  ];
+  const progress = last > 0 ? (index / last) * 100 : 0;
+  const stepBtn =
+    'inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-medium text-text-mid transition-colors hover:text-text-hi disabled:pointer-events-none disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
 
   return (
-    <section className="relative overflow-hidden rounded-[16px] border border-white/10 bg-[#090d13] p-5 sm:p-7">
-      {/* Background flare */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-24 right-0 h-64 w-64 rounded-full bg-accent/[0.04] blur-3xl"
-      />
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig reducedMotion="user">
+        <section
+          aria-labelledby={`${uid}-title`}
+          className="relative isolate overflow-hidden rounded-[28px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.012))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.09)] sm:p-7"
+        >
+          <div aria-hidden className="pointer-events-none absolute -top-40 right-0 -z-10 h-80 w-[32rem] rounded-full bg-accent opacity-[0.1] blur-[100px]" />
 
-      {/* Header */}
-      <div className="relative z-10 mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="label-caps font-mono text-[11px] tracking-widest text-accent">
-              {isTr ? 'REGÜLASYON ANALİZİ · 1994–2026' : 'REGULATION ANALYSIS · 1994–2026'}
+          <header className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-text-mid">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              {copy.eyebrow}
             </span>
-          </div>
-          <h2
-            className="font-condensed text-2xl font-700 uppercase tracking-tight text-text-hi sm:text-3xl"
-            style={{ fontFamily: 'var(--font-condensed)' }}
-          >
-            {isTr ? 'Kural Değişiklikleri Sporu Nasıl Değiştirdi?' : 'How Regulations Shaped F1 Eras'}
-          </h2>
-          <p className="mt-1 text-xs text-text-mid sm:text-sm">
-            {isTr
-              ? 'FIA kural kitapçığı sporu kısıtlamak istedikçe mühendisler fiziğin sınırlarını yeniden çizdi.'
-              : 'Every time the FIA attempted to slow cars down, engineers exploited physics to outsmart the rules.'}
-          </p>
-        </div>
-
-        <span className="font-mono text-xs text-text-low">
-          {REGULATION_ERAS.length} {isTr ? 'Tarihi Çağ' : 'Iconic Eras'}
-        </span>
-      </div>
-
-      {/* Year Pill Selector Tabs */}
-      <div className="relative z-10 mb-6 flex flex-wrap gap-2 border-b border-hairline pb-4">
-        {REGULATION_ERAS.map((item) => {
-          const active = item.year === selectedYear;
-          return (
-            <button
-              key={item.year}
-              type="button"
-              onClick={() => setSelectedYear(item.year)}
-              className={[
-                'rounded-lg px-3.5 py-1.5 font-mono text-xs font-bold transition-all',
-                active
-                  ? 'border border-accent/40 bg-accent text-white shadow-lg shadow-accent/20'
-                  : 'border border-white/5 bg-white/[0.02] text-text-mid hover:border-white/15 hover:text-text-hi',
-              ].join(' ')}
-            >
-              {item.year}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Active Era Content Card */}
-      <div className="relative z-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left Column: Mandate & Reaction */}
-        <div className="space-y-4 lg:col-span-7">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded bg-accent/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-accent border border-accent/20">
-              {isTr ? `${era.year} kuralları` : `${era.year} regulations`}
-            </span>
-            <span className="font-mono text-xs text-text-low">
-              {'//'} {isTr ? era.focusTr : era.focusEn}
-            </span>
-          </div>
-
-          <h3
-            className="font-condensed text-2xl font-700 uppercase tracking-tight text-text-hi sm:text-3xl"
-            style={{ fontFamily: 'var(--font-condensed)' }}
-          >
-            {displayUpper(isTr ? era.titleTr : era.titleEn, locale)}
-          </h3>
-
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-            <span className="label-caps mb-1 block text-[10px] text-text-low">
-              {isTr ? 'FIA KURAL DEĞİŞİKLİĞİ & ZORUNLULUK' : 'FIA MANDATE & REGULATION SHIFT'}
-            </span>
-            <p className="text-sm leading-relaxed text-text-hi">
-              {isTr ? era.mandateTr : era.mandateEn}
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-accent/20 bg-accent/[0.03] p-4">
-            <span className="label-caps mb-1 block text-[10px] text-accent">
-              {isTr ? 'MÜHENDİSLİK TEPKİSİ VE BULUŞ' : 'ENGINEERING COUNTERMEASURE'}
-            </span>
-            <p className="text-sm leading-relaxed text-text-mid">
-              {isTr ? era.reactionTr : era.reactionEn}
-            </p>
-          </div>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 pt-2">
-            {era.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 font-mono text-[10px] text-text-low"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Column: Telemetry & Impact Metrics */}
-        <div className="flex flex-col justify-between space-y-4 rounded-xl border border-white/10 bg-[#0d121a] p-4 sm:p-5 lg:col-span-5">
-          <div>
-            <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-2">
-              <span className="label-caps font-mono text-[10px] text-text-low">
-                {isTr ? 'DİNAMİK ETKİ ÖLÇÜMLERİ' : 'DYNAMICS IMPACT MATRIX'}
-              </span>
-              <span className="font-mono text-xs font-bold text-accent">
-                {era.year} ERA
-              </span>
-            </div>
-
-            <div className="space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                <span className="text-text-mid">{isTr ? 'Aerodinamik Değişim' : 'Aero Delta'}</span>
-                <span className="font-bold text-accent">{era.impactMetrics.downforceDelta}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                <span className="text-text-mid">{isTr ? 'Tur Zamanı / Hız Etkisi' : 'Lap Time / Speed Impact'}</span>
-                <span className="font-bold text-emerald-400">{era.impactMetrics.speedDelta}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                <span className="text-text-mid">{isTr ? 'Motor Güç Çıkışı' : 'Power Output'}</span>
-                <span className="font-bold text-text-hi">{era.impactMetrics.enginePower}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                <span className="text-text-mid">{isTr ? 'Kritik Risk / Dinamik' : 'Critical Failure Mode'}</span>
-                <span className="font-semibold text-amber-400 text-right max-w-[200px]">
-                  {isTr ? era.impactMetrics.keyRiskTr : era.impactMetrics.keyRisk}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Iconic Car Stamp */}
-          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-            <span className="label-caps block text-[9px] text-text-low">
-              {isTr ? 'ÇAĞI TANIMLAYAN İKONİK ARAÇ' : 'ERA BENCHMARK CAR'}
-            </span>
-            <span
-              className="font-condensed text-lg font-700 uppercase tracking-tight text-text-hi"
+            <h2
+              id={`${uid}-title`}
+              className="mt-3 font-condensed text-[1.75rem] font-700 uppercase leading-[0.95] tracking-tight text-text-hi sm:text-[2.25rem]"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {era.iconicCar}
+              {copy.title}
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-text-mid sm:text-[15px]">{copy.intro}</p>
+          </header>
+
+          {/* timeline */}
+          <div className="relative mt-7 px-2 sm:px-4">
+            <span aria-hidden className="absolute left-6 right-6 top-[0.95rem] h-[2px] rounded-full bg-white/[0.08] sm:left-8 sm:right-8" />
+            <span aria-hidden className="absolute left-6 right-6 top-[0.95rem] h-[2px] sm:left-8 sm:right-8">
+              <m.span
+                className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(255,24,1,0.3),var(--accent))] shadow-[0_0_12px_var(--accent)]"
+                initial={false}
+                animate={{ width: `${progress}%` }}
+                transition={APEX_MOTION.spring}
+              />
             </span>
+            <div role="tablist" aria-label={copy.eyebrow} onKeyDown={onKey} className="relative flex justify-between">
+              {REGULATION_ERAS.map((item, i) => {
+                const active = i === index;
+                const passed = i <= index;
+                return (
+                  <button
+                    key={item.year}
+                    ref={(el) => {
+                      tabRefs.current[i] = el;
+                    }}
+                    type="button"
+                    role="tab"
+                    id={`${uid}-tab-${item.year}`}
+                    aria-selected={active}
+                    aria-controls={`${uid}-panel`}
+                    tabIndex={active ? 0 : -1}
+                    onClick={() => go(i)}
+                    className="group flex min-w-11 flex-col items-center gap-2 rounded-xl px-1 pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  >
+                    <span className="flex h-[22px] items-center">
+                      <m.span
+                        aria-hidden
+                        className={['block rounded-full border-2', passed ? 'border-accent bg-accent' : 'border-white/25 bg-bg group-hover:border-white/50'].join(' ')}
+                        initial={false}
+                        animate={{
+                          width: active ? 22 : 14,
+                          height: active ? 22 : 14,
+                          boxShadow: active ? '0 0 0 6px rgba(255,24,1,0.18), 0 0 18px rgba(255,24,1,0.6)' : '0 0 0 0 rgba(0,0,0,0)',
+                        }}
+                        transition={APEX_MOTION.snappy}
+                      />
+                    </span>
+                    <span className={['text-sm font-semibold tabular-nums transition-colors', active ? 'text-text-hi' : 'text-text-low group-hover:text-text-mid'].join(' ')}>
+                      {item.year}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
+
+          {/* the era */}
+          <div id={`${uid}-panel`} role="tabpanel" aria-labelledby={`${uid}-tab-${era.year}`} className="mt-6">
+            <AnimatePresence mode="wait" initial={false}>
+              <m.article
+                key={era.year}
+                initial={{ opacity: 0, x: 28 * direction }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -28 * direction }}
+                transition={APEX_MOTION.snappy}
+                className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-6"
+              >
+                <div className="min-w-0">
+                  <span
+                    aria-hidden
+                    className="block font-condensed text-[4.5rem] font-bold italic leading-[0.8] text-transparent sm:text-[6rem]"
+                    style={{ fontFamily: 'var(--font-condensed)', WebkitTextStroke: '1.5px var(--accent)' }}
+                  >
+                    {era.year}
+                  </span>
+                  <h3 className="mt-3 text-xl font-semibold leading-snug text-text-hi sm:text-2xl">{isTr ? era.titleTr : era.titleEn}</h3>
+                  <p className="mt-2 max-w-[62ch] text-[15px] leading-relaxed text-text-mid">{isTr ? era.focusTr : era.focusEn}</p>
+
+                  {/* the story in two steps */}
+                  <ol className="relative mt-6 flex flex-col gap-5 border-l border-white/10 pl-6">
+                    <li className="relative">
+                      <span aria-hidden className="absolute -left-[2.2rem] top-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-white/15 bg-bg text-[11px] font-bold text-text-hi">
+                        1
+                      </span>
+                      <h4 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-text-low">{copy.rule}</h4>
+                      <p className="mt-1.5 max-w-[66ch] text-[15px] leading-7 text-text">{isTr ? era.mandateTr : era.mandateEn}</p>
+                    </li>
+                    <li className="relative">
+                      <span aria-hidden className="absolute -left-[2.2rem] top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-white shadow-[0_0_14px_rgba(255,24,1,0.55)]">
+                        2
+                      </span>
+                      <h4 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">{copy.answer}</h4>
+                      <p className="mt-1.5 max-w-[66ch] text-[15px] leading-7 text-text">{isTr ? era.reactionTr : era.reactionEn}</p>
+                    </li>
+                  </ol>
+
+                  <div lang="en" className="mt-5 flex flex-wrap gap-1.5">
+                    {era.tags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-text-mid">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <aside className="flex flex-col gap-3">
+                  <h4 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-text-low">{copy.impact}</h4>
+                  <dl className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
+                    {metrics.map((mt, i) => (
+                      <m.div
+                        key={mt.label}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ ...APEX_MOTION.snappy, delay: 0.05 * i }}
+                        className={[
+                          'flex flex-col-reverse rounded-2xl border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+                          mt.warn ? 'border-amber-400/25 bg-amber-400/[0.06]' : 'border-white/[0.07] bg-white/[0.03]',
+                        ].join(' ')}
+                      >
+                        <dt className={['mt-1 text-xs font-medium', mt.warn ? 'text-amber-300/90' : 'text-text-low'].join(' ')}>{mt.label}</dt>
+                        <dd className="text-[15px] font-semibold leading-snug text-text-hi">{mt.value}</dd>
+                      </m.div>
+                    ))}
+                  </dl>
+                  <div className="mt-1 rounded-2xl border border-white/[0.07] bg-black/25 p-4">
+                    <span className="text-xs font-medium text-text-low">{copy.car}</span>
+                    <p lang="en" className="mt-1 font-condensed text-xl font-700 uppercase leading-tight tracking-tight text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
+                      {era.iconicCar}
+                    </p>
+                    {era.iconicCarId ? (
+                      <Link
+                        href={`/machinery/${era.iconicCarId}`}
+                        className="mt-2 inline-flex min-h-8 items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-3 text-xs font-medium text-text-hi transition-colors hover:bg-white/10"
+                      >
+                        {copy.openCar} →
+                      </Link>
+                    ) : null}
+                  </div>
+                </aside>
+              </m.article>
+            </AnimatePresence>
+          </div>
+
+          {/* keep reading */}
+          <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
+            <button type="button" onClick={() => go(index - 1)} disabled={index === 0} className={stepBtn} aria-label={copy.prev}>
+              ← {index > 0 ? REGULATION_ERAS[index - 1].year : copy.prev}
+            </button>
+            <span className="text-xs tabular-nums text-text-low">
+              {index + 1} / {REGULATION_ERAS.length}
+            </span>
+            <button type="button" onClick={() => go(index + 1)} disabled={index === last} className={stepBtn} aria-label={copy.next}>
+              {index < last ? REGULATION_ERAS[index + 1].year : copy.next} →
+            </button>
+          </div>
+        </section>
+      </MotionConfig>
+    </LazyMotion>
   );
 }

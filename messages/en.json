@@ -225,6 +225,13 @@
   },
   "ui": {
     "home": {
+      "brand": {
+        "tagline": "The Formula 1 archive and live data, {from} to today",
+        "seasons": "Seasons",
+        "races": "Grands Prix",
+        "drivers": "Drivers",
+        "teams": "Teams"
+      },
       "eyebrowRound": "{season} · Round {round}",
       "eyebrowNext": "Next Race · {season}",
       "tickerSeason": "{season} SEASON: {done}/{total} RACES COMPLETED",
@@ -484,6 +491,9 @@
       "grip": "Grip",
       "durability": "Durability",
       "warmup": "Warm-up",
+      "enlarge": "Enlarge the {name} diagram",
+      "enlargeShort": "Enlarge",
+      "closeDiagram": "Close diagram",
       "cadSchematic": "{name} CAD schematic",
       "cadBlueprintOf": "{name} CAD blueprint",
       "cadTyre": "{name} tyre CAD blueprint",
