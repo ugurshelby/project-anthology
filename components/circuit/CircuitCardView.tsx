@@ -4,7 +4,7 @@ import { countryName, formatDate } from '@/lib/i18n/format';
 import Image from 'next/image';
 import { ApexFallback } from '@/components/media/ApexFallback';
 import type { CircuitCard } from '@/lib/data/circuits';
-import { countryFlag } from '@/lib/data/countryFlags';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 import { StatusChip } from '@/components/bento/StatusChip';
 
 function formatRaceDate(date: string, locale: string): string {
@@ -29,7 +29,6 @@ export function CircuitCardView({
   compact?: boolean;
 }) {
   const locale = useLocale();
-  const flag = countryFlag(card.country);
 
   if (compact) {
     return (
@@ -78,7 +77,7 @@ export function CircuitCardView({
       <div className="relative z-10 flex items-end justify-between gap-3 p-5">
         <div className="min-w-0 flex-1">
           <span className="label-caps flex items-center gap-1.5 text-text-mid">
-            {flag ? <span aria-hidden>{flag}</span> : null}
+            <CountryFlag country={card.country} />
             R{card.round}
             <span aria-hidden className="text-text-low">·</span>
             {countryName(card.country, locale)}

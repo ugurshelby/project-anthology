@@ -7,7 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { countryName, raceName } from '@/lib/i18n/format';
 import { Link } from '@/i18n/routing';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
-import { countryFlag } from '@/lib/data/countryFlags';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 import type { SeasonRaceSummary } from '@/lib/f1/mrdata';
 
 function gpShortName(name: string, locale: string): string {
@@ -55,7 +55,6 @@ export function HorizontalRaceStrip({
         {summaries.map((race) => {
           const isNext = !race.done && race.round === nextRound;
           const isActive = race.round === selectedRound;
-          const flag = countryFlag(race.country);
           return (
             <button
               key={race.round}
@@ -73,7 +72,7 @@ export function HorizontalRaceStrip({
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="data-tabular text-text-mid">R{race.round}</span>
-                {flag ? <span aria-hidden className="text-sm">{flag}</span> : null}
+                <CountryFlag country={race.country} className="text-sm" />
               </div>
               <span className="mt-1 block font-condensed text-sm font-600 leading-tight uppercase text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
                 {gpShortName(race.raceName, locale)}
@@ -104,7 +103,6 @@ function RaceMicroSummary({
   const tc = useTranslations('ui.common');
   const locale = useLocale();
   const svg = circuitIconSrc(race.circuitId);
-  const flag = countryFlag(race.country);
 
   return (
     <div
@@ -114,7 +112,7 @@ function RaceMicroSummary({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <span className="label-caps flex items-center gap-1.5 text-text-mid">
-            {flag ? <span aria-hidden>{flag}</span> : null}
+            <CountryFlag country={race.country} />
             {t('roundShort', { round: race.round })} · {countryName(race.country, locale)}
             {isNext ? (
               <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-accent/40 bg-accent/10 px-2 py-0.5 text-accent">

@@ -24,7 +24,11 @@
   - Seçili sayfa: accent renkli yazı + accent alt çizgi.
   - Hover: yazı açılır + soluk alt çizgi.
   - Klavye odağı: accent halka.
-  - Ana sayfa seçiliyken APEX logosu accent zemin ve çerçeveyle diğer sayfaların seçili hâlinden **belirgin biçimde ayrışır**.
+  - Ana sayfa seçiliyken APEX logosu diğer sayfaların seçili hâlinden **belirgin biçimde ayrışır**.
+  - **Güncelleme (sahip, 2026-10-13, masaüstü):** "navbarda apex ana sayfası seçili olduğundaki durumunu kırmızı kutu olayını beğenmedim onu düzelt, genel anlamda navbar biraz daha elegant ve modern olabilir, yerleşim boyutlar iyi." Kırmızı dolu kutu kullanılmaz; yerleşim ve boyutlar korunur.
+
+### 1.2.1 Yıl seçici (sahip, 2026-10-13)
+- Grid ve detay sayfalarındaki yıl seçici: "2020ler 2010lar yazmana gerek yok direkt yıllar yeterli." On yıl başlıkları gösterilmez, yalnızca yıllar.
 
 ### 1.3 Mobil (md altı)
 - Alt dock: Ana sayfa + önem sırasındaki ilk sayfalar (`MOBILE_DOCK_PAGE_COUNT`), kalanlar "+" menüsünde **aynı önem sırasıyla**.
@@ -78,3 +82,21 @@ Bileşen: `components/glossary/TyreThermalWindows.tsx`. Sahibin brifinden bağla
 - **Metrikler:** "Isınma Hızı", "Aşınma Direnci", "Min/Maks Eşik" "temiz, geniş boşluklu (airy), mikro göstergelere veya zarif progress barlara sahip modern KPI kartları".
 - **Mobil/tablet:** "her şey başparmakla kolayca gezilebilir, ritmik ve hafif hissedilmeli."
 - *Uygulama notu (Claude, `AGENTS.md` sınırları):* kadran klavyeyle de kullanılır (`role="slider"`, ok tuşları), seçim grubu `role="radiogroup"`; `prefers-reduced-motion` açıkken yaylar ve nefes efekti durur; yay değerleri `lib/motion.ts` (`APEX_MOTION`, `apex-design.md` §6).
+
+---
+
+## 4. Grid sayfası (sahip, 2026-10-13)
+
+- "toggle ihtiyaç da yok zaten direkt orijinal default ve sabit olarak takıma göre sıralama olsun ve o düzende kalsın." Takım / sürücü sıralaması anahtarı yoktur; sayfa her zaman takıma göre düzenlidir.
+- Takım kartı düzeni korunur ("solda takım sağda pilotlar ve puan çubukları takım rengi kullanımı kart içinde görselin hafif fade ile geçişli olması vs harika"); pilot görselleri bulundukları alana göre konumlandırılır, yüz kırpılmaz ("hamiltonun kafası gözükmüyor bile").
+
+## 5. Ana sayfa: Apex kimliği (sahip, 2026-10-13)
+
+- "kullanıcı apexe girdiğinde ana sayfada apex'in logosunu görmüyor ne olduğunu görmüyor tam vs o açıdan boş alanlar daha iyi kullanılabilir, bunun bir f1 sitesi olduğu tasarımla daha iyi anlatılabilir. genel hero section güzel ama apex anlamında eksik."
+
+## 6. Teknik Sözlük: lastik bileşikleri, kavram kartları, kural değişiklikleri (sahip, 2026-10-13)
+
+- Lastik bileşikleri: "üstünde yatay slide ile hepsi yanyana da var bu anlamsız olmuş 7 kartlı direkt lastiği anlatan tıklayınca detaylanan akıllı kompakt kart gibi bi tasarım iyi olur ama yine lastik termal komponentindeki gibi yaratıcılığını kat, animasyonlar vs de olsun akıcı ve anlatıcılığı iyi olsun."
+- Kavram kartları: "her kart için görselimiz var kendi ürettiğimiz ama küçücük şuan görünmüyolar kullanıcılar her kavramı görseli de rahat görerek, anlayarak öğrenebilmeli."
+- Kural değişiklikleri: "redesign edilmeli. özellikle burda çok metin olduğu için buna uygun düşün."
+- Ölçüt: §3'teki lastik termal penceresi ("harika olmuş") bu bileşenlerin kalite çıtasıdır.

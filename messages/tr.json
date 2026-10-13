@@ -106,8 +106,7 @@
       "label": "Sezon seç",
       "prev": "Önceki sezon",
       "next": "Sonraki sezon",
-      "champion": "Şampiyon",
-      "decade": "{decade}'ler"
+      "champion": "Şampiyon"
     },
     "stats": {
       "position": "Şampiyona",
@@ -367,9 +366,6 @@
     "grid": {
       "championship": "{season} Şampiyonası",
       "title": "Grid",
-      "viewLabel": "Grid görünümü",
-      "byConstructor": "Takıma Göre",
-      "byDriver": "Sürücü Sıralamasına Göre",
       "unavailable": "Grid verisi şu an yok.",
       "metaTitle": "Grid",
       "metaDescription": "1950'den beri her Formula 1 gridi: her takımın sürücü kadrosu, şampiyona sıralaması ve puanları. İstediğiniz sezonu seçin."

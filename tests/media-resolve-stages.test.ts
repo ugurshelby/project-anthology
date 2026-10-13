@@ -25,6 +25,14 @@ beforeEach(() => {
 const queriesSent = (): string[] => searchCommonsFiles.mock.calls.map((c) => String(c[0]));
 
 describe('resolveEntity stages', () => {
+  it('searches nothing for an owner-chosen placeholder logo (McLaren, 2026-10-13)', async () => {
+    const team: MediaEntity = { type: 'team', key: 'mclaren', season: 2026, displayName: 'McLaren', extra: {} }; // flag comes from the registry (data/media/curated.ts)
+    const out = await resolveEntity(team, [], { fetchOpts: {}, wikidata: { p18: [], p154: ['File:McLaren Racing logo.png'], commonsCategory: null } });
+    expect(searchCommonsFiles).not.toHaveBeenCalled();
+    expect(getCommonsFileInfos).not.toHaveBeenCalled();
+    expect(out.best ?? null).toBeNull();
+  });
+
   it('searches by chassis designation from the curated registry, even for a row stored before the entry existed', async () => {
     // The stored row has no `carModel`: seasons already discovered are never re-discovered, so the registry is read here.
     const car: MediaEntity = {

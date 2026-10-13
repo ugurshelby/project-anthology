@@ -77,12 +77,12 @@ export function SeasonRail({ years, selected, hrefTemplate, className = '' }: Pr
 
       <div
         ref={scroller}
-        className="relative flex min-w-0 flex-1 gap-5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative flex min-w-0 flex-1 gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {decades.map((group) => (
-          <div key={group.decade} className="flex shrink-0 flex-col gap-1">
-            <span className="label-caps text-[10px] text-text-low">{t('decade', { decade: group.decade })}</span>
+          // Owner rule (apex-component-rules.md §1.2.1): years only, no decade headings; a slightly wider gap still groups decades.
+          <div key={group.decade} className="flex shrink-0">
             <ol className="flex gap-1">
               {group.items.map((y) => {
                 const isActive = y.year === selected;

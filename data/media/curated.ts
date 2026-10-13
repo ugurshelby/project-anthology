@@ -34,6 +34,11 @@ export interface LogoOverride {
   files: string[];
   /** Extra Commons search phrases (e.g. the team's current official name). */
   queries?: string[];
+  /**
+   * Owner decision: show the placeholder, never search. Used when every free
+   * logo is unreadable on Apex's dark UI (McLaren: black wordmark only).
+   */
+  placeholderOnly?: boolean;
 }
 
 export interface ExtraCircuit {
@@ -195,6 +200,9 @@ export const LOGO_OVERRIDES: LogoOverride[] = [
   { constructorId: 'ferrari', files: [], queries: ['Scuderia Ferrari shield emblem', 'Cavallino Rampante Scuderia Ferrari'] },
   { constructorId: 'red_bull', files: [], queries: ['Red Bull Racing logo', 'Oracle Red Bull Racing'] },
   { constructorId: 'rb', files: [], queries: ['Racing Bulls logo', 'Visa Cash App RB logo', 'Scuderia AlphaTauri logo'] },
+  // Owner decision 2026-10-13: all Commons McLaren logos (2018, 2021, 2022) are black text on transparent,
+  // unreadable on the dark cards (site audit #14); the placeholder is used instead.
+  { constructorId: 'mclaren', files: [], placeholderOnly: true },
 ];
 
 /** Circuits outside the 2018+ seasons that the site tells stories about (e.g. Lauda's 1976 Nürburgring crash). */

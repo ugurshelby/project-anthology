@@ -26,9 +26,5 @@ export default async function TeamsIndexPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ season?: string }>;
 }) {
-  return GridPage({
-    params,
-    searchParams: searchParams.then((sp) => ({ ...sp, view: 'constructor' as const })),
-    initialViewOverride: 'constructor',
-  });
+  return GridPage({ params, searchParams });
 }

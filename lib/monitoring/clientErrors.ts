@@ -22,7 +22,7 @@ export function loadSentry(): Promise<SentryModule> | null {
   loading ??= import('@sentry/nextjs').then((Sentry) => {
     Sentry.init({
       dsn: DSN,
-      sendDefaultPii: true,
+      sendDefaultPii: false, // owner decision 2026-10-13: no IP/cookies/headers (privacy policy)
       tracesSampleRate: process.env.NODE_ENV === 'development' ? 1.0 : 0.1,
       enableLogs: true,
       // Session replay removed: adds ~400KB to the client bundle.

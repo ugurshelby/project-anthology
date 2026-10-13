@@ -26,9 +26,6 @@ export default async function DriversIndexPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ season?: string }>;
 }) {
-  return GridPage({
-    params,
-    searchParams: searchParams.then((sp) => ({ ...sp, view: 'driver' as const })),
-    initialViewOverride: 'driver',
-  });
+  // The grid is always grouped by team (owner rule, apex-component-rules.md §4).
+  return GridPage({ params, searchParams });
 }

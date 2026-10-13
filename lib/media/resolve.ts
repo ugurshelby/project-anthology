@@ -1,4 +1,4 @@
-import { CAR_MODELS } from '@/data/media/curated';
+import { CAR_MODELS, LOGO_OVERRIDES } from '@/data/media/curated';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { FetchOptions } from '@/lib/media/http';
 import { classifyLicense } from '@/lib/media/license';
@@ -45,6 +45,12 @@ function buildStages(entity: MediaEntity, ctx: ResolveContext): Stage[] {
   const season = entity.season ?? null;
   const extra = entity.extra ?? {};
   const stages: Stage[] = [];
+  // Owner-chosen placeholder (data/media/curated.ts LOGO_OVERRIDES.placeholderOnly): no source is searched.
+  // Read from the registry too, because rows stored before the entry existed carry no such flag.
+  const placeholderOnly =
+    extra.placeholderOnly === true ||
+    (entity.type === 'team' && LOGO_OVERRIDES.some((o) => o.constructorId === entity.key && o.placeholderOnly));
+  if (placeholderOnly) return stages;
 
   const curated = asStrings(extra.curatedFiles);
   if (curated.length) {
