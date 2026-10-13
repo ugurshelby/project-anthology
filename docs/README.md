@@ -24,7 +24,6 @@ Tüm yapay zeka ajanları (Claude Code, Cursor, Antigravity vb.) ve geliştirici
 docs/
 ├── README.md                           # Bu dosya — Dokümantasyon ana indeksi ve haritası
 ├── PRODUCT.md                          # Proje ve ürün tanıtım vitrini (Her refactoring/freshness sonrası güncellenir)
-├── DENETIM.md                          # Misyon ve Eksiklikler Denetim Raporu (Brownfield analizi)
 ├── procedures.md                       # 8 adet tekrarlanabilir operasyonel ve bakım prosedürü
 ├── F1_Anlati_Stil_Kilavuzu.md          # Antoloji ve içerik için temel editoryal "ev sesi" rehberi
 ├── F1_Anlati_Stil_Kilavuzu_v2.md       # Akustik analiz, sayfa prozodisi ve çoklu format editoryal matrisi

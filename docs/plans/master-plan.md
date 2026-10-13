@@ -54,7 +54,7 @@
 - [ ] **C-3 Plan 6.4 açıkları:** bilinmeyen sürücü/takım/pist kimliğinde 200 + `noindex` (karar: kabul mü, `loading.tsx` kaldırma mı); #24 SVG bayraklar için `country-flag-icons` (MIT) bağımlılığı — sahip onayı gerekir.
 - [ ] **C-4 Plan 8.3 McLaren logosu:** "koyu mürekkep" bayrağı + açık plaka önerisi ya da `review='rejected'` — sahip seçimi; bayrak yolu migration ister (sahip onayı).
 - [ ] **C-5 Sentry (6.3):** DSN eklenirse istemci kendiliğinden yüklenir; açmadan önce `sendDefaultPii: true` → `false` önerisi (gizlilik metni) — sahip kararı.
-- [ ] **C-6 `docs/DENETIM.md` (2026-10-05 denetim raporu):** maddeleri plana aktarılmış mı kontrol edilip `AGENTS.md` "rapor yaşam döngüsü" kuralına göre silinecek (örn. "pist kapak görseli `circuitCoverSrc` null" maddesi artık geçersiz).
+- [x] **C-6 `docs/DENETIM.md`:** 2026-10-13 kontrol edildi, tüm maddeleri kodda (Machinery, puan ilerleme grafiği, takım içi H2H, +/- sütunu, pist irtifa/lore, kural dönemleri, termal pencere; hikâye görselleri 7.1'de takipte); rapor silindi.
 - [ ] **C-7 Yerel not:** `next start` ile yerelde dil değiştirince next-intl `https://localhost` yönlendirmesi üretiyor (`ERR_SSL_PROTOCOL_ERROR`, tarayıcı tam sayfa yüklemeye düşüyor); canlıda (https) etkisi yok, kaydırma koruması iki yolda da çalışıyor. İstenirse incelenir.
 - Takvim: 2026-10-19 10:00 (TR) `apex-github-schedules-off` görevi (1.6); R18 ABD 2026-10-25 (1.1, 1.3, 1.4, 1.7 gözlemi); Kasım başı 9.3 + 8.6 hatırlatması.
 
