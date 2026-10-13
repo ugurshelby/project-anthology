@@ -63,3 +63,18 @@ Testler: `tests/on-this-day-image.test.ts`.
 - Hero'da ayrıca "son yarışın kazananı" kutusu yoktur; bilgi tek yerde durur.
 - *Uygulama notu (Claude, 2026-10-11, sahip yetkisiyle; sahip değiştirebilir):* yarış bitip resmî sonuç henüz yayımlanmamışken (Jolpica genelde 1–3 saat sonra) kart iskelet göstermez, önceki yarışın kazananını da "son yarış" diye sunmaz. Bitmiş yarışın adı, pisti ve tarihi ile "Resmî sonuçlar yolda" yazar; sonuç gelince kendiliğinden kazanan kartına döner.
 - Mobilde üç sütun aynı genişlikte kaydırılan kartlardır (`w-[min(85vw,22rem)]`); sağ sütun mobilde de iki eşit kart olarak kalır.
+
+---
+
+## 3. Teknik Sözlük: Lastik sıcaklık pencereleri (sahip, 2026-10-12)
+
+Bileşen: `components/glossary/TyreThermalWindows.tsx`. Sahibin brifinden bağlayıcı maddeler, sahibin cümleleriyle (tam brif: `docs/plans/master-plan.md` U-1):
+
+- **Görsel dil:** "Projemizin kendi tasarım sistemini temel alarak; iOS estetiğinde (… pürüzsüz frosted-glass dokular, mükemmel border-radius oranları, canlı ama rafine renkler ve akıcı yaylı/spring mikro animasyonlar)". "Kaba ve kontrastı düşük kutular yerine; katmanlı derinlik, zarif iç ışıma (inner glow), ince translucent bordürler ve modern bir dark-mode cam dokusu".
+- **Tipografi:** "monospaced/aşırı teknik havayı kır; bilgiyi tek bakışta aktaran, net bir hiyerarşiye sahip modern bir tipografik ritim".
+- **Bilgi panelleri** (Kabarcıklanma, Granüllenme): "sayfanın altına atılmış statik metin kutuları gibi değil; keşfedilebilir, interaktif kartlar, akordeonlar ya da dokunulduğunda yumuşakça açılan bağlamsal bilgi pencereleri".
+- **C1–C5 seçimi:** "iOS tarzı akıcı … 'segmented pill control'"; "seçim hapı (active pill indicator) spring animasyonuyla akarak kaysın"; "Her hamurun kendi kimlik rengi … arayüzün geneline hafif, sofistike bir ambient glow … yaysın."
+- **Termal gösterge (bileşenin kalbi):** "Sıcaklık aralığını (Soğuk / Optimum Çalışma / Aşırı Isınma) adeta dinamik bir Apple Health halkası ya da lüks bir otomobil kadranı akıcılığında sun." "'Optimum Aralık' ve 'Zirve Tutuş (Peak)' alanını neon sertliğinde değil, zarif bir nefes alma efekti (subtle pulse glow)" ile göster. Hamur değişince aralıklar ve ibreler "yaylı fizik (spring physics) ile esneyerek yeni konumuna aksın". "Kullanıcı parmağıyla veya imleciyle bar üzerinde gezinebilmeli (scrubbing/slider hissi); derece değiştikçe lastiğin termal risk durumu (Graining vs. Blistering) canlı bir geri bildirimle hissettirilmeli."
+- **Metrikler:** "Isınma Hızı", "Aşınma Direnci", "Min/Maks Eşik" "temiz, geniş boşluklu (airy), mikro göstergelere veya zarif progress barlara sahip modern KPI kartları".
+- **Mobil/tablet:** "her şey başparmakla kolayca gezilebilir, ritmik ve hafif hissedilmeli."
+- *Uygulama notu (Claude, `AGENTS.md` sınırları):* kadran klavyeyle de kullanılır (`role="slider"`, ok tuşları), seçim grubu `role="radiogroup"`; `prefers-reduced-motion` açıkken yaylar ve nefes efekti durur; yay değerleri `lib/motion.ts` (`APEX_MOTION`, `apex-design.md` §6).

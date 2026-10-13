@@ -151,7 +151,7 @@ Standart kart (`components/bento/BentoCard.tsx`): `--surface` + 1px `--hairline`
 
 ## 6. Hareket, Fizik ve Geçişler (Motion Physics)
 
-Kodda var: `framer-motion` bağımlılığı ve `app/globals.css` içindeki `prefers-reduced-motion` blokları. Ortak bir yay parametresi sabiti henüz yok; aşağıdaki değerler **hedeftir** ve yeni hareket kodu bunları kullanır. Sabit eklendiğinde (önerilen yer `lib/motion.ts`) bu bölüm ona bağlanır.
+Kodda var: `framer-motion` bağımlılığı (`LazyMotion` + `domAnimation` ile, yalnızca kullanan sayfada yüklenir), `app/globals.css` içindeki `prefers-reduced-motion` blokları ve ortak yay sabitleri `lib/motion.ts` (`APEX_MOTION`, `useSpring` için `APEX_SPRING` / `APEX_SPRING_SNAPPY`; 2026-10-13). İlk kullanan: `components/glossary/TyreThermalWindows.tsx`.
 
 ```ts
 export const APEX_MOTION = {
