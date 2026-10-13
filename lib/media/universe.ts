@@ -69,7 +69,7 @@ export async function discoverSeason(season: number): Promise<MediaEntity[]> {
       aliases,
       extra: {
         nameHints: hintsFor(c.url),
-        ...(override ? { curatedFiles: override.files, logoQueries: override.queries ?? [] } : {}),
+        ...(override ? { curatedFiles: override.files, logoQueries: override.queries ?? [], placeholderOnly: override.placeholderOnly === true } : {}),
       },
     });
     // One car image per team per season; seasons never borrow each other's car.

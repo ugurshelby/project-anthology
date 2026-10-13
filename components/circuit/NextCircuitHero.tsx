@@ -5,7 +5,7 @@ import { countryName, formatDate, raceName as localRaceName } from '@/lib/i18n/f
 import { ApexFallback } from '@/components/media/ApexFallback';
 import { Link } from '@/i18n/routing';
 import { Countdown } from '@/components/home/Countdown';
-import { countryFlag } from '@/lib/data/countryFlags';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { CURRENT_SEASON, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
 import type { CircuitCard } from '@/lib/data/circuits';
@@ -33,7 +33,6 @@ export function NextCircuitHero({
 }) {
   const t = useTranslations('ui.circuit');
   const locale = useLocale();
-  const flag = countryFlag(card.country);
   const facts = getCircuitFacts(card.circuitId, locale);
   const targetMs = raceStartMs(race);
   const raceName = localRaceName(race.raceName ?? 'Grand Prix', locale);
@@ -62,7 +61,7 @@ export function NextCircuitHero({
 
           <div className="flex flex-col gap-2">
             <p className="data-tabular flex items-center gap-1.5 text-text-mid">
-              {flag ? <span aria-hidden>{flag}</span> : null}
+              <CountryFlag country={card.country} />
               {countryName(card.country, locale)}
               <span aria-hidden className="text-text-low">·</span>
               {formatRaceDate(card.date, locale)}

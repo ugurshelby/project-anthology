@@ -106,8 +106,7 @@
       "label": "Select a season",
       "prev": "Previous season",
       "next": "Next season",
-      "champion": "Champion",
-      "decade": "{decade}s"
+      "champion": "Champion"
     },
     "stats": {
       "position": "Championship",
@@ -367,9 +366,6 @@
     "grid": {
       "championship": "{season} Championship",
       "title": "Grid",
-      "viewLabel": "Grid view",
-      "byConstructor": "By Constructor",
-      "byDriver": "By Driver Standings",
       "unavailable": "Grid data unavailable right now.",
       "metaTitle": "Grid",
       "metaDescription": "Every Formula 1 grid since 1950: each constructor with its driver line-up, championship standings and points. Pick any season."

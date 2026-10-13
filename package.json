@@ -26,6 +26,7 @@
     "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "country-flag-icons": "^1.6.20",
     "expo-server-sdk": "^6.1.0",
     "framer-motion": "^12.40.0",
     "jsdom": "^26.1.0",

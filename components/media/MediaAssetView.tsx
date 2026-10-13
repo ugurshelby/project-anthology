@@ -28,6 +28,11 @@ export interface MediaAssetViewProps {
   className?: string;
   aspectRatio?: string;
   showAttribution?: boolean;
+  /**
+   * CSS object-position for the cropped photo. Driver photos default to the upper
+   * part of the frame so a wide slot keeps the face (2026-10-13: grid bays cut heads off).
+   */
+  objectPosition?: string;
 }
 
 /**
@@ -56,6 +61,7 @@ export function MediaAssetView({
   className = '',
   aspectRatio,
   showAttribution = true,
+  objectPosition,
 }: MediaAssetViewProps) {
   const [fetchedResult, setFetchedResult] = useState<MediaResult | null>(() =>
     initialResult ? null : (peekMedia(type, entityKey) ?? null),
@@ -161,6 +167,7 @@ export function MediaAssetView({
         placeholder={image.blurDataURL ? 'blur' : 'empty'}
         blurDataURL={image.blurDataURL ?? undefined}
         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        style={{ objectPosition: objectPosition ?? (type === 'driver' ? '50% 20%' : undefined) }}
         onError={() => setImageError(true)}
       />
 
