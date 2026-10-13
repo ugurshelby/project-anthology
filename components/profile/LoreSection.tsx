@@ -13,6 +13,8 @@ export function LoreSection({
   milestones,
   lore,
   facts,
+  chapters,
+  quote,
 }: {
   heading: string;
   bio: string;
@@ -20,6 +22,10 @@ export function LoreSection({
   lore: string;
   /** Optional key/value facts row above the bio (e.g. nationality/born, or country/founded). */
   facts?: Array<{ label: string; value: string }>;
+  /** Multi-era deep narrative chapters (Hamilton, Alonso, Verstappen, Ferrari, etc.). */
+  chapters?: Array<{ title: string; text: string; era?: string }>;
+  /** Verified primary source quote carrying the subject's voice. */
+  quote?: { text: string; context: string; year?: number };
 }) {
   const t = useTranslations('ui.profile');
   return (
@@ -37,7 +43,48 @@ export function LoreSection({
         </div>
       ) : null}
 
-      <p className="body-md line-clamp-4 text-text md:line-clamp-none">{bio}</p>
+      {quote ? (
+        <blockquote
+          className="relative my-0.5 rounded-[var(--radius)] border border-hairline border-l-2 bg-white/[0.02] p-4 text-text-hi"
+          style={{ borderLeftColor: 'var(--team-accent, var(--color-accent))' }}
+        >
+          <p className="body-md italic leading-relaxed text-text-hi">
+            &ldquo;{quote.text}&rdquo;
+          </p>
+          <footer className="mt-2 text-right font-mono text-xs text-text-low">
+            — {quote.context} {quote.year ? `(${quote.year})` : ''}
+          </footer>
+        </blockquote>
+      ) : null}
+
+      <p className="body-md leading-relaxed text-text md:line-clamp-none">{bio}</p>
+
+      {chapters && chapters.length > 0 ? (
+        <div className="flex flex-col gap-3.5 pt-1">
+          {chapters.map((ch, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col gap-1.5 rounded-[var(--radius)] border border-hairline bg-surface/50 p-4"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  lang="en"
+                  className="font-condensed text-base font-700 uppercase tracking-tight text-text-hi"
+                  style={{ fontFamily: 'var(--font-condensed)' }}
+                >
+                  {ch.title}
+                </span>
+                {ch.era ? (
+                  <span className="data-tabular font-mono text-[11px] font-semibold tracking-wider text-text-low">
+                    {ch.era}
+                  </span>
+                ) : null}
+              </div>
+              <p className="body-md leading-relaxed text-text-mid">{ch.text}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {milestones.length > 0 ? (
         <ul className="flex flex-col gap-2.5">

@@ -10,6 +10,9 @@ import { getMedia } from '@/lib/media/read';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { DriverProfileHero } from '@/components/profile/DriverProfileHero';
+import { DriverTelemetryRibbon } from '@/components/profile/DriverTelemetryRibbon';
+import { DriverSeasonPulse, type DriverPulseRound } from '@/components/profile/DriverSeasonPulse';
+import { DriverTeammateDuel } from '@/components/profile/DriverTeammateDuel';
 import { LoreSection } from '@/components/profile/LoreSection';
 import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
@@ -21,6 +24,9 @@ import { DriverJourney } from '@/components/history/DriverJourney';
 import { CareerArc } from '@/components/history/CareerArc';
 import { getMachineryCarsForDriver } from '@/data/machinery/cars';
 import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
+import { countryCode } from '@/lib/data/countryFlags';
+import { getSeasonHeadToHead, fetchAllRoundResults, getSeasonData, type MrData } from '@/lib/data/f1';
+import type { TeamHeadToHead } from '@/lib/f1/headToHead';
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -43,6 +49,57 @@ function taglineFromLore(lore: { lore: string }): string | null {
   // Cut at a word boundary ("…second race of that se…" read as a typo).
   const cut = first.slice(0, 137);
   return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 80)).replace(/[\s,;:]+$/, '')}…`;
+}
+
+function extractDriverRounds(
+  roundResults: Array<{ round: number; data: MrData }>,
+  driverId: string,
+  driverName?: string,
+  driverCode?: string | null,
+): DriverPulseRound[] {
+  const normId = driverId.toLowerCase();
+  const normCode = driverCode?.toUpperCase();
+  const list: DriverPulseRound[] = [];
+
+  for (const item of roundResults) {
+    const races = (item.data?.MRData as { RaceTable?: { Races?: Array<Record<string, unknown>> } } | undefined)?.RaceTable?.Races;
+    const race = races?.[0];
+    if (!race) continue;
+    const raceName = String(race.raceName ?? `Round ${item.round}`);
+    const circuit = race.Circuit as { circuitId?: string; Location?: { country?: string } } | undefined;
+    const circuitId = circuit?.circuitId;
+    const results = (race.Results as Array<{
+      position?: string;
+      positionText?: string;
+      points?: string;
+      status?: string;
+      Driver?: { driverId?: string; code?: string; givenName?: string; familyName?: string };
+      FastestLap?: { rank?: string };
+    }> | undefined) ?? [];
+
+    const found = results.find((r) => {
+      const rId = r.Driver?.driverId?.toLowerCase();
+      if (rId && (rId === normId || rId.replace(/-/g, '_') === normId.replace(/-/g, '_'))) return true;
+      if (normCode && r.Driver?.code?.toUpperCase() === normCode) return true;
+      if (driverName && `${r.Driver?.givenName ?? ''} ${r.Driver?.familyName ?? ''}`.trim().toLowerCase() === driverName.toLowerCase()) return true;
+      return false;
+    });
+
+    if (found) {
+      list.push({
+        round: String(item.round),
+        raceName,
+        circuitId,
+        countryCode: countryCode(circuit?.Location?.country ?? ''),
+        position: found.position ?? '—',
+        positionText: found.positionText,
+        points: found.points,
+        status: found.status,
+        fastestLap: found.FastestLap?.rank === '1',
+      });
+    }
+  }
+  return list;
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
@@ -81,8 +138,20 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   const t = await getTranslations({ locale, namespace: 'history' });
   const lastTeam = view.teams[view.teams.length - 1];
   const theme = teamThemeVars(lastTeam?.id ?? null, view.year);
-  // news is about the present: only show it when the selected season is the current one
-  const relatedNews = view.isCurrentSeason ? await getNewsForEntity(view.name, 4) : [];
+
+  // Parallel data fetching for media, live news, teammate H2H, and season bundle
+  const [driverMedia, relatedNews, headToHeadMap, seasonDataBundle] = await Promise.all([
+    getMedia('driver', view.id),
+    view.isCurrentSeason ? getNewsForEntity(view.name, 4) : Promise.resolve([]),
+    getSeasonHeadToHead(view.year).catch((): Record<string, TeamHeadToHead> => ({})),
+    getSeasonData(view.year).catch(() => null),
+  ]);
+
+  // Round-by-round finishes for DriverSeasonPulse
+  const roundResults = seasonDataBundle?.races
+    ? await fetchAllRoundResults(view.year, seasonDataBundle.races).catch(() => [])
+    : [];
+  const driverRounds = extractDriverRounds(roundResults, view.id, view.name, view.code);
 
   const s = view.season;
   const metaParts: string[] = [];
@@ -92,6 +161,56 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
   const career = view.asOf;
   const born = view.born ? view.born.slice(0, 4) : null;
   const machineryCars = getMachineryCarsForDriver(view.id, view.name);
+
+  // Teammate Head-to-Head duel resolution
+  const teamH2HKey = lastTeam ? lastTeam.id.toLowerCase().replace(/-/g, '_') : null;
+  const teamH2H = teamH2HKey
+    ? (headToHeadMap[teamH2HKey] ?? headToHeadMap[lastTeam?.id.toLowerCase() ?? ''])
+    : null;
+
+  let duelProps: React.ComponentProps<typeof DriverTeammateDuel> | null = null;
+  if (teamH2H && teamH2H.drivers && teamH2H.drivers.length === 2) {
+    const normDriverId = view.id.toLowerCase().replace(/-/g, '_');
+    const driverIdx = teamH2H.drivers.findIndex(
+      (d) =>
+        d.driverId?.toLowerCase().replace(/-/g, '_') === normDriverId ||
+        (view.code && d.driverCode?.toUpperCase() === view.code.toUpperCase()) ||
+        d.driverName?.toLowerCase() === view.name.toLowerCase()
+    );
+
+    if (driverIdx !== -1) {
+      const tmIdx = driverIdx === 0 ? 1 : 0;
+      const tm = teamH2H.drivers[tmIdx];
+      const tmStanding = seasonDataBundle?.standings.find(
+        (st) =>
+          st.driverId?.toLowerCase().replace(/-/g, '_') === tm.driverId?.toLowerCase().replace(/-/g, '_') ||
+          (tm.driverCode && st.driverCode?.toUpperCase() === tm.driverCode.toUpperCase()) ||
+          st.driverName?.toLowerCase() === tm.driverName?.toLowerCase()
+      );
+
+      duelProps = {
+        driverName: view.name,
+        driverCode: view.code ?? view.name.slice(0, 3).toUpperCase(),
+        driverNumber: view.number,
+        driverPoints: s.points,
+        driverPosition: s.position,
+        teammateName: tm.driverName,
+        teammateCode: tm.driverCode ?? tm.driverName.slice(0, 3).toUpperCase(),
+        teammateNumber: tmStanding?.permanentNumber ?? null,
+        teammatePoints: tmStanding ? Number(tmStanding.points) || 0 : 0,
+        teammatePosition: tmStanding ? Number(tmStanding.position) || null : null,
+        qualiScore:
+          driverIdx === 0
+            ? [teamH2H.qualifying.wins[0], teamH2H.qualifying.wins[1]]
+            : [teamH2H.qualifying.wins[1], teamH2H.qualifying.wins[0]],
+        raceScore:
+          driverIdx === 0
+            ? [teamH2H.race.wins[0], teamH2H.race.wins[1]]
+            : [teamH2H.race.wins[1], teamH2H.race.wins[0]],
+        teamName: lastTeam?.name ?? teamH2H.constructorName,
+      };
+    }
+  }
 
   return (
     <main
@@ -120,44 +239,92 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
         bigNumber={view.number}
         imageSrc={null}
         imageAlt={view.name}
-        mediaResult={await getMedia('driver', view.id)}
+        mediaResult={driverMedia}
         editorialTagline={view.lore ? taglineFromLore(view.lore) : null}
         driverCode={view.code}
         constructorId={lastTeam?.id.replace(/-/g, '_') ?? null}
         constructorName={lastTeam?.name ?? null}
+        driverId={view.id}
+        nationality={view.nationality ? countryName(view.nationality, locale) : null}
+        seasonRank={s.position}
+      />
+
+      <DriverTelemetryRibbon
+        career={career}
+        seasonPoints={s.points}
+        seasonWins={s.wins}
+        seasonPodiums={s.podiums}
+        seasonPoles={s.poles}
+        year={view.year}
       />
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <HistoryCard span={7} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
-            <StatTiles
-              items={[
-                { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
-                { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
-                { label: t('stats.wins'), value: s.wins > 0 || s.starts > 0 ? s.wins : null },
-                { label: t('stats.podiums'), value: s.podiums > 0 || s.starts > 0 ? s.podiums : null },
-                { label: t('stats.poles'), value: s.poles > 0 || s.starts > 0 ? s.poles : null },
-                { label: t('stats.starts'), value: s.starts > 0 ? s.starts : null },
-              ]}
-            />
-          </HistoryCard>
+          {driverRounds.length > 0 ? (
+            <div className="col-span-12">
+              <div className="relative overflow-hidden rounded-2xl border border-hairline/80 bg-surface p-4 sm:p-5">
+                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.06]" />
+                <DriverSeasonPulse
+                  rounds={driverRounds}
+                  year={view.year}
+                  driverName={view.name}
+                />
+              </div>
+            </div>
+          ) : null}
 
-          <HistoryCard span={5} texture={lastTeam?.id} heading={t('driver.careerHeading', { year: view.year })}>
-            <StatTiles
-              items={[
-                { label: t('stats.seasons'), value: career.seasons },
-                { label: t('stats.starts'), value: career.starts > 0 ? career.starts : null },
-                { label: t('stats.wins'), value: career.wins },
-                { label: t('stats.podiums'), value: career.podiums },
-                { label: t('stats.poles'), value: career.poles },
-                {
-                  label: t('stats.titles'),
-                  value: career.titles > 0 ? career.titles : null,
-                  sub: career.titles > 0 ? career.titleYears.join(' · ') : undefined,
-                },
-              ]}
-            />
-          </HistoryCard>
+          {duelProps ? (
+            <>
+              <HistoryCard span={6} texture={lastTeam?.id} heading={t('driver.duelHeading')}>
+                <DriverTeammateDuel {...duelProps} />
+              </HistoryCard>
+
+              <HistoryCard span={6} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
+                <StatTiles
+                  items={[
+                    { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
+                    { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
+                    { label: t('stats.wins'), value: s.wins > 0 || s.starts > 0 ? s.wins : null },
+                    { label: t('stats.podiums'), value: s.podiums > 0 || s.starts > 0 ? s.podiums : null },
+                    { label: t('stats.poles'), value: s.poles > 0 || s.starts > 0 ? s.poles : null },
+                    { label: t('stats.starts'), value: s.starts > 0 ? s.starts : null },
+                  ]}
+                />
+              </HistoryCard>
+            </>
+          ) : (
+            <>
+              <HistoryCard span={7} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
+                <StatTiles
+                  items={[
+                    { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
+                    { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
+                    { label: t('stats.wins'), value: s.wins > 0 || s.starts > 0 ? s.wins : null },
+                    { label: t('stats.podiums'), value: s.podiums > 0 || s.starts > 0 ? s.podiums : null },
+                    { label: t('stats.poles'), value: s.poles > 0 || s.starts > 0 ? s.poles : null },
+                    { label: t('stats.starts'), value: s.starts > 0 ? s.starts : null },
+                  ]}
+                />
+              </HistoryCard>
+
+              <HistoryCard span={5} texture={lastTeam?.id} heading={t('driver.careerHeading', { year: view.year })}>
+                <StatTiles
+                  items={[
+                    { label: t('stats.seasons'), value: career.seasons },
+                    { label: t('stats.starts'), value: career.starts > 0 ? career.starts : null },
+                    { label: t('stats.wins'), value: career.wins },
+                    { label: t('stats.podiums'), value: career.podiums },
+                    { label: t('stats.poles'), value: career.poles },
+                    {
+                      label: t('stats.titles'),
+                      value: career.titles > 0 ? career.titles : null,
+                      sub: career.titles > 0 ? career.titleYears.join(' · ') : undefined,
+                    },
+                  ]}
+                />
+              </HistoryCard>
+            </>
+          )}
 
           {view.arc.filter((a) => a.position != null).length > 1 ? (
             <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.arcHeading')}>
@@ -184,6 +351,8 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
                 bio={view.lore.bio}
                 milestones={view.lore.milestones}
                 lore={view.lore.lore}
+                chapters={view.lore.chapters}
+                quote={view.lore.quote}
                 facts={[
                   ...(view.nationality ? [{ label: t('driver.nationalityLabel'), value: countryName(view.nationality, locale) }] : []),
                   ...(born ? [{ label: t('driver.bornLabel'), value: born }] : []),

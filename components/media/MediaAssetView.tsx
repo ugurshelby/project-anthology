@@ -33,6 +33,10 @@ export interface MediaAssetViewProps {
    * part of the frame so a wide slot keeps the face (2026-10-13: grid bays cut heads off).
    */
   objectPosition?: string;
+  /**
+   * CSS object-fit for the image. Defaults to 'contain' for car and team, 'cover' for driver/circuit.
+   */
+  objectFit?: 'cover' | 'contain';
 }
 
 /**
@@ -62,6 +66,7 @@ export function MediaAssetView({
   aspectRatio,
   showAttribution = true,
   objectPosition,
+  objectFit,
 }: MediaAssetViewProps) {
   const [fetchedResult, setFetchedResult] = useState<MediaResult | null>(() =>
     initialResult ? null : (peekMedia(type, entityKey) ?? null),
@@ -166,7 +171,11 @@ export function MediaAssetView({
         sizes={sizes}
         placeholder={image.blurDataURL ? 'blur' : 'empty'}
         blurDataURL={image.blurDataURL ?? undefined}
-        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        className={`h-full w-full transition-transform duration-500 group-hover:scale-[1.02] ${
+          (objectFit ?? (type === 'car' || type === 'team' ? 'contain' : 'cover')) === 'contain'
+            ? 'object-contain'
+            : 'object-cover'
+        }`}
         style={{ objectPosition: objectPosition ?? (type === 'driver' ? '50% 20%' : undefined) }}
         onError={() => setImageError(true)}
       />

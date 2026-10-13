@@ -1,12 +1,12 @@
 import {
-  AE, AT, AU, AZ, BE, BH, BR, CA, CN, DE, ES, FR, GB, HU, IN, IT, JP, KR, MC, MX, MY, NL, PT, QA, RU, SA, SG, TR, US,
+  AE, AR, AT, AU, AZ, BE, BH, BR, CA, CN, DE, DK, ES, FI, FR, GB, HU, IN, IT, JP, KR, MC, MX, MY, NL, NZ, PT, QA, RU, SA, SG, TH, TR, US,
   type FlagComponent,
 } from 'country-flag-icons/react/3x2';
 import { countryCode } from '@/lib/data/countryFlags';
 
-/** Only the calendar's flags are imported, so the bundle carries ~30 small SVGs, not ~250. */
+/** Calendar and driver nationality flags (MIT SVG). */
 const FLAGS: Record<string, FlagComponent> = {
-  AE, AT, AU, AZ, BE, BH, BR, CA, CN, DE, ES, FR, GB, HU, IN, IT, JP, KR, MC, MX, MY, NL, PT, QA, RU, SA, SG, TR, US,
+  AE, AR, AT, AU, AZ, BE, BH, BR, CA, CN, DE, DK, ES, FI, FR, GB, HU, IN, IT, JP, KR, MC, MX, MY, NL, NZ, PT, QA, RU, SA, SG, TH, TR, US,
 };
 
 /** Country flag as an SVG (3:2), decorative; renders nothing for an unknown country. */

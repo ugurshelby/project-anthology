@@ -3,6 +3,9 @@ import Image from 'next/image';
 import { ApexImage } from '@/components/media/ApexImage';
 import { MediaCredit } from '@/components/media/MediaCredit';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
+import { DRIVER_GRID_POSITIONS } from '@/lib/data/driverPositions';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { countryCode as getCountryCode } from '@/lib/data/countryFlags';
 import type { MediaResult } from '@/lib/media/read';
 import type { CSSProperties } from 'react';
 
@@ -190,6 +193,10 @@ export function DriverProfileHero({
   constructorId,
   constructorName,
   mediaResult,
+  driverId,
+  countryCode: countryCodeProp,
+  nationality,
+  seasonRank,
 }: {
   kicker?: string;
   title: string;
@@ -203,6 +210,10 @@ export function DriverProfileHero({
   constructorId?: string | null;
   constructorName?: string | null;
   mediaResult?: MediaResult | null;
+  driverId?: string;
+  countryCode?: string | null;
+  nationality?: string | null;
+  seasonRank?: number | null;
 }) {
   const nameParts = title.trim().split(/\s+/);
   const firstName = nameParts.slice(0, -1).join(' ') || title;
@@ -212,8 +223,17 @@ export function DriverProfileHero({
   const isMediaImage = mediaResult?.status === 'image';
   const effectiveSrc = isMediaImage ? mediaResult.image.src : imageSrc;
 
+  const resolvedCountryCode = countryCodeProp ?? getCountryCode(nationality);
+  const eyePosition = driverId ? (DRIVER_GRID_POSITIONS[driverId.toLowerCase()] ?? '50% 25%') : 'center 15%';
+
   return (
     <section className="relative -mx-5 mb-4 overflow-hidden md:-mx-8 lg:-mx-16">
+      {/* Specular hairline top-edge highlight */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-30 h-px bg-white/[0.08]"
+      />
+
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -246,6 +266,30 @@ export function DriverProfileHero({
 
         <div className="relative z-10 hidden min-h-[min(58vh,460px)] flex-col justify-end px-5 pb-5 pt-36 md:absolute md:inset-0 md:flex md:min-h-0 md:justify-end md:px-10 md:pb-12 lg:px-16">
           <div className="relative md:max-w-[min(56%,580px)] lg:max-w-[min(54%,680px)]">
+            {/* Nationality & Standing Badges */}
+            <div className="mb-2.5 flex flex-wrap items-center gap-2">
+              {resolvedCountryCode ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-hairline/80 bg-surface/90 px-2.5 py-1 backdrop-blur-xs">
+                  <CountryFlag country={resolvedCountryCode} className="h-3 w-4 rounded-xs shadow-xs" />
+                  {nationality ? (
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-text-mid">
+                      {nationality}
+                    </span>
+                  ) : null}
+                </span>
+              ) : nationality ? (
+                <span className="rounded-full border border-hairline/80 bg-surface/90 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-text-mid">
+                  {nationality}
+                </span>
+              ) : null}
+
+              {seasonRank != null ? (
+                <span className="rounded-full border border-hairline/80 bg-surface-raised/90 px-2.5 py-1 font-mono text-[10px] font-600 uppercase tracking-wider text-text-hi">
+                  P{seasonRank} WDC
+                </span>
+              ) : null}
+            </div>
+
             {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
             {editorialTagline ? (
               <p
@@ -255,7 +299,7 @@ export function DriverProfileHero({
                 {editorialTagline}
               </p>
             ) : null}
-            <h1 className="display-hero relative mt-2 hidden uppercase text-text-hi md:mt-3 md:block md:leading-[0.86]">
+            <h1 lang="en" className="display-hero relative mt-2 hidden uppercase text-text-hi md:mt-3 md:block md:leading-[0.86]">
               {lastName ? (
                 <>
                   <span className="block">{firstName}</span>
@@ -291,7 +335,8 @@ export function DriverProfileHero({
                   sizes="(max-width: 768px) 100vw, 62vw"
                   placeholder={mediaResult.image.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={mediaResult.image.blurDataURL ?? undefined}
-                  className="object-contain object-[center_12%] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
+                  style={{ objectPosition: eyePosition }}
+                  className="object-contain filter [filter:contrast(1.05)_saturate(0.92)] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
                 />
               ) : (
                 <ApexImage
@@ -300,7 +345,8 @@ export function DriverProfileHero({
                   fill
                   kind="driver"
                   sizes="(max-width: 768px) 100vw, 62vw"
-                  className="object-contain object-[center_12%] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
+                  style={{ objectPosition: eyePosition }}
+                  className="object-contain filter [filter:contrast(1.05)_saturate(0.92)] scale-[1.55] sm:scale-[1.45] md:object-right-bottom md:object-contain md:scale-[1.22] lg:scale-[1.28]"
                   priority
                 />
               )}
@@ -327,7 +373,31 @@ export function DriverProfileHero({
         )}
 
         <div className="absolute inset-x-0 bottom-0 z-30 px-5 pb-5 md:hidden">
-          <div className="rounded-[var(--radius-lg)] border border-white/[0.12] bg-black/50 p-5 backdrop-blur-md">
+          <div className="rounded-[var(--radius-lg)] border border-white/[0.12] bg-black/60 p-5 backdrop-blur-md">
+            {/* Mobile Nationality & Standing Badges */}
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              {resolvedCountryCode ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
+                  <CountryFlag country={resolvedCountryCode} className="h-3 w-4 rounded-xs shadow-xs" />
+                  {nationality ? (
+                    <span className="font-mono text-[10px] uppercase text-text-mid">
+                      {nationality}
+                    </span>
+                  ) : null}
+                </span>
+              ) : nationality ? (
+                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase text-text-mid">
+                  {nationality}
+                </span>
+              ) : null}
+
+              {seasonRank != null ? (
+                <span className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 font-mono text-[10px] font-600 uppercase text-text-hi">
+                  P{seasonRank}
+                </span>
+              ) : null}
+            </div>
+
             {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
             {editorialTagline ? (
               <p

@@ -87,8 +87,34 @@ Bileşen: `components/glossary/TyreThermalWindows.tsx`. Sahibin brifinden bağla
 
 ## 4. Grid sayfası (sahip, 2026-10-13)
 
-- "toggle ihtiyaç da yok zaten direkt orijinal default ve sabit olarak takıma göre sıralama olsun ve o düzende kalsın." Takım / sürücü sıralaması anahtarı yoktur; sayfa her zaman takıma göre düzenlidir.
-- Takım kartı düzeni korunur ("solda takım sağda pilotlar ve puan çubukları takım rengi kullanımı kart içinde görselin hafif fade ile geçişli olması vs harika"); pilot görselleri bulundukları alana göre konumlandırılır, yüz kırpılmaz ("hamiltonun kafası gözükmüyor bile").
+Bileşen: `components/standings/GarageTeamPanel.tsx` (`/grid`).
+
+- **Sıralama Düzeni:** "toggle ihtiyaç da yok zaten direkt orijinal default ve sabit olarak takıma göre sıralama olsun ve o düzende kalsın." Takım / sürücü sıralaması anahtarı yoktur; sayfa her zaman takıma göre düzenlidir.
+- **Kart Düzeni:** "solda takım sağda pilotlar ve puan çubukları takım rengi kullanımı kart içinde görselin hafif fade ile geçişli olması vs harika".
+- **Kadraj Standardı (sahip kuralı):**
+  - "Yatay (wide landscape) kartlara dikey portre veya rastgele kırpılmış aksiyon fotoğrafları konulduğu için yüzler tepeye çarpıyor, çeneler veya alınlar kesiliyor ya da araçların burun/kanat kısımları çerçeveden taşıyor."
+  - **Araç slotları:** `3:2` veya `16:9` oranında, yandan profil (side-profile) veya 3/4 açılı; burun ve arka kanat kartın kenarlarına çarpmadan en az `%10` nefes payı (padding) bırakılarak konumlandırılmalı.
+  - **Pilot slotları:** Geniş yatay kadrajda göz hizası dikey eksende **altın orana (%35-40)** çekilmeli; kask/şapka tepesi kesilmemeli, bakış yönü açık alana (içeriye) bakmalı.
+
+### 4.1 11 Takım İçin Araç ve Pilot Konumlandırma Konfigürasyonu
+1. **Mercedes-AMG:** Araç (W17/W16): `object-position: center 60%`; Kimi Antonelli: yüzü net 3/4 portre, `object-position: center 25%`; George Russell: `object-position: center 30%`.
+2. **Scuderia Ferrari:** Araç (SF-26/SF-25): `object-position: center 50%`; Lewis Hamilton: `object-position: center 20%`; Charles Leclerc: `object-position: 50% 25%`.
+3. **McLaren:** Araç (MCL39): `object-position: center 45%`; Lando Norris: yüz/gözler net, `object-position: center 30%`; Oscar Piastri: `object-position: center 20%`.
+4. **Red Bull Racing:** Araç (RB21/RB22): `object-position: 55% 50%`; Max Verstappen: `object-position: center 30%`; Liam Lawson: `object-position: center 25%`.
+5. **Racing Bulls (VCARB):** Araç: `object-position: center 50%`; Pilot 1: `object-position: center 30%`; Pilot 2: `object-position: center 30%`.
+6. **Alpine:** Araç (A526): `object-position: 60% 50%`; Pierre Gasly: `object-position: center 25%`; Jack Doohan / Franco Colapinto: tek pilot net yüz `object-position: 40% 30%`.
+7. **Haas F1 Team:** Araç: `object-position: 65% 50%`; Esteban Ocon: `object-position: center 15%`; Oliver Bearman: `object-position: center 30%`.
+8. **Audi (Sauber):** Araç: 3/4 veya yan profil, `object-position: center 50%`; Nico Hülkenberg: `object-position: center 25%`; Gabriel Bortoleto: `object-position: 50% 25%`.
+9. **Williams:** Araç (FW47): `object-position: center 55%`; Carlos Sainz: `object-position: center 20%`; Alex Albon: `object-position: center 25%`.
+10. **Aston Martin:** Araç (AMR26): Yan profil pist üstü dinamik çekim; Fernando Alonso: `object-position: center 25%`; Lance Stroll: bakış yönü sola dönecek şekilde yatay aynalanabilir (flip) veya 3/4 portre, `object-position: center 25%`.
+11. **Cadillac F1 Team:** Araç: `object-position: 60% 50%`; Pilot 1: `object-position: center 20%`; Pilot 2: Boş slot/TBD simetrik wireframe veya silüet.
+
+### 4.2 Apple & Apex Dokunuşları
+1. **Alttan Karartma Gradyanı (Bottom Vignette / Scrim):** Pilot hücrelerine `linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 40%, transparent 100%)` uygulanması.
+2. **Tek Tip Fotoğraf Dili (Color Grading & Mood):** Tüm görsellere hafif desatürasyon ve kontrast filtresi (`contrast(1.05) saturate(0.9)`).
+3. **Araç Kadraj Standardizasyonu:** 11 aracın da yönünün soldan sağa akması.
+4. **Karakter ve Yarış Numarası Vurgusu:** Pilot kutularının sağ üst köşesine %8–12 opaklıkta devasa **Barlow Condensed** yarış numarası filigranı (watermark) gömülmesi.
+
 
 ## 5. Ana sayfa: Apex kimliği (sahip, 2026-10-13)
 
@@ -100,3 +126,110 @@ Bileşen: `components/glossary/TyreThermalWindows.tsx`. Sahibin brifinden bağla
 - Kavram kartları: "her kart için görselimiz var kendi ürettiğimiz ama küçücük şuan görünmüyolar kullanıcılar her kavramı görseli de rahat görerek, anlayarak öğrenebilmeli."
 - Kural değişiklikleri: "redesign edilmeli. özellikle burda çok metin olduğu için buna uygun düşün."
 - Ölçüt: §3'teki lastik termal penceresi ("harika olmuş") bu bileşenlerin kalite çıtasıdır.
+
+---
+
+## 7. Takım Detay Sayfası: Sinematik Editoryal & Telemetri Konsolu (sahip, 2026-10-13)
+
+Sayfa: `app/[locale]/teams/[constructorId]/page.tsx`. Sahibin brifi, olduğu gibi (ayrıntılı faz planı: `docs/plans/master-plan.md` Faz 10):
+
+> **Role & Tone:** Senior Product Designer with an obsession for Apple's fluid design principles and Formula 1's cinematic, high-contrast engineering aesthetic.
+>
+> **Context & Objective:** Redesign the Team Detail page for Apex (Project Anthology). The page must move away from generic wiki/dashboard templates and transform into a cinematic, high-density editorial experience that tells the team's legacy, character, and season-by-season telemetry without visual clutter.
+>
+> **Design Philosophy & Constraints (Apex Design System):**
+>
+> **Color & Surface Hierarchy:**
+> - Primary canvas must be deep dark neutral (`#0a0a0a`), never pure black.
+> - Cards and bento modules use `--surface` (`#141414`) with a sharp 1px subtle border (`#262626`) and 16px radius (`rounded-2xl`). Add a hairline bright top-edge highlight (`rgba(255,255,255,0.06)`) to simulate physical material catching light.
+> - Restraint: Use team primary accent sparingly; reserve Apex Red (`#ff1801`) strictly for active states, live indicators, and key badges.
+>
+> **Editorial Typography (Three-Tier Hierarchy):**
+> - Hero & Section Display: Barlow Condensed (Bold/Semibold), tight leading (0.92 to 1.05), negative optical tracking (`-0.02em`). Massive, poster-like team names and landmark figures.
+> - Body & Narrative: Inter (Regular, 16px, 1.5–1.75 line height) for team history and storytelling snippets. High legibility, neutral off-white (`#e6e6e6`).
+> - Telemetry & Metadata: JetBrains Mono (`tabular-nums`, 12–14px, uppercase with `+0.1em` letter spacing for labels). Used for championships, race wins, founding years, chassis codes, and season deltas.
+>
+> **Layout & Spatial Composition:**
+> - Cinematic Poster Hero (Top 45vh): Full-bleed atmospheric paddock/car imagery with dark vignette overlay. Anchored with an oversized condensed team moniker, chassis badge, and active constructor standing rank.
+> - Fast Facts Bento (Horizontal Telemetry Ribbon): Strip away dull tables. Present key metrics (Championships, Grand Prix Entries, Pole Positions, Win Rate) as sculptured, monospaced data tiles with bold contrast.
+> - Dual Pilot Cockpit Modules: Two complementary interactive bento cards featuring the active drivers, displaying their large race numbers in condensed typography, season points delta, and team color accent bar (`w-1 rounded-full`).
+> - Editorial Legacy & Season Scrubber: An interactive, horizontal timeline strip to explore iconic team eras and season-by-season performance transitions, maintaining fluid, interruptible spring physics (`damping: 1.0`, `response: 0.35s`).
+>
+> **Deliverable:** Produce an executive-level, bespoke dark-mode interface layout that feels like an official Formula 1 telemetry console designed under Apple's WWDC human interface guidelines. No neon glows, no generic card clutter, pure craft and restraint.
+
+---
+
+## 8. Pilot Detay Sayfası: Sinematik Editoryal & Müze Derecesi Profil (sahip, 2026-10-13)
+
+Sayfa: `app/[locale]/drivers/[driverId]/page.tsx`. Sahibin brifi, olduğu gibi (ayrıntılı faz planı: `docs/plans/master-plan.md` Faz 12):
+
+> **Role & Perspective:** Elite Design Director combining Apple’s WWDC fluid interface principles (restraint, optical typography, material depth) with Formula 1’s dark, high-contrast telemetry aesthetic.
+>
+> **Project & Scope:** Redesign the Driver Detail Page (/drivers/[slug]) for Apex (Project Anthology). Transform the current generic admin-style driver card into an editorial, museum-grade cinematic profile that captures both the human emotion/narrative and raw telemetry data.
+>
+> **Core Design Guidelines & Architecture (Apex Design System):**
+>
+> **Atmosphere, Materials & Depth:**
+> - Canvas base: Deep dark neutral (`#0a0a0a`), never pitch black.
+> - Surfaces: Bento cards built on `--surface` (`#141414`) with a razor-sharp 1px border (`#262626`), 16px border-radius, and a hairline top-edge specular highlight (`rgba(255, 255, 255, 0.05)`).
+> - Accent: Pilot/Team accent color (`#ff1801` for Ferrari) used strictly as a precision signal (vertical indicator bar `w-1 rounded-full`, active season badges, delta indicators).
+>
+> **Typographic Hierarchy & Optical Sizing:**
+> - Hero Driver Name & Giant Number: Barlow Condensed (Bold, tight optical tracking `-0.02em`, leading `0.95`). The driver's permanent racing number (e.g., 16) must sit as a monumental, semi-translucent sculptural backdrop element (`hero-number`).
+> - Editorial Narrative: Inter (Regular, 16px, line height 1.6) for the biographical overview and career story blocks.
+> - Telemetry & Stats: JetBrains Mono (`tabular-nums`, 13–15px, uppercase labels with `+0.1em` letter spacing) for all Grand Prix entries, podium counts, pole positions, and season points.
+>
+> **Layout & Spatial Composition:**
+> - **The Split Driver Hero:**
+>   - Left / Foreground: Full-bleed cinematic portrait of the driver cut against dark paddock atmosphere with subtle gradient falloff.
+>   - Right / Overlay: Driver full name in massive condensed type, driver nickname/monikers, current championship standing badge, and racing flag/chassis tag.
+> - **Career Telemetry Bento (Sculpted Stats):**
+>   - A compact, high-density row of metrics: World Titles, GP Entries, Wins, Podiums, Pole Positions, Career Points. Numbers stand out in crisp high-contrast white (`--text-hi`).
+> - **Active Season Pulse & Head-to-Head Module:**
+>   - Interactive season performance strip showing finishing positions (P1, P2, DNF) with status colors (purple for fastest lap, green for gain).
+>   - Compact head-to-head bento comparing qualifying and race trim against their teammate.
+> - **Chronological Legacy & Story Chapters:**
+>   - Narrative broken into readable, curated eras (e.g., "The Junior Dominance", "Monza Glory", "Championship Battles") rather than a single wall of text.
+>
+> **Tone & Deliverable:** Deliver a breathtaking, dark-mode F1 editorial layout that feels like an exclusive paddock telemetry terminal curated by Apple. Avoid generic widgets, neon glows, or cluttered wiki cards. Focus on restraint, spatial harmony, and craft.
+
+---
+
+## 9. Pist Detay Sayfası: Mimari Telemetri Profili (sahip, 2026-10-13)
+
+Sayfa: `app/[locale]/circuits/[id]/page.tsx`. Sahibin brifi, olduğu gibi (ayrıntılı faz planı: `docs/plans/master-plan.md` Faz 13):
+
+> **Role & Tone:** Senior / Principal Product Designer crafting a high-end motorsport interface, synthesizing Apple’s WWDC fluid design principles (restraint, optical typography, material depth, spring physics) with Formula 1 technical telemetry.
+>
+> **Objective:** Redesign the Circuit Detail Page (/circuits/[slug]) for Apex (Project Anthology). Transform the current static circuit overview into an interactive, telemetry-driven architectural profile of the track (Monaco’s extreme topography, narrow glamour, and precision engineering).
+>
+> **Core Design Guidelines & Constraints (Apex Design System):**
+>
+> **Color & Surface Hierarchy:**
+> - Background: Deep neutral `--bg` (`#0a0a0a`), never pure black.
+> - Surface Materials: Bento modules built on `--surface` (`#141414`) with a sharp 1px border (`--hairline: #262626`), 16px border-radius (`--radius-lg`), and an ambient top-edge specular highlight (`rgba(255, 255, 255, 0.06)`) simulating light hitting physical glass.
+> - Accent Discipline: Single global action accent Apex Red (`#ff1801`) used strictly for active status badges. Telemetry purple (`#b356fe`) exclusively reserved for the official Lap Record module.
+>
+> **Typographic Discipline & Optical Scaling:**
+> - Hero Circuit Moniker: Barlow Condensed (Bold, tight optical tracking `-0.02em`, line-height `0.92`), display scale. Huge and sculptural.
+> - Telemetry & Technical Specs: JetBrains Mono (`tabular-nums`, 13–15px, uppercase labels with `+0.1em` letter spacing) for circuit length, lap counts, gear shift frequency, and sector timing.
+> - Editorial Heritage: Inter (Regular, 16px, line-height 1.6) for track lore and overtaking difficulty breakdown.
+>
+> **Spatial Layout & Modular Composition:**
+> - **Cinematic Track Hero (Top 40vh):**
+>   - Full-bleed trackside atmospheric texture with dark vignette falloff.
+>   - Overlaid with the monumental circuit name, country badge, layout configuration year (e.g., "1950 — Present"), and next Grand Prix schedule badge.
+> - **Interactive Sector Vector & Telemetry Map:**
+>   - Central interactive SVG trace of the circuit featuring clear sector boundaries (Sector 1, 2, 3), speed trap marker, and DRS activation zone indicators.
+>   - Interactive micro-pins on landmark corners (Turn 1 Sainte Dévote, Turn 6 Fairmont Hairpin, Tunnel, Swimming Pool chicane, Rascasse) revealing apex speeds and gear selection on hover/tap with spring physics (`damping: 1.0`, `response: 0.35s`).
+> - **Elevation Profile Ribbon (Topo Telemetry):**
+>   - Minimalist, high-density elevation chart showing Monaco's famous 42-meter climb and descent across the 3.337 km lap, with smooth Bézier curves and monospaced delta markers.
+> - **Sculpted Fast Facts Bento Ribbon:**
+>   - High-contrast tiles: Lap Distance (3.337 km), Number of Laps (78), Total Race Distance (260.286 km), and All-Time Lap Record (1:12.909 · Lewis Hamilton · 2021 in telemetry purple).
+> - **Technical Strategy & Demands Module:**
+>   - High-density telemetry cards showcasing: Gear shifts per lap (~54 shifts / lap), tyre degradation profile, downforce configuration (Maximum Downforce index), and safety car probability index.
+>
+> **Tone & Deliverable:** Deliver a dark-mode F1 telemetry console layout engineered with Apple-grade restraint. Eliminate generic wiki tables, neon glows, and template clutter. Every metric must feel verified, physical, and tuned like a wind-tunnel instrument.
+
+
+

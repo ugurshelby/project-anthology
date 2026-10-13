@@ -120,7 +120,16 @@
       "seasons": "Seasons",
       "number": "Car number",
       "bestFinish": "Best finish",
-      "ptsShort": "PTS"
+      "ptsShort": "PTS",
+      "seasonOf": "{year} season",
+      "rate": "{pct}% rate",
+      "lastTitle": "Last title {year}",
+      "noTitle": "No title yet",
+      "winsPerSeason": "{n} wins per season",
+      "inF1": "In Formula 1",
+      "legendPodium": "Podium",
+      "legendPoints": "Points",
+      "dnf": "DNF"
     },
     "driver": {
       "kicker": "{team} · {year}",
@@ -140,7 +149,14 @@
       "nationalityLabel": "Nationality",
       "bornLabel": "Born",
       "arcHeading": "Championship position by season",
-      "arcCaption": "Championship position of {name} in every season"
+      "arcCaption": "Championship position of {name} in every season",
+      "duelHeading": "H2H Garage Duel",
+      "duelTitle": "H2H Duel",
+      "duelQuali": "Qualifying",
+      "duelRace": "Race",
+      "duelPtsShare": "Points Share ({pct}%)",
+      "duelFooter": "{team} garage telemetry",
+      "pulseTitle": "Round-by-Round Performance"
     },
     "team": {
       "kicker": "Constructor // {year}",

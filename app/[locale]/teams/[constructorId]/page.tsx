@@ -6,10 +6,14 @@ import { getTeamLore } from '@/data/teams';
 import { SITE_NAME, siteUrl, localizedAlternates } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { getNewsForEntity } from '@/lib/data/news';
-import { getMedia } from '@/lib/media/read';
+import { getMedia, getMediaBatch } from '@/lib/media/read';
+import { carKey } from '@/lib/media/keys';
+import { countryName } from '@/lib/i18n/format';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TeamSeasonHero } from '@/components/history/TeamSeasonHero';
+import { TeamTelemetryRibbon } from '@/components/history/TeamTelemetryRibbon';
+import { TeamCockpitLineup } from '@/components/history/TeamCockpitLineup';
 import { LoreSection } from '@/components/profile/LoreSection';
 import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
@@ -17,7 +21,6 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { SeasonRail } from '@/components/history/SeasonRail';
 import { HistoryCard } from '@/components/history/HistoryCard';
 import { StatTiles } from '@/components/history/StatTiles';
-import { TeamLineup } from '@/components/history/TeamLineup';
 import { CareerArc } from '@/components/history/CareerArc';
 import { TeamDnaSection } from '@/components/history/TeamDnaSection';
 import { getMachineryCarsForTeam } from '@/data/machinery/cars';
@@ -69,13 +72,21 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
 
   const t = await getTranslations({ locale, namespace: 'history' });
   const theme = teamThemeVars(view.id, view.year);
-  const relatedNews = view.isCurrentSeason ? await getNewsForEntity(view.name, 4) : [];
   const lore = getTeamLore(view.headId, locale) ?? getTeamLore(view.headId.replace(/-/g, '_'), locale);
+
+  const [teamMedia, carMedia, driverMediaMap, relatedNews] = await Promise.all([
+    getMedia('team', view.headId),
+    getMedia('car', carKey(view.headId, view.year)),
+    getMediaBatch('driver', view.lineup.map((d) => d.driverId)),
+    view.isCurrentSeason ? getNewsForEntity(view.name, 4) : Promise.resolve([]),
+  ]);
 
   const s = view.season;
   const metaParts: string[] = [];
   if (s.position != null) metaParts.push(`P${s.position}`);
-  if (s.position != null || s.points > 0) metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}`);
+  if (s.position != null || s.points > 0) {
+    metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}`);
+  }
 
   const asOf = view.asOf;
   const machineryCars = getMachineryCarsForTeam(view.headId || view.id);
@@ -98,8 +109,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
       />
       <PageThemeSync vars={theme} />
 
-      <SeasonRail years={view.years} selected={view.year} hrefTemplate={`/teams/${view.headId}?season={year}`} className="mb-4 md:mb-6" />
-
+      {/* Cinematic Poster Hero (Top 45vh) */}
       <TeamSeasonHero
         kicker={t('team.kicker', { year: view.year })}
         name={view.name}
@@ -109,12 +119,56 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         badge={s.champion ? t('team.champion', { year: view.year }) : null}
         numbers={view.lineup.map((d) => d.number).filter((n): n is string => !!n).slice(0, 3)}
         constructorId={view.id}
-        mediaResult={await getMedia('team', view.headId)}
+        mediaResult={teamMedia}
+        carMediaResult={carMedia}
+        country={countryName(view.country, locale)}
+        engines={view.engines}
+        standingRank={s.position != null ? `P${s.position} · ${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} PTS` : null}
       />
+
+      {/* Season Scrubber Timeline Strip (Owner rule §1.2.1 compliant) */}
+      <SeasonRail
+        years={view.years}
+        selected={view.year}
+        hrefTemplate={`/teams/${view.headId}?season={year}`}
+        className="mb-6"
+      />
+
+      {/* Fast Facts Bento — Horizontal Telemetry Strip */}
+      <TeamTelemetryRibbon
+        titles={asOf.titles}
+        allTimeWins={asOf.wins}
+        allTimePodiums={asOf.podiums}
+        allTimePoles={asOf.poles}
+        allTimeSeasons={asOf.seasons}
+        seasonPosition={s.position}
+        seasonPoints={s.points}
+        seasonWins={s.wins}
+        seasonPodiums={s.podiums}
+        seasonPoles={s.poles}
+        year={view.year}
+      />
+
+      {/* Dual Pilot Cockpit Modules */}
+      {view.lineup.length > 0 ? (
+        <TeamCockpitLineup
+          lineup={view.lineup}
+          year={view.year}
+          ui={view.palette.ui}
+          totalTeamPoints={s.points}
+          driverMediaMap={driverMediaMap}
+        />
+      ) : null}
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
-          <HistoryCard span={7} texture={view.id} eyebrow={s.champion ? t('team.champion', { year: view.year }) : undefined} heading={t('team.seasonHeading', { year: view.year })}>
+          {/* Season Details & Mechanical Lineage */}
+          <HistoryCard
+            span={view.dna ? 7 : 12}
+            texture={view.id}
+            eyebrow={s.champion ? t('team.champion', { year: view.year }) : undefined}
+            heading={t('team.seasonHeading', { year: view.year })}
+          >
             <StatTiles
               items={[
                 { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
@@ -125,60 +179,59 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
               ]}
             />
             {view.entrants.length > 0 || view.engines.length > 0 ? (
-              <p className="body-sm mt-6 border-t border-hairline pt-4 text-text-mid">
+              <p className="body-sm mt-6 border-t border-hairline pt-4 text-text-mid font-mono text-xs">
                 {view.entrants.length > 0 ? (
                   <>
-                    {t('team.entrant')}: <span className="text-text-hi">{view.entrants.slice(0, 2).join(', ')}</span>
+                    {t('team.entrant')}: <span className="text-text-hi font-semibold">{view.entrants.slice(0, 2).join(', ')}</span>
                   </>
                 ) : null}
                 {view.entrants.length > 0 && view.engines.length > 0 ? <span className="mx-2 text-text-low">·</span> : null}
                 {view.engines.length > 0 ? (
                   <>
-                    {t('team.engine')}: <span className="text-text-hi">{view.engines.join(', ')}</span>
+                    {t('team.engine')}: <span className="text-text-hi font-semibold">{view.engines.join(', ')}</span>
                   </>
                 ) : null}
               </p>
             ) : null}
           </HistoryCard>
 
+          {/* Historical Lineage Milestones */}
           {view.dna ? (
-          <HistoryCard span={5} texture={view.id} heading={t('team.lineageHeading', { year: view.year })}>
-            <StatTiles
-              items={[
-                { label: t('stats.seasons'), value: asOf.seasons },
-                { label: t('stats.wins'), value: asOf.wins },
-                { label: t('stats.podiums'), value: asOf.podiums },
-                { label: t('stats.poles'), value: asOf.poles },
-                {
-                  label: t('stats.titles'),
-                  value: asOf.titles.length > 0 ? asOf.titles.length : null,
-                  sub: asOf.titles.length > 0 ? asOf.titles.join(' · ') : undefined,
-                },
-              ]}
-            />
-          </HistoryCard>
-          ) : null}
-
-          {view.lineup.length > 0 ? (
-            <HistoryCard span={12} texture={view.id} heading={t('team.lineupHeading', { year: view.year })}>
-              <TeamLineup lineup={view.lineup} year={view.year} ui={view.palette.ui} />
+            <HistoryCard span={5} texture={view.id} heading={t('team.lineageHeading', { year: view.year })}>
+              <StatTiles
+                items={[
+                  { label: t('stats.seasons'), value: asOf.seasons },
+                  { label: t('stats.wins'), value: asOf.wins },
+                  { label: t('stats.podiums'), value: asOf.podiums },
+                  { label: t('stats.poles'), value: asOf.poles },
+                  {
+                    label: t('stats.titles'),
+                    value: asOf.titles.length > 0 ? asOf.titles.length : null,
+                    sub: asOf.titles.length > 0 ? asOf.titles.join(' · ') : undefined,
+                  },
+                ]}
+              />
             </HistoryCard>
           ) : null}
 
+          {/* Career Arc & Championship Trajectory */}
           {view.arc.filter((a) => a.position != null).length > 1 ? (
             <HistoryCard span={12} texture={view.id} heading={t('team.arcHeading')}>
               <CareerArc points={view.arc} selectedYear={view.year} caption={t('team.arcCaption', { name: view.name })} />
             </HistoryCard>
           ) : null}
 
+          {/* Lineage & Team DNA */}
           {view.dna ? <TeamDnaSection dna={view.dna} selectedYear={view.year} teamId={view.headId} /> : null}
 
+          {/* Machinery Crosslink to Iconic Cars */}
           {machineryCars.length > 0 ? (
             <div className="col-span-12">
               <MachineryCrossLink cars={machineryCars} locale={locale} />
             </div>
           ) : null}
 
+          {/* Reformed Editorial Lore & Multi-Chapters */}
           {lore ? (
             <BentoCard span={relatedNews.length > 0 ? 8 : 12}>
               <LoreSection
@@ -186,6 +239,8 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
                 bio={lore.bio}
                 milestones={lore.milestones}
                 lore={lore.lore}
+                chapters={lore.chapters}
+                quote={lore.quote}
                 facts={[
                   { label: t('team.base'), value: lore.hq.label },
                   { label: t('team.founded'), value: String(view.dna?.firstSeason ?? lore.founded) },
@@ -194,6 +249,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
             </BentoCard>
           ) : null}
 
+          {/* Related News Wire */}
           {relatedNews.length > 0 ? (
             <BentoCard span={lore ? 4 : 12}>
               <RelatedNewsList items={relatedNews} heading={t('team.newsHeading')} />

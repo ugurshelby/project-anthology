@@ -23,6 +23,7 @@ export function HistoryCard({
 }) {
   return (
     <BentoCard span={span} className={`relative ${className}`.trim()}>
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.06]" />
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-px"

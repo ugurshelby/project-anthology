@@ -120,7 +120,16 @@
       "seasons": "Sezon",
       "number": "Yarış numarası",
       "bestFinish": "En iyi sıralama",
-      "ptsShort": "PUAN"
+      "ptsShort": "PUAN",
+      "seasonOf": "{year} sezonu",
+      "rate": "%{pct} oran",
+      "lastTitle": "Son şampiyonluk {year}",
+      "noTitle": "Henüz şampiyonluk yok",
+      "winsPerSeason": "Sezon başına {n} galibiyet",
+      "inF1": "Formula 1'de",
+      "legendPodium": "Podyum",
+      "legendPoints": "Puan",
+      "dnf": "BİTİREMEDİ"
     },
     "driver": {
       "kicker": "{team} · {year}",
@@ -140,7 +149,14 @@
       "nationalityLabel": "Uyruk",
       "bornLabel": "Doğum",
       "arcHeading": "Sezon sezon şampiyona sırası",
-      "arcCaption": "{name} için her sezonun şampiyona sırası"
+      "arcCaption": "{name} için her sezonun şampiyona sırası",
+      "duelHeading": "H2H Garaj Düellosu",
+      "duelTitle": "H2H Düello",
+      "duelQuali": "Sıralama",
+      "duelRace": "Yarış",
+      "duelPtsShare": "Puan Payı (%{pct})",
+      "duelFooter": "{team} garaj içi telemetrisi",
+      "pulseTitle": "Tur Tur Yarış Performansı"
     },
     "team": {
       "kicker": "Takım // {year}",

@@ -4,6 +4,7 @@ import { MediaAssetView } from '@/components/media/MediaAssetView';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { paletteFor } from '@/lib/history/palette';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
+import { getDriverObjectPosition, shouldFlipDriver } from '@/lib/data/driverPositions';
 import type { DriverGridRow } from '@/lib/data/entities';
 
 import type { TeamHeadToHead } from '@/lib/f1/headToHead';
@@ -24,6 +25,44 @@ export interface GarageUnit {
   formerScorers?: Array<{ driverId: string; name: string; points: number }>;
 }
 
+export {
+  DRIVER_GRID_POSITIONS,
+  DRIVER_IMAGE_FLIP,
+  getDriverObjectPosition,
+  shouldFlipDriver,
+} from '@/lib/data/driverPositions';
+
+/**
+ * Constructor car silhouette / livery framing object-position map (apex-component-rules.md §4.1).
+ * Standardized left-to-right flow with min 10% breathing room.
+ */
+const CAR_GRID_POSITIONS: Record<string, string> = {
+  mercedes: 'center 60%',
+  'mercedes-amg': 'center 60%',
+  ferrari: 'center 50%',
+  mclaren: 'center 45%',
+  'red-bull': '55% 50%',
+  red_bull: '55% 50%',
+  'racing-bulls': 'center 50%',
+  racing_bulls: 'center 50%',
+  rb: 'center 50%',
+  alpine: '60% 50%',
+  haas: '65% 50%',
+  audi: 'center 50%',
+  sauber: 'center 50%',
+  'kick-sauber': 'center 50%',
+  'kick_sauber': 'center 50%',
+  williams: 'center 55%',
+  'aston-martin': 'center 50%',
+  aston_martin: 'center 50%',
+  cadillac: '60% 50%',
+};
+
+function getCarObjectPosition(constructorId: string): string {
+  const norm = constructorId.toLowerCase().trim().replace(/_/g, '-');
+  return CAR_GRID_POSITIONS[norm] ?? 'center 50%';
+}
+
 function DriverBay({
   row,
   season,
@@ -39,23 +78,51 @@ function DriverBay({
 }) {
   const t = useTranslations('ui.common');
   const number = row.carNumber ?? row.position;
+  const isFlipped = shouldFlipDriver(row.driverId);
+  const objectPosition = getDriverObjectPosition(row.driverId);
 
   return (
     <Link
       href={`/drivers/${row.driverId}?season=${season}`}
       className={[
-        'group relative flex min-h-24 flex-1 flex-col justify-end overflow-hidden p-3 md:min-h-52 md:p-4',
+        'group relative flex min-h-28 flex-1 flex-col justify-end overflow-hidden p-3.5 md:min-h-56 md:p-4',
         divided ? 'border-l border-hairline' : '',
       ].join(' ')}
     >
+      {/* Apple material top specular edge highlight */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-white/[0.06]"
+      />
+
+      {/* Atmospheric team color glow behind driver */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(circle at 50% 28%, color-mix(in srgb, ${color} 28%, transparent), transparent 62%)`,
+          background: `radial-gradient(circle at 50% 28%, color-mix(in srgb, ${color} 26%, transparent), transparent 64%)`,
         }}
       />
-      <div className="pointer-events-none absolute inset-0 z-[1]">
+
+      {/* Giant Race Number Watermark in top-right (Barlow Condensed, 8-12% opacity) */}
+      {number ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-2.5 top-0 z-[2] select-none font-condensed text-7xl font-800 leading-none tracking-tighter text-white/[0.08] transition-opacity duration-300 group-hover:text-white/[0.14] md:right-3 md:text-8xl"
+          style={{ fontFamily: 'var(--font-condensed)' }}
+        >
+          {number}
+        </span>
+      ) : null}
+
+      {/* Driver portrait with Apple color grading filter & inward gaze flip */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] transition-transform duration-500 group-hover:scale-[1.02]"
+        style={{
+          filter: 'contrast(1.05) saturate(0.9)',
+          transform: isFlipped ? 'scaleX(-1)' : undefined,
+        }}
+      >
         <MediaAssetView
           type="driver"
           entityKey={row.driverId}
@@ -64,16 +131,25 @@ function DriverBay({
           driverCode={row.driverCode}
           driverNumber={number}
           teamColor={color}
+          objectPosition={objectPosition}
           className="h-full w-full object-cover"
           showAttribution={false}
         />
       </div>
+
+      {/* Apple bottom vignette / scrim gradient for typographic contrast */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-2/3 bg-gradient-to-t from-[#050505] via-[#050505]/85 to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-full"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(10, 10, 10, 0.90) 0%, rgba(10, 10, 10, 0.35) 42%, transparent 100%)',
+        }}
       />
+
       <div className="relative z-10 flex flex-col gap-0.5">
-        <span lang="en"
+        <span
+          lang="en"
           className="font-condensed line-clamp-2 text-base font-700 uppercase leading-tight text-text-hi md:text-xl"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
@@ -84,7 +160,7 @@ function DriverBay({
           <span className="text-text-hi">{row.points} {t('pts')}</span>
         </div>
         {elsewhere?.map((share) => (
-          <span key={share.constructorId} className="data-tabular text-right text-[11px] leading-tight text-text-low">
+          <span key={share.constructorId} className="data-tabular text-right text-[11px] leading-tight text-text-low font-mono">
             {t('ptsWithTeam', { points: share.points, team: share.constructorName })}
           </span>
         ))}
@@ -98,18 +174,39 @@ function EmptySeat({ divided }: { divided?: boolean }) {
   return (
     <div
       className={[
-        'relative flex min-h-24 flex-1 flex-col items-center justify-center overflow-hidden p-4 md:min-h-52',
+        'relative flex min-h-28 flex-1 flex-col items-center justify-center overflow-hidden p-4 md:min-h-56',
         divided ? 'border-l border-hairline' : '',
       ].join(' ')}
     >
+      {/* Top hairline specular highlight */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-white/[0.06]"
+      />
+
+      {/* Grid blueprint pattern */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(255,255,255,0.04) 11px, rgba(255,255,255,0.04) 12px), repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.04) 11px, rgba(255,255,255,0.04) 12px)',
+            'repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(255,255,255,0.03) 11px, rgba(255,255,255,0.03) 12px), repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.03) 11px, rgba(255,255,255,0.03) 12px)',
         }}
       />
+
+      {/* Architectural wireframe silhouette watermark (Cadillac / vacant seat) */}
+      <svg
+        aria-hidden
+        viewBox="0 0 100 100"
+        className="pointer-events-none absolute inset-0 m-auto h-20 w-20 text-white/[0.06]"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
+        <circle cx="50" cy="38" r="16" strokeDasharray="3 3" />
+        <path d="M 28 80 C 28 62 38 56 50 56 C 62 56 72 62 72 80" strokeDasharray="3 3" />
+      </svg>
+
       <span className="relative z-10 font-mono text-xs font-700 uppercase tracking-wider text-text-low">
         {t('seatTbc')}
       </span>
@@ -299,9 +396,15 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
 
   return (
     <article
-      className="relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-[#050505]"
+      className="relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-[#0a0a0a]"
       style={{ borderLeftWidth: 2, borderLeftColor: color }}
     >
+      {/* Apple material top specular edge highlight */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-white/[0.06]"
+      />
+
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -326,28 +429,39 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
                   showAttribution={false}
                 />
               </span>
-              <span lang="en"
+              <span
+                lang="en"
                 className="font-condensed truncate text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
                 style={{ fontFamily: 'var(--font-condensed)' }}
               >
                 {unit.constructorName}
               </span>
             </div>
-            <span className="data-tabular shrink-0 text-accent">P{unit.constructorPosition}</span>
+            <span className="data-tabular shrink-0 text-accent font-mono text-sm font-semibold">
+              P{unit.constructorPosition}
+            </span>
           </div>
 
-          <div className="relative hidden h-16 w-full sm:block sm:h-20 lg:mt-auto lg:h-28">
-            <MediaAssetView
-              type="car"
-              entityKey={`${unit.constructorId}:${season}`}
-              alt={`${unit.constructorName} ${season} car`}
-              name={`${unit.constructorName} ${season}`}
-              teamColor={livery.curated ? livery.secondary : color}
-              teamAccent={livery.curated ? livery.accent : undefined}
-              season={season}
-              className="h-full w-full object-contain"
-              showAttribution={false}
-            />
+          {/* Standardized 16:9 car slot with >=10% breathing room padding and team-specific framing */}
+          <div className="relative hidden w-full aspect-[16/9] max-h-24 p-2.5 sm:flex sm:items-center sm:justify-center sm:max-h-28 lg:mt-auto lg:max-h-32">
+            <div
+              className="h-full w-full"
+              style={{ filter: 'contrast(1.05) saturate(0.9)' }}
+            >
+              <MediaAssetView
+                type="car"
+                entityKey={`${unit.constructorId}:${season}`}
+                alt={`${unit.constructorName} ${season} car`}
+                name={`${unit.constructorName} ${season}`}
+                teamColor={livery.curated ? livery.secondary : color}
+                teamAccent={livery.curated ? livery.accent : undefined}
+                season={season}
+                objectPosition={getCarObjectPosition(unit.constructorId)}
+                objectFit="contain"
+                className="h-full w-full object-contain"
+                showAttribution={false}
+              />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-baseline justify-between gap-2">
