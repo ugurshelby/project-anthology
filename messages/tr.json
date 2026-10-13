@@ -225,6 +225,13 @@
   },
   "ui": {
     "home": {
+      "brand": {
+        "tagline": "{from}'den bugüne Formula 1 arşivi ve canlı veri",
+        "seasons": "Sezon",
+        "races": "Grand Prix",
+        "drivers": "Pilot",
+        "teams": "Takım"
+      },
       "eyebrowRound": "{season} · {round}. Yarış",
       "eyebrowNext": "Sıradaki Yarış · {season}",
       "tickerSeason": "{season} SEZONU: {done}/{total} YARIŞ TAMAMLANDI",
@@ -484,6 +491,9 @@
       "grip": "Tutuş",
       "durability": "Dayanıklılık",
       "warmup": "Isınma",
+      "enlarge": "{name} çizimini büyüt",
+      "enlargeShort": "Büyüt",
+      "closeDiagram": "Çizimi kapat",
       "cadSchematic": "{name} CAD şeması",
       "cadBlueprintOf": "{name} CAD çizimi",
       "cadTyre": "{name} lastiği CAD çizimi",

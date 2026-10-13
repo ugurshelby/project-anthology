@@ -1,9 +1,7 @@
 'use client';
 
-import { displayUpper } from '@/lib/i18n/caps';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { GlossaryTerm } from '@/data/glossary/terms';
 import type { TyreCompound } from '@/data/glossary/tyres';
 import {
@@ -13,9 +11,9 @@ import {
   TERM_CATEGORY_ORDER,
   type GlossaryFilter,
 } from '@/lib/glossary/filter';
-import { TyreCompoundCard } from '@/components/glossary/TyreCompoundCard';
+import { TyreCompoundExplorer } from '@/components/glossary/TyreCompoundExplorer';
 import { TermDossierCard } from '@/components/glossary/TermDossierCard';
-import { CategoryDiagram, TyreCadDiagram } from '@/components/glossary/TermDiagram';
+import { CategoryDiagram } from '@/components/glossary/TermDiagram';
 
 export function GlossaryExplorer({
   terms,
@@ -25,10 +23,8 @@ export function GlossaryExplorer({
   tyres: TyreCompound[];
 }) {
   const t = useTranslations('ui.glossary');
-  const locale = useLocale();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<GlossaryFilter>('all');
-  const [sheetTyre, setSheetTyre] = useState<TyreCompound | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const visibleTyres = useMemo(() => filterTyres(tyres, query, filter), [tyres, query, filter]);
@@ -77,15 +73,6 @@ export function GlossaryExplorer({
     return () => window.removeEventListener('keydown', onKey);
   }, [query]);
 
-  // Modal dismiss on Escape
-  useEffect(() => {
-    if (!sheetTyre) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSheetTyre(null);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [sheetTyre]);
 
   const empty = totalMatches === 0;
 
@@ -196,37 +183,8 @@ export function GlossaryExplorer({
         </div>
       ) : null}
 
-      {/* Tyre Compounds Section */}
-      {visibleTyres.length > 0 ? (
-        <section id="tyres" className="scroll-mt-36 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/[0.03] p-0.5 shadow-sm">
-                <CategoryDiagram category="Tyres" className="h-full w-full" />
-              </div>
-              <h2 className="headline-md uppercase tracking-tight text-text-hi">
-                {t('tyreCompounds', { count: visibleTyres.length })}
-              </h2>
-            </div>
-            <span className="font-mono text-xs text-text-low">{t('pirelliRange')}</span>
-          </div>
-
-          {/* Mobile Snap Row / Desktop 4-Column Grid */}
-          <div className="snap-row md:hidden">
-            {visibleTyres.map((t) => (
-              <div key={t.id} className="w-[min(78vw,18rem)]">
-                <TyreCompoundCard tyre={t} compact onOpen={setSheetTyre} />
-              </div>
-            ))}
-          </div>
-
-          <div className="hidden grid-cols-2 gap-4 md:grid lg:grid-cols-4">
-            {visibleTyres.map((t) => (
-              <TyreCompoundCard key={t.id} tyre={t} onOpen={setSheetTyre} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {/* Tyre Compounds: the tyre rack (TyreCompoundExplorer) */}
+      {visibleTyres.length > 0 ? <TyreCompoundExplorer tyres={visibleTyres} /> : null}
 
       {/* Technical Categories Grid */}
       {TERM_CATEGORY_ORDER.map((category) => {
@@ -264,113 +222,6 @@ export function GlossaryExplorer({
         );
       })}
 
-      {/* Apple-grade Tyre Detail Modal Sheet */}
-      {sheetTyre ? (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="tyre-sheet-title"
-        >
-          <button
-            type="button"
-            className="absolute inset-0 cursor-default"
-            aria-label={t('closeTyre')}
-            onClick={() => setSheetTyre(null)}
-          />
-
-          <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-t-[var(--radius-lg)] border border-white/15 bg-surface/95 p-6 shadow-2xl backdrop-blur-2xl sm:rounded-[var(--radius-lg)]">
-            {/* Top specular highlight edge */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
-            />
-
-            {/* Ambient tyre glow in modal */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-8 -top-8 h-44 w-44 rounded-full opacity-25 blur-3xl"
-              style={{ backgroundColor: sheetTyre.color }}
-            />
-
-            {/* Header */}
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] p-1.5 shadow-sm">
-                  <Image
-                    src={`/tyres/${sheetTyre.id}.svg`}
-                    alt=""
-                    width={36}
-                    height={36}
-                    unoptimized
-                    className="h-8 w-8 object-contain"
-                  />
-                </div>
-
-                <div
-                  className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-white/[0.04] p-1 shadow-sm"
-                  title={t('cadBlueprint')}
-                >
-                  <TyreCadDiagram
-                    type={sheetTyre.id === 'intermediate' ? 'intermediate' : sheetTyre.id === 'wet' ? 'wet' : 'slick'}
-                    className="h-full w-full"
-                  />
-                </div>
-
-                <div>
-                  <h3
-                    id="tyre-sheet-title"
-                    className="font-condensed text-2xl font-700 uppercase leading-tight tracking-tight text-text-hi"
-                    style={{ fontFamily: 'var(--font-condensed)' }}
-                  >
-                    {sheetTyre.name}
-                  </h3>
-                  <span
-                    className="font-mono text-xs font-semibold uppercase tracking-wider"
-                    style={{ color: sheetTyre.color }}
-                  >
-                    {displayUpper(sheetTyre.kicker, locale)}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSheetTyre(null)}
-                className="touch-target flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-xs font-mono text-text-mid transition-colors hover:bg-white/15 hover:text-white"
-
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Technical Narrative */}
-            <p className="body-md text-sm leading-relaxed text-text-mid/95 sm:text-base">
-              {sheetTyre.description}
-            </p>
-
-            {/* Telemetry Breakdown */}
-            <div className="mt-6 flex flex-col gap-2.5 rounded-[var(--radius-chip)] border border-white/[0.08] bg-white/[0.02] p-4">
-              <div className="flex items-center justify-between font-mono text-xs text-text-low border-b border-hairline/60 pb-1.5">
-                <span className="uppercase tracking-wider">{t('telemetry')}</span>
-                <span>{t('operatingIndex')}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-text-mid">{t('gripPotential')}</span>
-                <span className="font-bold text-text-hi">{sheetTyre.grip} / 10</span>
-              </div>
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-text-mid">{t('durabilityLife')}</span>
-                <span className="font-bold text-text-hi">{sheetTyre.durability} / 10</span>
-              </div>
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-text-mid">{t('warmupSpeed')}</span>
-                <span className="font-bold text-text-hi">{sheetTyre.warmup} / 10</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

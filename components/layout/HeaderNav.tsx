@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { desktopNavSlots, isNavItemActive, navLabelLang, type NavItem } from './nav-items';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { ApexMark } from '@/components/brand/ApexMark';
 
 /**
  * Desktop/tablet header navigation (md+). Layout rules: docs/design/apex-component-rules.md §1.
@@ -70,6 +71,11 @@ export function HeaderNav() {
   );
 }
 
+/**
+ * APEX home link. Owner update 2026-10-13 (apex-component-rules.md §1.2): no red box.
+ * The selected state is told apart from a selected page (accent text + underline) by
+ * the logomark's apex point glowing, a soft halo behind the mark and an accent "ARŞİV".
+ */
 function HomeLink({ active }: { active: boolean }) {
   const t = useTranslations('system');
   const tn = useTranslations('nav');
@@ -78,26 +84,35 @@ function HomeLink({ active }: { active: boolean }) {
       href="/"
       aria-current={active ? 'page' : undefined}
       aria-label={`APEX — ${tn('home')}`}
-      className={[
-        'group flex flex-col items-center justify-center rounded-[var(--radius-chip)] border px-4 py-1 leading-none transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-        active
-          ? 'border-accent/50 bg-accent/15'
-          : 'border-transparent hover:border-hairline hover:bg-surface-raised/60',
-      ].join(' ')}
+      className="group relative flex items-center justify-center gap-2 rounded-full py-1 leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       style={{ width: LOGO_WIDTH }}
     >
       <span
+        aria-hidden
         className={[
-          'font-condensed text-2xl font-bold tracking-tight transition-colors duration-150',
-          active ? 'text-accent' : 'text-text-hi group-hover:text-accent',
+          'pointer-events-none absolute left-1/2 top-1/2 -z-10 h-12 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent blur-2xl transition-opacity duration-300',
+          active ? 'opacity-[0.22]' : 'opacity-0 group-hover:opacity-[0.12]',
         ].join(' ')}
-        style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}
-      >
-        APEX
-      </span>
-      <span className={['label-caps mt-0.5 text-[10px] tracking-[0.22em]', active ? 'text-text-hi' : 'text-text-mid'].join(' ')}>
-        {t('archive')}
+      />
+      <ApexMark
+        glow={active}
+        className={['h-7 w-7 shrink-0 transition-colors duration-200', active ? 'text-text-hi' : 'text-text-hi/85 group-hover:text-text-hi'].join(' ')}
+      />
+      <span className="flex flex-col items-start">
+        <span
+          className="font-condensed text-[1.45rem] font-bold leading-none tracking-[0.02em] text-text-hi"
+          style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}
+        >
+          APEX
+        </span>
+        <span
+          className={[
+            'mt-0.5 text-[9px] font-semibold uppercase tracking-[0.28em] transition-colors duration-200',
+            active ? 'text-accent' : 'text-text-low group-hover:text-text-mid',
+          ].join(' ')}
+        >
+          {t('archive')}
+        </span>
       </span>
     </Link>
   );
@@ -119,7 +134,7 @@ function NavSlots({ slots, style }: { slots: (NavItem | null)[]; style: CSSPrope
               onMouseEnter={() => router.prefetch(item.href)}
               aria-current={isNavItemActive(pathname, item.href) ? 'page' : undefined}
               className={[
-                'label-caps group relative flex h-full w-full items-center justify-center whitespace-nowrap px-1 text-[11px] transition-colors duration-150',
+                'group relative flex h-full w-full items-center justify-center whitespace-nowrap px-1 text-[11.5px] font-semibold uppercase tracking-[0.14em] transition-colors duration-200',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent',
                 isNavItemActive(pathname, item.href) ? 'text-accent' : 'text-text-mid hover:text-text-hi',
               ].join(' ')}
@@ -128,10 +143,10 @@ function NavSlots({ slots, style }: { slots: (NavItem | null)[]; style: CSSPrope
               <span
                 aria-hidden
                 className={[
-                  'absolute inset-x-3 bottom-0 h-0.5 rounded-full transition-all duration-150',
+                  'absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 rounded-full transition-all duration-300',
                   isNavItemActive(pathname, item.href)
-                    ? 'bg-accent opacity-100'
-                    : 'bg-text-mid opacity-0 group-hover:opacity-40',
+                    ? 'w-6 bg-accent opacity-100 shadow-[0_0_10px_var(--accent)]'
+                    : 'w-3 bg-text-mid opacity-0 group-hover:w-5 group-hover:opacity-50',
                 ].join(' ')}
               />
             </Link>

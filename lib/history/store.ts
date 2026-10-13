@@ -40,6 +40,34 @@ export function allDriverIds(): string[] {
   return Object.keys(DRIVERS);
 }
 
+/**
+ * Size of the archive for the home brand bar: seasons, Grands Prix run, drivers
+ * and constructors in the F1DB index. `racedThisSeason` (finished rounds from the
+ * live calendar) replaces the index's count for the newest, unfinished season.
+ */
+export function archiveTotals(racedThisSeason?: number): {
+  firstSeason: number;
+  seasons: number;
+  races: number;
+  drivers: number;
+  constructors: number;
+} {
+  const years = historyYears();
+  let races = 0;
+  for (const y of years) {
+    const s = SEASONS[String(y)];
+    if (!s) continue;
+    races += y === HISTORY_META.newestSeason && racedThisSeason !== undefined ? racedThisSeason : s.raced;
+  }
+  return {
+    firstSeason: years[0] ?? 1950,
+    seasons: years.length,
+    races,
+    drivers: HISTORY_META.drivers,
+    constructors: HISTORY_META.constructors,
+  };
+}
+
 /** Every season year in the index, ascending. */
 export function historyYears(): number[] {
   return Object.keys(SEASONS)

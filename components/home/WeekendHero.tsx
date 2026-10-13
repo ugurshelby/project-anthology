@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { displayUpper } from '@/lib/i18n/caps';
 import { ApexImage } from '@/components/media/ApexImage';
@@ -23,6 +24,7 @@ export function WeekendHero({
   weather,
   isLive = false,
   resultsHref,
+  brand,
 }: {
   eyebrow: string;
   title: string;
@@ -41,6 +43,8 @@ export function WeekendHero({
   isLive?: boolean;
   /** Round page of the race on screen (race-day panel links there after the flag). */
   resultsHref?: string;
+  /** Apex brand band at the top of the hero (owner rule §5). */
+  brand?: ReactNode;
 }) {
   const t = useTranslations('ui.home');
   const locale = useLocale();
@@ -51,7 +55,7 @@ export function WeekendHero({
   const bar = featuredSessions.length > 0 ? featuredSessions : sessions.slice(0, 3);
 
   return (
-    <section className="relative -mx-5 min-h-[520px] overflow-hidden md:-mx-8 md:min-h-[600px] lg:-mx-16">
+    <section className="relative -mx-5 min-h-[520px] overflow-hidden md:-mx-8 md:min-h-[640px] lg:-mx-16">
       {circuitCoverSrc ? (
         <ApexImage
           src={circuitCoverSrc}
@@ -75,8 +79,20 @@ export function WeekendHero({
       )}
       <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/55 to-black/25" />
       <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#050505] to-transparent" />
+      {/* top shade so the brand band reads on any photo */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" />
+      {/* outlined APEX watermark: brand presence in the hero's empty upper right */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-6 top-16 hidden select-none font-condensed text-[13rem] font-bold italic leading-none tracking-tighter text-transparent opacity-70 lg:block xl:text-[16rem]"
+        style={{ fontFamily: 'var(--font-condensed)', WebkitTextStroke: '1px rgba(255,255,255,0.09)' }}
+      >
+        APEX
+      </span>
 
-      <div className="relative z-10 flex min-h-[520px] flex-col justify-end px-5 pb-8 pt-28 md:min-h-[600px] md:px-8 md:pb-10 lg:px-16">
+      {brand ? <div className="absolute inset-x-0 top-0 z-10 px-5 pt-6 md:px-8 md:pt-8 lg:px-16">{brand}</div> : null}
+
+      <div className="relative z-10 flex min-h-[520px] flex-col justify-end px-5 pb-8 pt-32 md:min-h-[640px] md:px-8 md:pb-10 md:pt-40 lg:px-16">
         <div className="flex flex-wrap items-center gap-3">
           <span className="label-caps text-accent">{eyebrow}</span>
           {weather ? (
