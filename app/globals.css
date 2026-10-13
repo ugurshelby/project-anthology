@@ -262,6 +262,13 @@ body {
   border-radius: 4px;
 }
 
+/* Slow "breathing" glow for a calm focus point (tyre dial peak + window). Reduced motion stops it below. */
+@keyframes apexBreathe {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.8; }
+}
+.apex-breathe { animation: apexBreathe 3.2s ease-in-out infinite; }
+
 /* §5 reduced-motion zorunlu */
 @media (prefers-reduced-motion: reduce) {
   *,
