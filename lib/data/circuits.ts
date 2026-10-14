@@ -10,7 +10,7 @@ import {
   type CircuitWinnerEntry,
   type LastRaceRecap,
 } from '@/lib/f1/mrdata';
-import { CURRENT_SEASON, isRaceDone, type CalendarRace } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, isRaceDone, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json } from '@/types/database';
 
@@ -43,6 +43,12 @@ export interface CircuitDetail {
   laps: string | null;
   editorial: CircuitEditorial;
   winners: CircuitWinnerEntry[];
+  /** Rounds in the current calendar. */
+  totalRounds: number;
+  /** Race start (ms) from the calendar, for the countdown. */
+  startMs: number | null;
+  /** done = raced this season; next = the first race not yet run; upcoming = later. */
+  status: 'done' | 'next' | 'upcoming';
 }
 
 export interface CircuitWeather {
@@ -304,6 +310,8 @@ export async function getCircuitDetail(circuitId: string): Promise<CircuitDetail
   ]);
 
   const winner = getRaceWinner(resultsData);
+  const done = isRaceDone(race);
+  const next = races.find((r) => !isRaceDone(r));
 
   return {
     circuitId,
@@ -317,6 +325,9 @@ export async function getCircuitDetail(circuitId: string): Promise<CircuitDetail
     laps: winner?.laps ?? null,
     editorial,
     winners,
+    totalRounds: races.length,
+    startMs: raceStartMs(race),
+    status: done ? 'done' : next === race ? 'next' : 'upcoming',
   };
 }
 

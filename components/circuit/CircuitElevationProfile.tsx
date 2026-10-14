@@ -5,17 +5,14 @@ import { getTopographyProfile } from '@/data/circuits/topography';
 
 interface CircuitElevationProfileProps {
   circuitId: string;
-  lengthKm?: number;
-  corners?: number;
-  drsZones?: number;
 }
 
 /**
  * Curated, editorial topography/telemetry estimates for a few circuits. Values are not
  * official data (the source line says so). Circuits without a record render nothing:
- * no invented fallback numbers, and the lap facts chips only show values we have.
+ * no invented fallback numbers. Lap length, corners and DRS are in the facts strip and map.
  */
-export function CircuitElevationProfile({ circuitId, lengthKm, corners, drsZones }: CircuitElevationProfileProps) {
+export function CircuitElevationProfile({ circuitId }: CircuitElevationProfileProps) {
   const t = useTranslations('ui.circuit.elevation');
   const locale = useLocale();
   const profile = getTopographyProfile(circuitId);
@@ -28,26 +25,13 @@ export function CircuitElevationProfile({ circuitId, lengthKm, corners, drsZones
         ? '#fecb00'
         : '#00d26a';
 
-  const hasLength = lengthKm !== undefined && Number.isFinite(lengthKm);
-  const hasCorners = corners !== undefined && Number.isFinite(corners);
-  const lapChip =
-    hasLength && hasCorners
-      ? t('lengthCorners', { km: lengthKm, corners })
-      : hasLength
-        ? t('lengthOnly', { km: lengthKm })
-        : hasCorners
-          ? t('cornersOnly', { corners })
-          : null;
-  const hasDrs = drsZones !== undefined && Number.isFinite(drsZones);
-
   return (
     <div className="relative overflow-hidden rounded-[16px] border border-hairline bg-surface p-5 md:p-6">
       {/* Header */}
       <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="label-caps text-accent text-[11px] tracking-widest font-mono">
+            <span className="label-caps font-mono text-[11px] tracking-[0.1em] text-text-low">
               {t('eyebrow')}
             </span>
           </div>
@@ -55,20 +39,6 @@ export function CircuitElevationProfile({ circuitId, lengthKm, corners, drsZones
             {t('title')}
           </h3>
         </div>
-        {lapChip || hasDrs ? (
-          <div className="flex items-center gap-2">
-            {lapChip ? (
-              <span className="rounded-full border border-hairline bg-white/[0.02] px-3 py-1 font-mono text-xs text-text-mid">
-                {lapChip}
-              </span>
-            ) : null}
-            {hasDrs ? (
-              <span className="rounded-full border border-hairline bg-white/[0.02] px-3 py-1 font-mono text-xs text-text-mid">
-                {t('drsZones', { count: drsZones })}
-              </span>
-            ) : null}
-          </div>
-        ) : null}
       </div>
 
       {/* Grid of Telemetry Metrics */}
@@ -99,7 +69,7 @@ export function CircuitElevationProfile({ circuitId, lengthKm, corners, drsZones
           {/* Visual Mini Progress */}
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.08]">
             <div
-              className="h-full bg-accent transition-all duration-300"
+              className="h-full bg-text-hi/70 transition-all duration-300"
               style={{ width: `${profile.throttlePercent}%` }}
             />
           </div>
@@ -138,7 +108,7 @@ export function CircuitElevationProfile({ circuitId, lengthKm, corners, drsZones
       {/* Signature Incline Feature Card */}
       <div className="mt-4 flex flex-col justify-between gap-2 rounded-[12px] border border-hairline bg-white/[0.02] p-3.5 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold uppercase text-accent">{t('signature')}</span>
+          <span className="font-mono text-xs font-bold uppercase text-text-mid">{t('signature')}</span>
           <span className="font-mono text-xs text-text-hi">
             {locale === 'tr' ? profile.keyInclineTr : profile.keyIncline}
           </span>

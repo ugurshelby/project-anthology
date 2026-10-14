@@ -475,7 +475,12 @@
         "title": "Pistin tarihini yazan anlar",
         "count": "{count} ikonik anlatı"
       },
-      "blueprint": "Pist planı"
+      "blueprint": "Pist planı",
+      "venueAlt": "{name}, pist fotoğrafı",
+      "raceDistance": "Yarış mesafesi",
+      "distanceNote": "km · tur × tur uzunluğu",
+      "latestWin": "Son",
+      "mapSource": "Pist çizimi: f1-circuits (MIT lisansı)"
     },
     "glossary": {
       "metaTitle": "Teknik Sözlük",

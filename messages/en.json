@@ -475,7 +475,12 @@
         "title": "Moments that defined history",
         "count": "{count, plural, one {# iconic moment} other {# iconic moments}}"
       },
-      "blueprint": "Track blueprint"
+      "blueprint": "Track blueprint",
+      "venueAlt": "{name}, venue photo",
+      "raceDistance": "Race distance",
+      "distanceNote": "km · laps × lap length",
+      "latestWin": "Latest",
+      "mapSource": "Track outline: f1-circuits (MIT licence)"
     },
     "glossary": {
       "metaTitle": "Tech Glossary",

@@ -15,8 +15,6 @@ export interface TeamSeasonHeroProps {
   mediaResult?: MediaResult | null;
   carMediaResult?: MediaResult | null;
   country?: string | null;
-  engines?: string[];
-  standingRank?: string | null;
 }
 
 /**
@@ -38,8 +36,6 @@ export function TeamSeasonHero({
   mediaResult,
   carMediaResult,
   country,
-  engines,
-  standingRank,
 }: TeamSeasonHeroProps) {
   const normId = constructorId.replace(/-/g, '_');
   const pattern = teamPatternStyle(normId, 'var(--team-secondary, var(--accent))', 0.08);
@@ -144,16 +140,10 @@ export function TeamSeasonHero({
                 <span className="text-text-mid">{country}</span>
               </>
             ) : null}
-            {engines && engines.length > 0 ? (
-              <>
-                <span className="text-text-low">·</span>
-                <span className="text-text-mid">{engines.join(', ')}</span>
-              </>
-            ) : null}
           </div>
 
           {entrant ? (
-            <p className="body-sm mt-1.5 text-xs font-mono text-text-low line-clamp-1">{entrant}</p>
+            <p lang="en" className="body-sm mt-1.5 text-xs font-mono text-text-low line-clamp-1">{entrant}</p>
           ) : null}
 
           {/* Badges and Indicators Row */}
@@ -169,25 +159,6 @@ export function TeamSeasonHero({
               >
                 ★ {badge}
               </span>
-            ) : null}
-
-            {standingRank ? (
-              <span className="rounded-full border border-hairline/80 bg-white/[0.04] px-3 py-1 font-mono text-[11px] font-semibold text-text-hi">
-                {standingRank}
-              </span>
-            ) : null}
-
-            {numbers.length > 0 ? (
-              <div className="hidden sm:flex items-center gap-1.5">
-                {numbers.map((n) => (
-                  <span
-                    key={n}
-                    className="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-xs text-text-mid font-semibold"
-                  >
-                    #{n}
-                  </span>
-                ))}
-              </div>
             ) : null}
           </div>
 

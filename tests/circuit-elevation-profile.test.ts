@@ -31,25 +31,21 @@ const render = (props: React.ComponentProps<typeof CircuitElevationProfile>, loc
 
 describe('CircuitElevationProfile', () => {
   it('renders English labels and the English incline on the EN page', () => {
-    const html = render({ circuitId: 'spa', lengthKm: 7.004, corners: 19, drsZones: 2 }, 'en');
+    const html = render({ circuitId: 'spa' }, 'en');
     expect(html).toContain('Track topography and engineering index');
-    expect(html).toContain('7.004 km · 19 corners');
-    expect(html).toContain('2 DRS zones');
     expect(html).toContain(getTopographyProfile('spa')!.keyIncline);
     expect(html).toContain('Editorial estimates, not official FIA data');
     expect(html).not.toMatch(/İrtifa|Viraj|Bölgesi|Şanzıman|fren enerjisi/);
   });
 
   it('renders Turkish labels and the Turkish incline on the TR page', () => {
-    const html = render({ circuitId: 'red_bull_ring', lengthKm: 4.318, corners: 10, drsZones: 3 }, 'tr');
+    const html = render({ circuitId: 'red_bull_ring' }, 'tr');
     expect(html).toContain('Pist topoğrafyası ve mühendislik indeksi');
-    expect(html).toContain('4.318 km · 10 viraj');
-    expect(html).toContain('3 DRS bölgesi');
     expect(html).toContain(getTopographyProfile('red_bull_ring')!.keyInclineTr);
     expect(html).toContain('Yüksek');
   });
 
-  it('shows no lap chips for values it does not have (no invented defaults)', () => {
+  it('does not repeat lap length or DRS (they live in the facts strip and map, Faz 13)', () => {
     const html = render({ circuitId: 'monza' }, 'en');
     expect(html).not.toContain(' km');
     expect(html).not.toContain('DRS');
@@ -57,7 +53,7 @@ describe('CircuitElevationProfile', () => {
 
   it('renders nothing for a circuit without a curated profile', () => {
     expect(hasElevationProfile('kyalami')).toBe(false);
-    expect(render({ circuitId: 'kyalami', lengthKm: 4.5 }, 'en')).toBe('');
+    expect(render({ circuitId: 'kyalami' }, 'en')).toBe('');
     expect(hasElevationProfile('red-bull-ring')).toBe(true);
   });
 
