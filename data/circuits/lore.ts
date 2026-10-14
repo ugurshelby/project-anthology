@@ -47,15 +47,15 @@ export const CIRCUIT_LORE: Record<string, CircuitLoreMoment[]> = {
     {
       id: 'hakkinen-schumacher-2000',
       year: 2000,
-      titleEn: 'The 330 km/h Kemmel Double Slipstream',
-      titleTr: 'Kemmel Düzlüğünde 330 km/s Çiftli Geçiş',
+      titleEn: 'The Kemmel Double Slipstream',
+      titleTr: 'Kemmel Düzlüğünde Çiftli Geçiş',
       heroDriver: 'Mika Häkkinen',
       storyEn:
-        'One lap after Michael Schumacher squeezed him onto the grass at Les Combes, Mika Häkkinen caught the Ferrari slipstream up Kemmel at 330 km/h. As Ricardo Zonta held the centre line, Schumacher went left; Häkkinen darted blind down the damp right flank and claimed the lead into the chicane.',
+        'One lap after Michael Schumacher squeezed him towards the grass on the Kemmel straight, Mika Häkkinen caught the Ferrari’s slipstream there again. As Ricardo Zonta held the centre line, Schumacher went left; Häkkinen darted blind down the damp right flank and claimed the lead into the chicane.',
       storyTr:
-        'Les Combes virajında Schumacher tarafından çimlere itildikten bir tur sonra Häkkinen, Kemmel Düzlüğü\'nde 330 km/s hızla Ferrari\'nin hava koridoruna girdi. Tur bindirilen Ricardo Zonta ortada kalınca Schumacher sola kırarken Häkkinen ıslak sağ şeride daldı ve şikan öncesinde liderliği aldı.',
-      lapOrDetailEn: 'Lap 41 · 330 km/h three-wide braking duel',
-      lapOrDetailTr: '41. Tur · 330 km/s hızla üçlü frenaj düellosu',
+        'Kemmel Düzlüğü\'nde Schumacher tarafından çime doğru sıkıştırıldıktan bir tur sonra Häkkinen aynı düzlükte yeniden Ferrari\'nin hava koridoruna girdi. Tur bindirilen Ricardo Zonta ortada kalınca Schumacher sola kırarken Häkkinen ıslak sağ şeride daldı ve şikan öncesinde liderliği aldı.',
+      lapOrDetailEn: 'Lap 41 · three-wide into Les Combes',
+      lapOrDetailTr: '41. Tur · Les Combes öncesi üç araç yan yana',
       tag: 'Overtake of the Century',
     },
     {
@@ -151,15 +151,15 @@ export const CIRCUIT_LORE: Record<string, CircuitLoreMoment[]> = {
     {
       id: 'verstappen-2016-wet-geometry',
       year: 2016,
-      titleEn: 'Verstappen’s 290 km/h Save & Deluge Charge',
-      titleTr: 'Verstappen’in 290 km/s Kontrası ve Yağmur Çizgisi',
+      titleEn: 'Verstappen’s Save & Deluge Charge',
+      titleTr: 'Verstappen’in Kontrası ve Yağmur Çizgisi',
       heroDriver: 'Max Verstappen',
       storyEn:
-        'In torrential rain, 19-year-old Max Verstappen saved a full 290 km/h tank-slapper on the pit straight without touching the armco barriers. Dropping to 16th following an ill-timed intermediate tyre gamble, he spent the final 16 laps finding grip on outside lines nobody else dared use, storming back to P3 on the podium.',
+        'In torrential rain, 19-year-old Max Verstappen caught a huge slide on the pit straight without touching the armco barriers. Dropping to 16th following an ill-timed intermediate tyre gamble, he spent the final 16 laps finding grip on outside lines nobody else dared use, storming back to P3 on the podium.',
       storyTr:
-        'Sağanak altında 19 yaşındaki Max Verstappen, ana düzlükte 290 km/s hızla savrulan aracını bariyerlere çarpmadan milimetrik bir kontra ile topladı. Yanlış ara lastik tercihi yüzünden 16. sıraya geriledikten sonraki 16 turda kimsenin cesaret edemediği dış çizgilerden geçişler yaparak podyumda 3. sıraya tırmandı.',
-      lapOrDetailEn: 'P16 → P3 in 16 laps · 290 km/h straight-line save',
-      lapOrDetailTr: '16 turda 16.lıktan 3.lüğe · 290 km/s düzlük kontrası',
+        'Sağanak altında 19 yaşındaki Max Verstappen, ana düzlükte savrulan aracını bariyerlere çarpmadan milimetrik bir kontra ile topladı. Yanlış ara lastik tercihi yüzünden 16. sıraya geriledikten sonraki 16 turda kimsenin cesaret edemediği dış çizgilerden geçişler yaparak podyumda 3. sıraya tırmandı.',
+      lapOrDetailEn: 'P16 → P3 in 16 laps',
+      lapOrDetailTr: '16 turda 16.lıktan 3.lüğe',
       tag: 'Wet Masterclass',
     },
   ],
@@ -171,9 +171,9 @@ export const CIRCUIT_LORE: Record<string, CircuitLoreMoment[]> = {
       titleTr: 'Räikkönen: 17. Sıradan Son Turda 1. Viraj Geçişi',
       heroDriver: 'Kimi Räikkönen',
       storyEn:
-        'Starting 17th following wet qualifying, Kimi Räikkönen delivered a sequence of record-breaking race laps in the McLaren MP4-20. On the 53rd and final lap, he slipstreamed Giancarlo Fisichella down the pit straight, swept around the outside into Turn 1 at 310 km/h, and sealed one of F1’s greatest comeback victories.',
+        'Starting 17th following wet qualifying, Kimi Räikkönen delivered a sequence of record-breaking race laps in the McLaren MP4-20. On the 53rd and final lap, he slipstreamed Giancarlo Fisichella down the pit straight, swept around the outside into Turn 1, and sealed one of F1’s greatest comeback victories.',
       storyTr:
-        'Yağmurlu sıralama turları sonrası 17. cepten başlayan Kimi Räikkönen, McLaren MP4-20 ile yarış boyunca pist rekoru kıran turlar attı. 53. ve son turda Giancarlo Fisichella\'nın hava koridoruna girdi; 310 km/s hızla 1. virajın dış çizgisinden geçerek Formula 1 tarihinin en görkemli geri dönüş galibiyetlerinden birini aldı.',
+        'Yağmurlu sıralama turları sonrası 17. cepten başlayan Kimi Räikkönen, McLaren MP4-20 ile yarış boyunca pist rekoru kıran turlar attı. 53. ve son turda Giancarlo Fisichella\'nın hava koridoruna girdi; 1. virajın dış çizgisinden geçerek Formula 1 tarihinin en görkemli geri dönüş galibiyetlerinden birini aldı.',
       lapOrDetailEn: 'P17 → P1 · Turn 1 outside pass on lap 53',
       lapOrDetailTr: '17. → 1. · Son turda 1. viraj dışından geçiş',
       tag: 'Comeback Legend',
@@ -271,13 +271,13 @@ export const CIRCUIT_LORE: Record<string, CircuitLoreMoment[]> = {
     {
       id: 'perez-2021-blowout-drama',
       year: 2021,
-      titleEn: '320 km/h Blowout & The Standing Restart Sprint',
-      titleTr: '320 km/s Lastik Patlaması ve İki Turluk Sprint',
+      titleEn: 'The Blowout & The Standing Restart Sprint',
+      titleTr: 'Lastik Patlaması ve İki Turluk Sprint',
       heroDriver: 'Sergio Pérez',
       storyEn:
-        'With four laps remaining, race leader Max Verstappen suffered a catastrophic 320 km/h tyre failure along the main straight. Following a red-flag standing restart, Lewis Hamilton inadvertently left his "brake magic" setting activated, locking up into the Turn 1 escape road and handing Sergio Pérez his maiden Red Bull win.',
+        'With five laps remaining, race leader Max Verstappen crashed on the main straight when his left-rear tyre failed. Following a red-flag standing restart, Lewis Hamilton inadvertently left his "brake magic" setting activated, locking up into the Turn 1 escape road and handing Sergio Pérez his maiden Red Bull win.',
       storyTr:
-        'Yarışın bitimine dört tur kala lider giden Max Verstappen, ana düzlükte 320 km/s hızla sol arka lastiğinin patlamasıyla kaza yaptı. Kırmızı bayrak sonrası durarak kalkışta Lewis Hamilton "brake magic" ayarını açık unutunca 1. viraj kaçış yoluna kilitlendi ve zafer Sergio Pérez\'e kaldı.',
+        'Yarışın bitimine beş tur kala lider giden Max Verstappen, ana düzlükte sol arka lastiğinin patlamasıyla kaza yaptı. Kırmızı bayrak sonrası durarak kalkışta Lewis Hamilton "brake magic" ayarını açık unutunca 1. viraj kaçış yoluna kilitlendi ve zafer Sergio Pérez\'e kaldı.',
       lapOrDetailEn: 'Two-lap sprint restart · Turn 1 lock-up drama',
       lapOrDetailTr: 'İki turluk sprint kalkışı · 1. virajda frenaj dramı',
       tag: 'Sprint Drama',

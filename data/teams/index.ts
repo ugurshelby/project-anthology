@@ -425,7 +425,7 @@ const TEAMS: TeamLore[] = [
       '2024: acquires full ownership of Sauber Group to control chassis and power unit',
       '2026: first Grand Prix as a full works manufacturer',
     ],
-    lore: 'Audi’s power unit is designed and built in Neuburg, Germany, the first German F1 engine program in over a decade.',
+    lore: 'Audi’s power unit is designed and built in Neuburg, Germany, the first Formula 1 engine built in Germany since BMW left after 2009.',
     tr: {
       bio: 'Audi, Formula 1’e katılmak için sıfırdan başlamadı; rüzgâr tüneli ve tesisleriyle padoğun en yetkin merkezlerinden Hinwil fabrikasını bünyesine katarak Neuburg an der Donau’da geliştirilen güç ünitesiyle birleştirdi. Le Mans ve Dünya Ralli Şampiyonası’nı domine eden Alman mühendislik devi, 2026 kural sıfırlamasını tam fabrika takımı olarak zirveye oynamak için seçti.',
       milestones: [
@@ -433,7 +433,7 @@ const TEAMS: TeamLore[] = [
         '2024: Sauber Grubu’nun tüm hisselerini satın alarak tam kontrolü sağlar',
         '2026: ilk yarışına tam teşekküllü bir fabrika takımı olarak başlar',
       ],
-      lore: 'Audi’nin güç ünitesi Almanya Neuburg’da üretilmektedir; on yılı aşkın süredir Almanya’da geliştirilen ilk F1 motorudur.',
+      lore: 'Audi’nin güç ünitesi Almanya Neuburg’da üretilmektedir; BMW’nin 2009 sonunda ayrılmasından bu yana Almanya’da üretilen ilk F1 motorudur.',
     },
   },
   {
