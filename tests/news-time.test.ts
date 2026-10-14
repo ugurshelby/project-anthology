@@ -16,4 +16,10 @@ describe('formatDispatchAge', () => {
   it('formats days under two weeks', () => {
     expect(formatDispatchAge(now - 2 * 24 * 3600_000, now)).toBe('2 DAYS AGO');
   });
+
+  it('speaks Turkish on /tr', () => {
+    expect(formatDispatchAge(now - 30_000, now, 'tr')).toBe('AZ ÖNCE');
+    expect(formatDispatchAge(now - 13 * 3600_000, now, 'tr')).toBe('13 SAAT ÖNCE');
+    expect(formatDispatchAge(now - 2 * 24 * 3600_000, now, 'tr')).toBe('2 GÜN ÖNCE');
+  });
 });

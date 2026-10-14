@@ -261,7 +261,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
       <div className="mt-4 md:mt-6">
         <BentoGrid>
           {driverRounds.length > 0 ? (
-            <div className="col-span-12">
+            <div className="col-span-1 md:col-span-8 lg:col-span-12">
               <div className="relative overflow-hidden rounded-2xl border border-hairline/80 bg-surface p-4 sm:p-5">
                 <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.06]" />
                 <DriverSeasonPulse
@@ -339,7 +339,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
           ) : null}
 
           {machineryCars.length > 0 ? (
-            <div className="col-span-12">
+            <div className="col-span-1 md:col-span-8 lg:col-span-12">
               <MachineryCrossLink cars={machineryCars} locale={locale} />
             </div>
           ) : null}

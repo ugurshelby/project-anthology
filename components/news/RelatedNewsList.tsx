@@ -25,7 +25,7 @@ export function RelatedNewsList({
       <span className="label-caps text-text-mid font-mono">{displayHeading}</span>
       <ul className="flex flex-col">
         {items.map((item) => {
-          const age = formatDispatchAge(item.publishedTs);
+          const age = formatDispatchAge(item.publishedTs, undefined, locale);
           const hasImage = hasRealImage(item);
           const title = localizedNewsTitle(item, locale);
           return (

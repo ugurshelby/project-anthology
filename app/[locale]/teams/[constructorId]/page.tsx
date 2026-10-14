@@ -123,7 +123,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         carMediaResult={carMedia}
         country={countryName(view.country, locale)}
         engines={view.engines}
-        standingRank={s.position != null ? `P${s.position} · ${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} PTS` : null}
+        standingRank={s.position != null ? `P${s.position} · ${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}` : null}
       />
 
       {/* Season Scrubber Timeline Strip (Owner rule §1.2.1 compliant) */}
@@ -226,7 +226,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
 
           {/* Machinery Crosslink to Iconic Cars */}
           {machineryCars.length > 0 ? (
-            <div className="col-span-12">
+            <div className="col-span-1 md:col-span-8 lg:col-span-12">
               <MachineryCrossLink cars={machineryCars} locale={locale} />
             </div>
           ) : null}
