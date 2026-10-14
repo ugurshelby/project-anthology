@@ -422,7 +422,7 @@ const DRIVERS: DriverLore[] = [
       '2021: breakthrough Grand Prix victory in Hungary for Alpine',
       '2025: moves to Haas F1 Team',
     ],
-    lore: 'At Hungary in 2021, he defended the lead against Sebastian Vettel for 65 laps to claim his maiden victory.',
+    lore: 'At Hungary in 2021, he led from lap five to the flag with Sebastian Vettel close behind almost all the way, and took his maiden victory.',
     tr: {
       bio: 'Esteban Ocon, karavanda yaşayan ailesinin fedakârlıklarıyla motor sporları basamaklarını tırmandı. 2014’te Max Verstappen’i geçerek Avrupa F3 şampiyonu oldu. Manor ve Force India günlerinin ardından bir yıl kenarda bekledi; 2021 Macaristan’da Alpine ile kariyerinin ilk ve tek Grand Prix zaferine ulaştı. 2025’te Haas’a katılarak yeni bir sayfa açtı.',
       milestones: [
@@ -431,7 +431,7 @@ const DRIVERS: DriverLore[] = [
         '2021: Macaristan Grand Prix’sinde Alpine ile ilk zafer',
         '2025: Haas F1 Takımı’na transfer olur',
       ],
-      lore: '2021 Macaristan’da Sebastian Vettel’e karşı 65 tur boyunca liderliği savunarak ilk zaferini kazandı.',
+      lore: '2021 Macaristan’da beşinci turdan bayrağa kadar lider gitti, Sebastian Vettel neredeyse tüm yarış boyunca arkasındaydı; ilk zaferini böyle kazandı.',
     },
   },
   {
@@ -587,7 +587,7 @@ const DRIVERS: DriverLore[] = [
       '2025: debut season with Racing Bulls, podium at the Dutch Grand Prix',
       '2026: promoted to Oracle Red Bull Racing',
     ],
-    lore: 'Helmut Marko personally championed his career from Formula Regional, noting his Alain Prost-like cerebral race management.',
+    lore: 'Helmut Marko calls him the “little Prost”. By Hadjar’s own account, Marko told him it was because he bites his nails the way Prost did.',
     tr: {
       bio: 'Helmut Marko tarafından "Küçük Prost" olarak nitelendirilen Isack Hadjar, 2025 Melbourne’deki ilk yarışında formasyon turunda kaza yaparak kariyerinin en acı başlangıcını yaşadı. Beş ay sonra Zandvoort’ta podyuma çıkarak cevabını verdi. 2024 F2 ikincisi olan Hadjar, saf hızıyla 2026’da Red Bull Racing koltuğunu kazandı.',
       milestones: [
@@ -595,7 +595,7 @@ const DRIVERS: DriverLore[] = [
         '2025: Racing Bulls ile ilk sezonunda Hollanda GP’sinde podyum',
         '2026: Oracle Red Bull Racing fabrika takımına terfi eder',
       ],
-      lore: 'Helmut Marko onun Alain Prost’u andıran zihinsel yarış yönetimini keşfedip bizzat arkasında durmuştur.',
+      lore: 'Helmut Marko ona “Küçük Prost” diyor. Hadjar’ın anlattığına göre Marko bunun nedenini, tırnaklarını Prost gibi yemesi olarak açıklamış.',
     },
   },
   {
@@ -695,21 +695,21 @@ const DRIVERS: DriverLore[] = [
     number: 41,
     nationality: 'British',
     born: 2007,
-    bio: 'Arvid Lindblad was born in London in 2007 and enters Formula 1 as the youngest driver on the 2026 grid. A standout product of Red Bull’s junior academy, Lindblad claimed the Macau F4 World Cup and won in both F3 and F2 before earning promotion to Racing Bulls with an unblemished slate.',
+    bio: 'Arvid Lindblad was born in Surrey, England, in 2007 and enters Formula 1 as the youngest driver on the 2026 grid. A standout product of Red Bull’s junior academy, Lindblad claimed the Macau F4 World Cup and won in both F3 and F2 before earning promotion to Racing Bulls with an unblemished slate.',
     milestones: [
       '2023: wins the prestigious Macau Formula 4 World Cup',
       '2024: multiple race winner in FIA Formula 3',
       '2026: Formula 1 debut with Racing Bulls',
     ],
-    lore: 'He became the first driver born in 2007 to start an official Formula 1 grand prix weekend.',
+    lore: 'Born to a Swedish father and a mother of Indian descent, he races under the British flag; he won the Macau F4 race at the end of 2023.',
     tr: {
-      bio: 'Arvid Lindblad 2007’de Londra’da doğdu ve 2026 gridinin en genç sürücüsü olarak Formula 1’e adım attı. Red Bull gençlik akademisinin en parlak ürünlerinden biri olarak Macau F4 ve alt serilerde kazandı; Racing Bulls koltuğunda geleceğini inşa etmeye başladı.',
+      bio: 'Arvid Lindblad 2007’de İngiltere’nin Surrey kontluğunda doğdu ve 2026 gridinin en genç sürücüsü olarak Formula 1’e adım attı. Red Bull gençlik akademisinin en parlak ürünlerinden biri olarak Macau F4 ve alt serilerde kazandı; Racing Bulls koltuğunda geleceğini inşa etmeye başladı.',
       milestones: [
         '2023: prestijli Macau Formula 4 Dünya Kupası zaferi',
         '2024: FIA Formula 3’te çoklu yarış galibi',
         '2026: Racing Bulls ile Formula 1’e ilk adım',
       ],
-      lore: '2007 doğumlu olup resmi bir Formula 1 yarış hafta sonuna çıkan ilk pilottur.',
+      lore: 'İsveçli bir baba ile Hint asıllı bir annenin oğlu; İngiliz bayrağı altında yarışıyor. 2023 sonunda Macau’daki F4 yarışını kazandı.',
     },
   },
 ];
