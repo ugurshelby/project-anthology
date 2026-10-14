@@ -107,14 +107,14 @@
 - [~] **R-1 (Claude incelemesi, 2026-10-13 / 14):** Antigravity'nin Faz 10/11/12/14 işi incelendi ve `main`'e alındı.
   - Yapıldı (2026-10-14): pist notları 26 pist EN+TR kaynaksız G/hız değerlerinden arındırıldı (yalnızca belgelenen sayılar kaldı); pist hikâyelerindeki uydurma hızlar ve Spa 2000 / Bakü 2021 olgu hataları düzeltildi; Lindblad, Hadjar, Ocon, Audi olguları kaynakla düzeltildi; Antonelli (13 galibiyet) ve Doohan doğrulandı.
   - Yapıldı (tarayıcı, 375 px + masaüstü): pilot ve takım sayfasında yatay taşma yok. Bulunan ve düzeltilen: grid içindeki çıplak `col-span-12` sarmalayıcıları mobil/tablette örtük 12 sütun açıp kartları ~50 px'e eziyordu (makine kartlı takım sayfalarında `3a44f63`'ten beri canlıda); takım hero'sunda görsel yokken "-" kutusu; "PTS"/"WDC"/"HOURS AGO" Türkçe sayfada; mobil isim başlığında İ.
-  - Açık: alıntılar `docs/editorial/quotes-pending-source.md` (kaynak bulunursa `sourceUrl` ile geri; Bottas 2019 ve Bruce McLaren 1964 adayları). Faz 13 (pist detay sayfası, AG-6) başlamadı. Takım sayfasında telemetri şeridi ile soyağacı kartı ve hero'daki "P2 · 444 PUAN" iki kez aynı bilgiyi gösteriyor (tasarım kararı, sahibe sor).
+  - Açık: alıntılar `docs/editorial/quotes-pending-source.md` (kaynak bulunursa `sourceUrl` ile geri; Bottas 2019 ve Bruce McLaren 1964 adayları). Faz 13 Claude tarafından yapıldı (aşağıda). Tekrar eden sayılar kaldırıldı (sahip, 2026-10-14: "ikilik olmasın"): takım ve pilot sayfasında her sayı tek yerde.
 
 ### 🎨 Antigravity İş Listesi (frontend)
 
 - [ ] **AG-3 Takım Detay Sayfası Yeniden Tasarımı (Faz 10):** Apple akıcı tasarım prensipleri ve Formula 1 sinematik mühendislik estetiğinde takım detay sayfasının (`/teams/[constructorId]`) baştan tasarlanması (Cinematic Poster Hero, Fast Facts Bento Telemetry Ribbon, Dual Pilot Cockpit Modules, Editorial Legacy & Season Scrubber). Ayrıntı Faz 10 altında.
 - [ ] **AG-4 Editoryal Anlatı ve Ev Sesi Reformu (Faz 11):** Pilot, takım ve pist detay sayfalarındaki metinlerin F1 Anlatı Stil Kılavuzu (v1 & v2) ev sesiyle; pilotun kariyer derinliğine, takımın mitolojisine ve pistin mekanik karakterine göre özelleştirilmiş, yapay zekadan uzak, iki dilli (TR/EN) editoryal dönüşüm. Ayrıntı Faz 11 altında.
 - [ ] **AG-5 Pilot Detay Sayfası Yeniden Tasarımı (Faz 12):** Apple akıcı arayüz prensipleri ve F1 telemetri estetiğinde pilot detay sayfasının (`/drivers/[driverId]`) baştan tasarlanması (Split Driver Hero, Career Telemetry Bento, Active Season Pulse & H2H, Chronological Legacy Chapters). Ayrıntı Faz 12 altında.
-- [ ] **AG-6 Pist Detay Sayfası Yeniden Tasarımı (Faz 13):** Apple WWDC akıcı tasarım prensipleri ve F1 teknik telemetrisiyle pist detay sayfasının (`/circuits/[id]`) baştan tasarlanması (Cinematic Track Hero, Interactive Sector & Corner Pin Vector, Topo Elevation Ribbon, Strategy Demands Module). Ayrıntı Faz 13 altında.
+- [x] **AG-6 Pist Detay Sayfası Yeniden Tasarımı (Faz 13, Claude yaptı 2026-10-14):** Apple WWDC akıcı tasarım prensipleri ve F1 teknik telemetrisiyle pist detay sayfasının (`/circuits/[id]`) baştan tasarlanması (Cinematic Track Hero, Interactive Sector & Corner Pin Vector, Topo Elevation Ribbon, Strategy Demands Module). Ayrıntı Faz 13 altında.
 - [ ] **AG-7 Grid Sayfası Görsel Kadraj & Medya Optimizasyonu (Faz 14):** 11 takımın araç ve pilot slotları için kesin kadraj (object-position), alttan karartma gradyanı (scrim), renk derecelendirme filtresi (contrast/saturate) ve yarış numarası filigranı entegrasyonu. Ayrıntı Faz 14 altında.
 - Tamamlananlar: AG-1 (hikâye görseli notu, kaynak satırı, özgün sayfaya bağlantı, `/media-sources` bölümü) ve AG-2 (atıf rozeti `aria-label`) canlıya alındı (`464dbf0`).
 
@@ -333,7 +333,11 @@
 
 ---
 
-### 🏁 Faz 13: Pist Detay Sayfası Yeniden Tasarımı — Telemetry-Driven Architectural Profile (Antigravity)
+### 🏁 Faz 13: Pist Detay Sayfası Yeniden Tasarımı — Telemetry-Driven Architectural Profile (sahip 2026-10-14: Claude yaptı)
+
+> **Durum (Claude, 2026-10-14):** 13.1, 13.2, 13.5 yapıldı; 13.3 ve 13.4, 13.6 kısmen. Yalnızca kaynağı olan veri gösterildi (sahip: "veri doğruluğu önemli"):
+> - Yapıldı: sinematik hero (`CircuitHero`: pist fotoğrafı ya da pist çizimi + vinyet, Barlow Condensed ad, ülke bayrağı, yarış sırası, tarih, durum rozeti — Apex kırmızısı yalnızca "SIRADA" durumunda — geri sayım, ilk GP yılı); hızlı bilgi şeridi (`CircuitFactsRibbon`: tur uzunluğu, viraj, tur, yarış mesafesi = tur × uzunluk, tur rekoru telemetri morunda; tur ve mesafe yarış koşulunca görünür, tahmin yok); kendini çizen pist çizimi (`TrackTrace`, lisanslı f1-circuits geometrisi, reduced-motion'da anında); karakter kartı ve irtifa/talep kartı tekrar eden sayılardan ve fazla kırmızıdan arındırıldı; teknik künye kartı kaldırıldı (her bilgi artık bir kez).
+> - Yapılmadı, veri yok: sektör sınırları, hız tuzağı, DRS bölgelerinin haritadaki yeri, viraj pinlerinde apeks hızı ve vites, güvenlik aracı olasılığı, pit kaybı, lastik aşınma indeksi, sürekli irtifa eğrisi. Kaynak adayı: FastF1 `get_circuit_info()` (viraj konumları ve numaraları) ve telemetriden irtifa/hız — Faz 9 (GCP) veri hattına iş olarak eklenebilir; uydurma değer gösterilmez.
 *Vizyon ve Hedef: Pist detay sayfasını (`app/[locale]/circuits/[id]/page.tsx`) düz ve statik bir pist genel bakışından çıkarıp; Apple'ın WWDC akıcı tasarım prensipleri (itidal, optik tipografi, materyal derinliği, yay fiziği) ile Formula 1'in teknik telemetrisini sentezleyen, pistin topoğrafyasını, mühendislik hassasiyetini ve yarış karakterini yakalayan etkileşimli, mimari bir telemetri profiline dönüştürmek.*
 
 > **Tasarım Rolü ve Felsefesi:** Senior / Principal Product Designer crafting a high-end motorsport interface, synthesizing Apple’s fluid design philosophy (restraint, material depth, spring physics) with Formula 1 technical telemetry.  

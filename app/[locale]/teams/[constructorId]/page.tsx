@@ -122,8 +122,6 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         mediaResult={teamMedia}
         carMediaResult={carMedia}
         country={countryName(view.country, locale)}
-        engines={view.engines}
-        standingRank={s.position != null ? `P${s.position} · ${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}` : null}
       />
 
       {/* Season Scrubber Timeline Strip (Owner rule §1.2.1 compliant) */}
@@ -141,11 +139,6 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         allTimePodiums={asOf.podiums}
         allTimePoles={asOf.poles}
         allTimeSeasons={asOf.seasons}
-        seasonPosition={s.position}
-        seasonPoints={s.points}
-        seasonWins={s.wins}
-        seasonPodiums={s.podiums}
-        seasonPoles={s.poles}
         year={view.year}
       />
 
@@ -162,57 +155,21 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
-          {/* Season Details & Mechanical Lineage */}
-          <HistoryCard
-            span={view.dna ? 7 : 12}
-            texture={view.id}
-            eyebrow={s.champion ? t('team.champion', { year: view.year }) : undefined}
-            heading={t('team.seasonHeading', { year: view.year })}
-          >
+          {/* Season detail (the all-time record is the ribbon above; title badge and entrant are in the hero) */}
+          <HistoryCard span={12} texture={view.id} heading={t('team.seasonHeading', { year: view.year })}>
             <StatTiles
               items={[
-                { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
-                { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
                 { label: t('stats.wins'), value: s.wins },
                 { label: t('stats.podiums'), value: s.podiums },
                 { label: t('stats.poles'), value: s.poles },
               ]}
             />
-            {view.entrants.length > 0 || view.engines.length > 0 ? (
-              <p className="body-sm mt-6 border-t border-hairline pt-4 text-text-mid font-mono text-xs">
-                {view.entrants.length > 0 ? (
-                  <>
-                    {t('team.entrant')}: <span className="text-text-hi font-semibold">{view.entrants.slice(0, 2).join(', ')}</span>
-                  </>
-                ) : null}
-                {view.entrants.length > 0 && view.engines.length > 0 ? <span className="mx-2 text-text-low">·</span> : null}
-                {view.engines.length > 0 ? (
-                  <>
-                    {t('team.engine')}: <span className="text-text-hi font-semibold">{view.engines.join(', ')}</span>
-                  </>
-                ) : null}
+            {view.engines.length > 0 ? (
+              <p className="body-sm mt-6 border-t border-hairline pt-4 font-mono text-xs text-text-mid">
+                {t('team.engine')}: <span lang="en" className="font-semibold text-text-hi">{view.engines.join(', ')}</span>
               </p>
             ) : null}
           </HistoryCard>
-
-          {/* Historical Lineage Milestones */}
-          {view.dna ? (
-            <HistoryCard span={5} texture={view.id} heading={t('team.lineageHeading', { year: view.year })}>
-              <StatTiles
-                items={[
-                  { label: t('stats.seasons'), value: asOf.seasons },
-                  { label: t('stats.wins'), value: asOf.wins },
-                  { label: t('stats.podiums'), value: asOf.podiums },
-                  { label: t('stats.poles'), value: asOf.poles },
-                  {
-                    label: t('stats.titles'),
-                    value: asOf.titles.length > 0 ? asOf.titles.length : null,
-                    sub: asOf.titles.length > 0 ? asOf.titles.join(' · ') : undefined,
-                  },
-                ]}
-              />
-            </HistoryCard>
-          ) : null}
 
           {/* Career Arc & Championship Trajectory */}
           {view.arc.filter((a) => a.position != null).length > 1 ? (

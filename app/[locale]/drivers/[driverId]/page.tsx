@@ -246,17 +246,9 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
         constructorName={lastTeam?.name ?? null}
         driverId={view.id}
         nationality={view.nationality ? countryName(view.nationality, locale) : null}
-        seasonRank={s.position}
       />
 
-      <DriverTelemetryRibbon
-        career={career}
-        seasonPoints={s.points}
-        seasonWins={s.wins}
-        seasonPodiums={s.podiums}
-        seasonPoles={s.poles}
-        year={view.year}
-      />
+      <DriverTelemetryRibbon career={career} year={view.year} />
 
       <div className="mt-4 md:mt-6">
         <BentoGrid>
@@ -274,57 +266,21 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
           ) : null}
 
           {duelProps ? (
-            <>
-              <HistoryCard span={6} texture={lastTeam?.id} heading={t('driver.duelHeading')}>
-                <DriverTeammateDuel {...duelProps} />
-              </HistoryCard>
+            <HistoryCard span={6} texture={lastTeam?.id} heading={t('driver.duelHeading')}>
+              <DriverTeammateDuel {...duelProps} />
+            </HistoryCard>
+          ) : null}
 
-              <HistoryCard span={6} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
-                <StatTiles
-                  items={[
-                    { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
-                    { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
-                    { label: t('stats.wins'), value: s.wins > 0 || s.starts > 0 ? s.wins : null },
-                    { label: t('stats.podiums'), value: s.podiums > 0 || s.starts > 0 ? s.podiums : null },
-                    { label: t('stats.poles'), value: s.poles > 0 || s.starts > 0 ? s.poles : null },
-                    { label: t('stats.starts'), value: s.starts > 0 ? s.starts : null },
-                  ]}
-                />
-              </HistoryCard>
-            </>
-          ) : (
-            <>
-              <HistoryCard span={7} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
-                <StatTiles
-                  items={[
-                    { label: t('stats.position'), value: s.position != null ? `P${s.position}` : null },
-                    { label: t('stats.points'), value: s.position != null || s.points > 0 ? s.points : null },
-                    { label: t('stats.wins'), value: s.wins > 0 || s.starts > 0 ? s.wins : null },
-                    { label: t('stats.podiums'), value: s.podiums > 0 || s.starts > 0 ? s.podiums : null },
-                    { label: t('stats.poles'), value: s.poles > 0 || s.starts > 0 ? s.poles : null },
-                    { label: t('stats.starts'), value: s.starts > 0 ? s.starts : null },
-                  ]}
-                />
-              </HistoryCard>
-
-              <HistoryCard span={5} texture={lastTeam?.id} heading={t('driver.careerHeading', { year: view.year })}>
-                <StatTiles
-                  items={[
-                    { label: t('stats.seasons'), value: career.seasons },
-                    { label: t('stats.starts'), value: career.starts > 0 ? career.starts : null },
-                    { label: t('stats.wins'), value: career.wins },
-                    { label: t('stats.podiums'), value: career.podiums },
-                    { label: t('stats.poles'), value: career.poles },
-                    {
-                      label: t('stats.titles'),
-                      value: career.titles > 0 ? career.titles : null,
-                      sub: career.titles > 0 ? career.titleYears.join(' · ') : undefined,
-                    },
-                  ]}
-                />
-              </HistoryCard>
-            </>
-          )}
+          <HistoryCard span={duelProps ? 6 : 12} texture={lastTeam?.id} eyebrow={s.champion ? t('driver.champion', { year: view.year }) : undefined} heading={t('driver.seasonHeading', { year: view.year })}>
+            <StatTiles
+              items={[
+                { label: t('stats.wins'), value: s.wins > 0 || s.starts > 0 ? s.wins : null },
+                { label: t('stats.podiums'), value: s.podiums > 0 || s.starts > 0 ? s.podiums : null },
+                { label: t('stats.poles'), value: s.poles > 0 || s.starts > 0 ? s.poles : null },
+                { label: t('stats.starts'), value: s.starts > 0 ? s.starts : null },
+              ]}
+            />
+          </HistoryCard>
 
           {view.arc.filter((a) => a.position != null).length > 1 ? (
             <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.arcHeading')}>

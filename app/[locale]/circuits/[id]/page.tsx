@@ -1,23 +1,23 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { countryName, raceName } from '@/lib/i18n/format';
-import Image from 'next/image';
+import { countryName } from '@/lib/i18n/format';
 import { localizedAlternates } from '@/lib/seo';
 import { getCircuitDetail, getCurrentSeasonResults, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
-import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
 import { SeasonResultsPanel } from '@/components/circuit/SeasonResultsPanel';
 import { CircuitCharacter } from '@/components/circuit/CircuitCharacter';
 import { CircuitWeatherCard } from '@/components/circuit/CircuitWeatherCard';
 import { CircuitElevationProfile } from '@/components/circuit/CircuitElevationProfile';
+import { CircuitHero } from '@/components/circuit/CircuitHero';
+import { CircuitFactsRibbon } from '@/components/circuit/CircuitFactsRibbon';
+import { TrackTrace } from '@/components/circuit/TrackTrace';
 import { hasElevationProfile } from '@/data/circuits/topography';
 import { hasCircuitLore } from '@/data/circuits/lore';
 import { CircuitLoreCards } from '@/components/circuit/CircuitLoreCards';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
-import { MediaAssetView } from '@/components/media/MediaAssetView';
 import { getMedia } from '@/lib/media/read';
 
 interface PageProps {
@@ -67,187 +67,109 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
   const facts = getCircuitFacts(id, locale);
   const svgTrackSrc = circuit.svgSrc ?? circuitIconSrc(id);
+  const num = (v: string | number | null | undefined) => {
+    const n = typeof v === 'number' ? v : parseFloat(v ?? '');
+    return Number.isFinite(n) ? n : null;
+  };
+  const lengthKm = num(facts?.lengthKm) ?? num(circuit.editorial.lapLengthKm);
+  const drsZones = num(facts?.drsZones) ?? num(circuit.editorial.drsZones);
 
-  const dossier = [
-    { label: t('round'), value: circuit.round ? String(circuit.round) : '' },
-    { label: t('locality'), value: circuit.locality ?? '' },
-    { label: t('country'), value: countryName(circuit.country, locale) },
-    { label: t('laps'), value: circuit.laps != null ? String(circuit.laps) : '' },
-    { label: t('lapLength'), value: circuit.editorial.lapLengthKm ? t('km', { value: circuit.editorial.lapLengthKm }) : '' },
-    { label: t('drsZones'), value: circuit.editorial.drsZones != null ? String(circuit.editorial.drsZones) : '' },
-  ].filter((e) => e.value !== '');
-
+  // Plan Faz 13 (component rules §9). One home per figure: hero = place, date, status;
+  // strip = lap and race numbers; map = outline + DRS; guide = character text.
   return (
     <PageShell>
-      <header className="mb-8 flex flex-col gap-1">
-        <span className="label-caps text-text-mid">{countryName(circuit.country, locale)}</span>
-        <h1 className="headline-lg uppercase text-text-hi">{circuit.circuitName}</h1>
-        {circuit.raceName ? <p className="data-tabular text-text-mid">{raceName(circuit.raceName, locale)}</p> : null}
-      </header>
+      <CircuitHero circuit={circuit} media={circuitMedia} trackSrc={svgTrackSrc} firstGp={facts?.firstGp} />
+
+      <CircuitFactsRibbon
+        lengthKm={lengthKm}
+        corners={num(facts?.corners)}
+        laps={num(circuit.laps)}
+        lapRecord={facts?.lapRecord ?? null}
+      />
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="min-w-0 flex-1">
           <BentoGrid>
-            <BentoCard span={4} className="order-2 md:order-1">
-              <span className="label-caps mb-3 block text-text-mid">{t('data')}</span>
-              <TechnicalDossier entries={dossier} />
-            </BentoCard>
-
-            {/* Track map — CAD Blueprint Viewport with telemetry grid & crosshairs */}
-            <BentoCard
-              span={8}
-              className="relative order-1 flex min-h-72 flex-col justify-between overflow-hidden !bg-[#0b0f14] !p-5 md:order-2 md:min-h-88 border border-white/10"
-            >
-              {/* CAD Engineering Background Grid */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-20"
-                style={{
-                  backgroundImage: `
-                    linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
-                  `,
-                  backgroundSize: '32px 32px',
-                }}
-              />
-
-              {/* Radial center glow */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full bg-accent/[0.06] blur-3xl"
-              />
-
-              {/* Technical Header HUD */}
-              <div className="relative z-10 flex items-center justify-between text-xs font-mono text-text-low">
-                <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                  <span className="uppercase tracking-widest text-text-hi text-[11px] font-bold">
-                    {circuit.circuitName} {'//'} {t('blueprint')}
+            <BentoCard span={facts ? 7 : 12} className="relative flex min-h-80 flex-col overflow-hidden">
+              <div className="flex items-center justify-between gap-3">
+                <span className="label-caps text-text-mid">{t('blueprint')}</span>
+                {drsZones != null ? (
+                  <span className="rounded-full border border-hairline px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.1em] text-text-mid">
+                    {t('elevation.drsZones', { count: drsZones })}
                   </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-3">
-                  {circuit.editorial.lapLengthKm ? (
-                    <span className="rounded bg-white/[0.04] px-2 py-0.5 border border-white/5">
-                      {t('km', { value: circuit.editorial.lapLengthKm })}
-                    </span>
-                  ) : null}
-                  {circuit.editorial.drsZones ? (
-                    <span className="rounded bg-white/[0.04] px-2 py-0.5 border border-white/5 text-accent">
-                      {t('elevation.drsZones', { count: Number(circuit.editorial.drsZones) })}
-                    </span>
-                  ) : null}
-                </div>
+                ) : null}
               </div>
-
-              {/* Vector Track Geometry */}
-              <div className="relative z-10 my-auto flex items-center justify-center py-6">
+              <div className="relative my-auto h-64 w-full py-4 md:h-80">
                 {svgTrackSrc ? (
-                  <div className="relative h-56 w-full md:h-72 drop-shadow-[0_0_24px_rgba(255,24,1,0.18)]">
-                    <Image
-                      src={svgTrackSrc}
-                      alt={t('mapAlt', { name: circuit.circuitName })}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 60vw"
-                      className="object-contain transition-transform duration-500 hover:scale-[1.02]"
-                    />
-                  </div>
+                  <TrackTrace src={svgTrackSrc} label={t('mapAlt', { name: circuit.circuitName })} />
                 ) : (
                   <span className="label-caps text-text-low">{t('noMap')}</span>
                 )}
               </div>
-
-              {/* Bottom Telemetry Bar */}
-              <div className="relative z-10 flex items-center justify-end border-t border-white/10 pt-2 text-[11px] font-mono text-text-mid">
-                <span>{circuit.locality}, {countryName(circuit.country, locale)}</span>
-              </div>
+              {svgTrackSrc ? <span className="font-mono text-[10px] text-text-low">{t('mapSource')}</span> : null}
             </BentoCard>
 
-            {/* Elevation & Topography Profile (curated circuits only) */}
-            {hasElevationProfile(id) ? (
-              <BentoCard span={12}>
-                <CircuitElevationProfile
-                  circuitId={id}
-                  lengthKm={
-                    circuit.editorial.lapLengthKm ? parseFloat(circuit.editorial.lapLengthKm) : facts?.lengthKm
-                  }
-                  drsZones={
-                    circuit.editorial.drsZones ? parseInt(circuit.editorial.drsZones, 10) : facts?.drsZones
-                  }
-                  corners={facts?.corners}
-                />
-              </BentoCard>
-            ) : null}
-
-            {/* Authentic Aerial Venue Photograph (when available) */}
-            {circuitMedia.status === 'image' ? (
-              <BentoCard span={12} className="overflow-hidden !p-0">
-                <div className="relative h-64 w-full md:h-80">
-                  <MediaAssetView
-                    type="circuit"
-                    entityKey={id}
-                    initialResult={circuitMedia}
-                    alt={`${circuit.circuitName} venue`}
-                    name={circuit.circuitName}
-                    aspectRatio="21/9"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </BentoCard>
-            ) : null}
-
-            {weather ? (
-              <BentoCard span={6}>
-                <CircuitWeatherCard weather={weather} />
-              </BentoCard>
-            ) : null}
-
             {facts ? (
-              <BentoCard span={6}>
+              <BentoCard span={5}>
                 <CircuitCharacter facts={facts} />
               </BentoCard>
             ) : null}
 
-            {/* Historical Lore Cards (circuits with recorded moments only) */}
-            {hasCircuitLore(id) ? (
-              <BentoCard span={12}>
-                <CircuitLoreCards circuitId={id} />
+            {/* Topography and demands (curated circuits only; editorial estimates, labelled) */}
+            {hasElevationProfile(id) ? (
+              <div className="col-span-1 md:col-span-8 lg:col-span-12">
+                <CircuitElevationProfile circuitId={id} />
+              </div>
+            ) : null}
+
+            {weather ? (
+              <BentoCard span={circuit.winners.length > 0 ? 4 : 12}>
+                <CircuitWeatherCard weather={weather} />
               </BentoCard>
             ) : null}
 
             {circuit.winners.length > 0 ? (
-              <BentoCard span={12}>
+              <BentoCard span={weather ? 8 : 12}>
                 <span className="label-caps mb-3 block text-text-mid">{t('recentWinners')}</span>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {circuit.winners.map((w, i) => (
                     <div
                       key={w.season}
                       className={[
-                        'flex items-center justify-between rounded-lg border border-hairline bg-white/[0.02] p-3 transition-colors hover:border-white/15',
-                        i === 0 ? 'border-accent/40 bg-accent/[0.04]' : '',
+                        'flex items-center justify-between rounded-lg border bg-white/[0.02] p-3 transition-colors hover:border-white/15',
+                        i === 0 ? 'border-white/20' : 'border-hairline',
                       ].join(' ')}
                     >
                       <div className="flex items-center gap-3">
-                        <span className={['data-tabular font-mono text-sm', i === 0 ? 'font-bold text-accent' : 'text-text-mid'].join(' ')}>
+                        <span className={['font-mono text-sm tabular-nums', i === 0 ? 'font-bold text-text-hi' : 'text-text-mid'].join(' ')}>
                           {w.season}
                         </span>
                         <div>
-                          <span lang="en"
+                          <span
+                            lang="en"
                             className={['font-condensed block uppercase text-text-hi', i === 0 ? 'text-lg font-700' : 'text-base font-600'].join(' ')}
                             style={{ fontFamily: 'var(--font-condensed)' }}
                           >
                             {w.driverName}
                           </span>
-                          <span className="text-xs text-text-mid">{w.constructorName}</span>
+                          <span lang="en" className="text-xs text-text-mid">{w.constructorName}</span>
                         </div>
                       </div>
                       {i === 0 ? (
-                        <span className="rounded bg-accent/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-accent">
-                          LATEST
+                        <span className="rounded-full border border-hairline px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-text-mid">
+                          {t('latestWin')}
                         </span>
                       ) : null}
                     </div>
                   ))}
                 </div>
+              </BentoCard>
+            ) : null}
+
+            {/* Historical moments (circuits with recorded lore only) */}
+            {hasCircuitLore(id) ? (
+              <BentoCard span={12}>
+                <CircuitLoreCards circuitId={id} />
               </BentoCard>
             ) : null}
           </BentoGrid>
