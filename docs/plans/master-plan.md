@@ -111,11 +111,11 @@
 
 ### 🎨 Antigravity İş Listesi (frontend)
 
-- [ ] **AG-3 Takım Detay Sayfası Yeniden Tasarımı (Faz 10):** Apple akıcı tasarım prensipleri ve Formula 1 sinematik mühendislik estetiğinde takım detay sayfasının (`/teams/[constructorId]`) baştan tasarlanması (Cinematic Poster Hero, Fast Facts Bento Telemetry Ribbon, Dual Pilot Cockpit Modules, Editorial Legacy & Season Scrubber). Ayrıntı Faz 10 altında.
-- [ ] **AG-4 Editoryal Anlatı ve Ev Sesi Reformu (Faz 11):** Pilot, takım ve pist detay sayfalarındaki metinlerin F1 Anlatı Stil Kılavuzu (v1 & v2) ev sesiyle; pilotun kariyer derinliğine, takımın mitolojisine ve pistin mekanik karakterine göre özelleştirilmiş, yapay zekadan uzak, iki dilli (TR/EN) editoryal dönüşüm. Ayrıntı Faz 11 altında.
-- [ ] **AG-5 Pilot Detay Sayfası Yeniden Tasarımı (Faz 12):** Apple akıcı arayüz prensipleri ve F1 telemetri estetiğinde pilot detay sayfasının (`/drivers/[driverId]`) baştan tasarlanması (Split Driver Hero, Career Telemetry Bento, Active Season Pulse & H2H, Chronological Legacy Chapters). Ayrıntı Faz 12 altında.
+- [x] **AG-3 Takım Detay Sayfası Yeniden Tasarımı (Faz 10):** Apple akıcı tasarım prensipleri ve Formula 1 sinematik mühendislik estetiğinde takım detay sayfasının (`/teams/[constructorId]`) baştan tasarlanması (Cinematic Poster Hero, Fast Facts Bento Telemetry Ribbon, Dual Pilot Cockpit Modules, Editorial Legacy & Season Scrubber). Ayrıntı Faz 10 altında.
+- [x] **AG-4 Editoryal Anlatı ve Ev Sesi Reformu (Faz 11):** Pilot, takım ve pist detay sayfalarındaki metinlerin F1 Anlatı Stil Kılavuzu (v1 & v2) ev sesiyle; pilotun kariyer derinliğine, takımın mitolojisine ve pistin mekanik karakterine göre özelleştirilmiş, yapay zekadan uzak, iki dilli (TR/EN) editoryal dönüşüm. Ayrıntı Faz 11 altında.
+- [x] **AG-5 Pilot Detay Sayfası Yeniden Tasarımı (Faz 12):** Apple akıcı arayüz prensipleri ve F1 telemetri estetiğinde pilot detay sayfasının (`/drivers/[driverId]`) baştan tasarlanması (Split Driver Hero, Career Telemetry Bento, Active Season Pulse & H2H, Chronological Legacy Chapters). Ayrıntı Faz 12 altında.
 - [x] **AG-6 Pist Detay Sayfası Yeniden Tasarımı (Faz 13, Claude yaptı 2026-10-14):** Apple WWDC akıcı tasarım prensipleri ve F1 teknik telemetrisiyle pist detay sayfasının (`/circuits/[id]`) baştan tasarlanması (Cinematic Track Hero, Interactive Sector & Corner Pin Vector, Topo Elevation Ribbon, Strategy Demands Module). Ayrıntı Faz 13 altında.
-- [ ] **AG-7 Grid Sayfası Görsel Kadraj & Medya Optimizasyonu (Faz 14):** 11 takımın araç ve pilot slotları için kesin kadraj (object-position), alttan karartma gradyanı (scrim), renk derecelendirme filtresi (contrast/saturate) ve yarış numarası filigranı entegrasyonu. Ayrıntı Faz 14 altında.
+- [x] **AG-7 Grid Sayfası Görsel Kadraj & Medya Optimizasyonu (Faz 14):** 11 takımın araç ve pilot slotları için kesin kadraj (object-position), alttan karartma gradyanı (scrim), renk derecelendirme filtresi (contrast/saturate) ve yarış numarası filigranı entegrasyonu. Ayrıntı Faz 14 altında.
 - Tamamlananlar: AG-1 (hikâye görseli notu, kaynak satırı, özgün sayfaya bağlantı, `/media-sources` bölümü) ve AG-2 (atıf rozeti `aria-label`) canlıya alındı (`464dbf0`).
 
 ### ⏱️ Faz 1: Kusursuz Saat — Veri Mimarisi, Canlı Senkronizasyon & Caching
@@ -253,7 +253,7 @@
 > **Tasarım Rolü ve Tonu:** Senior Product Designer with an obsession for Apple's fluid design principles and Formula 1's cinematic, high-contrast engineering aesthetic.  
 > **Temel Felsefe:** Neon parlamaları ve jenerik kart kalabalığından arındırılmış, saf işçilik ve itidal (pure craft and restraint); Apple WWDC insan arayüzü yönergeleri rehberliğinde resmi bir Formula 1 telemetri konsolu hissi.
 
-- [~] **10.1 Renk, Yüzey Hiyerarşisi ve Üç Kademeli Tipografi Entegrasyonu (Antigravity):** *(Antigravity: Tamamlandı — `#0a0a0a` kanvas, `--surface (#141414)` bento yüzeyleri, 16px radius, `rgba(255,255,255,0.06)` saç teli specular highlight ve Barlow Condensed / Inter / JetBrains Mono 3 kademeli tipografi uygulandı).*
+- [x] **10.1 Renk, Yüzey Hiyerarşisi ve Üç Kademeli Tipografi Entegrasyonu (Antigravity):** *(Antigravity: Tamamlandı — `#0a0a0a` kanvas, `--surface (#141414)` bento yüzeyleri, 16px radius, `rgba(255,255,255,0.06)` saç teli specular highlight ve Barlow Condensed / Inter / JetBrains Mono 3 kademeli tipografi uygulandı).*
   - **Ana Kanvas:** Derin koyu nötr (`#0a0a0a`), asla saf siyah değil.
   - **Kart ve Bento Modülleri:** `--surface` (`#141414`), keskin 1px zarif kenarlık (`#262626`) ve 16px border-radius (`rounded-2xl`). Işığı yakalayan fiziksel materyal hissi veren saç teli inceliğinde üst kenar ışıması/vurgusu (`rgba(255, 255, 255, 0.06)` hairline top-edge highlight).
   - **İtidal (Restraint):** Takım birincil vurgu rengini (team primary accent) tasarruflu kullan; Apex Kırmızısı'nı (`#ff1801`) kesinlikle yalnızca aktif durumlar, canlı göstergeler ve kritik rozetler için rezerve et.
@@ -262,17 +262,17 @@
     - *Gövde ve Anlatı (Narrative):* Inter (Regular, 16px, 1.5–1.75 line-height), takım tarihi ve hikaye anlatımı parçacıkları; yüksek okunabilirlik, nötr kırık beyaz (`#e6e6e6`).
     - *Telemetri ve Üstveri (Metadata):* JetBrains Mono (`tabular-nums`, 12–14px, etiketler için büyük harf + `tracking-[0.1em]`). Şampiyonluklar, yarış galibiyetleri, kuruluş yılı, şasi kodları ve sezon deltaları.
 
-- [~] **10.2 Cinematic Poster Hero (Top 45vh) (Antigravity):** *(Antigravity: Tamamlandı — `TeamSeasonHero.tsx` full-bleed padok/araç görseli, karanlık vinyet katmanı, büyük boyutlu Barlow Condensed takım monikeri, şasi/motor rozeti, markalar klasmanı rozeti ve devasa konturlu yıl filigranı ile yeniden inşa edildi).*
+- [x] **10.2 Cinematic Poster Hero (Top 45vh) (Antigravity):** *(Antigravity: Tamamlandı — `TeamSeasonHero.tsx` full-bleed padok/araç görseli, karanlık vinyet katmanı, büyük boyutlu Barlow Condensed takım monikeri, şasi/motor rozeti, markalar klasmanı rozeti ve devasa konturlu yıl filigranı ile yeniden inşa edildi).*
   - Tam genişlik (full-bleed) atmosferik padok / araç görseli üzerine koyu vinyet (dark vignette) katmanı.
   - Büyük boyutlu yoğunlaştırılmış (condensed) takım monikeri, şasi rozeti ve aktif markalar klasmanı sıralaması (constructor standing rank) ile sabitlenmiş ankor kompozisyon.
 
-- [~] **10.3 Fast Facts Bento — Yatay Telemetri Şeridi (Antigravity):** *(Antigravity: Tamamlandı — `TeamTelemetryRibbon.tsx` heykelsi monospaced veri karolarıyla Şampiyonluklar, Galibiyetler, Podyumlar, Poller, Sezon Durumu ve Galibiyet Oranı modülü olarak kuruldu).*
+- [x] **10.3 Fast Facts Bento — Yatay Telemetri Şeridi (Antigravity):** *(Antigravity: Tamamlandı — `TeamTelemetryRibbon.tsx` heykelsi monospaced veri karolarıyla Şampiyonluklar, Galibiyetler, Podyumlar, Poller, Sezon Durumu ve Galibiyet Oranı modülü olarak kuruldu).*
   - Sıkıcı ve donuk tablolar yerine; temel metrikleri (Şampiyonluklar, Grand Prix Katılımları, Pole Pozisyonları, Galibiyet Oranı) heykelsi, monospaced veri karoları (sculptured data tiles) ve cesur kontrast ile sunan yatay telemetri ribbon modülü.
 
-- [~] **10.4 Dual Pilot Cockpit Modules (Antigravity):** *(Antigravity: Tamamlandı — `TeamCockpitLineup.tsx` aktif pilotlar için altın oran portre hizalaması (%35-40), devasa filigran yarış numaraları, takım rengi dikey gösterge çubuğu ve sezon içi puan katkısı yüzdesiyle inşa edildi).*
+- [x] **10.4 Dual Pilot Cockpit Modules (Antigravity):** *(Antigravity: Tamamlandı — `TeamCockpitLineup.tsx` aktif pilotlar için altın oran portre hizalaması (%35-40), devasa filigran yarış numaraları, takım rengi dikey gösterge çubuğu ve sezon içi puan katkısı yüzdesiyle inşa edildi).*
   - İki aktif pilotu tamamlayıcı ve etkileşimli bento kartları: yoğunlaştırılmış tipografiyle devasa yarış numaraları, sezon içi puan deltası ve takım renginde dikey vurgu çubuğu (`w-1 rounded-full`).
 
-- [~] **10.5 Editorial Legacy & Season Scrubber (Antigravity):** *(Antigravity: Tamamlandı — `SeasonRail.tsx` hero altına taşındı, şampiyonluk göstergeleri ve Apple akıcı geçişleriyle takım detay akışına bağlandı; sahip kuralı §1.2.1 korundu).*
+- [x] **10.5 Editorial Legacy & Season Scrubber (Antigravity):** *(Antigravity: Tamamlandı — `SeasonRail.tsx` hero altına taşındı, şampiyonluk göstergeleri ve Apple akıcı geçişleriyle takım detay akışına bağlandı; sahip kuralı §1.2.1 korundu).*
   - İkonik takım dönemlerini ve sezondan sezona performans geçişlerini keşfetmek için etkileşimli, yatay zaman şeridi (timeline strip).
   - Kesintisiz, akıcı yay fiziği (fluid, interruptible spring physics: `damping: 1.0`, `response: 0.35s`, `lib/motion.ts` uyumlu).
 
@@ -284,13 +284,13 @@
 > **Temel Metodoloji:** F1 Anlatı Stil Kılavuzu v1 & v2 ("Ev Sesi": Yiğit Tezcan'dan tez cesareti, sert cümle sonu düşüşü ve mit kırma; Karaboğa'dan yöntem dürüstlüğü, açılış eşiği, montaj nabzı ve insani koda).  
 > **Kritik Kısıtlar:** Yapay zeka şablonları (boş sıfatlar, 'delve', 'showcase', 'testament to', 'yürek burkan', melodram) kesinlikle yasak. Duygusal dikte yok (no emotional coaching); duygu kanıtla, veriyle ve somut dönüm noktasıyla taşınır. Hem Türkçe (SOV fiil-sonu tok ritim) hem İngilizce (SVO sert Anglo-Sakson bitişler) bağımsız editoryal özenle yazılır; motamot çeviri yapılmaz.
 
-- [~] **11.1 Pilot Detay Sayfaları — Kariyer Ağırlığı ve Kuşak Farkına Göre Özelleştirilmiş Anlatım (`data/drivers/index.ts` & `/drivers/[driverId]`):** *(Antigravity: Tamamlandı — 23 pilot için derinlemesine editoryal biyografi, çok dönemli `chapters`, `quote` ve Türk/İngiliz ev sesi entegrasyonu; `LoreSection` ve sürücü sayfası genişletildi. Claude Code doğrulaması bekleniyor).*
+- [x] **11.1 Pilot Detay Sayfaları — Kariyer Ağırlığı ve Kuşak Farkına Göre Özelleştirilmiş Anlatım (`data/drivers/index.ts` & `/drivers/[driverId]`):** *(Antigravity: Tamamlandı — 23 pilot için derinlemesine editoryal biyografi, çok dönemli `chapters`, `quote` ve Türk/İngiliz ev sesi entegrasyonu; `LoreSection` ve sürücü sayfası genişletildi. Claude Code doğrulaması bekleniyor).*
   - **Tek Tip Şablonun Kırılması:** Her pilot aynı 1 paragraf + 4 standart milat kalıbına sıkıştırılmayacak; anlatımın derinliği ve ölçeği pilotun kariyer hacmine göre esneyecek.
   - **Efsaneler ve Kuşak Liderleri (Hamilton, Alonso):** 20+ yıla yayılan devasa kariyerler, nesiller arası geçişler, kırılma anları, felsefi ve psikolojik evrim (McLaren 2007 iç savaşı, Mercedes hibrit devrimi, Ferrari'de yeni başlangıç / Alonso'nun saf yarışçı inadı, Minardi'den bugüne her çağda rekabetçi kalma direnci). Zengin, çok katmanlı editoryal ark.
   - **Çağın Zirvesindeki Şampiyonlar ve Kazananlar (Verstappen, Leclerc, Norris, Russell, Piastri):** Kırılma anları, zaaflar ve marjinal kazanımlar odağı; unvan savaşının getirdiği zihinsel eşikler, takım içi rekabet dinamikleri.
   - **Çaylaklar ve Genç Yetenekler (Kimi Antonelli, Bearman, Colapinto, Doohan vb.):** Zorlama biyografi destanı yazmak yerine; genç yaş rekorları, alt serilerdeki dominasyon, grid'e geliş biçimi ve üzerlerindeki devasa teknik/psikolojik baskının dürüst ve odaklı analizi.
 
-- [~] **11.2 Takım Detay Sayfaları — Kurumsal Mitoloji ve Karakter Odaklı Anlatım (`data/teams/index.ts` & `/teams/[constructorId]`):** *(Antigravity: Tamamlandı — 11 takım için kurumsal mitoloji, kurucu kökler, felsefi `chapters`, unutulmaz alıntılar ve tam TR/EN paritesi; `LoreSection` ve takım sayfası bağlandı. Claude Code doğrulaması bekleniyor).*
+- [x] **11.2 Takım Detay Sayfaları — Kurumsal Mitoloji ve Karakter Odaklı Anlatım (`data/teams/index.ts` & `/teams/[constructorId]`):** *(Antigravity: Tamamlandı — 11 takım için kurumsal mitoloji, kurucu kökler, felsefi `chapters`, unutulmaz alıntılar ve tam TR/EN paritesi; `LoreSection` ve takım sayfası bağlandı. Claude Code doğrulaması bekleniyor).*
   - **Kurumsal Şablon Tekdüzeliğinin Kırılması:** Takımların hepsi aynı mekanik formata hapsedilmeyecek; anlatım takımın ruhunu ve F1 tarihindeki konumunu yansıtacak.
   - **Scuderia Ferrari:** Maranello mistisizmi, Enzo Ferrari mirası, sporun kendisinden eski olma ağırlığı, Tifosi tutkusu, politikanın ve kazanma baskısının yarattığı kriz-zafer döngüsü.
   - **McLaren:** Bruce McLaren'ın kurucu kökleri, Ron Dennis mükemmeliyetçiliği ve fabrika kültürü, teknoloji öncülüğü, padoğun en sert iç rekabetleri (Senna-Prost, Hamilton-Alonso).
@@ -298,7 +298,7 @@
   - **Mercedes-AMG:** Fabrika mühendisliği disiplini, Brackley/Brixworth hibrit çağ dominasyonu, "pazar gününden çok önce fabrikada kazanılan yarışlar".
   - **Williams, Aston Martin, Alpine, Haas, Sauber, RB:** Garajist bağımsızlık direnişi, fabrika kimliği arayışları, tarihsel isim değişimleri ve orta sıra hayatta kalma savaşı.
 
-- [~] **11.3 Pist Detay Sayfaları — Topografik Karakter, Mekanik Baskı ve Efsane Anlar (`data/circuits/facts.ts`, `facts.tr.ts`, `lore.ts` & `/circuits/[id]`):** *(Antigravity: Tamamlandı — 26 pist için telemetri/G-kuvveti/aero/lastik odaklı teknik karakterler, imza viraj analizleri ve zengin tanık/mikroskop anları eklendi. Claude Code doğrulaması bekleniyor).*
+- [x] **11.3 Pist Detay Sayfaları — Topografik Karakter, Mekanik Baskı ve Efsane Anlar (`data/circuits/facts.ts`, `facts.tr.ts`, `lore.ts` & `/circuits/[id]`):** *(Antigravity: Tamamlandı — 26 pist için telemetri/G-kuvveti/aero/lastik odaklı teknik karakterler, imza viraj analizleri ve zengin tanık/mikroskop anları eklendi. Claude Code doğrulaması bekleniyor).*
   - **Turistik Klişelerin Temizlenmesi:** "Tarihi ve güzel bir pist" gibi ucuz genel geçer cümleler yerine; asfaltın mikro dokusu, lastik hamuruna ve frenlere binen termal/mekanik yük, pilotun göğsündeki G-kuvveti ve aerodinamik ödünler (downforce vs drag).
   - **İmzalı Virajların Felsefesi ve Bedeli:** Spa Eau Rouge/Raidillon'da dikey sıkışma, Suzuka 130R & Degner'de sınırda kalma bedeli, Monza Parabolica/Curva Grande'de düşük yere basma çılgınlığı, Silverstone Maggotts-Becketts-Chapel ritmi, Monaco Tabac ve Yüzme Havuzu'nda sıfır hata toleransı.
   - **Pist Lore Kartlarının Zenginleştirilmesi (`lore.ts`):** Tarihin unutulmaz insan ve mekanik dramları (Senna 1988 Monaco doğaüstü sıralama turu, Häkkinen-Schumacher 2000 Spa Zonta sandviçi, Hamilton 2008 Silverstone 68 saniyelik yağmur dersi vb.) kılavuzdaki "doruğu tanığa bırak" ve "zamanı yavaşlatma (mikroskop)" teknikleriyle iki dilde derinleştirilecek.
@@ -315,19 +315,19 @@
 > **Tasarım Rolü ve Perspektifi:** Elite Design Director combining Apple’s WWDC fluid interface principles (restraint, optical typography, material depth) with Formula 1’s dark, high-contrast telemetry aesthetic.  
 > **Temel Felsefe:** Jenerik widget'lar, neon parıltıları veya kalabalık wiki kartları kesinlikle yok; Apple küratörlüğünde özel bir padok telemetri terminali hissi; itidal, mekânsal armoni ve saf zanaat (restraint, spatial harmony, pure craft).
 
-- [~] **12.1 Atmosfer, Yüzey Derinliği ve Üç Kademeli Tipografi Entegrasyonu (Antigravity):**
+- [x] **12.1 Atmosfer, Yüzey Derinliği ve Üç Kademeli Tipografi Entegrasyonu (Antigravity):**
   - **Uygulandı (2026-10-13):** Ana kanvas `#0a0a0a`, bento yüzeyleri `--surface` (`#141414`), 16px radius (`rounded-2xl`), 1px hairline border (`#262626`) ve saç teli üst kenar parlama çizgisi (`rgba(255, 255, 255, 0.06)`). Barlow Condensed hero isim ölçeği, JetBrains Mono telemetri rakamları ve Inter editoryal gövde metinleri entegre edildi.
 
-- [~] **12.2 The Split Driver Hero (Antigravity):**
+- [x] **12.2 The Split Driver Hero (Antigravity):**
   - **Uygulandı (2026-10-13):** `DriverProfileHero.tsx` yenilendi; `lib/data/driverPositions.ts` üzerinden pilot bazlı altın oran göz hizası (`DRIVER_GRID_POSITIONS`, `%35–40` dikey hizalama), `[filter:contrast(1.05)_saturate(0.92)]` sinematik editoryal renk filtresi, anıtsal Barlow Condensed tipografi, devasa yarış numarası filigranı (`hero-number`), `CountryFlag` ülke bayrağı ve `P{rank} WDC` aktif sezon sıralama rozeti eklendi. Fotoğrafsız pilotlarda CAD `DriverHeroGraphic` dokusu korundu.
 
-- [~] **12.3 Career Telemetry Bento — Heykelsi Metrik Şeridi (Antigravity):**
+- [x] **12.3 Career Telemetry Bento — Heykelsi Metrik Şeridi (Antigravity):**
   - **Uygulandı (2026-10-13):** `components/profile/DriverTelemetryRibbon.tsx` oluşturuldu. 6 heykelsi veri hücresi (Dünya Şampiyonlukları, GP Katılımları, Galibiyetler, Podyumlar, Pole Pozisyonları, Kariyer Puanı) saç teli parlama çizgileri ve sezon katkı delta göstergeleriyle hero altına yerleştirildi.
 
-- [~] **12.4 Active Season Pulse & Head-to-Head Modülü (Antigravity):**
+- [x] **12.4 Active Season Pulse & Head-to-Head Modülü (Antigravity):**
   - **Uygulandı (2026-10-13):** `components/profile/DriverSeasonPulse.tsx` ile tur tur bitiş pozisyonları (P1 gold, P2-P3 champagne, P4-P10 emerald, DNF muted, mor en hızlı tur göstergesi) ve `components/profile/DriverTeammateDuel.tsx` ile sıralama turları, yarış finişleri ve puan payını kıyaslayan garaj içi H2H düello kartı `app/[locale]/drivers/[driverId]/page.tsx` sayfasına bağlandı.
 
-- [~] **12.5 Chronological Legacy & Story Chapters (Antigravity):**
+- [x] **12.5 Chronological Legacy & Story Chapters (Antigravity):**
   - **Uygulandı (2026-10-13):** `LoreSection` çağlara bölünmüş editoryal bölümler, `CareerArc`, `DriverJourney` ve `MachineryCrossLink` ile tam uyum sağlandı.
   - **Ölçülen Doğrulama:** `npx vitest run tests/driver-hero.test.ts tests/editorial-content.test.ts tests/media-components.test.ts` (169/169 test geçti), `npx tsc --noEmit` (0 hata), `npm run lint` (0 hata, 0 uyarı), `npm run build` (0 hata, 50 statik sayfa ve dinamik rotalar başarıyla derlendi). Açık kalan: Claude Code kod incelemesi ve canlı tarayıcı teyidi.
 
@@ -343,7 +343,7 @@
 > **Tasarım Rolü ve Felsefesi:** Senior / Principal Product Designer crafting a high-end motorsport interface, synthesizing Apple’s fluid design philosophy (restraint, material depth, spring physics) with Formula 1 technical telemetry.  
 > **Temel Felsefe:** Sıfır neon gürültüsü, jenerik wiki tablolarından ve şablon kalabalığından arınmış, rüzgar tüneli enstrümanı gibi kalibre edilmiş, doğrulanmış fiziksel veriler ve Apple sınıfı zanaat (pure craft & restraint).
 
-- [ ] **13.1 Renk, Yüzey Mimarisi ve Üç Kademeli Tipografi Entegrasyonu (Antigravity):**
+- [x] **13.1 Renk, Yüzey Mimarisi ve Üç Kademeli Tipografi Entegrasyonu (Antigravity):**
   - **Ana Kanvas:** Derin nötr `--bg` (`#0a0a0a`), asla saf siyah değil.
   - **Kart ve Bento Modülleri:** `--surface` (`#141414`), keskin 1px sınır (`--hairline: #262626`), 16px radius (`--radius-lg: 16px`) ve fiziksel cam hissi veren ışığı yakalayan üst kenar parlama çizgisi (`rgba(255, 255, 255, 0.06)` ambient specular highlight).
   - **Vurgu Disiplini (Accent Discipline):** Tek küresel eylem vurgusu Apex Kırmızısı (`#ff1801`), son derece sınırlı olarak yalnızca aktif durum rozetlerinde kullanılır. Telemetri moru (`#b356fe`), kesinlikle ve yalnızca resmi Tur Rekoru (Lap Record) modülüne rezerve edilir.
@@ -352,21 +352,21 @@
     - *Teknik Metrikler & Sektörler:* JetBrains Mono (`tabular-nums`, 13–15px, büyük harf + `tracking-[0.1em]` etiketler); pist uzunluğu, tur sayısı, vites frekansı ve sektör zamanlaması.
     - *Editoryal Miras & Anlatı:* Inter (Regular, 16px, line-height 1.6); pist tarihi, yarış mirası ve geçiş zorluğu analizleri için nötr yüksek okunabilirlik.
 
-- [ ] **13.2 Cinematic Track Hero (Top 40vh) (Antigravity):**
+- [x] **13.2 Cinematic Track Hero (Top 40vh) (Antigravity):**
   - Tam genişlik (full-bleed) hava çekimi veya asfalt/pist kenarı atmosferik dokusu üzerine koyu vinyet (dark vignette) katmanı.
   - Anıtsal pist adı, ülke rozeti, yerleşim konfigürasyon dönemi (örn. "1950 — Günümüz") ve sıradaki Grand Prix takvim/seans rozeti ile sabitlenmiş etkileyici mimari kompozisyon.
 
-- [ ] **13.3 Interactive Sector Vector & Telemetry Map (Antigravity):**
+- [~] **13.3 Interactive Sector Vector & Telemetry Map (Antigravity):**
   - **Sektör Kodlu SVG Pist İzi:** Belirgin sektör sınırları (Sektör 1, 2, 3), hız tuzağı (speed trap) işaretçisi ve resmi DRS aktivasyon bölgelerini içeren merkezi etkileşimli SVG vektörü.
   - **İkonik Viraj Mikro-Pinleri (Spring Physics):** İkonik dönüm noktalarında (Monaco için Turn 1 Sainte Dévote, Turn 6 Fairmont Hairpin, Tünel, Yüzme Havuzu şikanı, Rascasse vb.) üzerine gelindiğinde/dokunulduğunda akıcı yay fiziğiyle (`damping: 1.0`, `response: 0.35s`, `lib/motion.ts`) apeks sürati ve vites seçimini açan etkileşimli mikro-pinler.
 
-- [ ] **13.4 Elevation Profile Ribbon — Topo Telemetry (Antigravity):**
+- [~] **13.4 Elevation Profile Ribbon — Topo Telemetry (Antigravity):**
   - Tur mesafesi boyunca pürüzsüz sürekli Bézier eğrileri ve monospaced delta işaretçileriyle tırmanış ve iniş eğimini (Monaco'nun 3.337 km boyunca ünlü 42 metrelik tırmanış/inişi gibi) gösteren minimalist, yüksek yoğunluklu yükseklik profili şeridi.
 
-- [ ] **13.5 Sculpted Fast Facts Bento Ribbon (Antigravity):**
+- [x] **13.5 Sculpted Fast Facts Bento Ribbon (Antigravity):**
   - Yüksek kontrastlı 4 karolu telemetri şeridi: Tur Uzunluğu (3.337 km), Tur Sayısı (78 tur), Toplam Yarış Mesafesi (260.286 km) ve Tüm Zamanların Resmi Tur Rekoru (örn. Monaco için telemetri moru `#b356fe` rozetle vurgulanan `1:12.909 · Lewis Hamilton · 2021`).
 
-- [ ] **13.6 Technical Strategy & Demands Module (Antigravity):**
+- [~] **13.6 Technical Strategy & Demands Module (Antigravity):**
   - Endüstriyel monospaced yoğunlukta teknik telemetri kartları: Tur başına ortalama vites değişimi (örn. ~54 vites/tur), lastik aşınma/degradasyon profili indeksi, pit stop zaman kaybı (saniye), yere basma kuvveti konfigürasyonu (Maximum Downforce indeksi) ve güvenlik aracı (Safety Car) olasılık yüzdesi.
 
 ---
@@ -376,10 +376,10 @@
 
 > **Tasarım Felsefesi ve Kadraj Standardı:** Sinematik editoryal ve Apple malzeme disiplini. Araç slotları `3:2` veya `16:9` oranında, yandan profil veya 3/4 açılı; en az `%10` nefes payı ile. Pilot slotları geniş yatay kadrajda göz hizası dikey eksende **altın orana (%35-40)** çekilmiş; kask/şapka tepesi kesilmemiş, bakış yönü içeriye (açık alana) bakan kompozisyon.
 
-- [~] **14.1 Genel Kadraj ve Görsel Yerleşim Standartları (Antigravity):**
+- [x] **14.1 Genel Kadraj ve Görsel Yerleşim Standartları (Antigravity):**
   - **Uygulandı (2026-10-13):** `components/standings/GarageTeamPanel.tsx` ve `components/media/MediaAssetView.tsx` güncellendi. Araç slotlarında `aspect-[16/9]` ve en az %10 nefes payı (`p-2.5 sm:p-3`), pilot slotlarında göz hizasını dikey altın orana (%35-40) çeken `DRIVER_GRID_POSITIONS` tablosu (`center 15%` - `center 30%` aralığı) ve `objectFit="contain"` desteği sağlandı.
 
-- [~] **14.2 11 Takım İçin Araç ve Pilot Konumlandırma Konfigürasyonu (`GarageTeamPanel.tsx` / `MediaAssetView.tsx`):**
+- [x] **14.2 11 Takım İçin Araç ve Pilot Konumlandırma Konfigürasyonu (`GarageTeamPanel.tsx` / `MediaAssetView.tsx`):**
   - **Uygulandı (2026-10-13):**
     - Mercedes: Araç `center 60%`, Antonelli `center 25%`, Russell `center 30%`.
     - Ferrari: Araç `center 50%`, Hamilton `center 20%`, Leclerc `50% 25%`.
@@ -393,7 +393,7 @@
     - Aston Martin: Araç `center 50%`, Alonso `center 25%`, Stroll `center 25%` + `transform: scaleX(-1)` (bakış yönü içeriye aynalandı).
     - Cadillac: Araç `60% 50%`, Pilot 1 `center 20%`, Pilot 2 / Boş slot mimari wireframe silüet SVG filigranı ile donatıldı.
 
-- [~] **14.3 Apple & Apex Doku ve Tipografi Dokunuşları (Antigravity):**
+- [x] **14.3 Apple & Apex Doku ve Tipografi Dokunuşları (Antigravity):**
   - **Uygulandı (2026-10-13):**
     - Alttan karartma gradyanı: `linear-gradient(to top, rgba(10, 10, 10, 0.90) 0%, rgba(10, 10, 10, 0.35) 42%, transparent 100%)` ile pilot isimleri ve P-sıralamaları yüksek kontrast kazandı.
     - Tek tip fotoğraf dili filtresi: `contrast(1.05) saturate(0.9)` hem pilot portrelerine hem araç slotuna uygulandı.
