@@ -285,12 +285,12 @@ export function DriverProfileHero({
 
               {seasonRank != null ? (
                 <span className="rounded-full border border-hairline/80 bg-surface-raised/90 px-2.5 py-1 font-mono text-[10px] font-600 uppercase tracking-wider text-text-hi">
-                  P{seasonRank} WDC
+                  P{seasonRank}
                 </span>
               ) : null}
             </div>
 
-            {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
+            {kicker ? <span lang="en" className="label-caps text-text-mid">{kicker}</span> : null}
             {editorialTagline ? (
               <p
                 className="mt-2 max-w-xl font-condensed text-sm italic leading-snug text-text-mid md:text-base"
@@ -398,7 +398,7 @@ export function DriverProfileHero({
               ) : null}
             </div>
 
-            {kicker ? <span className="label-caps text-text-mid">{kicker}</span> : null}
+            {kicker ? <span lang="en" className="label-caps text-text-mid">{kicker}</span> : null}
             {editorialTagline ? (
               <p
                 className="mt-2 line-clamp-2 font-condensed text-sm italic leading-snug text-text-mid"
@@ -407,7 +407,7 @@ export function DriverProfileHero({
                 {editorialTagline}
               </p>
             ) : null}
-            <h1 className="display-hero mt-2 uppercase text-text-hi">{title}</h1>
+            <h1 lang="en" className="display-hero mt-2 uppercase text-text-hi">{title}</h1>
             {meta ? <p className="data-tabular mt-2 text-text-mid">{meta}</p> : null}
           </div>
         </div>

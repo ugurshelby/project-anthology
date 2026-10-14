@@ -106,7 +106,7 @@ export function TeamSeasonHero({
         <div className="relative z-10 min-w-0 max-w-2xl">
           {/* Header Tag / Emblem HUD */}
           <div className="flex flex-wrap items-center gap-3">
-            {mediaResult ? (
+            {mediaResult?.status === 'image' ? (
               <div className="h-10 w-24 shrink-0 sm:h-12 sm:w-32 drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
                 <MediaAssetView
                   type="team"
