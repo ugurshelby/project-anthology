@@ -293,10 +293,11 @@
         "session": "Seans",
         "lightsOut": "Lights out",
         "raceClock": "Yarış saati",
-        "lockedBody": "Canlı sıralama burada yayınlanmıyor; resmî sonuç ve puan durumu bayraktan birkaç dakika sonra burada.",
+        "lockedBody": "Canlı sıralama veri kaynağı seans boyunca kısıtlıdır; resmî sonuç ve puan durumu bayraktan kısa süre sonra yarış sayfasında yayınlanır.",
         "finishedTitle": "Bayrak düştü",
         "finishedBody": "Resmî sonuç ve puan durumu birkaç dakika içinde burada.",
-        "resultsLink": "Yarış sayfası →"
+        "resultsLink": "Yarış sayfası →",
+        "unavailable": "Canlı telemetri şu an kapalı; resmî yarış sonuçları seans tamamlandıktan sonra yayınlanır."
       },
       "otd": {
         "badge": "Tarihte Bugün · {date}",

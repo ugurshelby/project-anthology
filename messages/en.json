@@ -293,10 +293,11 @@
         "session": "Session",
         "lightsOut": "Lights out",
         "raceClock": "Race clock",
-        "lockedBody": "The running order isn't shown live here; official results and standings land a few minutes after the flag.",
+        "lockedBody": "The running order is restricted during the session; official results and standings appear shortly after the flag on the race page.",
         "finishedTitle": "Chequered flag",
         "finishedBody": "Official results and standings land here within minutes.",
-        "resultsLink": "Race page →"
+        "resultsLink": "Race page →",
+        "unavailable": "Live telemetry is currently restricted; official race results appear shortly after the session."
       },
       "otd": {
         "badge": "On This Day · {date}",

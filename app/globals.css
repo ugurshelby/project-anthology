@@ -97,82 +97,173 @@ body {
   outline-offset: 2px;
 }
 
-/* ─── §2.1 Tip ölçeği yardımcı sınıfları ───────────────────────────────────── */
+/* ─── §2.1 Tip ölçeği ve bileşen yardımcı sınıfları (@layer components) ─── */
+@layer components {
+  .display-hero {
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: clamp(40px, 12vw, 120px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+  }
 
-.display-hero {
-  font-family: var(--font-condensed);
-  font-weight: 700;
-  font-size: clamp(40px, 12vw, 120px);
-  line-height: 0.92;
-  letter-spacing: -0.02em;
-}
+  .headline-lg {
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: clamp(34px, 4vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
 
-.headline-lg {
-  font-family: var(--font-condensed);
-  font-weight: 600;
-  font-size: clamp(34px, 4vw, 48px);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-}
+  .headline-md {
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: clamp(24px, 2.6vw, 32px);
+    line-height: 1.1;
+  }
 
-.headline-md {
-  font-family: var(--font-condensed);
-  font-weight: 600;
-  font-size: clamp(24px, 2.6vw, 32px);
-  line-height: 1.1;
-}
+  .body-lg {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.75;
+  }
 
-.body-lg {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 1.75;
-}
+  .body-md {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.5;
+  }
 
-.body-md {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 1.5;
-}
+  .body-sm {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+  }
 
-.body-sm {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 1.5;
-}
+  .data-tabular {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.43;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
 
-.data-tabular {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.43;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
+  .label-caps {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1.33;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
 
-.label-caps {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 1.33;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
+  /* Kahraman sayı — büyük rakamda satır yüksekliği boyutla ters (§2.2) */
+  .hero-number {
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
 
-/* Kahraman sayı — büyük rakamda satır yüksekliği boyutla ters (§2.2) */
-.hero-number {
-  font-family: var(--font-condensed);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
+  /* Floating mobile dock clearance (bottom-6 + pill + safe area) */
+  .pb-mobile-nav {
+    padding-bottom: max(6.5rem, calc(88px + env(safe-area-inset-bottom, 0px)));
+  }
 
-/* Poster Dense — clearance for fixed mobile tab-bar + safe area */
-.pb-mobile-nav {
-  padding-bottom: max(5.5rem, calc(72px + env(safe-area-inset-bottom, 0px)));
+  .touch-target {
+    position: relative;
+  }
+  .touch-target::before {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 767px) {
+    .label-caps { font-size: 13px; letter-spacing: 0.08em; }
+    .data-tabular { font-size: 13px; }
+    .body-sm { font-size: 13px; }
+  }
+
+  /* Analog film grain — subtle texture on season/cockpit surfaces */
+  .film-grain {
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px 180px;
+  }
+
+  /* Pit wall compact standings scroll */
+  .pit-wall-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hairline) transparent;
+  }
+
+  .pit-wall-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .pit-wall-scroll::-webkit-scrollbar-thumb {
+    background: var(--hairline);
+    border-radius: 4px;
+  }
+
+  /* Image loading shimmer */
+  .apex-img-loading {
+    background-color: var(--surface-raised);
+    background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.06) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: apexShimmer 1.4s ease-in-out infinite;
+  }
+
+  /* Slow "breathing" glow for a calm focus point */
+  .apex-breathe {
+    animation: apexBreathe 3.2s ease-in-out infinite;
+  }
+
+  /* Glossary diagram dialog: grows in from slightly smaller */
+  .apex-dialog[open] {
+    animation: apexDialogIn 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /* Circuit page track outline draws itself once (pathLength=1) */
+  .apex-track-draw {
+    stroke-dasharray: 1;
+    animation: apexTrackDraw 1.6s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  /* Anthology reading — drop cap + prose measure */
+  .story-prose {
+    max-width: 68ch;
+  }
+  .story-dropcap::first-letter {
+    float: left;
+    margin-right: 0.7rem;
+    padding-top: 0.15em;
+    font-family: var(--font-condensed), var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    font-size: 3.75rem;
+    font-weight: 700;
+    line-height: 0.78;
+    color: var(--text-hi);
+  }
+  @media (min-width: 768px) {
+    .story-dropcap::first-letter {
+      font-size: 4.25rem;
+      margin-right: 0.85rem;
+    }
+  }
+  .story-pullquote {
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
 }
 
 /* Screen-reader only — used by skip link and loading states */
@@ -212,24 +303,13 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Image loading shimmer (components/media/ApexImage.tsx): a soft light sweep
-   across the empty box until the image arrives; removed on load. Static
-   under reduced motion (global rule). */
+/* Image loading shimmer keyframes */
 @keyframes apexShimmer {
   from { background-position: 150% 0; }
   to { background-position: -50% 0; }
 }
-.apex-img-loading {
-  background-color: var(--surface-raised);
-  background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.06) 50%, transparent 70%);
-  background-size: 200% 100%;
-  animation: apexShimmer 1.4s ease-in-out infinite;
-}
 
-/* Race-day panel (components/home/LiveRaceTracker.tsx): the five start lights
-   come on one by one, then all go out together — "lights out". Each light gets
-   a later delay and a shorter duration so they all end at the same instant.
-   Ends dark; under reduced motion it simply renders dark. */
+/* Race-day panel (components/home/LiveRaceTracker.tsx) */
 @keyframes apexStartLight {
   0% { background-color: var(--surface-raised); box-shadow: none; }
   6%, 96% {
@@ -239,49 +319,23 @@ body {
   100% { background-color: var(--surface-raised); box-shadow: none; }
 }
 
-/* Analog film grain — subtle texture on season/cockpit surfaces */
-.film-grain {
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 180px 180px;
-}
-
-/* Pit wall compact standings scroll */
-.pit-wall-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: var(--hairline) transparent;
-}
-
-.pit-wall-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.pit-wall-scroll::-webkit-scrollbar-thumb {
-  background: var(--hairline);
-  border-radius: 4px;
-}
-
-/* Slow "breathing" glow for a calm focus point (tyre dial peak + window). Reduced motion stops it below. */
+/* Slow "breathing" glow keyframes */
 @keyframes apexBreathe {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.8; }
 }
-.apex-breathe { animation: apexBreathe 3.2s ease-in-out infinite; }
 
-/* Glossary diagram dialog: grows in from slightly smaller, like an iOS sheet. */
+/* Glossary diagram dialog keyframes */
 @keyframes apexDialogIn {
   from { opacity: 0; transform: translateY(12px) scale(0.96); }
   to { opacity: 1; transform: none; }
 }
-.apex-dialog[open] { animation: apexDialogIn 320ms cubic-bezier(0.32, 0.72, 0, 1); }
 
-/* Circuit page track outline draws itself once (pathLength=1). Reduced motion jumps to the end state. */
+/* Circuit page track outline draws itself once keyframes */
 @keyframes apexTrackDraw {
   from { stroke-dashoffset: 1; }
   to { stroke-dashoffset: 0; }
 }
-.apex-track-draw { stroke-dasharray: 1; animation: apexTrackDraw 1.6s cubic-bezier(0.32, 0.72, 0, 1) both; }
 
 /* §5 reduced-motion zorunlu */
 @media (prefers-reduced-motion: reduce) {
@@ -293,51 +347,6 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-
-/* Floating mobile dock clearance (bottom-6 + pill + safe area) */
-.pb-mobile-nav {
-  padding-bottom: max(6.5rem, calc(88px + env(safe-area-inset-bottom, 0px)));
-}
-.touch-target { position: relative; }
-.touch-target::before {
-  content: "";
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 44px;
-  height: 44px;
-  transform: translate(-50%, -50%);
-}
-@media (max-width: 767px) {
-  .label-caps { font-size: 13px; letter-spacing: 0.08em; }
-  .data-tabular { font-size: 13px; }
-  .body-sm { font-size: 13px; }
-}
-
-/* Anthology reading — drop cap + prose measure */
-.story-prose {
-  max-width: 68ch;
-}
-.story-dropcap::first-letter {
-  float: left;
-  margin-right: 0.7rem;
-  padding-top: 0.15em;
-  font-family: var(--font-condensed), var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-size: 3.75rem;
-  font-weight: 700;
-  line-height: 0.78;
-  color: var(--text-hi);
-}
-@media (min-width: 768px) {
-  .story-dropcap::first-letter {
-    font-size: 4.25rem;
-    margin-right: 0.85rem;
-  }
-}
-.story-pullquote {
-  background: color-mix(in srgb, var(--surface) 70%, transparent);
-  border-radius: 0 var(--radius) var(--radius) 0;
 }
 
 
