@@ -129,6 +129,8 @@ Büyük başlıklarda negatif harf aralığı uygulanır (Apple optik tracking i
 | `.label-caps` | 12px | 1.33 | `+0.1em` | JetBrains Mono 700, büyük harf |
 | `.hero-number` | kullanım yerinde verilir | 0.9 | `-0.02em` | Barlow Condensed 700, `tabular-nums` |
 
+> **Katmanlama Notu:** Tip ölçeği ve bileşen yardımcı sınıfları `app/globals.css` içinde `@layer components` kapsamındadır; bileşende belirtilen Tailwind yardımcı sınıfları (`text-[10px]`, `text-xs`, `md:hidden` vb.) bu sınıfları doğrudan ezebilir.
+
 ---
 
 ## 5. Spacing, Geometri ve Yüzeyler

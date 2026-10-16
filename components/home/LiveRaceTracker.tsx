@@ -103,10 +103,18 @@ export function LiveRaceTracker({ startMs, resultsHref }: { startMs?: number | n
   }
 
   // Race running without a running order (free tier lock, or the proxy is down / still connecting).
-  return <LightsOutPanel startMs={startMs ?? null} connecting={!data && !failed} />;
+  return <LightsOutPanel startMs={startMs ?? null} connecting={!data && !failed} resultsHref={resultsHref} />;
 }
 
-export function LightsOutPanel({ startMs, connecting }: { startMs: number | null; connecting: boolean }) {
+export function LightsOutPanel({
+  startMs,
+  connecting,
+  resultsHref,
+}: {
+  startMs: number | null;
+  connecting: boolean;
+  resultsHref?: string;
+}) {
   const t = useTranslations('ui.home.live');
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
@@ -157,6 +165,14 @@ export function LightsOutPanel({ startMs, connecting }: { startMs: number | null
         </span>
       </div>
       <span className="text-sm leading-snug text-text-mid">{t('lockedBody')}</span>
+      {resultsHref ? (
+        <Link
+          href={resultsHref}
+          className="label-caps w-fit text-accent transition-colors hover:text-text-hi focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          {t('resultsLink')}
+        </Link>
+      ) : null}
     </div>
   );
 }
