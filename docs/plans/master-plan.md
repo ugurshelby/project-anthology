@@ -28,8 +28,8 @@
 | **Kod Stili & Linter** | ✅ Sıfır Hata, Sıfır Uyarı | `npm run lint` (0 error, 0 warning, kod 0) |
 | **Web Production Build** | ✅ 50/50 Sayfa ve Rota Derlendi | `npm run build` (Next.js Turbopack) |
 | **Veri Katmanı & Fallback** | ✅ Supabase + Jolpica Fallback + F1DB | DB → Cache → Live Proxy kademeli okuma devrede |
-| **Görsel & Medya Altyapısı** | ✅ 56 hikâye görseli + medya sistemi canlı | `public/stories/`, `media_assets` (çözümleyici v2 devrede) |
-| **Tasarım & Bileşen Mimarisi** | ✅ Tailwind 4 `@layer components` | CSS yardımcı sınıfları katmanlı, bento yay fiziği ve `.bento-deferred` devrede |
+| **Görsel & Medya Altyapısı** | ✅ 56 hikâye görseli + 24 pist fotoğrafı canlı | `public/stories/`, `media_assets` (çözümleyici v2 devrede, circuits dizini gerçek fotoğraflara bağlandı) |
+| **Tasarım & Bileşen Mimarisi** | ✅ Tailwind 4 `@layer components` + Apple Fluid | CSS yardımcı sınıfları katmanlı, bento yay fiziği, `.bento-deferred` ve circuits akıcı segmented kontrolü devrede |
 | **Grid & Kadraj Standardı** | ✅ 11 Takım 22 Pilot Tam Kadro | 2026 Cadillac (#77 Bottas & #11 Pérez) tam entegre; sıfır boş slot |
 | **Mobil Uygulama (Expo 56)** | ⏸️ Rafta (sahip kararı 2026-10-07) | `mobile/` diskte mevcut, gitignored; web işleri oturduktan sonra ele alınacak |
 

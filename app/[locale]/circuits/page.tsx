@@ -6,8 +6,10 @@ import {
   nextCircuitIndex,
 } from '@/lib/data/circuits';
 import { PageShell } from '@/components/layout/BentoGrid';
-import { CircuitCardView } from '@/components/circuit/CircuitCardView';
 import { NextCircuitHero } from '@/components/circuit/NextCircuitHero';
+import { CircuitsDirectory } from '@/components/circuit/CircuitsDirectory';
+import { getMediaBatch } from '@/lib/media/read';
+import { getCircuitFacts } from '@/data/circuits/facts';
 import { localizedAlternates } from '@/lib/seo';
 
 export const revalidate = 900;
@@ -40,32 +42,47 @@ export default async function CircuitsPage({ params }: { params: Promise<{ local
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'ui.circuit' });
   const [races, cards] = await Promise.all([getCurrentSeasonRaces(), getCurrentSeasonCircuitCards()]);
+
+  // Batch query venue photography for all circuits in current season
+  const circuitIds = cards.map((c) => c.circuitId);
+  const mediaMap = await getMediaBatch('circuit', circuitIds);
+  const mediaRecord = Object.fromEntries(mediaMap.entries());
+
+  // Attach facts to each card for telemetry display
+  const cardsWithFacts = cards.map((c) => ({
+    ...c,
+    facts: getCircuitFacts(c.circuitId, locale),
+  }));
+
   const nextIndex = nextCircuitIndex(cards);
   const nextRace = nextIndex >= 0 ? races[nextIndex] : null;
-  const nextCard = nextIndex >= 0 ? cards[nextIndex] : null;
-  const gridCards = nextIndex >= 0 ? cards.filter((_, i) => i !== nextIndex) : cards;
+  const nextCard = nextIndex >= 0 ? cardsWithFacts[nextIndex] : null;
+  const gridCards = nextIndex >= 0 ? cardsWithFacts.filter((_, i) => i !== nextIndex) : cardsWithFacts;
 
   return (
     <PageShell>
-      <header className="mb-6 flex flex-col gap-1 md:mb-8">
+      <header className="mb-6 flex flex-col gap-2 md:mb-8">
         <span className="label-caps text-text-mid">{t('listEyebrow')}</span>
         <h1 className="headline-lg uppercase text-text-hi">{t('listTitle')}</h1>
+        <p className="max-w-2xl text-sm text-text-mid font-sans leading-relaxed">
+          {t('listSubtitle')}
+        </p>
       </header>
 
       {nextCard && nextRace ? (
-        <NextCircuitHero card={nextCard} race={nextRace} totalRounds={cards.length} />
+        <NextCircuitHero
+          card={nextCard}
+          race={nextRace}
+          totalRounds={cards.length}
+          media={mediaRecord[nextCard.circuitId]}
+        />
       ) : null}
 
-      <div className="flex flex-col gap-2 md:hidden">
-        {gridCards.map((card) => (
-          <CircuitCardView key={card.circuitId} card={card} status={card.done ? 'done' : 'upcoming'} compact />
-        ))}
-      </div>
-      <div className="hidden gap-4 md:grid md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
-        {gridCards.map((card) => (
-          <CircuitCardView key={card.circuitId} card={card} status={card.done ? 'done' : 'upcoming'} />
-        ))}
-      </div>
+      <CircuitsDirectory
+        cards={gridCards}
+        mediaRecord={mediaRecord}
+        totalCount={gridCards.length}
+      />
     </PageShell>
   );
 }

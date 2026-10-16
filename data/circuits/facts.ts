@@ -248,7 +248,8 @@ export const CIRCUIT_FACTS: Record<string, CircuitFacts> = {
 export function getCircuitFacts(circuitId: string | undefined | null, locale?: string): CircuitFacts | null {
   const id = (circuitId ?? '').trim().toLowerCase();
   if (!id) return null;
-  const facts = CIRCUIT_FACTS[id] ?? null;
+  const normalized = id.replace(/-/g, '_');
+  const facts = CIRCUIT_FACTS[id] ?? CIRCUIT_FACTS[normalized] ?? null;
   if (!facts || locale !== 'tr') return facts;
-  return { ...facts, ...(CIRCUIT_FACTS_TR[id] ?? {}) };
+  return { ...facts, ...(CIRCUIT_FACTS_TR[id] ?? CIRCUIT_FACTS_TR[normalized] ?? {}) };
 }

@@ -10,6 +10,9 @@ import { getCircuitFacts } from '@/data/circuits/facts';
 import { CURRENT_SEASON, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
 import type { CircuitCard } from '@/lib/data/circuits';
 
+import type { MediaResult } from '@/lib/media/read';
+import { MediaAssetView } from '@/components/media/MediaAssetView';
+
 function formatRaceDate(date: string, locale: string): string {
   if (!date || date === '—') return '';
   const t = Date.parse(`${date}T12:00:00Z`);
@@ -26,10 +29,12 @@ export function NextCircuitHero({
   card,
   race,
   totalRounds,
+  media,
 }: {
   card: CircuitCard;
   race: CalendarRace;
   totalRounds: number;
+  media?: MediaResult | null;
 }) {
   const t = useTranslations('ui.circuit');
   const locale = useLocale();
@@ -106,37 +111,64 @@ export function NextCircuitHero({
           </div>
         </div>
 
-        <div className="relative min-h-[220px] border-t border-white/[0.06] lg:min-h-[360px] lg:border-t-0 lg:border-l">
-          <ApexFallback kind="circuit" label={card.circuitName} />
+        <div className="relative min-h-[260px] overflow-hidden border-t border-white/[0.06] lg:min-h-[380px] lg:border-t-0 lg:border-l bg-surface-raised">
+          {media?.status === 'image' ? (
+            <MediaAssetView
+              type="circuit"
+              entityKey={card.circuitId}
+              initialResult={media}
+              alt={card.circuitName}
+              name={card.circuitName}
+              objectFit="cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+              className="h-full w-full object-cover [filter:contrast(1.06)_saturate(0.92)] transition-transform duration-700 ease-out hover:scale-105"
+              showAttribution={false}
+            />
+          ) : (
+            <ApexFallback kind="circuit" label={card.circuitName} />
+          )}
+
+          {/* Multi-layer atmospheric dark vignette to preserve contrast and integrate with UI */}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10 lg:bg-gradient-to-l lg:from-black/80 lg:via-black/30 lg:to-transparent"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/95 via-[#0a0a0a]/50 to-[#0a0a0a]/20 lg:bg-gradient-to-l lg:from-[#0a0a0a]/95 lg:via-[#0a0a0a]/50 lg:to-transparent"
           />
 
           {card.svgSrc ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center p-6 md:p-8">
-              <div className="relative h-full w-full max-h-52 max-w-md drop-shadow-[0_0_24px_rgba(255,255,255,0.15)] md:max-h-64">
+              <div className="relative h-full w-full max-h-56 max-w-md drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)] md:max-h-72">
                 <Image
                   src={card.svgSrc}
                   alt=""
                   fill
                   sizes="(max-width: 1024px) 80vw, 400px"
-                  className="object-contain opacity-90 brightness-0 invert"
+                  className="object-contain opacity-95 brightness-0 invert drop-shadow-[0_0_16px_rgba(255,255,255,0.3)]"
                 />
               </div>
             </div>
           ) : null}
 
-          {facts?.signatureCorner ? (
+          {facts?.signatureCorner || facts?.character ? (
             <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-wrap gap-2">
-              <span className="label-caps rounded-[var(--radius-pill)] border border-white/10 bg-black/40 px-2.5 py-1 text-text-mid backdrop-blur-sm">
-                {facts.signatureCorner}
-              </span>
+              {facts.signatureCorner ? (
+                <span className="label-caps rounded-full border border-white/10 bg-black/60 px-3 py-1 text-text-hi backdrop-blur-md shadow-sm">
+                  {facts.signatureCorner}
+                </span>
+              ) : null}
               {facts.character ? (
-                <span className="label-caps rounded-[var(--radius-pill)] border border-white/10 bg-black/40 px-2.5 py-1 text-text-low backdrop-blur-sm">
+                <span className="label-caps rounded-full border border-white/10 bg-black/60 px-3 py-1 text-text-mid backdrop-blur-md shadow-sm">
                   {facts.character}
                 </span>
               ) : null}
+            </div>
+          ) : null}
+
+          {media?.status === 'image' && media.attribution?.text ? (
+            <div className="absolute top-3 right-3 z-20">
+              <span className="rounded-full border border-white/10 bg-black/50 px-2 py-0.5 text-[9px] font-mono text-text-low/80 backdrop-blur-md">
+                {media.attribution.text}
+              </span>
             </div>
           ) : null}
         </div>
