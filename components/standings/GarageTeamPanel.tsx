@@ -194,7 +194,7 @@ function EmptySeat({ divided }: { divided?: boolean }) {
         }}
       />
 
-      {/* Architectural wireframe silhouette watermark (Cadillac / vacant seat) */}
+      {/* Architectural wireframe silhouette watermark (vacant seat fallback) */}
       <svg
         aria-hidden
         viewBox="0 0 100 100"

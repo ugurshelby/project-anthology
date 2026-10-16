@@ -250,7 +250,11 @@ async function HomeArchiveBlock() {
   const onThisDay = await getOnThisDay();
   if (onThisDay.length === 0) return null;
   const image = await pickOnThisDayImage(onThisDay[0], getMedia);
-  return <OnThisDayCard entries={onThisDay} image={image} />;
+  return (
+    <div className="bento-deferred">
+      <OnThisDayCard entries={onThisDay} image={image} />
+    </div>
+  );
 }
 
 export default async function HomePage({

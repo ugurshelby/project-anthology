@@ -22,12 +22,14 @@ export function BentoCard({
   className = '',
   as: Tag = 'section',
   interactive = false,
+  deferred = false,
 }: {
   span?: Span;
   children: ReactNode;
   className?: string;
   as?: 'section' | 'article' | 'div';
   interactive?: boolean;
+  deferred?: boolean;
 }) {
   return (
     <Tag
@@ -36,8 +38,9 @@ export function BentoCard({
         'group relative overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-[var(--card-pad)] md:p-[var(--card-pad-md)]',
         'shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)]',
         interactive
-          ? 'bg-surface-raised/0 transition-[transform,opacity] duration-150 ease-out will-change-transform hover:-translate-y-0.5 hover:opacity-95'
+          ? 'bg-surface-raised/0 transition-[transform,opacity,border-color,box-shadow] duration-150 ease-out will-change-transform hover:-translate-y-0.5 hover:border-white/20 active:scale-[0.985]'
           : '',
+        deferred ? 'bento-deferred' : '',
         className,
       ]
         .filter(Boolean)

@@ -65,7 +65,19 @@ export async function getDriverProfile(
   season: number,
 ): Promise<DriverProfile | null> {
   const data = await getSeasonData(season);
-  const row = matchDriver(data.standings, driverId);
+  let row = matchDriver(data.standings, driverId);
+  if (!row && (season === CURRENT_SEASON || season === 2026) && (driverId.toLowerCase() === 'perez' || driverId.toLowerCase() === 'sergio-perez')) {
+    row = {
+      position: '23',
+      driverId: 'perez',
+      driverName: 'Sergio Pérez',
+      driverCode: 'PER',
+      constructorId: 'cadillac',
+      constructorName: 'Cadillac Formula 1 Team',
+      points: '0',
+      permanentNumber: '11',
+    };
+  }
   if (!row) return null;
 
   const stats = data.driverStats?.[row.driverName] ?? { wins: 0, podiums: 0 };
@@ -101,6 +113,28 @@ export async function getTeamProfile(
       position: d.position,
       points: d.points,
     }));
+
+  if ((season === CURRENT_SEASON || season === 2026) && (row.constructorId === 'cadillac' || row.constructorName.toLowerCase().includes('cadillac'))) {
+    const ids = new Set(drivers.map((d) => d.driverId));
+    if (!ids.has('bottas') && !ids.has('valtteri-bottas')) {
+      drivers.push({
+        driverId: 'bottas',
+        driverName: 'Valtteri Bottas',
+        driverCode: 'BOT',
+        position: '22',
+        points: '0',
+      });
+    }
+    if (!ids.has('perez') && !ids.has('sergio-perez')) {
+      drivers.push({
+        driverId: 'perez',
+        driverName: 'Sergio Pérez',
+        driverCode: 'PER',
+        position: '23',
+        points: '0',
+      });
+    }
+  }
 
   return {
     season,
@@ -219,6 +253,63 @@ export async function getDriversByTeam(season: number = CURRENT_SEASON): Promise
       byTeam.set(key, group);
     }
     group.drivers.push(row);
+  }
+
+  // Ensure Cadillac in 2026 has both Bottas (#77) and Perez (#11)
+  if (season === CURRENT_SEASON || season === 2026) {
+    const hasPerez = flat.some((d) => d.driverId === 'perez' || d.driverId === 'sergio-perez');
+    if (!hasPerez) {
+      flat.push({
+        position: '23',
+        driverId: 'perez',
+        driverName: 'Sergio Pérez',
+        driverCode: 'PER',
+        constructorId: 'cadillac',
+        constructorName: 'Cadillac Formula 1 Team',
+        points: '0',
+        carNumber: '11',
+        permanentNumber: '11',
+      });
+    }
+
+    let cadillac = byTeam.get('cadillac') || byTeam.get('Cadillac Formula 1 Team') || byTeam.get('Cadillac');
+    if (!cadillac) {
+      cadillac = {
+        constructorId: 'cadillac',
+        constructorName: 'Cadillac Formula 1 Team',
+        constructorPosition: '11',
+        drivers: [],
+      };
+      byTeam.set('cadillac', cadillac);
+    }
+
+    const cIds = new Set(cadillac.drivers.map((d) => d.driverId));
+    if (!cIds.has('bottas') && !cIds.has('valtteri-bottas')) {
+      cadillac.drivers.push({
+        position: '22',
+        driverId: 'bottas',
+        driverName: 'Valtteri Bottas',
+        driverCode: 'BOT',
+        constructorId: 'cadillac',
+        constructorName: 'Cadillac Formula 1 Team',
+        points: '0',
+        carNumber: '77',
+        permanentNumber: '77',
+      });
+    }
+    if (!cIds.has('perez') && !cIds.has('sergio-perez')) {
+      cadillac.drivers.push({
+        position: '23',
+        driverId: 'perez',
+        driverName: 'Sergio Pérez',
+        driverCode: 'PER',
+        constructorId: 'cadillac',
+        constructorName: 'Cadillac Formula 1 Team',
+        points: '0',
+        carNumber: '11',
+        permanentNumber: '11',
+      });
+    }
   }
 
   const groups = [...byTeam.values()].sort((a, b) => {

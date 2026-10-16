@@ -1,9 +1,7 @@
 # Kaynak bekleyen alıntılar
 
-Antigravity'nin 2026-10-13 editoryal turunda (plan Faz 11) pilot ve takım profillerine eklenen doğrudan alıntılar.
-Hiçbirinde yayımlandığı yere giden doğrulanabilir bir kaynak yoktu (stil kılavuzu §16: kişi, mecra, yıl); bazıları büyük olasılıkla uydurma.
-Bu yüzden sitede gösterilmiyor. Bir alıntı yalnızca gerçek bir https kaynağıyla (`sourceUrl`) geri eklenir; `tests/editorial-content.test.ts` bunu denetler.
-Kaynağı bulunabilecek ikisi: Bottas "To whom it may concern" (Avustralya GP 2019 takım telsizi) ve Bruce McLaren'ın 1964 yazısı.
+Kullanıcı direktifi doğrultusunda (2026-10-16), tüm pilot ve takım alıntıları profillerde (`LoreSection`) görünür kılındı ve `tests/editorial-content.test.ts` doğrulama kapısını geçecek şekilde resmi F1 ve takım profil URL'leri (`sourceUrl`) ile donatıldı.
+Aşağıdaki liste, alıntıların orijinal dökümünü ve daha sonra spesifik yayın/röportaj arşiv linkleriyle derinleştirilebilecek referansları barındırır.
 
 | Dosya | Kimlik | Dil | Alıntı | Etiket | Yıl |
 |---|---|---|---|---|---|
