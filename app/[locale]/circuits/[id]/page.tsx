@@ -5,20 +5,30 @@ import { countryName } from '@/lib/i18n/format';
 import { localizedAlternates } from '@/lib/seo';
 import { getCircuitDetail, getCurrentSeasonResults, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
+import nextDynamic from 'next/dynamic';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { SeasonResultsPanel } from '@/components/circuit/SeasonResultsPanel';
 import { CircuitCharacter } from '@/components/circuit/CircuitCharacter';
 import { CircuitWeatherCard } from '@/components/circuit/CircuitWeatherCard';
-import { CircuitElevationProfile } from '@/components/circuit/CircuitElevationProfile';
 import { CircuitHero } from '@/components/circuit/CircuitHero';
 import { CircuitFactsRibbon } from '@/components/circuit/CircuitFactsRibbon';
 import { TrackTrace } from '@/components/circuit/TrackTrace';
 import { hasElevationProfile } from '@/data/circuits/topography';
 import { hasCircuitLore } from '@/data/circuits/lore';
-import { CircuitLoreCards } from '@/components/circuit/CircuitLoreCards';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
 import { getMedia } from '@/lib/media/read';
+
+const CircuitElevationProfile = nextDynamic(
+  () => import('@/components/circuit/CircuitElevationProfile').then((m) => m.CircuitElevationProfile),
+  {
+    loading: () => <div className="h-44 rounded-2xl bg-surface border border-hairline animate-pulse" />,
+  }
+);
+
+const CircuitLoreCards = nextDynamic(
+  () => import('@/components/circuit/CircuitLoreCards').then((m) => m.CircuitLoreCards)
+);
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -117,7 +127,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
             {/* Topography and demands (curated circuits only; editorial estimates, labelled) */}
             {hasElevationProfile(id) ? (
-              <div className="col-span-1 md:col-span-8 lg:col-span-12">
+              <div className="col-span-1 md:col-span-8 lg:col-span-12 bento-deferred">
                 <CircuitElevationProfile circuitId={id} />
               </div>
             ) : null}
@@ -129,7 +139,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
             ) : null}
 
             {circuit.winners.length > 0 ? (
-              <BentoCard span={weather ? 8 : 12}>
+              <BentoCard span={weather ? 8 : 12} deferred>
                 <span className="label-caps mb-3 block text-text-mid">{t('recentWinners')}</span>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {circuit.winners.map((w, i) => (
@@ -168,7 +178,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
 
             {/* Historical moments (circuits with recorded lore only) */}
             {hasCircuitLore(id) ? (
-              <BentoCard span={12}>
+              <BentoCard span={12} deferred>
                 <CircuitLoreCards circuitId={id} />
               </BentoCard>
             ) : null}

@@ -25,7 +25,7 @@ export function LoreSection({
   /** Multi-era deep narrative chapters (Hamilton, Alonso, Verstappen, Ferrari, etc.). */
   chapters?: Array<{ title: string; text: string; era?: string }>;
   /** Verified primary source quote carrying the subject's voice. */
-  quote?: { text: string; context: string; year?: number };
+  quote?: { text: string; context: string; year?: number; sourceUrl?: string };
 }) {
   const t = useTranslations('ui.profile');
   return (
@@ -53,6 +53,17 @@ export function LoreSection({
           </p>
           <footer className="mt-2 text-right font-mono text-xs text-text-low">
             — {quote.context} {quote.year ? `(${quote.year})` : ''}
+            {quote.sourceUrl ? (
+              <a
+                href={quote.sourceUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="ml-2 inline-flex items-center text-text-low hover:text-text-mid transition-colors underline decoration-dotted underline-offset-2"
+                title={quote.sourceUrl}
+              >
+                ↗
+              </a>
+            ) : null}
           </footer>
         </blockquote>
       ) : null}

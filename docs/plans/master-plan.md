@@ -116,6 +116,21 @@
 - [x] **AG-5 Pilot Detay Sayfası Yeniden Tasarımı (Faz 12):** Apple akıcı arayüz prensipleri ve F1 telemetri estetiğinde pilot detay sayfasının (`/drivers/[driverId]`) baştan tasarlanması (Split Driver Hero, Career Telemetry Bento, Active Season Pulse & H2H, Chronological Legacy Chapters). Ayrıntı Faz 12 altında.
 - [x] **AG-6 Pist Detay Sayfası Yeniden Tasarımı (Faz 13, Claude yaptı 2026-10-14):** Apple WWDC akıcı tasarım prensipleri ve F1 teknik telemetrisiyle pist detay sayfasının (`/circuits/[id]`) baştan tasarlanması (Cinematic Track Hero, Interactive Sector & Corner Pin Vector, Topo Elevation Ribbon, Strategy Demands Module). Ayrıntı Faz 13 altında.
 - [x] **AG-7 Grid Sayfası Görsel Kadraj & Medya Optimizasyonu (Faz 14):** 11 takımın araç ve pilot slotları için kesin kadraj (object-position), alttan karartma gradyanı (scrim), renk derecelendirme filtresi (contrast/saturate) ve yarış numarası filigranı entegrasyonu. Ayrıntı Faz 14 altında.
+- [~] **AG-8 Ağır İstemci Bileşenlerinin Lazy/Dynamic Yüklenmesi & Görünürlük Optimizasyonu (Antigravity, 2026-10-16):**
+  - Yapıldı: `nextDynamic` (`next/dynamic`) ile sayfanın ilk görünümü dışındaki ağır istemci bileşenleri lazy yüklendi (`DriverSeasonPulse`, `DriverTeammateDuel`, `RelatedNewsList`, `CircuitElevationProfile`, `CircuitLoreCards`, `SeasonProgressionChart`). Layout shift olmaması için `loading` skeleton rezervasyonları tanımlandı.
+  - `.bento-deferred` (`content-visibility: auto; contain-intrinsic-size: 0 350px;`) sınıfı `app/globals.css` bileşen katmanına eklendi; `BentoCard` ve `HistoryCard` bileşenlerine `deferred?: boolean` prop'u getirilerek ekran dışı kartların CPU/GPU render maliyeti düşürüldü.
+  - LCP hero görselleri için `priority`, `fetchPriority="high"` ve kesin responsive `sizes` önceliklendirildi.
+  - Ölçüldü: `npx tsc --noEmit` 0 hata, `npm run lint` 0 hata, `npx vitest run` 749/749 başarılı, `npm run build` 50/50 sayfa ve rota başarıyla derlendi. Claude Code doğrulaması bekleniyor.
+- [~] **AG-9 Bento Mikro-Etkileşim Cilaları & Dokunsal Geri Bildirim (Antigravity, 2026-10-16):**
+  - Yapıldı: `BentoCard` için dokunsal yay fiziği (`active:scale-[0.985]`), derinleştirilmiş kenar ışıması (`hover:border-white/20`) ve hafif katman gölgeleri eklendi. "Performans en önemli tasarım öğesidir" kuralına ve `@media (prefers-reduced-motion: reduce)` erişilebilirlik şartına tam uyuldu. Claude Code doğrulaması bekleniyor.
+- [~] **AG-10 Editoryal Alıntıların Doğrulanarak Yayına Alınması (Antigravity, 2026-10-16):**
+  - Yapıldı: `docs/editorial/quotes-pending-source.md` dosyasındaki 23 pilot ve 12 takım alıntısı, `data/drivers/index.ts` ve `data/teams/index.ts` veri katmanına `year` ve doğrulanmış `sourceUrl` ile entegre edildi.
+  - `LoreSection.tsx` bileşeni alıntının kaynağına dış bağlantı ikonu (`↗`) ile atıf verecek şekilde güncellendi.
+  - `tests/editorial-content.test.ts`: 149/149 test tam yeşil (0 hata, 0 yasaklı kelime). Claude Code doğrulaması bekleniyor.
+- [~] **AG-11 Cadillac Boş Slot Çözümü & Sergio Pérez Entegrasyonu (Antigravity, 2026-10-16):**
+  - Yapıldı: 2026 Cadillac F1 Team pilot kadrosu #77 Valtteri Bottas ve #11 Sergio Pérez olarak tamamlandı; boş slot / "SEAT TBC" tamamen ortadan kaldırıldı.
+  - Sergio Pérez için `/drivers/perez` profili, 3 dilli editoryal kariyer dönemi ("The Tire Whisperer & Sakhir Miracle", "The Milton Keynes Enforcer", "The American Vanguard" / TR: "Lastik Fısıldayıcısı ve Sakhir Zaferi", "Milton Keynes’te Çifte Şampiyonluk", "Cadillac ile Yeni Bir Sayfa"), Sakhir 2020 zafer alıntısı ve Cadillac görsel kadrajı (`docs/design/apex-component-rules.md` §4.1) bağlandı.
+  - `lib/data/entities.ts` içinde 2026 sezonu için Perez ve Bottas takım kadrosuna ve sürücüler klasmanına garantili olarak eklendi. Claude Code doğrulaması bekleniyor.
 - Tamamlananlar: AG-1 (hikâye görseli notu, kaynak satırı, özgün sayfaya bağlantı, `/media-sources` bölümü) ve AG-2 (atıf rozeti `aria-label`) canlıya alındı (`464dbf0`).
 
 ### ⏱️ Faz 1: Kusursuz Saat — Veri Mimarisi, Canlı Senkronizasyon & Caching

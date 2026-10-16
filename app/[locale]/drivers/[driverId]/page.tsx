@@ -7,14 +7,13 @@ import { SITE_NAME, siteUrl, localizedAlternates } from '@/lib/seo';
 import { teamThemeVars } from '@/lib/theme';
 import { getNewsForEntity } from '@/lib/data/news';
 import { getMedia } from '@/lib/media/read';
+import nextDynamic from 'next/dynamic';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { DriverProfileHero } from '@/components/profile/DriverProfileHero';
 import { DriverTelemetryRibbon } from '@/components/profile/DriverTelemetryRibbon';
-import { DriverSeasonPulse, type DriverPulseRound } from '@/components/profile/DriverSeasonPulse';
-import { DriverTeammateDuel } from '@/components/profile/DriverTeammateDuel';
+import type { DriverPulseRound } from '@/components/profile/DriverSeasonPulse';
 import { LoreSection } from '@/components/profile/LoreSection';
-import { RelatedNewsList } from '@/components/news/RelatedNewsList';
 import { PageThemeSync } from '@/components/layout/PageThemeSync';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SeasonRail } from '@/components/history/SeasonRail';
@@ -27,6 +26,21 @@ import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
 import { countryCode } from '@/lib/data/countryFlags';
 import { getSeasonHeadToHead, fetchAllRoundResults, getSeasonData, type MrData } from '@/lib/data/f1';
 import type { TeamHeadToHead } from '@/lib/f1/headToHead';
+
+const DriverSeasonPulse = nextDynamic(
+  () => import('@/components/profile/DriverSeasonPulse').then((m) => m.DriverSeasonPulse),
+  {
+    loading: () => <div className="h-28 rounded-2xl bg-surface-raised/40 animate-pulse" />,
+  }
+);
+
+const DriverTeammateDuel = nextDynamic(
+  () => import('@/components/profile/DriverTeammateDuel').then((m) => m.DriverTeammateDuel)
+);
+
+const RelatedNewsList = nextDynamic(
+  () => import('@/components/news/RelatedNewsList').then((m) => m.RelatedNewsList)
+);
 
 /** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
 export const dynamic = 'force-dynamic';
@@ -283,25 +297,25 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
           </HistoryCard>
 
           {view.arc.filter((a) => a.position != null).length > 1 ? (
-            <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.arcHeading')}>
+            <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.arcHeading')} deferred>
               <CareerArc points={view.arc} selectedYear={view.year} caption={t('driver.arcCaption', { name: view.name })} />
             </HistoryCard>
           ) : null}
 
           {view.stints.length > 0 ? (
-            <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.journeyHeading')}>
+            <HistoryCard span={12} texture={lastTeam?.id} heading={t('driver.journeyHeading')} deferred>
               <DriverJourney stints={view.stints} driverId={view.id} selectedYear={view.year} />
             </HistoryCard>
           ) : null}
 
           {machineryCars.length > 0 ? (
-            <div className="col-span-1 md:col-span-8 lg:col-span-12">
+            <div className="col-span-1 md:col-span-8 lg:col-span-12 bento-deferred">
               <MachineryCrossLink cars={machineryCars} locale={locale} />
             </div>
           ) : null}
 
           {view.lore ? (
-            <BentoCard span={relatedNews.length > 0 ? 8 : 12}>
+            <BentoCard span={relatedNews.length > 0 ? 8 : 12} deferred>
               <LoreSection
                 heading={t('driver.storyHeading')}
                 bio={view.lore.bio}
@@ -318,7 +332,7 @@ export default async function DriverProfilePage({ params, searchParams }: PagePr
           ) : null}
 
           {relatedNews.length > 0 ? (
-            <BentoCard span={view.lore ? 4 : 12}>
+            <BentoCard span={view.lore ? 4 : 12} deferred>
               <RelatedNewsList items={relatedNews} heading={t('driver.newsHeading')} />
             </BentoCard>
           ) : null}

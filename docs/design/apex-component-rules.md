@@ -107,7 +107,7 @@ Bileşen: `components/standings/GarageTeamPanel.tsx` (`/grid`).
 8. **Audi (Sauber):** Araç: 3/4 veya yan profil, `object-position: center 50%`; Nico Hülkenberg: `object-position: center 25%`; Gabriel Bortoleto: `object-position: 50% 25%`.
 9. **Williams:** Araç (FW47): `object-position: center 55%`; Carlos Sainz: `object-position: center 20%`; Alex Albon: `object-position: center 25%`.
 10. **Aston Martin:** Araç (AMR26): Yan profil pist üstü dinamik çekim; Fernando Alonso: `object-position: center 25%`; Lance Stroll: bakış yönü sola dönecek şekilde yatay aynalanabilir (flip) veya 3/4 portre, `object-position: center 25%`.
-11. **Cadillac F1 Team:** Araç: `object-position: 60% 50%`; Pilot 1: `object-position: center 20%`; Pilot 2: Boş slot/TBD simetrik wireframe veya silüet.
+11. **Cadillac F1 Team:** Araç: `object-position: 60% 50%`; Pilot 1 (Bottas): `object-position: center 25%`; Pilot 2 (Pérez): `object-position: center 25%`.
 
 ### 4.2 Apple & Apex Dokunuşları
 1. **Alttan Karartma Gradyanı (Bottom Vignette / Scrim):** Pilot hücrelerine `linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 40%, transparent 100%)` uygulanması.

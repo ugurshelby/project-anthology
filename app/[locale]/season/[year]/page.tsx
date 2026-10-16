@@ -10,9 +10,16 @@ import { HorizontalRaceStrip } from '@/components/season/HorizontalRaceStrip';
 import { DriverPodiumStandings } from '@/components/season/DriverPodiumStandings';
 import { TeamTelemetryBars } from '@/components/season/TeamTelemetryBars';
 import { SeasonHighlightTiles } from '@/components/season/SeasonHighlightTiles';
-import { SeasonProgressionChart } from '@/components/season/SeasonProgressionChart';
+import nextDynamic from 'next/dynamic';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
+
+const SeasonProgressionChart = nextDynamic(
+  () => import('@/components/season/SeasonProgressionChart').then((m) => m.SeasonProgressionChart),
+  {
+    loading: () => <div className="h-64 rounded-2xl bg-surface border border-hairline animate-pulse" />,
+  }
+);
 import { localizedAlternates } from '@/lib/seo';
 import { SeasonRail } from '@/components/history/SeasonRail';
 import { SeasonChampions } from '@/components/history/SeasonChampions';
@@ -110,13 +117,13 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
           ) : null}
 
           {evolutionSeries && evolutionSeries.length > 0 ? (
-            <div className="my-4 md:my-6">
+            <div className="my-4 md:my-6 bento-deferred">
               <SeasonProgressionChart series={evolutionSeries} season={year} />
             </div>
           ) : null}
 
           {machineryCars.length > 0 ? (
-            <div className="my-4 md:my-6">
+            <div className="my-4 md:my-6 bento-deferred">
               <MachineryCrossLink cars={machineryCars} locale={locale} />
             </div>
           ) : null}

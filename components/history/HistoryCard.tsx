@@ -12,6 +12,7 @@ export function HistoryCard({
   children,
   className = '',
   texture,
+  deferred = false,
 }: {
   span: Span;
   eyebrow?: string;
@@ -20,9 +21,10 @@ export function HistoryCard({
   className?: string;
   /** Constructor id whose signature texture and glow decorate the card. */
   texture?: string | null;
+  deferred?: boolean;
 }) {
   return (
-    <BentoCard span={span} className={`relative ${className}`.trim()}>
+    <BentoCard span={span} deferred={deferred} className={`relative ${className}`.trim()}>
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.06]" />
       <span
         aria-hidden

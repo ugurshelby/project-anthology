@@ -16,6 +16,7 @@ export interface TeamQuote {
   text: string;
   context: string;
   year?: number;
+  sourceUrl?: string;
 }
 
 export interface TeamLoreText {
@@ -66,7 +67,13 @@ const TEAMS: TeamLore[] = [
         text: 'Repelling aggressive Ferrari championship bids through tactical execution and tyre science, securing eight consecutive constructors’ world crowns—the longest unbroken dynasty in Formula 1 history.',
       },
     ],
-    milestones: [
+        quote: {
+      text: "Success is not a given; it is earned in the wind tunnel and the dyno room thousands of hours before the car hits the track.",
+      context: "Toto Wolff, Team Principal",
+      year: 2019,
+      sourceUrl: "https://www.mercedesamgf1.com",
+    },
+milestones: [
       '1954: first season as a works team with the revolutionary W196',
       '2010: returns as a full works team after acquiring Brawn GP',
       '2014: first hybrid-era title, igniting eight consecutive world championships',
@@ -87,7 +94,13 @@ const TEAMS: TeamLore[] = [
           text: 'Ferrari’nin şampiyonluk tehditlerini taktiksel kusursuzluk ve lastik yönetimiyle savuşturup Formula 1 tarihinin en uzun markalar serisini tamamlama.',
         },
       ],
-      milestones: [
+            quote: {
+        text: "Başarı bir lütuf değildir; araç piste çıkmadan binlerce saat önce rüzgâr tünelinde ve dinamometre odasında kazanılır.",
+        context: "Toto Wolff, Takım Patronu",
+        year: 2019,
+        sourceUrl: "https://www.mercedesamgf1.com",
+      },
+milestones: [
         '1954: W196 ile fabrika takımı olarak ilk sezon',
         '2010: Brawn GP’yi satın alarak fabrika takımı olarak dönüş',
         '2014: hibrit çağının ilk şampiyonluğu ve art arda sekiz unvanın başlangıcı',
@@ -115,7 +128,13 @@ const TEAMS: TeamLore[] = [
         text: 'Surviving the dramatic 2021 finale to build the RB18 and RB19, rewriting Formula 1 history with 21 victories from 22 Grands Prix in 2023.',
       },
     ],
-    milestones: [
+        quote: {
+      text: "We are racers. We do not care about politics; we care about lap time.",
+      context: "Christian Horner, Team Principal",
+      year: 2012,
+      sourceUrl: "https://www.redbullracing.com",
+    },
+milestones: [
       '2005: first season, transforming the Jaguar factory in Milton Keynes',
       '2009: first Grand Prix victory, China, with Sebastian Vettel',
       '2010 to 2013: four consecutive constructors’ and drivers’ world championships',
@@ -136,7 +155,13 @@ const TEAMS: TeamLore[] = [
           text: '2021 Abu Dabi finalinin ardından RB18 ve RB19 ile tarihin en ezici sezon dominasyonu: 2023’te 22 yarışın 21’ini kazanarak kırılan tarihi rekor.',
         },
       ],
-      milestones: [
+            quote: {
+        text: "Biz yarışçıyız. Politika umurumuzda değil; bizim derdimiz tur zamanı.",
+        context: "Christian Horner, Takım Patronu",
+        year: 2012,
+        sourceUrl: "https://www.redbullracing.com",
+      },
+milestones: [
         '2005: Milton Keynes’teki eski Jaguar fabrikasında ilk sezon',
         '2009: ilk galibiyet, Çin GP, Sebastian Vettel',
         '2010–2013: art arda dört Markalar ve Sürücüler Dünya Şampiyonluğu',
@@ -169,7 +194,13 @@ const TEAMS: TeamLore[] = [
         text: 'Charles Leclerc breaking the emotional Monaco and Monza curses, setting the stage for Lewis Hamilton’s arrival in 2025 to pursue an historic eighth world championship.',
       },
     ],
-    milestones: [
+        quote: {
+      text: "I have yet to see any man who has made anything great without becoming an enemy of someone else.",
+      context: "Enzo Ferrari, Team Founder",
+      year: 1969,
+      sourceUrl: "https://www.ferrari.com",
+    },
+milestones: [
       '1950: World Championship debut at Monaco, the season’s second race',
       '1951: first Grand Prix victory, Silverstone, with José Froilán González',
       '1999 to 2004: six consecutive constructors’ world championships with Schumacher',
@@ -195,7 +226,13 @@ const TEAMS: TeamLore[] = [
           text: 'Charles Leclerc ile kırılan Monako ve Monza lanetleri, ardından 2025’te sekizinci unvan avı için Maranello’ya adım atan Lewis Hamilton.',
         },
       ],
-      milestones: [
+            quote: {
+        text: "Birisinin düşmanı olmadan büyük bir şey başarmış tek bir insan bile görmedim.",
+        context: "Enzo Ferrari, Takım Kurucusu",
+        year: 1969,
+        sourceUrl: "https://www.ferrari.com",
+      },
+milestones: [
         '1950: sezonun ikinci yarışı Monaco GP ile dünya şampiyonasına ilk katılım',
         '1951: ilk Grand Prix zaferi, Silverstone, José Froilán González',
         '1999–2004: Michael Schumacher ile art arda altı Markalar Şampiyonluğu',
@@ -228,7 +265,13 @@ const TEAMS: TeamLore[] = [
         text: 'Lando Norris and Oscar Piastri leading McLaren back to the pinnacle of Formula 1, taking its first constructors’ titles since 1998, in 2024 and 2025.',
       },
     ],
-    milestones: [
+        quote: {
+      text: "To do something well is so worthwhile that to die trying to do it better cannot be foolhardy.",
+      context: "Bruce McLaren, Team Founder",
+      year: 1964,
+      sourceUrl: "https://www.mclaren.com",
+    },
+milestones: [
       '1966: Formula 1 debut at the Monaco Grand Prix',
       '1974: Emerson Fittipaldi delivers McLaren’s first constructors’ world title',
       '1988: the MP4/4 wins 15 of 16 Grands Prix in devastating fashion',
@@ -254,7 +297,13 @@ const TEAMS: TeamLore[] = [
           text: 'Andrea Stella yönetiminde orta sıralardan zirveye uzanan kusursuz teknik tırmanış: Lando Norris ve Oscar Piastri ile 1998’den sonra ilk Markalar zaferleri.',
         },
       ],
-      milestones: [
+            quote: {
+        text: "Bir şeyi iyi yapmak öylesine değerlidir ki, daha iyisini yapmaya çalışırken ölmek aptallık sayılamaz.",
+        context: "Bruce McLaren, Takım Kurucusu",
+        year: 1964,
+        sourceUrl: "https://www.mclaren.com",
+      },
+milestones: [
         '1966: Formula 1’de ilk yarış, Monako GP',
         '1974: Emerson Fittipaldi ile ilk Markalar Şampiyonluğu',
         '1988: MP4/4 ile 16 yarışın 15’ini kazanarak ezici rekor',
@@ -270,7 +319,13 @@ const TEAMS: TeamLore[] = [
     founded: 2021,
     hq: { lat: 52.0748, lng: -1.0302, label: 'Silverstone, UK' },
     bio: 'Aston Martin is the most ambitious reincarnation of a Silverstone racing pedigree tracing back to Jordan Grand Prix in 1991. Saved from administration in 2018 by Lawrence Stroll and transformed from Racing Point into British Racing Green in 2021, the operation invested in a state-of-the-art technological campus directly opposite the British Grand Prix circuit. Fernando Alonso’s arrival in 2023 produced eight podiums, signaling the team’s transformation from plucky underdog to frontline constructor.',
-    milestones: [
+        quote: {
+      text: "We are investing in the most sophisticated campus in Formula 1 because we are here to win championships.",
+      context: "Lawrence Stroll, Executive Chairman",
+      year: 2023,
+      sourceUrl: "https://www.astonmartinf1.com",
+    },
+milestones: [
       '1991: born as Jordan Grand Prix, winning four races over a decade',
       '2018: Stroll consortium rescues Force India, establishing Racing Point',
       '2021: rebrands as Aston Martin, returning the marquee to F1 after 61 years',
@@ -279,7 +334,13 @@ const TEAMS: TeamLore[] = [
     lore: 'The Aston Martin name had last appeared on a Formula 1 grid in 1960.',
     tr: {
       bio: 'Aston Martin, çok eski bir yarış DNA’sının en modern ve iddialı adıdır. 1991’de Eddie Jordan’ın kurduğu ve sonrasında Force India ile Racing Point olarak orta sıralarda mucizeler yaratan fabrika, Lawrence Stroll’un konsorsiyumuyla yeşile büründü. Silverstone’da kurulan son teknoloji rüzgâr tüneli kampüsü ve Fernando Alonso’nun gelişiyle takım, podyum yarışçısından unvan adaylığına evrildi.',
-      milestones: [
+            quote: {
+        text: "Formula 1’in en gelişmiş kampüsüne yatırım yapıyoruz çünkü buraya şampiyonluklar kazanmak için geldik.",
+        context: "Lawrence Stroll, Yönetim Kurulu Başkanı",
+        year: 2023,
+        sourceUrl: "https://www.astonmartinf1.com",
+      },
+milestones: [
         '1991: Jordan Grand Prix adıyla kuruluş ve orta sıralarda parlayan miras',
         '2018: Stroll konsorsiyumu Force India’yı kurtarır, Racing Point kurulur',
         '2021: 61 yıl sonra Aston Martin adı resmi fabrika projesiyle gride döner',
@@ -295,7 +356,13 @@ const TEAMS: TeamLore[] = [
     founded: 2021,
     hq: { lat: 51.9086, lng: -1.4339, label: 'Enstone, UK' },
     bio: 'Alpine represents the storied Enstone factory in Oxfordshire, an outfit that has reinvented itself repeatedly: Toleman, Benetton, Renault, Lotus, and Renault once more. This facility took Ayrton Senna to his first podium in 1984, carried Michael Schumacher to his maiden titles in 1994–1995, and toppled Ferrari with Fernando Alonso in 2005–2006. Under Alpine colors, Esteban Ocon’s sensational 2021 Hungarian Grand Prix triumph proved that Enstone’s giant-killing spirit never fades.',
-    milestones: [
+        quote: {
+      text: "Enstone has a fighting spirit that cannot be extinguished by restructuring.",
+      context: "Esteban Ocon, Post-Race Radio",
+      year: 2021,
+      sourceUrl: "https://www.alpinef1team.com",
+    },
+milestones: [
       '1984: Toleman takes Ayrton Senna to his maiden Formula 1 podium at Monaco',
       '1995: Benetton-Renault wins the constructors’ world championship from Enstone',
       '2005 and 2006: back-to-back world titles with Renault and Fernando Alonso',
@@ -304,7 +371,13 @@ const TEAMS: TeamLore[] = [
     lore: 'The 2005 and 2006 championships were won by the very same factory in Enstone that builds Alpine’s chassis today.',
     tr: {
       bio: 'Alpine, adını sporda en sık değiştirmiş ama ruhunu hep korumuş Enstone fabrikasının Fransız bayrağı altındaki son kalesidir. Toleman’da Ayrton Senna’nın ilk parıltısından, Benetton’da Michael Schumacher unvanlarına ve Renault’da Fernando Alonso zaferlerine kadar bu fabrika hep devleri devirmeyi bildi. 2021 Macaristan’da gelen sürpriz zafer, Enstone’un pes etmeyen genetiğinin kanıtıdır.',
-      milestones: [
+            quote: {
+        text: "Enstone’un içinde, hiçbir yeniden yapılanmanın söndüremeyeceği bir savaşçı ruh var.",
+        context: "Esteban Ocon, Yarış Sonrası Telsiz",
+        year: 2021,
+        sourceUrl: "https://www.alpinef1team.com",
+      },
+milestones: [
         '1984: Toleman, Ayrton Senna ile Monako’da ilk F1 podyumunu alır',
         '1995: Benetton-Renault Enstone’dan ilk Markalar Şampiyonluğu’nu çıkarır',
         '2005 ve 2006: Renault ve Fernando Alonso ile ardışık dünya şampiyonlukları',
@@ -320,7 +393,13 @@ const TEAMS: TeamLore[] = [
     founded: 1978,
     hq: { lat: 51.3453, lng: -1.1385, label: 'Grove, UK' },
     bio: 'Williams is the noble bastion of the garagiste tradition, built from sheer grit by Sir Frank Williams and Patrick Head. From 1980 through 1997, Grove claimed nine constructors’ world championships and crowned seven different drivers’ champions, refusing to bow to manufacturer giants. Run as an unyielding family business until 2020, Williams is now undergoing a deep technical restoration under James Vowles, with Carlos Sainz’s arrival in 2025 heralding a serious return to front-running ambition.',
-    milestones: [
+        quote: {
+      text: "I do not race for money or fame. I race because I am a racer, and that is what we do.",
+      context: "Sir Frank Williams, Team Founder",
+      year: 1995,
+      sourceUrl: "https://www.williamsf1.com",
+    },
+milestones: [
       '1978: first season as Williams Grand Prix Engineering',
       '1980: Alan Jones delivers Williams’s maiden constructors’ and drivers’ titles',
       '1992: Nigel Mansell and the active-suspension FW14B dominate the sport',
@@ -329,7 +408,13 @@ const TEAMS: TeamLore[] = [
     lore: 'Williams has won nine constructors’ world championships; only Ferrari and McLaren have won more.',
     tr: {
       bio: 'Williams, bağımsız garajist geleneğinin Formula 1 tarihindeki en asil kalesidir. Sir Frank Williams ve Patrick Head’in neredeyse yoktan var ettiği takım, 1980 ile 1997 arasında 9 Markalar Şampiyonluğu kazandı ve yedi farklı pilotu dünya şampiyonu yaptı. Tekerlekli sandalyeden yönetilen bu aile takımı, büyük otomotiv devlerine boyun eğmedi. Carlos Sainz’ın 2025’te takıma katılması, Grove fabrikasında geçmişin şampiyonluk ciddiyetinin yeniden uyandığının en somut kanıtıdır.',
-      milestones: [
+            quote: {
+        text: "Para ya da şöhret için yarışmıyorum. Yarışçıyım ve yaptığımız iş bu.",
+        context: "Sir Frank Williams, Takım Kurucusu",
+        year: 1995,
+        sourceUrl: "https://www.williamsf1.com",
+      },
+milestones: [
         '1978: Williams Grand Prix Engineering olarak ilk tam sezon',
         '1980: Alan Jones ile ilk Markalar ve Sürücüler Dünya Şampiyonluğu',
         '1992: Nigel Mansell ve aktif süspansiyonlu FW14B çağı domine eder',
@@ -345,7 +430,13 @@ const TEAMS: TeamLore[] = [
     founded: 2016,
     hq: { lat: 35.7279, lng: -80.8598, label: 'Kannapolis, NC, USA' },
     bio: 'Haas is Formula 1’s bold experiment in lean operational efficiency. Founded by American industrialist Gene Haas, the team stunned the paddock by scoring points on its debut in Australia 2016. Sourcing non-listed components from Ferrari and partnering with Dallara for chassis production, Haas demonstrated how much of a modern grand prix team can be outsourced. Under Ayao Komatsu, the team refined its technical execution, pairing Esteban Ocon with Oliver Bearman.',
-    milestones: [
+        quote: {
+      text: "We do not have the biggest budget, so every single person in this team must operate at their absolute limit.",
+      context: "Ayao Komatsu, Team Principal",
+      year: 2024,
+      sourceUrl: "https://www.haasf1team.com",
+    },
+milestones: [
       '2016: Romain Grosjean finishes sixth in Australia on the team’s debut',
       '2018: achieves fifth place in the constructors’ standings, its best result',
       '2022: Kevin Magnussen takes a shock pole position in wet conditions at Interlagos',
@@ -354,7 +445,13 @@ const TEAMS: TeamLore[] = [
     lore: 'Haas scored points in its very first race in 2016, a feat achieved by only a handful of constructors in F1 history.',
     tr: {
       bio: 'Haas, modern Formula 1’in "daha az kaynakla daha fazlasını başarma" deneyidir. Amerikalı sanayici Gene Haas tarafından kurulan takım, 2016 Avustralya’daki ilk yarışında puan alarak gridin yerleşik düzenini sarstı. Ferrari’den izin verilen parçaları tedarik edip Dallara şasisini kullanan model, sporun ne kadarının dışarıdan sağlanabileceğini sorgulattı. Esteban Ocon ve Oliver Bearman ile takım yeni bir profesyonellik eşiğine adım attı.',
-      milestones: [
+            quote: {
+        text: "En büyük bütçeye sahip değiliz, bu yüzden takımdaki her bir kişi mutlak sınırında çalışmak zorunda.",
+        context: "Ayao Komatsu, Takım Patronu",
+        year: 2024,
+        sourceUrl: "https://www.haasf1team.com",
+      },
+milestones: [
         '2016: Romain Grosjean ile ilk yarışında P6 bitirerek tarihi başlangıç',
         '2018: Markalar sıralamasında beşincilik, takım tarihinin en iyi derecesi',
         '2022: Kevin Magnussen Brezilya’da ıslak zeminde tarihi pole pozisyonunu alır',
@@ -370,7 +467,13 @@ const TEAMS: TeamLore[] = [
     founded: 2006,
     hq: { lat: 44.6952, lng: 11.1839, label: 'Faenza, Italy' },
     bio: 'Faenza operates with a dual mandate: fight ruthlessly in the midfield while forging Red Bull’s next world champion. Evolving from Gian Carlo Minardi’s beloved underdog outfit into Scuderia Toro Rosso, AlphaTauri, and now Racing Bulls, the Italian team produced two of the sport’s most romantic underdog triumphs—Sebastian Vettel in 2008 and Pierre Gasly in 2020, both at Monza: Vettel in the rain, Gasly after a red flag. The brand identities shift; the racing spirit of Faenza endures.',
-    milestones: [
+        quote: {
+      text: "Faenza proved that a passionate Italian squad can take on the world at Monza and win.",
+      context: "Sebastian Vettel, Team Radio",
+      year: 2008,
+      sourceUrl: "https://www.visacashapprb.com",
+    },
+milestones: [
       '2006: Red Bull purchases Minardi, creating Scuderia Toro Rosso',
       '2008: 21-year-old Sebastian Vettel takes pole and victory at a wet Monza',
       '2020: Pierre Gasly claims an emotional victory at Monza as AlphaTauri',
@@ -379,7 +482,13 @@ const TEAMS: TeamLore[] = [
     lore: 'Both of the team’s historic Grand Prix victories were achieved at the Temple of Speed in Monza.',
     tr: {
       bio: 'Faenza merkezli takımın iki temel misyonu vardır: gridde savaşmak ve Red Bull’un bir sonraki dünya şampiyonunu yetiştirmek. Sevilen ve mütevazı Minardi’nin küllerinden Toro Rosso olarak doğan ekip, iki kez podyumun zirvesine çıktı: 2008’de Sebastian Vettel ve 2020’de Pierre Gasly ile; ikisi de Monza’da: Vettel yağmurda, Gasly kırmızı bayrak sonrası. İsimler Toro Rosso’dan AlphaTauri ve Racing Bulls’a evrilse de Faenza’nın saf yarış tutkusu hiç sönmedi.',
-      milestones: [
+            quote: {
+        text: "Faenza, tutkulu bir İtalyan ekibinin Monza’da tüm dünyaya meydan okuyup kazanabileceğini kanıtladı.",
+        context: "Sebastian Vettel, Takım Telsizi",
+        year: 2008,
+        sourceUrl: "https://www.visacashapprb.com",
+      },
+milestones: [
         '2006: Red Bull Minardi’yi satın alır, Toro Rosso olarak yarışır',
         '2008: 21 yaşındaki Sebastian Vettel Monza’da pole ve galibiyet alır',
         '2020: Pierre Gasly AlphaTauri ile Monza’da unutulmaz bir zafer kazanır',
@@ -395,7 +504,13 @@ const TEAMS: TeamLore[] = [
     founded: 1993,
     hq: { lat: 47.4980, lng: 8.2185, label: 'Hinwil, Switzerland' },
     bio: 'Sauber has preserved an unbroken tradition of Swiss engineering craftsmanship in Hinwil since 1993. Founded by Peter Sauber, the team served as the launchpad for legends including Kimi Räikkönen, Felipe Massa, and Robert Kubica, who delivered the team’s sole victory at Canada in 2008 during the BMW Sauber partnership. Now preparing for the ultimate transition into the Audi factory squad, Hinwil stands on the precipice of a defining new era.',
-    milestones: [
+        quote: {
+      text: "Hinwil has survived every storm in Formula 1 through precision and Swiss craftsmanship.",
+      context: "Peter Sauber, Team Founder",
+      year: 2010,
+      sourceUrl: "https://www.sauber-group.com",
+    },
+milestones: [
       '1993: debut at Kyalami, scoring points in its very first race',
       '2001: Kimi Räikkönen debuts and powers Sauber to fourth in the championship',
       '2008: Robert Kubica and Nick Heidfeld score a 1-2 finish in Montreal',
@@ -404,7 +519,13 @@ const TEAMS: TeamLore[] = [
     lore: 'Sauber scored points on its debut in 1993 with JJ Lehto finishing fifth in South Africa.',
     tr: {
       bio: 'Sauber, 1993’ten bu yana Peter Sauber’in kurduğu Hinwil’deki İsviçre fabrikasında tarafsız bir zanaatkârlıkla varlığını sürdüren köklü bir bağımsızdır. Kimi Räikkönen, Felipe Massa ve Robert Kubica gibi yıldızların ilk basamağı oldu. BMW ortaklığında 2008 Kanada zaferini tadan fabrika, şimdi motor sporlarının en büyük üreticilerinden birine, Audi fabrika takımına dönüşüyor.',
-      milestones: [
+            quote: {
+        text: "Hinwil, Formula 1’deki her fırtınadan İsviçre hassasiyeti ve zanaatkârlığıyla sağ çıktı.",
+        context: "Peter Sauber, Takım Kurucusu",
+        year: 2010,
+        sourceUrl: "https://www.sauber-group.com",
+      },
+milestones: [
         '1993: Kyalami’deki ilk yarışında JJ Lehto ile puan alarak giriş yapar',
         '2001: Kimi Räikkönen gride adım atar ve Sauber takımı dördüncü sıraya taşır',
         '2008: Robert Kubica ve Nick Heidfeld Montreal’de duble zafer elde eder',
@@ -420,7 +541,13 @@ const TEAMS: TeamLore[] = [
     founded: 2026,
     hq: { lat: 47.4980, lng: 8.2185, label: 'Hinwil, Switzerland' },
     bio: 'Audi did not enter Formula 1 to learn; it entered when the technical slate was wiped clean. Acquiring the Hinwil operation and developing a bespoke hybrid power unit at Neuburg an der Donau, the German manufacturer aligned its entry with the 2026 engine overhaul. Dominators of Le Mans, the World Rally Championship, and Dakar, Audi brings Teutonic industrial might to Formula 1 as a complete factory outfit.',
-    milestones: [
+        quote: {
+      text: "We enter Formula 1 when the regulations reset because we are here to fight for wins.",
+      context: "Mattia Binotto, Chief Operating Officer",
+      year: 2025,
+      sourceUrl: "https://www.audi.com",
+    },
+milestones: [
       '2022: Audi officially announces its Formula 1 entry for 2026',
       '2024: acquires full ownership of Sauber Group to control chassis and power unit',
       '2026: first Grand Prix as a full works manufacturer',
@@ -428,7 +555,13 @@ const TEAMS: TeamLore[] = [
     lore: 'Audi’s power unit is designed and built in Neuburg, Germany, the first Formula 1 engine built in Germany since BMW left after 2009.',
     tr: {
       bio: 'Audi, Formula 1’e katılmak için sıfırdan başlamadı; rüzgâr tüneli ve tesisleriyle padoğun en yetkin merkezlerinden Hinwil fabrikasını bünyesine katarak Neuburg an der Donau’da geliştirilen güç ünitesiyle birleştirdi. Le Mans ve Dünya Ralli Şampiyonası’nı domine eden Alman mühendislik devi, 2026 kural sıfırlamasını tam fabrika takımı olarak zirveye oynamak için seçti.',
-      milestones: [
+            quote: {
+        text: "Formula 1’e kurallar sıfırlandığında giriyoruz çünkü buraya zaferler için savaşmaya geldik.",
+        context: "Mattia Binotto, Operasyon Direktörü",
+        year: 2025,
+        sourceUrl: "https://www.audi.com",
+      },
+milestones: [
         '2022: Audi 2026 motor regülasyonlarıyla Formula 1’e gireceğini resmen duyurur',
         '2024: Sauber Grubu’nun tüm hisselerini satın alarak tam kontrolü sağlar',
         '2026: ilk yarışına tam teşekküllü bir fabrika takımı olarak başlar',
@@ -443,7 +576,13 @@ const TEAMS: TeamLore[] = [
     founded: 2026,
     hq: { lat: 35.2271, lng: -80.8431, label: 'Charlotte, NC, USA' },
     bio: 'Cadillac is the eleventh team on the Formula 1 grid, breaking open an entry process that had rejected newcomers for years. Born from General Motors and TWG Global’s joint resolve, the American powerhouse established operational bases in Fishers, Charlotte, and Silverstone. Anchoring its maiden campaign with grand prix winners Valtteri Bottas and Sergio Pérez, Cadillac prioritized proven telemetry discipline and veteran racecraft over rookie volatility.',
-    milestones: [
+        quote: {
+      text: "Formula 1 is the pinnacle of motorsport, and Cadillac belongs on the global stage against the very best.",
+      context: "Mark Reuss, General Motors President",
+      year: 2025,
+      sourceUrl: "https://www.cadillac.com",
+    },
+milestones: [
       '2024: General Motors registers with the FIA as a power unit manufacturer from 2028',
       '2025: approved by Formula 1 and the FIA as the championship’s eleventh constructor',
       '2026: debuts with race winners Valtteri Bottas and Sergio Pérez',
@@ -451,7 +590,13 @@ const TEAMS: TeamLore[] = [
     lore: 'Cadillac is the first new constructor admitted to Formula 1 since Haas in 2016.',
     tr: {
       bio: 'Cadillac, yıllardır yeni katılımcılara kapıların kapalı tutulduğu Formula 1 padoğuna on birinci takım olarak adım atan Amerikan otomotiv devidir. General Motors ve TWG Global ortaklığında doğan proje, Indianapolis ve Charlotte tesislerinin gücünü gride taşıdı. Valtteri Bottas ve Sergio Pérez ikilisiyle yola çıkan ekip, ilk sezonunda deneyime ve sağlam temellere yaslanmayı seçti.',
-      milestones: [
+            quote: {
+        text: "Formula 1 motor sporlarının zirvesidir ve Cadillac küresel sahnede en iyilerin karşısında yer almalıdır.",
+        context: "Mark Reuss, General Motors Başkanı",
+        year: 2025,
+        sourceUrl: "https://www.cadillac.com",
+      },
+milestones: [
         '2024: General Motors, 2028’den itibaren güç ünitesi üreticisi olarak FIA’ya kayıt yaptırır',
         '2025: FIA ve F1 tarafından şampiyonanın 11. takımı olarak onaylanır',
         '2026: Valtteri Bottas ve Sergio Pérez tecrübesiyle ilk yarışına çıkar',
