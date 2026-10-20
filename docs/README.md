@@ -36,6 +36,10 @@ docs/
 ├── plans/                              # Eylem ve Geliştirme Planları
 │   └── master-plan.md                  # Tek canlı açık iş listesi ve geliştirici direktifleri (Faz faz sıralı)
 │
+├── workflow/                           # İki oturumlu iş akışı köprüsü (Opus mimar / Sonnet inşacı)
+│   ├── PLAN.md, OPEN.md, DECISIONS.md, ARCHITECTURE.md  # Oturumlar arası tek iletişim kanalı
+│   └── model-effort.md                 # Görev → model/effort seçim tablosu; her plan satırı `Run:` taşır
+│
 ├── design/                             # Tasarım Sistemi ve Arayüz Standartları
 │   ├── apex-design.md                  # Master Tasarım Sistemi Mimarisi (Apple HIG + F1 Ruhu)
 │   ├── apex-design-language.md         # Tipografi, renk, yüzey derinliği ve layout kuralları
@@ -48,6 +52,8 @@ docs/
     ├── apex-reference.md               # Master yaşayan referans (ölçülmüş gerçekler, test sonuçları)
     ├── mimari.md                       # Backend mimarisi, saat mekanizması veri akışı, Supabase & cron
     ├── muhendislik-dersleri.md         # Yaşanmış tuzaklar, Next.js/DB mimari dersleri ve çözümler
+    ├── guvenlik-durum-tespiti.md       # Proje siber güvenlik ve altyapı durum tespit raporu
+    ├── security-docs/                  # Kurumsal güvenlik, parola taşıma, kriptografi ve DoW rehberleri
     ├── hikaye-gorselleri-kaynak-listesi.md # public/stories görsellerinin kaynağı doğrulanacak listesi (üretilir; hepsi doğrulanınca silinir)
     ├── anthology-image-map.md          # 17 antoloji hikayesinin görsel kullanım eşlemesi
     └── glossary-icon-prompts.md        # Tech Glossary teknik CAD / blueprint ikon üretim promptları
