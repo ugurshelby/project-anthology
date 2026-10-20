@@ -18,6 +18,7 @@ Architect appends; newest last. One entry per decision.
 - Decision: the owner does not read migrations; an Opus/xhigh audit (PASS recorded here) authorizes an agent to apply via the Supabase connector's `apply_migration`. Destructive statements and data changes still need the owner. Rules in `AGENTS.md` "Migration safety".
 - Why: the owner delegated review; a model-restricted gate keeps the review meaningful. Live migration versions match the repo files 1:1 (10 of 10) on 2026-10-20.
 - Affects: `AGENTS.md`, `docs/workflow/model-effort.md`.
+- Amendment 2026-10-20: the owner does not read SQL and delegated destructive statements too to the Opus/xhigh auditor, narrowed: the audit must record row counts, dependents and a recovery path that exists beforehand, the statement sits alone in its file, and non-regenerable data without recovery, unbounded scope or auditor doubt = FAIL. Data/content changes still need the owner.
 
 ## 2026-10-20 Model/effort per phase and step
 - Decision: every plan phase/step carries `Run: model / effort`, chosen by the plan writer from `docs/workflow/model-effort.md` without being asked. Owner-mandated models (Faz 13, 14: Opus 5.5) win; `max` and `ultracode` need the owner's OK.
