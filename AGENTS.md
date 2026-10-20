@@ -90,7 +90,7 @@ Next.js 16 has breaking changes: read the relevant guide in `node_modules/next/d
 
 Bridge files, the only channel between sessions (never rely on chat history): `docs/workflow/PLAN.md`, `OPEN.md`, `DECISIONS.md`, `ARCHITECTURE.md` (one page, Architect edits only). Long-lived checklist stays `docs/plans/master-plan.md`.
 
-Roles are set by the model, not the tool. Opus = ARCHITECT, Sonnet = BUILDER. Any other agent (Cursor, Copilot, Antigravity, ...) is a BUILDER limited by the git rules above. Unsure: ask the owner once. Never switch model inside one session.
+Roles are set by the model, not the tool. Opus = ARCHITECT, Sonnet = BUILDER. Any other agent (Cursor, Copilot, Antigravity, ...) is a BUILDER limited by the git rules above. Unsure: ask the owner once. Never switch model inside one session. Exception (owner decision, 2026-10-20): phases the master plan marks "Opus 5.5 şartı" (Faz 13, 14) are implemented by an Opus 5.5 BUILDER session that follows `PLAN.md` like any Builder; their design steps stay ARCHITECT sessions.
 
 ARCHITECT: decide, do not implement, never edit source code. Read `ARCHITECTURE.md`, then only files the task touches. Output `PLAN.md` and `DECISIONS.md` entries. If `OPEN.md` has entries: answer each in `DECISIONS.md`, update `PLAN.md`, delete answered entries, stop. Keep sessions short.
 
@@ -107,7 +107,7 @@ Context discipline: for unfamiliar areas or more than 3 files, use the read-only
 Local checks (fast only): `npx tsc --noEmit`; `npx eslint <changed files>`; `npx vitest related --run <changed files>` (or the single changed test file).
 Remote checks (do not run locally): full `npm test` and `npm run build`. Push `wip/<topic>`; CI (`.github/workflows/ci.yml`, triggers on `wip/**`) and the Vercel preview build run them. Read failures with `gh run list --branch wip/<topic>` and `gh run view <id> --log-failed | tail -n 60`, or Vercel MCP build logs (team `team_4W2ZmCIqlmu53h0PAaDYdjpx`, project `prj_zj4PTjI2lYjhmAqz3e9uzcmm1YFq`, `project-anthology`). Do not block on waits: run them in the background and continue with the next unblocked step. Max 3 fix attempts for the same error, then write findings to `OPEN.md` and stop.
 
-Connectors (read-only unless the owner says otherwise in the current conversation): Supabase: project-scoped `supabase` MCP (`project_ref=ezocovgpybrluvgaqnft`, `read_only=true`) for reads; the claude.ai Supabase connector only for `apply_migration` under "Migration safety" (pass the project id explicitly). Vercel MCP: reads and build logs only, no env, domain, deploy or promote changes. Upstash MCP: reads only. GitHub: `gh` CLI (account `ugurshelby`).
+Connectors (read-only unless the owner says otherwise in the current conversation): Supabase: project-scoped `supabase` MCP (`project_ref=ezocovgpybrluvgaqnft`, `read_only=true`) for reads; the claude.ai Supabase connector only for `apply_migration` under "Migration safety" (pass the project id explicitly). Vercel MCP: reads and build logs only, no env, domain, deploy or promote changes. Upstash MCP: reads, plus QStash schedule create/delete/pause/resume so the live schedules match `lib/cron/qstashSchedules.ts` (owner decision, 2026-10-20); never delete a Redis database, index or bucket; log every schedule change with its id. GitHub: `gh` CLI (account `ugurshelby`).
 
 ## Procedures
 

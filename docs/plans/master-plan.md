@@ -1,213 +1,366 @@
-# Anthology (Apex) — Master Plan
+# Apex — Master Plan
 
-> **Temel Otorite ve Tek Canlı İş Listesi:** Bu döküman geliştirici vizyonu ve direktifleri doğrultusunda oluşturulmuş operasyonel master rehberdir. Projedeki tüm planlama, geliştirme ve bakım adımları bu liste üzerinden yürütülür.  
-> Bir madde yalnızca kodda veya ölçülmüş bir çalışma sonucunda doğrulandığında `[x]` yapılarak tamamlanır; tamamlanan işler geçmiş git kayıtlarına ve günlük loglara devredilerek bu dökümandan kaldırılır. Dökümanda **yalnızca aktif açık işler (`[ ]`) ve doğrulama bekleyen kısmi maddeler (`[~]`)** yer alır.  
-> **Temel Vizyon Belgesi:** `docs/vision/apex-vision.md`  
-> **Tasarım Sistemi Mimarisi:** `docs/design/apex-design.md` (Apple HIG akıcı tasarım felsefesi + F1 teknik telemetri sentezi)  
-> **Bileşen & Düzen Kuralları:** `docs/design/apex-component-rules.md`  
-> **Canlı Canlı Referans & Ölçümler:** `docs/reference/apex-reference.md`  
-> **Canlı Host:** https://project-anthology-eight.vercel.app  
-> **Son Güncelleme & Ölçüm:** 2026-10-16  
+> Tek canlı iş listesi. Yalnızca açık (`[ ]`), kısmi (`[~]`) ve rafta (`[⏸]`) maddeler burada; biten madde ölçülüp commit edilince silinir (git geçmişi arşivdir).
+> Kurallar: `AGENTS.md` ("Two-session workflow", "Migration safety"). Model/effort: `docs/workflow/model-effort.md`. Vizyon: `docs/vision/apex-vision.md`. Aktif oturum dilimleri: `docs/workflow/PLAN.md`.
+> Canlı host: https://project-anthology-eight.vercel.app · Son denetim: 2026-10-20 (Opus 5.5, Architect).
 
----
+## Kurallar (bu plan için)
 
-## 1. Vizyon ve Misyon
+1. **Bir faz = bir oturum = bir model.** Her faz `Run:` ve `Owner:` taşır; adım yalnızca farklıysa kendi `Run:` satırını taşır.
+2. **Owner değerleri:** `Opus` (Architect), `Opus 5.5` (sahip şartıyla uygulayan oturum, Faz 13/14), `Sonnet`, `Haiku` (yalnızca tam tarif edilmiş mekanik adım), `Antigravity` (commit yetkisi yok), `owner`.
+3. **Model şartı (sahip kararı, korunur):** Faz 13 ve Faz 14 **Claude Opus 5.5** ile icra edilir; effort tablodan seçilir.
+4. **Yarış haftası kod dondurma:** 2026-10-23 00:00 → 2026-10-26 12:00 (TR) arasında `main`'e kod push'u yok; yalnızca `logs/`, `docs/` ve plan işaretleri.
+5. **Sahip adımları** sahip "proje hazır" diyene kadar bekler (Faz 16); ajanlar kritik blokaj yoksa talep etmez. Sahibin elle işi en aza indirilir: ajanın yapabildiği her şeyi ajan yapar.
+6. **Paralel çalışma:** aynı dalgadaki oturumların dosya listeleri çakışmaz. `npm install` yapan oturum (14.2) tek başına koşar (paylaşılan `node_modules`).
+7. **Migration:** bu planda migration gerektiren adım yok. 13.2 tasarımı migration getirirse o adım **Opus / xhigh migration denetimi** (AGENTS "Migration safety") ister ve ayrı adım olarak eklenir.
 
-* **Vizyon:** Motor sporları tutkusunu ve zengin Formula 1 mirasını; arka planda saat mekanizması hassasiyetinde çalışan harmonik bir veri mimarisiyle, gecikmesiz, akıcı, modern ve editoryal derinliği yüksek bir arayüzde birleştiren; F1 kültürünün küresel ölçekteki dijital başvuru ve deneyim merkezi olmak.
-* **Misyon:** 1950'den günümüze tüm F1 verisini, yarış takvimlerini, teknik düzenlemeleri, ikonik araçları ve insan hikayelerini; telif riski barındırmayan temiz görsel varlıklar, yüksek performanslı web mimarisi (sıfır takılma, kusursuz edge caching) ve ödün vermeyen bir kullanıcı deneyimi ile erişilebilir kılmak.
+## Ölçülmüş durum (2026-10-20)
 
----
+| Konu | Ölçüm | Kaynak |
+|---|---|---|
+| Test dosyası | 73 `tests/*.test.*` | dosya sayımı; tam `npm test` bu denetimde koşulmadı |
+| CI | `ci.yml` son koşu 2026-10-02 (PR); `main` push'unda tetiklenmiyor, `wip/**` tetikleyicisi hiç koşmadı | `gh run list --workflow ci.yml` |
+| QStash (eu) | 4 zamanlama: `sync-f1` `*/30`, `sync-news` `11 *`, `sync-media` `41 *` (SUCCESS) + `notify-sessions` `*/10` (`scd_6H9JdCRnRKTPCoRhnG5owiiFF2UN`, 2026-10-20 MCP ile açıldı). Hepsi MCP varsayılanı `retries: 3`; kod `retries` 0/1 ve notify için `*/5` diyor (sapma, 1.8) | Upstash MCP `qstash_list_schedules`; `lib/cron/qstashSchedules.ts` |
+| GitHub `schedule:` | 4 workflow hâlâ zamanlı: `sync-f1-race-aware`, `sync-news`, `sync-media`, `notify-sessions` | `.github/workflows/*.yml` |
+| Rate limit | 10 genel rotadan 2'si `applyRateLimit` kullanıyor; 7'si `clientIP !== 'unknown'` (hiç eşleşmeyen) eski korumayla tam kotada; `push/register` `fallback:unknown` için limiti **atlıyor** | `grep` `app/api` |
+| Bağımlılık | `npm audit`: 23 (3 critical, 14 high). `next` 16.2.7 → 16.4.2 (minor), `vitest` 3 → 5 (major, tinypool), `sharp` 0.34 → 0.35 (major); `eslint-config-next` için önerilen "fix" 14.2.35'e düşürme (yanlış, uygulanmaz) | `npm audit --json` |
+| Haber | `/api/news` her önbellek ıskasında 5 RSS + görsel HEAD taraması; tek tüketicisi `lib/data/news.ts` adım 2 (sunucu içi geri düşüş) | `app/api/news/route.ts`, `lib/data/news.ts:241` |
+| LLM zinciri | Kod sırası **Groq → Gemini** (`lib/news/rewrite.ts:131`); dosya başı yorumu "Gemini → Groq" diyor | `lib/news/rewrite.ts:4,131` |
+| Hikâye görselleri | 56 dosya; manifest 59 satır: 2 `sourced`, 57 `unverified` | `public/stories`, `data/stories/image-credits.ts` |
+| Yasal adresler | `apexstats.example` 10 yerde (`messages/en.json`, `messages/tr.json`) | `grep` |
+| SEO | `GOOGLE_SITE_VERIFICATION` meta bağlı; JSON-LD tipleri: WebSite, Person, SportsTeam, SportsEvent, Article, Organization, Place, Vehicle | `app/[locale]/layout.tsx:45` |
+| Sentry | Kod hazır, DSN yokken hiçbir şey yüklenmiyor (`sendDefaultPii: false`) | `lib/monitoring/clientErrors.ts`, `tests/client-errors.test.ts` |
+| Pist telemetrisi | FastF1 / hız tuzağı / sektör sınırı verisi kodda **yok**; yalnızca `data/circuits/{facts,topography,lore}.ts` | `grep` |
+| Ekran görüntüleri | 16 sayfa × 6 görüntü (`npm run screenshots`), `screenshots/` gitignored | `screenshots/` |
+| Migration | Canlı 10/10 sürüm repo ile eşleşiyor | `list_migrations` |
+| Loglar | 15 günden eski 5 dosya duruyor (2026-09-28 … 2026-10-03) | `logs/` |
 
-## 2. Mevcut Doğrulanmış Durum (Tüm Katmanların Ölçülmüş Gerçekliği)
-
-| Katman | Ölçülen Durum | Kanıt & Metrik |
-| :--- | :--- | :--- |
-| **Birim & Entegrasyon Testleri** | ✅ 73 Test Dosyası, 749 Test Başarılı | `npx vitest run` (2026-10-16) |
-| **Editoryal Doğrulama Kapısı** | ✅ 149/149 Test Başarılı (0 hata, 0 klişe) | `tests/editorial-content.test.ts` (Tüm alıntılar, kaynak formatları, bölümler) |
-| **Statik Tip Güvenliği** | ✅ Sıfır Tip Hatası | `npx tsc --noEmit` (kod 0) |
-| **Kod Stili & Linter** | ✅ Sıfır Hata, Sıfır Uyarı | `npm run lint` (0 error, 0 warning, kod 0) |
-| **Web Production Build** | ✅ 50/50 Sayfa ve Rota Derlendi | `npm run build` (Next.js Turbopack) |
-| **Veri Katmanı & Fallback** | ✅ Supabase + Jolpica Fallback + F1DB | DB → Cache → Live Proxy kademeli okuma devrede |
-| **Görsel & Medya Altyapısı** | ✅ 56 hikâye görseli + 24 pist fotoğrafı canlı | `public/stories/`, `media_assets` (çözümleyici v2 devrede, circuits dizini gerçek fotoğraflara bağlandı) |
-| **Tasarım & Bileşen Mimarisi** | ✅ Tailwind 4 `@layer components` + Apple Fluid | CSS yardımcı sınıfları katmanlı, bento yay fiziği, `.bento-deferred` ve circuits akıcı segmented kontrolü devrede |
-| **Grid & Kadraj Standardı** | ✅ 11 Takım 22 Pilot Tam Kadro | 2026 Cadillac (#77 Bottas & #11 Pérez) tam entegre; sıfır boş slot |
-| **Mobil Uygulama (Expo 56)** | ⏸️ Tamamen Rafta (sahip kararı) | `mobile/` diskte mevcut, gitignored; web tamamen kusursuz olana kadar asla dokunulmayacak (belki hiç geliştirilmeyecek) |
-
-**Kritik Kısıt:** `lib/f1Calendar.ts` projenin tek zamansal kaynağıdır. Sezon, pilot veya takım listelerinin koda hardcode edilmesi kesinlikle yasaktır.
-
----
-
-## 3. Aktif Açık İşler Listesi (Faz & Öncelik Sırasıyla)
-
-> **Yürütme & Sorumluluk Kuralları:**
-> 1. **Sahip Adımları Protokolü:** Site sahibinin yapacağı dış işler (arama konsolu, yasal e-postalar, lisans linkleri, GCP hesabı vb.), sitede eksik hiçbir şey kalmayana ve *"Site tamam, her şey yerli yerinde, yayın öncesi son adımlardayız"* aşamasına gelinene kadar bekletilecektir. Ajanlar kritik bir blokaj olmadığı sürece bu adımları talep etmeyecektir.
-> 2. **Canlı Yarış Testleri Protokolü (Faz 1):** 25 Ekim ABD GP yarışına kadar projede kod ve mimari geliştirmeler süreceğinden, yapılan her değişiklik ve push sonrasında bu bölümdeki test senaryoları güncel koda göre revize edilecek; yarış günü testleri sistemin en taze haline göre icra edilecektir.
-> 3. **Model Şartı (Faz 13 & 14):** İleri Pist Telemetrisi (Faz 13) ve Siber Güvenlik / Sertleştirme (Faz 14) adımları, sistemin saat gibi işlemesi ve güvenlik hassasiyeti nedeniyle **Claude Opus 5.5** şartı ile icra edilecektir.
-> 4. **Mobil Uygulama (7.3):** Tamamen raftadır (belki hiç geliştirilmeyecektir). Web kusursuz olana kadar gündeme alınmaz.
-> 5. **Eski Sezonlar Görsel Genişletmesi (8.6):** Medya sistemi, optimizasyon, veri akışı ve performans sorunları tamamen çözülüp kusursuz hale gelmeden başlatılmayacaktır (yüksek miktarda görselle erkenden boğuşulmayacaktır).
-> 6. **Run Satırı Kuralı:** Her faz ve adım, `docs/workflow/model-effort.md` tablosundan seçilen `Run: <model> / <effort>` satırını taşır; plan yazan model bunu sahip istemeden ekler ve plan her değiştiğinde günceller. Faz 13/14'te model sahip şartıdır (Opus 5.5), effort tablodan seçilir. `max` ve `ultracode` yalnızca sahip onayıyla.
-
-### ⏱️ Faz 1: Canlı Seans, Zaman Senkronizasyonu & QStash
-
-> **Dinamik Güncelleme Protokolü:** 25 Ekim R18 ABD GP tarihine kadar projede kod ve mimari geliştirmeler devam edecektir. Yapılan her geliştirme ve push sonrasında bu bölümdeki test senaryoları ve doğrulama koşulları güncel kod yapısına göre revize edilecek; yarış günü testleri sistemin en taze haline göre icra edilecektir.
-
-- [~] **1.1 OpenF1 Canlı Seans ve Zaman Senkronizasyonu Doğrulaması (Claude, yarış hafta sonu):**
-  - **Hedef:** Gerçek bir yarış hafta sonunda (R18 ABD GP, 2026-10-25) canlı seans akışının `/api/live-timing` ve `LiveRaceTracker` üzerinden uçtan uca gözlemi.
-  - **Mevcut Durum:** Seans simülasyonları (`tests/live-timing-route.test.ts`, 14 test) ve kilitli seans 401 ele alımı (`tests/openf1-auth.test.ts`, 5 test) tam yeşil. Canlı kilitli seans davranışı ve rota önbelleği doğrulanacak.
-  - **Prosedür:** `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.A.
-  - **Run:** Sonnet / high — live-race debugging, edge cases
-- [~] **1.3 Snapshot & Ingest Ayrımı ve Idempotent Event-Trigger (Claude, yarış hafta sonu):**
-  - **Hedef:** Yarış sonrası `sync-f1` yerleşmiş (settled) snapshot ve `after()` ile arka plan yenileme akışının canlı yarışta doğrulanması.
-  - **Mevcut Durum:** `tests/sync-f1-idempotent.test.ts` (11 test) ve `tests/snapshot-refresh.test.ts` (8 test) devrede.
-  - **Prosedür:** `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.B.
-  - **Run:** Sonnet / high — idempotency verification on live data
-- [~] **1.4 Push Bildirim Seans Penceresi Canlı Doğrulaması (Claude, yarış hafta sonu):**
-  - **Hedef:** Seans başlangıcından ~30 dk önce `notified_sessions` kaydının oluşumunun canlıda gözlenmesi (`tests/notify-sessions-route.test.ts`, 7 test).
-  - **Prosedür:** `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.C.
-  - **Run:** Sonnet / medium — observe and check one record
-- [~] **1.6 Zamanlayıcı Güvenilirliği: GitHub `schedule` Kaldırılması (Claude):**
-  - **Hedef:** Upstash QStash 3 aktif cron zamanlaması (`sync-f1`, `sync-news`, `sync-media`) EU bölgesinde devrede. QStash kararlılığı doğrulandıktan sonra GitHub Actions workflow dosyalarındaki eski `schedule:` tetikleyicilerinin kaldırılması (yalnızca `workflow_dispatch` kalacak).
-  - **Run:** Sonnet / medium — workflow edit, verify via gh
-- [~] **1.7 OpenF1 Canlı Seans Erişimi ve Canlı Zamanlama Gözlemi (Claude, R18 ABD):**
-  - **Hedef:** Topluluk (Community) katmanında yarış süresince canlı sıralama kaynağının kısıtlandığı arayüzde dürüstçe bildirilmekte; yarış bitiminde geçici sonuçların `provisionalSync` ile anında işlenmesi R18 ABD yarışında test edilecek.
-  - **Run:** Sonnet / high — live provisional-result handling
+**Kritik kısıt:** zaman ve sezon yalnızca `lib/f1Calendar.ts`; sezon/pilot/takım listesi hardcode yasak.
 
 ---
 
-### 🔍 Faz 6: Production Release, SEO & Core Web Vitals
+## Faz 0 — Bakım
 
-> **Sahip Adımları Notu:** Bu fazdaki harici hesap kurulumları ve saha doğrulamaları, site yayın öncesi nihai hazır oluş aşamasına gelene kadar bekletilmektedir.
-
-- [~] **6.1 Structured Data (JSON-LD) ve Search Console Doğrulaması (Sahip [Yayın Öncesi Son Adım] + Claude):**
-  - **Hedef:** Google Search Console mülkünün `GOOGLE_SITE_VERIFICATION` meta etiketiyle doğrulanması, `sitemap.xml` gönderimi ve Rich Results Test ile `WebSite`, `Person`, `SportsTeam`, `SportsEvent`, `Article` şemalarının tescili.
-  - **Prosedür:** `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.D.
-  - **Run:** Sonnet / medium — owner step; agent verifies markup (owner: Search Console)
-- [~] **6.2 Core Web Vitals & Lighthouse Saha Takibi (Claude + Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** Mobil ortamda LCP < 2,5 s, INP < 200 ms, CLS < 0,1 eşiklerinin takibi.
-  - **Mevcut Durum:** `nextDynamic` chunk splitting, `.bento-deferred` (`content-visibility: auto`) ve hero görseli önceliklendirmesi tamamlandı. Search Console kurulduktan sonra CrUX saha verileri izlenecek.
-  - **Prosedür:** `docs/reference/yaris-hafta-sonu-dogrulama.md` bölüm 3.E.
-  - **Run:** Sonnet / medium — measure and compare vitals
-- [~] **6.3 Sentry ve Hata Gözlemlenebilirliği (Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** Vercel Production ortamına `NEXT_PUBLIC_SENTRY_DSN` eklendiğinde istemci tarafı hata yakalama akışının doğrulanması (`sendDefaultPii: false`).
-  - **Run:** Sonnet / low — owner sets DSN; agent checks capture
+### [x] 0.1 Eski logları sil
+- Run: Haiku / low — tek komut, karar yok
+- Owner: Haiku · Depends on: — · Dalga 1
+- Dosyalar: `logs/2026-09-28.md`, `logs/2026-09-29.md`, `logs/2026-10-01.md`, `logs/2026-10-02.md`, `logs/2026-10-03.md` (silinir; başka dosyaya dokunma)
+- Değişiklik: `git rm` bu 5 dosya. Commit: `chore(logs): drop logs older than 15 days`.
+- Doğrulama: `ls logs` → en eski dosya `2026-10-05.md`; `git status --short` yalnızca bu 5 silmeyi gösterir.
 
 ---
 
-### 📱 Faz 7: Lisans Manifestosu, Sahip İncelemesi & Mobil Ekosistem
+## Faz 1 — R18 ABD GP canlı doğrulama (2026-10-23 … 25)
 
-- [~] **7.1 `public/stories` Görselleri: Kaynak Doğrulaması (Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** `docs/reference/hikaye-gorselleri-kaynak-listesi.md` dosyasındaki 56 görselin kaynak linklerinin doğrulanıp `data/stories/image-credits.ts` manifest'ine `status: 'sourced'` olarak işlenmesi.
-  - **Not:** Sistem ve arayüz hazırdır; kaynak eklendiği anda arayüzde otomatik olarak atıf satırı ve kaynak linki (`↗`) görünür. Site bittiğinde topluca yapılacaktır.
-  - **Run:** Sonnet / low — owner sources; agent edits manifest rows
-- [ ] **7.2 Editoryal İnceleme & Olgu Teyidi (Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** Dönem renk listesi (`data/history/liveries.ts`) ve takım DNA metinlerinin (`data/history/team-dna.ts`) genel editoryal denetimi.
-  - **Run:** Antigravity (own model) — editorial text; owner reviews
-- [⏸] **7.3 Mobil Uygulama (Sahip — Tamamen Rafta):**
-  - **Hedef:** Tamamen rafa kaldırılmıştır (sahip kararı: belki hiç geliştirilmeyecektir). Web mimarisi, veri akışları ve arayüz kusursuzluğa ulaşana kadar asla gündeme alınmayacaktır.
-  - **Run:** none — shelved
-- [ ] **7.4 Yasal Mailbox'lar (Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** `privacy@`, `dmca@`, `contact@apexstats.example` yer tutucularının sitenin nihai yayını öncesinde gerçek operasyonel posta adresleriyle güncellenmesi.
-  - **Run:** Sonnet / low — owner supplies addresses; placeholder swap
+### [x] 1.0 Doğrulama rehberini R18'e güncelle
+- Run: Sonnet / medium — yargı isteyen doküman güncellemesi
+- Owner: Sonnet · Depends on: — · Dalga 1 · Bitiş: 2026-10-22
+- Dosyalar: `docs/reference/yaris-hafta-sonu-dogrulama.md` (yalnızca bu)
+- Değişiklik:
+  1. "R17 için zaman çizelgesi" bölümünü R18 için yeniden yaz: pencereleri `lib/f1Calendar.ts` ve `app/api/cron/sync-f1/route.ts` (`isRoundInLiveScope`) ile `app/api/cron/notify-sessions/route.ts`'nin hesapladığı biçimde, UTC ve TR saatiyle.
+  2. §2b "Zamanlayıcı gerçeği"ni 2026-10-20 ölçümüyle değiştir: QStash 3 zamanlama (sync-f1 `*/30`, sync-news `11 *`, sync-media `41 *`), notify-sessions yalnızca GitHub `*/10`; GitHub zamanlamaları R18 boyunca yedek olarak kalır.
+  3. §3.A'nın ilk adımı: ham OpenF1 `curl -s -i "https://api.openf1.org/v1/sessions?session_key=latest"`; 401 ise "kilitli" ölçütü (abonelik yok, sahip kararı 2026-10-20).
+  4. §4 sonuç tablosuna R18 sütunu ekle; `Last verified: 2026-10-2x` satırını güncelle.
+- Doğrulama: `grep -n "R18" docs/reference/yaris-hafta-sonu-dogrulama.md` ≥ 4 satır; `grep -c "R17 için zaman çizelgesi"` = 0.
+
+### [~] 1.1, 1.3, 1.4, 1.7 Canlı hafta sonu ölçümleri (tek oturum)
+- Run: Sonnet / high — canlı yarış hata ayıklama, kenar durumları
+- Owner: Sonnet · Depends on: 1.0 · Dalga 2 (kod dondurma içinde; kod değişikliği yok, bulgular `OPEN.md`'ye `To: Opus`)
+- Dosyalar: `logs/2026-10-23.md`, `logs/2026-10-24.md`, `logs/2026-10-25.md`, `docs/reference/yaris-hafta-sonu-dogrulama.md` §4, bu dosyada Faz 1 kutuları
+- Adımlar (rehber §3):
+  - **1.1** Canlı zamanlama (§3.A): Quali 10-24 ve yarış 10-25 sırasında `/api/live-timing` yanıtı, `Cache-Control`, `X-Vercel-Cache`, tracker davranışı.
+  - **1.3** Snapshot/idempotency (§3.B, B0): yarış sonrası ilk `sync-f1` (QStash, ≤30 dk) yanıtında `provisional.status`, `f1_snapshots` satırları (read-only `supabase` MCP), ikinci koşuda `upserted` artmaz.
+  - **1.4** Push penceresi (§3.C) — Run: Sonnet / medium: Quali ve yarıştan ~30 dk önce `notified_sessions` kaydı (read-only SQL).
+  - **1.7** OpenF1 erişimi (abonelik yok, sahip kararı 2026-10-20): "kilitli" ölçütü — `200 {live:true, restricted:true}` + arayüz metni; yarış bitişinde `provisionalSync` sonucu. 1.9 bir pasif gözlem eklediyse onu da ölçer.
+- Doğrulama: her alt madde için log'da komut + sonuç; geçen alt madde silinir, kalan `[~]` ve neyin açık olduğu yazılır.
+
+### [ ] 1.6 GitHub `schedule:` tetikleyicilerini kaldır
+- Run: Haiku / low — üç dosyada aynı blok silinir
+- Owner: Haiku · Depends on: 1.1-1.7 oturumunun log'unda QStash `sync-f1`'in yarış hafta sonu SUCCESS gösterdiğinin yazılı olması · Dalga 3
+- Dosyalar: `.github/workflows/sync-f1-race-aware.yml`, `.github/workflows/sync-news.yml`, `.github/workflows/sync-media.yml`, `.github/workflows/notify-sessions.yml`
+- Değişiklik: her dosyada `on:` altındaki `schedule:` anahtarını ve altındaki `- cron:` satırını sil; `workflow_dispatch:` kalır. Başka satıra dokunma. (QStash 4 rotayı da tetikliyor, 2026-10-20.)
+- Doğrulama: `grep -n "schedule:" .github/workflows/sync-*.yml .github/workflows/notify-sessions.yml` → çıktı yok; `grep -c "workflow_dispatch" ` aynı 4 dosyada her biri ≥ 1; her dosya için `npx --yes js-yaml <dosya> >/dev/null` çıkış 0.
+
+### [ ] 1.8 QStash zamanlamalarını koda eşitle (retries ve notify `*/5`)
+- Run: Sonnet / medium — betik bayrağı + workflow, ölçülü doğrulama
+- Owner: Sonnet (+ owner tek seferlik secret) · Depends on: 14.2 `main`'de (`node_modules` değişimi bitmiş) · Dalga 5 (K'nın `apex-reference.md` değişikliğinden sonra)
+- Neden: MCP yalnızca `retries: 3` ile zamanlama açabiliyor; kod 0/1 diyor ve bütçe testi (`tests/qstash-schedules.test.ts`, en kötü durum ≤ %60 kota) buna göre. Bugünkü canlı en kötü durum 960/1000 mesaj/gün.
+- Dosyalar: `scripts/qstash-sync.ts`, yeni `lib/cron/qstashPrune.ts`, yeni `tests/qstash-prune.test.ts`, yeni `.github/workflows/qstash-sync.yml`, `docs/reference/apex-reference.md` (zamanlayıcı bölümü)
+- Değişiklik:
+  1. `lib/cron/qstashPrune.ts`: `export function schedulesToPrune(live: { scheduleId: string; destination: string }[], managed: readonly QStashSchedule[], siteUrl: string): string[]` — hedef URL'si yönetilen bir `path`'e eşit olup kimliği yönetilen `id` olmayan (`scd_…`) zamanlamaların kimlikleri.
+  2. `scripts/qstash-sync.ts`: `--prune` bayrağı; önce `apex-*` zamanlamaları uygular, hepsi 2xx dönerse `schedulesToPrune` sonucunu siler; herhangi bir hata → silmeden çıkış 1.
+  3. `.github/workflows/qstash-sync.yml`: yalnızca `workflow_dispatch`; `npm ci`, ardından `npm run qstash:sync -- --prune`; env `QSTASH_TOKEN: ${{ secrets.QSTASH_TOKEN }}`, `SITE_URL: ${{ vars.SITE_URL }}`; `permissions: contents: read`.
+- Sahip (tek seferlik): repo secret `QSTASH_TOKEN` (Upstash console → QStash → Details).
+- Ajan: `gh workflow run qstash-sync.yml`; ardından `qstash_list_schedules` (eu).
+- Doğrulama: `npx vitest run tests/qstash-prune.test.ts tests/qstash-schedules.test.ts` yeşil; `npx tsc --noEmit` 0; canlıda tam 4 kayıt, kimlikler `apex-*`, `retries` koddakiyle aynı, `scd_` kalmamış; ilk tetiklemeler SUCCESS.
+
+### [x] 1.9 Ücretsiz canlı veri alternatifi (OpenF1 aboneliği yok)
+- Run: Opus / xhigh — mimari + kaynak/kullanım koşulu riski
+- Sonuç (2026-10-20, `DECISIONS.md` "1.9 Free live-data alternative"): seans sırasında ücretsiz ve koşullara uygun bir canlı sıralama kaynağı yok. F1 live timing reddedildi (F1 arşivi 2026-10-15'te F1 TV kimliğine kapattı, ölçüldü: `static/2026/Index.json` 401; SignalR kalıcı bağlantı = Vercel dışı çalışma zamanı; yeniden kullanım koşulu yok). Dürüst kilitli mod kalır; kazanım bayraktan sonra: OpenF1 ücretsiz katmanı kilit kalkınca (~30 dk) Sıralama ve Sprint geçici sonuçları (1.10), arayüzde "geçici" etiketi ve veri kaynağı atfı (1.11). R18 gözlemi `PLAN.md` Session F'de.
+
+### [ ] 1.10 OpenF1'den geçici Sıralama ve Sprint sonuçları
+- Run: Sonnet / high — veri doğruluğu, çok dosyalı cron adımı, kenar durumlar
+- Owner: Sonnet · Depends on: kod dondurmanın bitmesi (2026-10-26) · Dalga 3 (oturum Q)
+- Dosyalar: `lib/f1/sources/openf1.ts`, `lib/f1/provisional.ts`, `lib/f1/provisionalSync.ts`, `app/api/cron/sync-f1/route.ts`, `tests/provisional-openf1.test.ts`, `tests/provisional-sync.test.ts`, `docs/reference/apex-reference.md` (sync-f1 yanıt şekli geçiyorsa)
+- Değişiklik:
+  1. `openf1.ts`: `export async function fetchSessionsOfYear(year: number, sessionName: 'Qualifying' | 'Sprint'): Promise<OpenF1Session[]>` → `openf1Fetch<OpenF1Session>('sessions', { year, session_name: sessionName })`.
+  2. `provisional.ts`:
+     - `buildProvisionalResults` girdisine `key?: 'Results' | 'SprintResults'` (varsayılan `'Results'`); `Races[0]` içindeki dizi bu anahtarla yazılır.
+     - `buildProvisionalResults` ve `buildProvisionalStandings` çıktılarında `MRData.apexProvisional: true` (Jolpica satırlarında bu alan yok; bugünkü tüketiciler okumaz, 1.11 okur).
+     - Yeni `export function formatLapTime(seconds: number): string` → `m:ss.SSS` (`86.123` → `"1:26.123"`, `90` → `"1:30.000"`).
+     - Yeni `export function buildProvisionalQualifying(input: { season: number; race: CalendarRace; results: OpenF1SessionResult[]; roster: OpenF1Driver[]; ids: IdentityMap }): Json | null`: sürücü numarasına göre tekilleştir; `position` sayı olup `dsq`/`dns` olmayanlar artan sırada, kalanlar sonda; her satır `{ number, position: String(i + 1), Driver, Constructor, Q1?, Q2?, Q3? }`; `duration` dizi ise 0./1./2. eleman sayıysa `formatLapTime` ile Q1/Q2/Q3, tek sayıysa yalnızca Q1, `null` eleman alan yazmaz; `identityFor` null dönen satır atlanır; satır kalmazsa `null`. Sarmalayıcı `buildProvisionalResults` ile aynı (`MRData.RaceTable.Races[0]`), dizi anahtarı `QualifyingResults`, `apexProvisional: true`.
+  3. `provisionalSync.ts`:
+     - `export type ProvisionalSessionStatus = 'no-session' | 'jolpica-has-data' | 'already-written' | 'session-not-found' | 'session-running' | 'locked' | 'not-published' | 'written' | 'error'`; `export interface ProvisionalSessionOutcome { status: ProvisionalSessionStatus; round: number | null }`.
+     - `export async function syncProvisionalSessionFromOpenF1(opts: { kind: 'qualifying' | 'sprint'; races: CalendarRace[]; now: Date; stats: IngestStats }): Promise<ProvisionalSessionOutcome>`. Sıra: (a) takvim seansı `kind === 'qualifying' ? race.Qualifying : race.Sprint`; `sessionStartMs` (`lib/f1Calendar.ts`) ≤ `now` ve `now − start ≤ PROVISIONAL_WINDOW_MS` olan en geç yarış; yoksa `no-session`. (b) `loadRows`; o turun `kind` satırı `jolpica` → `jolpica-has-data`, `openf1` → `already-written` (OpenF1 çağrısı yapılmadan). (c) `fetchSessionsOfYear`; `|date_start − start| < 6 sa` olan oturum yoksa `session-not-found`. (d) `now < date_end + AFTER_SESSION_END_MS` → `session-running`. (e) `fetchSessionResult` boş → `not-published`. (f) `fetchLiveDrivers`; `buildIdentityMap` (`entryLists`: aynı turun `sprint` ve `qualifying` satırları, `round − 1` `results`; `driverStandings`/`constructorStandings`: sezon puan durumu satırları); `qualifying` → `buildProvisionalQualifying`, `sprint` → `buildProvisionalResults({ …, key: 'SprintResults' })`; `null` → `not-published`; aksi hâlde `upsertF1Snapshot(CURRENT_SEASON, round, kind, snapshot, 'openf1')`, `stats.upserted++`, `written`. `catch`: `isOpenF1Restricted` → `locked`; diğer hata `stats.errors`'a `provisional ${kind} R${round}: …`, `error`.
+  4. `sync-f1/route.ts` adım 6: mevcut çağrıdan sonra sırayla (paralel değil; OpenF1 3 req/sn) `qualifying` ve `sprint` için çağır; yanıta `provisionalSessions: { qualifying, sprint }` ekle; dosya başındaki "Response shape" yorumunu güncelle.
+- Kurallar: yeni zamanlayıcı, migration veya env yok (`qualifying`/`sprint` tipleri ve `source='openf1'` DB'de izinli). Jolpica adımı `isSettled` ile yalnızca `jolpica` satırlarına bakar (`loadSnapshotFetchTimes`), bu yüzden geçici satır Jolpica'yı engellemez ve Jolpica satırı onu ezer.
+- Test: `provisional-openf1.test.ts` — `formatLapTime`; Q1/Q2/Q3 eşlemesi (`[86.1, null, null]` yalnızca Q1); DSQ ve `position: null` sonda; sprint `SprintResults` anahtarı; üç builder'da `apexProvisional === true`. `provisional-sync.test.ts` — `jolpica` satırı varken OpenF1 mock'u hiç çağrılmaz; seans sürerken `session-running`; `OpenF1RestrictedError` → `locked`; yazımda `upsertF1Snapshot(…, 'qualifying', …, 'openf1')`; takvimde `Sprint` yoksa `no-session`.
+- Doğrulama: `npx vitest run tests/provisional-openf1.test.ts tests/provisional-sync.test.ts tests/sync-f1-idempotent.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1 app/api/cron/sync-f1` 0; `npm run build` `wip/` üzerinde yeşil. Canlı ilk gözlem R19 Sıralama (2026-10-31 21:00Z): sonraki `sync-f1` yanıtında `provisionalSessions.qualifying.status` ve `f1_snapshots` satırı (read-only), log'a.
+
+### [ ] 1.11 Geçici veri etiketi ve veri kaynağı atfı
+- Run: Antigravity (own model) — arayüz ve metin; Claude Code doğrular, commit eder
+- Owner: Antigravity · Depends on: 1.10 `main`'de · Dalga 4 (J/K/L/M dosyalarıyla çakışmaz)
+- Dosyalar: `components/season/ResultsTable.tsx` (ve sonuç/sıralama/sprint tablosunu çizen bileşen), `components/layout/SiteFooter.tsx`, `messages/tr.json`, `messages/en.json`
+- Değişiklik: snapshot `MRData.apexProvisional === true` ise tablo başlığının yanında "Geçici sonuç · OpenF1" / "Provisional · OpenF1" etiketi ve tek cümle açıklama ("Resmî sonuç yayımlanınca güncellenir"). Altbilgiye veri kaynağı satırı: Jolpica F1 ve OpenF1 bağlantıları, "CC BY-NC-SA 4.0". `docs/design/apex-component-rules.md` bağlayıcı.
+- Doğrulama: Antigravity log'a yazar ve `[~]` işaretler; Claude Code `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest related --run <değişen dosyalar>` yeşil; tarayıcıda `apexProvisional` içeren bir tur sayfası (yerel fixture) ve altbilgi görülür.
+---
+
+## Faz 7 — Editoryal (Antigravity)
+
+### [ ] 7.2 Editoryal inceleme: dönem renkleri ve takım DNA
+- Run: Antigravity (own model) — editoryal metin; sahip onaylar
+- Owner: Antigravity · Depends on: — · Dalga 1
+- Dosyalar: `data/history/liveries.ts`, `data/history/team-dna.ts` (yalnızca bunlar)
+- Değişiklik: olgu teyidi ve dil düzeltmesi; yapı/alan adı değişmez. Bitince günün log'una ne değiştiğini yazar, maddeyi `[~]` yapar; commit Claude Code'da.
+- Doğrulama (Claude Code): `npx vitest run tests/editorial-content.test.ts` yeşil, `npx tsc --noEmit` 0.
+
+### [⏸] 7.3 Mobil uygulama — rafta (sahip kararı). Gündeme alınmaz.
 
 ---
 
-### 🖼️ Faz 8: Görsel Temin Sistemi (Media)
+## Faz 8 — Medya ve haber: "kusursuz" kapısı
 
-- [ ] **8.3 Medya Seçim Kalite İncelemesi (Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** `media_assets` tablosunda düşük güvenli veya istenmeyen görsellerin `review='rejected'` yapılarak yedek havuzdan beslenmesi (SQL sorguları: `docs/reference/media-sistemi.md` §13).
-  - **Run:** Sonnet / low — owner decides; agent runs read-only SQL
-- [ ] **8.6 Eski Sezonlar (1950–2017) Medya Genişletmesi (Claude + Sahip):**
-  - **Hedef:** Görsel sistemi (optimizasyon, veri akışları, önbellek ve performans sorunları) tamamen oturup kusursuz hale geldikten sonra temiz sistemle yapılacaktır. Yüksek miktarda görselle erkenden boğuşulmaması için ön koşul: Web medya motorunun sıfır sorunla ve tam optimize çalışmasıdır.
-  - **Run:** Plan: Opus / high; build: Sonnet / medium — large but mechanical once designed
+Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, placeholder yoktur, fallback güvenlidir, otomatik güncellemeler güvenlidir, yeni kaynak/varlık geldiğinde görsel kendiliğinden temin edilir. Aynı tanım haberler için geçerli. Ölçülebilir karşılığı:
 
----
+| Kod | Ölçüt (medya: pilot, takım, pist, tur, hikâye; haber: liste + detay) | Ölçüm |
+|---|---|---|
+| K1 Eksiksiz | Görsel gösteren her varlıkta onaylı/lisans kayıtlı görsel var; haber listesinde görselsiz öğe 0 | read-only SQL sayımı (`media_assets`, `news_stories`) + varlık listesi farkı = 0 |
+| K2 Hızlı | 16 temsilci sayfada mobil laboratuvar LCP < 2,5 s, görsel kaynaklı CLS < 0,1; LCP görseli öncelikli | Lighthouse mobil, 16 sayfa |
+| K3 Placeholder yok | Canlı 16 sayfada kırık (`naturalWidth = 0`) veya yer tutucu görsel 0 | tarayıcıda DOM taraması |
+| K4 Güvenli fallback | Upstream görsel düşünce zincir lisanslı yedeğe iner, yer tutucuya inmez; her kademe testli | birim testleri (çözümleyici, `lib/data/news.ts`) |
+| K5 Güvenli otomatik güncelleme | `sync-media` ve `sync-news` 7 gün kesintisiz SUCCESS; otomatik eklenen her görselin lisans kaydı var | QStash günlükleri + SQL |
+| K6 Yeni kaynak | Yeni varlık (pilot/takım/sezon) veya yeni RSS kaynağı ≤ 24 saatte görselini alır | fixture'lı test + bir canlı gözlem |
 
-### ☁️ Faz 9: Google Cloud (18 Aralık 2026 Kredi Dönemi ve Sonrası)
+### [ ] 8.0 Kapı denetimi: K1–K6 ölç, eksikleri adımlara çevir
+- Run: Opus / xhigh — ölçüt tasarımı ve çok katmanlı plan
+- Owner: Opus (Architect; ölçer, kod yazmaz) · Depends on: — · Dalga 3
+- Yapar: K1–K6'yı canlıya karşı ölçer (read-only `supabase` MCP, Upstash günlükleri, tarayıcı paneli, Lighthouse); her geçmeyen ölçüt için bu fazda 8.1… adımları tam tarifle yazar (dosya, değişiklik, doğrulama, `Run:`); geçenleri ölçümüyle log'a yazar.
+- Dosyalar: bu dosyada Faz 8, `DECISIONS.md`, `logs/<gün>.md`.
+- Doğrulama: K1–K6'nın her biri için ölçüm komutu ve sayı log'da; her FAIL için en az bir adım var.
 
-- [ ] **9.0 Hesap, Proje ve API Anahtarı Kurulumu (Sahip [Yayın Öncesi Son Adım]):**
-  - **Hedef:** Apex için Avrupa bölgesinde ayrı GCP projesi, Generative Language API etkinleştirme, bütçe alarmları (aylık en fazla ~₺50 kalıcı maliyet sınırı).
-  - **Run:** owner — GCP console work
-- [ ] **9.2 Gemini Ana Sağlayıcı, Groq Yedek Zinciri (Claude; 9.0 bitince):**
-  - **Hedef:** Haber üretim zincirinin Gemini (GCP) → Gemini (AI Studio ücretsiz) → Groq olarak yapılandırılması (`lib/news/rewrite.ts`).
-  - **Run:** Sonnet / high — LLM fallback chain, cost and overlap guards
-- [ ] **9.3 Kredi Dönemi Tek Seferlik İşler (Sahip Onayıyla; 18 Aralık'a kadar):**
-  - **Hedef:** 8.6 medya genişletmesi için toplu çözümleme, Cloud Monitoring uptime check ve kontrollü AI görsel/ikon denemeleri.
-  - **Run:** Sonnet / medium — one-off scripted jobs, owner approves spend
-- [ ] **9.1 Vercel + GCP Hibrit Mimari (İleride ihtiyaç doğarsa):**
-  - **Hedef:** Cron işlerinin 300 sn sınırını aşması veya mobil uygulamanın gündeme gelmesi durumunda kalıcı Cloud Run Jobs mimarisine geçiş.
-  - **Run:** Opus / xhigh — architecture, only if the need arises
+### [⏸] 8.6 Eski sezonlar (1950–2017) medya genişletmesi
+- Run: plan Opus / high; uygulama Sonnet / medium
+- Owner: Opus → Sonnet · Depends on: Faz 8 kapısı K1–K6 PASS · 9.3 kredisiyle birlikte düşünülür.
 
 ---
 
-### 🏁 Faz 13: Pist İleri Telemetri Genişletmesi (Claude Opus 5.5 Özel Görevi)
+## Faz 9 — Google Cloud (kredi bitişi 2026-12-18)
 
-> **Model Şartı:** Bu fazın mimarisi, FastF1 telemetri eksiklerinin tespiti, veri hattı ve arayüz entegrasyonu bir saat mekanizması gibi kusursuz işleyecek biçimde bizzat **Claude Opus 5.5** tarafından belirlenip hayata geçirilecektir.
+### [ ] 9.0 GCP projesi ve anahtar
+- Run: owner · Owner: owner · Depends on: — · Dalga 5
+- AB bölgesinde ayrı proje, Generative Language API, bütçe alarmı (kalıcı ≤ ₺50/ay).
 
-- [~] **13.3 & 13.6 İleri Pist Telemetrisi ve Strateji Entegrasyonu (Claude Opus 5.5):**
-  - **Hedef:** FastF1 `get_circuit_info()` üzerinden sektör sınırları, hız tuzakları, apeks süratleri ve strateji metrikleri doğrulanmış veri hattına bağlanacak; neyin eksik olduğunu ve nasıl eklenmesi gerektiğini Opus 5.5 belirleyerek pist detay sayfasına saat mekanizması hassasiyetinde entegre edecektir (asla uydurma veri basılmaz).
-  - **Run:** Opus 5.5 / xhigh — owner-mandated model; data must be exact
+### [ ] 9.2 LLM zinciri: Gemini (GCP) → Gemini (AI Studio) → Groq
+- Run: Sonnet / high — sağlayıcı zinciri, maliyet ve örtüşme korumaları
+- Owner: Sonnet · Depends on: 9.0, 14.4 (aynı dosya) · Dalga 5
+- Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-order.test.ts`, `.env.example`
+- Değişiklik: `PROVIDERS` sırası Gemini-GCP → Gemini-AI-Studio → Groq; GCP anahtarı için yeni env adı `.env.example`'a boş değerle (ad 9.0'da belirlenir); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan sağlayıcı `gemini:*`.
+- Doğrulama: `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0.
 
----
+### [ ] 9.3 Kredi dönemi tek seferlik işler (2026-12-18'e kadar)
+- Run: Sonnet / medium — tek seferlik betikler, harcama sahip onaylı
+- Owner: Sonnet · Depends on: 9.0, sahip onayı · Dalga 5 (Kasım başı hatırlatma)
+- 8.6 için toplu çözümleme, Cloud Monitoring uptime check. AI görsel/ikon denemesi `public/stories`'e giremez (AGENTS).
 
-### 🛡️ Faz 14: Siber Güvenlik, Kriptografi & Kaynak/Maliyet Sertleştirmesi (Claude Opus 5.5 Şartı)
-
-> **Model Şartı:** Hem acil yapılması gereken güvenlik yamaları (Push bypass, bağımlılık zafiyetleri, Zod) hem de ileriye dönük rutin kontroller ve maliyet/kaynak önlemleri, mimari derinlik ve kritiklik nedeniyle **kesinlikle Claude Opus 5.5** tarafından icra edilecektir.
-
-- [ ] **14.1 `push/register` Rate Limit Bypass ve Tutarlı Dağıtık Hız Sınırlama (Claude Opus 5.5 — Döküman 2 & 3):**
-  - **Hedef:** `app/api/push/register/route.ts:25` satırındaki `clientIP === 'fallback:unknown'` bypass açığının kapatılması; tüm genel JSON rotalarının (`news`, `circuits`, `drivers`, `teams`, `season`, `media`) `applyRateLimit` sarmalayıcısına geçirilerek başlığı eksik isteklerin 1/5 kota ile ortak havuzda sınırlandırılması; Vercel üretim ortamında Upstash Redis ortam değişkenlerinin (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`) doğrulanması.
-  - **Referans:** `docs/reference/guvenlik-durum-tespiti.md` §1.3, `lib/rateLimit.ts`.
-  - **Run:** Opus 5.5 / xhigh — owner-mandated model; security bypass, distributed limiting
-- [ ] **14.2 Bağımlılık Zafiyetlerinin Giderilmesi & Güvenlik Kapısı CI Entegrasyonu (Claude Opus 5.5 — Döküman 4):**
-  - **Hedef:** `npm audit` tarafından tespit edilen 23 zafiyetin (Next.js 16.2.7 ve Tinypool kritik seviye dahil) `npm audit fix` ile giderilmesi; `.github/workflows/ci.yml` içine `npm audit --audit-level=high` kapısı eklenmesi ve otomatik paket güncellemeleri için `.github/dependabot.yml` yapılandırılması.
-  - **Referans:** `docs/reference/guvenlik-durum-tespiti.md` §3.4.
-  - **Run:** Opus 5.5 / high — owner-mandated model; mostly mechanical, CI gate needs care
-- [ ] **14.3 Şema Tabanlı Girdi Doğrulama & Zod Entegrasyonu (Claude Opus 5.5 — Döküman 4 & 3):**
-  - **Hedef:** Projeye `zod` kütüphanesinin eklenmesi; elle yazılmış regex ve nesne filtrelemeleri yerine (`app/api/push/register`, `app/api/f1-season`, `app/api/media`, `app/api/circuits/[id]`) tip güvenli Zod şemalarının tanımlanması ("Don't roll your own validation").
-  - **Referans:** `docs/reference/guvenlik-durum-tespiti.md` §3.3.
-  - **Run:** Opus 5.5 / high — owner-mandated model; multi-file validation refactor
-- [ ] **14.4 Denial of Wallet (DoW) & LLM Sert Harcama Limitleri (Claude Opus 5.5 + Sahip — Döküman 3):**
-  - **Hedef:** GCP ve Groq konsollarında aylık sert bütçe sınırlarının (Hard Spend Caps) ve harcama hızı (velocity) alarmlarının tanımlanması; OWASP LLM10 (Unbounded Consumption) ve LLM06 (Excessive Agency) standartları uyarınca `lib/news/rewrite.ts` retry/token tavanlarının belgelenip korunması.
-  - **Referans:** `docs/reference/guvenlik-durum-tespiti.md` §1.2.
-  - **Run:** Opus 5.5 / high — owner-mandated model; owner sets console caps
-- [ ] **14.5 Canlı Haber Toplama (RSS & Image Check) Kaynak Optimizasyonu (Claude Opus 5.5 — Döküman 3 & 2):**
-  - **Hedef:** `GET /api/news` rotasının önbellek ıskalamalarında 5 RSS kaynağı ve onlarca görsele eşzamanlı HTTP pingi atarak sunucu tüketmesini önlemek; halka açık rotanın yalnızca veritabanındaki `news_stories` tablosundan beslenmesi, canlı taramanın sadece `sync-news` cron'una bırakılması ("Cheap validation first").
-  - **Referans:** `docs/reference/guvenlik-durum-tespiti.md` §1.1.
-  - **Run:** Opus 5.5 / high — owner-mandated model; route and cache refactor
-- [ ] **14.6 Gelecekteki Kimlik Doğrulama & Parola Mimarisi Şartnamesi (Argon2id) (Claude Opus 5.5 — Döküman 1 & 2):**
-  - **Hedef:** İleride kullanıcı profili, üyelik veya yönetim paneli eklendiğinde MD5/SHA/bcrypt yerine doğrudan RFC 9106 Argon2id standardının ($m=47,104\text{ KiB}, t=1, p=1$ güçlü profil), PHC string biçiminin ve CSPRNG salt kullanımının zorunlu kılınması; *Verify-then-Rehash* geçiş modelinin mimari kural olarak muhafazası.
-  - **Referans:** `docs/reference/security-docs/Argon2id Standardına Kesintisiz Parola Taşıma Stratejisi Rehberi.md`.
-  - **Run:** Opus 5.5 / xhigh — owner-mandated model; cryptographic specification
+### [⏸] 9.1 Vercel + GCP hibrit (Cloud Run Jobs)
+- Run: Opus / xhigh — mimari, yalnızca ihtiyaç doğarsa · Owner: Opus · Tetik: bir cron 300 sn sınırını ölçülerek aşarsa.
 
 ---
 
-### 🎨 Faz 15: Otomatik AI Görsel Denetim (Vision Audit) & Arayüz İyileştirme Pipeline'ı
+## Faz 13 — İleri pist telemetrisi (Claude Opus 5.5 şartı)
 
-> **Amaç:** `screenshots/` klasöründeki 16 temsilci sayfanın Desktop, Tablet ve Mobile görüntülerini, projedeki mevcut AI API anahtarlarımız (Gemini / Vision modelleri) üzerinden otomatik denetime tabi tutarak sayfa bazlı aksiyon ve tespit raporları üretmek.
+### [ ] 13.1 Tasarım: hangi veri, hangi kaynak, nasıl taşınır
+- Run: Opus 5.5 / xhigh — sahip şartı; veri doğruluğu ve mimari
+- Owner: Opus 5.5 (Architect oturumu, kod yazmaz) · Depends on: — · Dalga 2 (yalnızca doküman; kod dondurmayla uyumlu)
+- Okur: `app/[locale]/circuits/[id]/page.tsx`, `lib/data/circuits.ts`, `data/circuits/*.ts`, FastF1 belgeleri (`get_circuit_info()`: köşeler, marshal ışıkları/sektörleri, rotasyon; hız tuzakları `Laps.SpeedI1/SpeedI2/SpeedFL/SpeedST`).
+- Karar verir: (a) Python FastF1 çalışma ortamı (yerel tek seferlik betik → commit'lenen statik JSON, ya da GCP 9.3), (b) depolama (`data/circuits/telemetry/*.json` ya da tablo → migration ise Opus/xhigh denetim adımı eklenir), (c) uydurma veri yasağının testi, (d) sayfa entegrasyonu Antigravity ile nasıl bölünür.
+- Çıktı: `DECISIONS.md` girdisi; bu dosyada 13.2 ve gerekirse 13.3 (migration denetimi), 13.4 (Antigravity UI) adımları tam tarifle; `PLAN.md` 13.2 dilimi.
+- Doğrulama: 13.2'nin her adımında dosya listesi, imza ve doğrulama komutu var; dosya listesi Dalga 4 oturumlarıyla çakışmıyor.
 
-- [ ] **15.1 Çok Modelli AI Vision Denetim Hattı (Vision Audit Pipeline) Kurulumu (Claude + Antigravity):**
-  - **Hedef:** `screenshots/` altındaki her ekran görüntüsünü dosya adı, sayfa URL'si, cihaz tipi ve bileşen bağlamıyla birlikte görsel yetenekli AI modeline (ör. Gemini 2.5 Flash / Pro Vision) gönderen otomatik bir komut dosyası (`scripts/audit-screenshots.ts`) tasarlanması.
-  - **Model Analiz Kriterleri:**
-    1. **Viewport & Düzen:** Mobilde/tablette dikey/yatay taşmalar, orantısız boşluklar, hizalama sapmaları.
-    2. **Bileşen & Kompozisyon:** Bento kart yerleşimleri, buton konumları, etkileşimli öğelerin ergonomisi.
-    3. **Tipografi & İçerik:** Okunabilirlik, yazı boyutu hiyerarşisi, kontrast eksiklikleri, metin sarkmaları.
-    4. **Görsel Kalite & Kadraj:** Fotoğrafların kırpılma biçimi, oran-orantı, yükseklik dengesi.
-  - **Çıktı Biçimi:** Modelin ürettiği detaylı analizler her sayfanın kendi klasörüne `screenshots/<sayfa-id>/audit-report.md` olarak kaydedilecektir. Böylece her sayfa için arayüz anlamında ne yapılması gerektiğini gösteren net tespit dökümanları oluşacaktır.
-  - **Run:** Sonnet / high — vision API script with spend caps (Antigravity: own model)
-- [ ] **15.2 AI Denetim Raporlarının Arayüze Uygulanması (Antigravity):**
-  - **Hedef:** Üretilen `audit-report.md` dosyalarındaki tespitler doğrultusunda, Apple HIG akıcı tasarım mimarisi ve `docs/design/apex-component-rules.md` kurallarına uygun olarak sayfa sayfa arayüz iyileştirmelerinin kodlanması.
-  - **Run:** Antigravity (own model) — UI implementation
+### [ ] 13.2 Uygulama (13.1 tanımlar)
+- Run: Opus 5.5 / xhigh — sahip şartı; "tam doğru olmalı"
+- Owner: Opus 5.5 · Depends on: 13.1 · Dalga 4
 
 ---
 
-## 4. Teknik Borç ve Çevre Takibi
+## Faz 14 — Güvenlik ve maliyet sertleştirmesi (Claude Opus 5.5 şartı)
 
-| Madde | Durum | Önlem / Aksiyon |
-| :--- | :--- | :--- |
-| **`ci.yml` (PR Kapısı)** | GitHub'da henüz koşmadı | Pull request açıldığında required check olarak bağlanması |
-| **Yasal Mailbox'lar** | `.example` yer tutucular | Site yayını öncesi gerçek posta kutularıyla değiştirilecek (7.4) |
-| **C-7 Yerel Geliştirme Notu** | `next start` localhost SSL uyarısı | Yerel geliştirmede dil değişiminde oluşan prototip uyarısı; canlı https'i etkilemez |
-| **Prod Ortam Değişkenleri** | Sentry, Upstash, Cron Secret | Senkronizasyon kontrolü (özellikle Search Console `GOOGLE_SITE_VERIFICATION`) |
-| **as any / eslint-disable** | **Sıfır Kaçış (Tam Temiz)** | `grep -rn eslint-disable app lib components` = 0; tip kaçışı kesinlikle yasaktır |
-| **Push Rate Limit Açığı** | `fallback:unknown` bypass | `app/api/push/register/route.ts` rotasının `applyRateLimit` ile kapatılması (14.1) |
-| **Bağımlılık Zafiyetleri** | 3 Critical, 14 High zafiyet | `npm audit fix` ile Next.js 16.4+ ve sharp/postcss güncellemeleri (14.2) |
-| **Zod Şema Doğrulama** | Zod kütüphanesi yok | Elle yazılmış regex yerine Zod şema doğrulamasına geçiş (14.3) |
+### [x] 14.1 Tüm genel rotalarda `applyRateLimit`; push bypass'ını kapat
+- Run: Opus 5.5 / high — sahip şartı; güvenlik kodu, tarif kesin
+- Owner: Opus 5.5 · Depends on: — · Dalga 1 (2026-10-22 18:00 TR'ye kadar push edilemezse 2026-10-26'ya kalır)
+- Dosyalar: `app/api/push/register/route.ts`, `app/api/news/route.ts`, `app/api/media/route.ts`, `app/api/circuits/[id]/route.ts`, `app/api/drivers/[driverId]/career/route.ts`, `app/api/teams/[constructorId]/career/route.ts`, `app/api/season/[year]/route.ts`, `app/api/season/[year]/last-result/route.ts`, `lib/rateLimit.ts` (yalnızca yorum), `tests/rateLimit.test.ts`, yeni `tests/rate-limit-routes.test.ts`
+- Değişiklik: her rotada `const clientIP = getClientIP(req.headers); if (clientIP !== 'unknown' …) { … rateLimit(clientIP, opts) … }` bloğunu `const { success, retryAfter } = await applyRateLimit(req.headers, { prefix, max, windowMs });` + mevcut 429 yanıtıyla değiştir; `prefix`/`max`/`windowMs` değerleri aynen korunur. `push/register`'daki `NODE_ENV`/`fallback:unknown` atlaması kalkar (test muafiyeti `applyRateLimit` içinde). `lib/rateLimit.ts:28` civarındaki "legacy guard" yorumu silinir. Kullanılmayan `getClientIP`/`rateLimit` importları kalkar.
+- İmza: değişmez — `applyRateLimit(headers: Headers, opts: RateLimitOptions): Promise<RateLimitResult>`.
+- Test: `tests/rate-limit-routes.test.ts` — `NODE_ENV` `production`'a stub'lanır, Upstash env boş (bellek içi limiter); başlıksız istekle `push/register` POST'u `max/5`+1. çağrıda 429 döner; başlıklı (`x-real-ip`) istek tam kotayı alır.
+- Ek kontrol (yalnızca okuma): Vercel MCP `filter_project_envs` ile Production'da `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` **adlarının** varlığı log'a yazılır (değer okunmaz).
+- Doğrulama: `grep -rn "clientIP !== 'unknown'" app/api` → çıktı yok; `grep -rln "applyRateLimit" app/api | wc -l` → 10; `npx vitest run tests/rateLimit.test.ts tests/rate-limit-routes.test.ts tests/api-media.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint app/api lib/rateLimit.ts` 0.
+
+### [ ] 14.2 Bağımlılık zafiyetleri + CI kapısı
+- Run: Opus 5.5 / high — sahip şartı; major yükseltmeler, CI kapısı
+- Owner: Opus 5.5 · Depends on: kod dondurmanın bitmesi (2026-10-26) · Dalga 3 · **tek başına koşar** (`node_modules`)
+- Dosyalar: `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, yeni `.github/workflows/security-audit.yml`, `docs/procedures.md` (§2), kırılırsa yalnızca ilgili `tests/*` ve `vitest.config.*`
+- Değişiklik (sırayla, her biri ayrı commit):
+  1. `next` ve `eslint-config-next` → aynı sürüm `16.4.2` (birbirine eşit sabit). Önce `node_modules/next/dist/docs/` yükseltme notları okunur.
+  2. `npm audit fix` (**`--force` yok**) — geçişli düzeltmeler.
+  3. `vitest` `^3.2.6` → `^5.0.5` (major; tinypool kritik). Kırılan yapılandırma/test düzeltilir; davranış testi silinmez.
+  4. `sharp` `^0.34.5` → `^0.35.5` (major).
+  5. `ci.yml`: `on.push.branches` = `['main', 'wip/**']`; `npm ci`'den sonra `- run: npm audit --omit=dev --audit-level=high` adımı.
+  6. Dependabot uyarıları (PR açmaz; sahip onayı 2026-10-20): `gh api -X PUT repos/ugurshelby/project-anthology/vulnerability-alerts`. Dependabot security/version updates **açılmaz**, `.github/dependabot.yml` **eklenmez** (PR açarlar; politika PR yok).
+  7. `.github/workflows/security-audit.yml`: `schedule: cron "0 6 * * 1"` (haftalık) + `workflow_dispatch`; `npm ci` ardından `npm audit --omit=dev --audit-level=high`; `permissions: contents: read`. Başarısızlık GitHub e-postasıyla sahibe düşer; ajan rutin oturumda okur.
+  8. `docs/procedures.md` §2 (güvenlik denetimi): ilk adımlara `gh api "repos/ugurshelby/project-anthology/dependabot/alerts?state=open" --jq length` ve `gh run list --workflow security-audit.yml --limit 3` eklenir; açık uyarı = bir sonraki planın 14.x yükseltme adımı (`wip/` CI kapısıyla).
+  - `eslint-config-next` için audit'in önerdiği 14.2.35 düşürmesi **uygulanmaz**.
+- Doğrulama: yerel `npx tsc --noEmit` 0, `npm run lint` 0; `npm audit --omit=dev --audit-level=high` çıkış 0; `gh api repos/ugurshelby/project-anthology/vulnerability-alerts -i` → `204`; `gh workflow run security-audit.yml` sonrası koşu yeşil; `wip/deps-2026-10` push'u → CI (`gh run list --branch wip/deps-2026-10`) ve Vercel preview build yeşil; sonra `main`'e fast-forward (sahip onayıyla push), `wip/` dalı yerelde ve `origin`'de silinir. Kalan dev-only bulgular log'a sayıyla yazılır.
+
+### [ ] 14.3 Zod ile şema doğrulama
+- Run: Opus 5.5 / high — sahip şartı; çok dosyalı doğrulama refaktörü
+- Owner: Opus 5.5 · Depends on: 14.1 (aynı rotalar), 14.2 (`package.json`) · Dalga 4
+- Dosyalar: `package.json`, `package-lock.json`, yeni `lib/validation/api.ts`, `app/api/push/register/route.ts`, `app/api/f1-season/route.ts`, `app/api/media/route.ts`, `app/api/circuits/[id]/route.ts`, yeni `tests/validation-api.test.ts`
+- Değişiklik: `npm install zod@^4`. `lib/validation/api.ts` şunları dışa verir: `pushRegisterBody` (token: boş olmayan string, üst sınır mevcut koddaki ile aynı; preferences: `z.record(z.string(), z.boolean())`, en çok `MAX_PREFERENCE_KEYS` anahtar), `f1SeasonQuery`, `mediaQuery`, `circuitIdParam` — her biri bugünkü elle yazılmış kuralın birebir karşılığı (izinli değer kümeleri, regex, uzunluk). Rotalar `safeParse` kullanır; hata → bugünkü durum kodu ve gövde aynen (400 metni değişmez). `sanitizePreferences` gibi elle yazılmış doğrulayıcılar silinir.
+- İmza: `export const pushRegisterBody: z.ZodType<{ token: string; preferences: Record<string, boolean> }>` vb.; `export type PushRegisterBody = z.infer<typeof pushRegisterBody>`.
+- Doğrulama: `npx vitest run tests/validation-api.test.ts` + mevcut rota testleri (`npx vitest related --run app/api/push/register/route.ts app/api/f1-season/route.ts app/api/media/route.ts "app/api/circuits/[id]/route.ts"`) yeşil; `npx tsc --noEmit` 0; `npm run lint` 0; `npm run build` `wip/` üzerinde yeşil.
+
+### [ ] 14.4 LLM harcama tavanları (Denial of Wallet)
+- Run: Opus 5.5 / medium — sahip şartı; küçük, net kapsam
+- Owner: Opus 5.5 · Depends on: — · Dalga 4 (sahip konsol tavanları: 16.8)
+- Opus 5.5 dosyaları: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-limits.test.ts`
+- Değişiklik: dosyadaki deneme/token/parti sınırlarını adlandırılmış `export const` sabitlere çıkar (yeni sınır koyma, mevcut değerleri koru); test bu sabitlerin üst sınırlarını ve bir koşudaki en fazla sağlayıcı çağrısını sabitler (OWASP LLM10).
+- Doğrulama: `npx vitest run tests/news-rewrite-limits.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0.
+
+### [ ] 14.5 `/api/news` canlı taramasını kaldır
+- Run: Opus 5.5 / high — sahip şartı; rota ve geri düşüş zinciri
+- Owner: Opus 5.5 · Depends on: 14.1 (`app/api/news/route.ts`) · Dalga 4
+- Dosyalar: `app/api/news/route.ts` (silinir), `lib/data/news.ts`, `tests/news-stories.test.ts`, `tests/api-cron-guard.test.ts` (yalnızca `/api/news` referansı varsa), `docs/reference/apex-reference.md` (rota listesi)
+- Değişiklik: `/api/news` rotası silinir (tek tüketicisi sunucu içi geri düşüştü). `getLatestNews` zinciri: `news_stories` → `news_cache` → `public/news-fallback.json`; adım 2 (`fetchSiteJson('/api/news')`) ve kullanılmayan `ApiNewsItem` dönüştürücüleri ancak statik geri düşüş kullanmıyorsa kalkar. `aggregate()` yalnızca `sync-news` cron'unda kalır.
+- Doğrulama: `grep -rn "'/api/news'" app lib` → çıktı yok; `npx vitest related --run lib/data/news.ts` yeşil; `npx tsc --noEmit` 0; `npm run build` `wip/` üzerinde yeşil (rota sayısı bir azalır).
+
+---
+
+## Faz 15 — Ekran görüntüsü vision denetimi
+
+### [x] 15.1 `scripts/audit-screenshots.ts`
+- Run: Sonnet / medium — tek betik, sabit istek tavanı
+- Owner: Sonnet · Depends on: — · Dalga 1
+- Dosyalar: yeni `scripts/audit-screenshots.ts`, yeni `tests/audit-screenshots.test.ts` (`package.json`'a dokunulmaz; çalıştırma `npx tsx scripts/audit-screenshots.ts`)
+- Değişiklik: `screenshots/<sayfa-id>/*-viewport.png` dosyalarını (16 × 3) okur; mevcut `GEMINI_API_KEY` ile Gemini REST'e (yeni bağımlılık yok, `fetch`) dört ölçütle (düzen, bileşen, tipografi, görsel kadraj) istek atar; çıktıyı `screenshots/<sayfa-id>/audit-report.md`'ye yazar. Sert tavan: `--max-requests` (varsayılan 48), `--dry-run` (istek atmadan plan yazar), `--page <id>`. Saf yardımcılar (`buildPrompt`, `listTargets`, `reportPath`) dışa verilir ve test edilir.
+- Doğrulama: `npx vitest run tests/audit-screenshots.test.ts` yeşil; `npx tsx scripts/audit-screenshots.ts --dry-run` env'siz çalışır ve 48 hedef listeler; `npx tsc --noEmit` 0. Gerçek koşu **sahip** tarafından (betik anahtar ister; ajanlar gerçek env yüklemez).
+
+### [ ] 15.2 Rapor bulgularını arayüze uygula
+- Run: Antigravity (own model) — UI uygulaması
+- Owner: Antigravity · Depends on: 15.1 + sahibin gerçek koşusu · Dalga 5
+- Kurallar: `docs/design/apex-component-rules.md` bağlayıcı. Her sayfa sonrası tarayıcıda kontrol; commit Claude Code'da.
+
+---
+
+## Faz 16 — Yayın öncesi sahip paketi (tetik: sahip "proje hazır" der)
+
+Bu fazın hiçbir adımı tetikten önce talep edilmez. Kod tarafı hazır olanlar: SEO meta + JSON-LD, Sentry (DSN'e bağlı), atıf arayüzü.
+
+### [ ] 16.1 Gerçek iletişim bilgileri ve yasal adresler
+- Run: owner, ardından Haiku / low — yer tutucu değişimi
+- Owner: owner → Haiku · Depends on: tetik
+- Dosyalar: `messages/en.json`, `messages/tr.json`
+- Değişiklik: `privacy@apexstats.example`, `dmca@apexstats.example`, `contact@apexstats.example` → sahibin verdiği adresler (birebir metin değişimi); sahip başka iletişim bilgisi verirse aynı dosyalarda.
+- Doğrulama: `grep -rc "apexstats.example" messages` → her dosya 0; `npx vitest run tests/i18n-messages.test.ts` yeşil.
+
+### [ ] 16.2 Gerçek logo ve marka varlıkları
+- Run: Antigravity (own model) — UI entegrasyonu
+- Owner: owner → Antigravity · Depends on: tetik
+- Sahip logoyu verir; Antigravity mevcut logo kullanım yerlerini değiştirir (favicon, manifest ikonları, OG görseli dahil); commit Claude Code'da, tarayıcıda kontrol.
+
+### [ ] 16.3 Search Console + Rich Results (eski 6.1)
+- Run: owner, ardından Sonnet / low — işaretleme kontrolü
+- Owner: owner → Sonnet · Depends on: tetik
+- Sahip: Vercel Production'a `GOOGLE_SITE_VERIFICATION`, Search Console doğrulama, `sitemap.xml` gönderimi.
+- Sonnet: rehber §3.D; Rich Results Test'te ana sayfa, bir pilot, bir takım, bir tur, bir haber sayfası hatasız. Dosya: günün log'u.
+
+### [ ] 16.4 Core Web Vitals saha takibi (eski 6.2)
+- Run: Sonnet / medium — ölçüm ve kıyas
+- Owner: Sonnet · Depends on: 16.3 + 28 gün CrUX verisi
+- Hedef: mobil LCP < 2,5 s, INP < 200 ms, CLS < 0,1 (rehber §3.E). Eşik dışı sayfa `OPEN.md` `To: Opus`.
+
+### [ ] 16.5 Sentry DSN (eski 6.3)
+- Run: owner, ardından Sonnet / low — yakalama kontrolü
+- Owner: owner → Sonnet · Depends on: tetik
+- Sahip: Vercel Production'a `NEXT_PUBLIC_SENTRY_DSN` ve `SENTRY_DSN`. Sonnet: rehber §3.F, bir test hatasının Sentry'de PII'siz göründüğünü log'a yazar.
+
+### [ ] 16.6 Hikâye görseli kaynakları (eski 7.1)
+- Run: owner, ardından Sonnet / low — manifest satır güncellemesi
+- Owner: owner → Sonnet · Depends on: tetik
+- Sahip: `docs/reference/hikaye-gorselleri-kaynak-listesi.md`'deki 57 `unverified` satırın kaynağını verir. Sonnet: `data/stories/image-credits.ts` satırlarını `status: 'sourced'` + kaynak alanlarıyla günceller.
+- Doğrulama: `npx vitest run tests/story-images.test.ts` yeşil; `grep -c "status: 'unverified'" data/stories/image-credits.ts` beklenen kalan sayı.
+
+### [ ] 16.7 Medya seçim kalite incelemesi (eski 8.3)
+- Run: owner, ardından Sonnet / low — read-only SQL
+- Owner: owner → Sonnet · Depends on: tetik, Faz 8 kapısı
+- Sorgular: `docs/reference/media-sistemi.md` §13. `review='rejected'` yazmak veri değişikliğidir: sahip onayı.
+
+### [ ] 16.8 LLM konsol harcama tavanları (14.4 sahip kısmı)
+- Run: owner · Owner: owner · Depends on: tetik (GCP için 9.0)
+- GCP ve Groq konsollarında aylık sert tavan + hız alarmı.
+
+---
+
+## Paralel Dalgalar
+
+Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında — `PLAN.md`, bu dosya, `DECISIONS.md`, `OPEN.md` — yalnızca kendi maddesini birebir metin değişimiyle işaretler/ekler). Her oturum için ilk adım kalın.
+
+| Dalga | Zaman | Oturum (model / effort) | İlk adım | Dosya alanı |
+|---|---|---|---|---|
+| **1** | şimdi → 2026-10-22 | A: Sonnet / medium | **1.0** | `docs/reference/yaris-hafta-sonu-dogrulama.md` |
+| | | B: Opus 5.5 / high (Builder) | **14.1** | 8 rota + `lib/rateLimit.ts` + 2 test; push 10-22 18:00 TR'ye kadar |
+| | | C: Sonnet / medium | **15.1** | `scripts/audit-screenshots.ts`, 1 test |
+| | | D: Haiku / low | **0.1** | `logs/` (5 eski dosya) |
+| | | E: Antigravity | **7.2** | `data/history/liveries.ts`, `team-dna.ts` |
+| | | N: Opus / xhigh (Architect) | **1.9** ✓ | bu dosyada 1.9/1.10/1.11, `DECISIONS.md`, `PLAN.md` Session F |
+| **2** | 2026-10-23 → 25 (kod dondurma) | F: Sonnet / high | **1.1** (sonra 1.4, 1.3, 1.7, 1.9 gözlemi) | `logs/2026-10-2{3,4,5}.md`, rehber §4 |
+| | | G: Opus 5.5 / xhigh (Architect) | **13.1** | bu dosyada Faz 13, `DECISIONS.md`, `PLAN.md` |
+| **3** | 2026-10-26 → | H: Opus 5.5 / high (Builder; tek kod oturumu) | **14.2** | `package*.json`, `ci.yml`, `security-audit.yml`, `docs/procedures.md`, kırılan testler |
+| | | I: Haiku / low | **1.6** | 4 workflow `.yml` (sync-*, notify-sessions) |
+| | | O: Opus / xhigh (Architect, ölçer) | **8.0** | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
+| | | Q: Sonnet / high | **1.10** | `lib/f1/provisional*.ts`, `lib/f1/sources/openf1.ts`, `sync-f1/route.ts`, 2 test |
+| **4** | 14.2 `main`'de | J: Opus 5.5 / high | **14.3** | `package*.json`, `lib/validation/`, 4 rota |
+| | | K: Opus 5.5 / high | **14.5** | `lib/data/news.ts`, `app/api/news/`, 2 test, `apex-reference.md` |
+| | | L: Opus 5.5 / medium | **14.4** | `lib/news/rewrite.ts`, 1 test |
+| | | M: Opus 5.5 / xhigh | **13.2** | 13.1'in tanımladığı alan (J/K/L ile çakışmaz; çakışırsa J'den sonra) |
+| | | Antigravity | **1.11** (1.10 `main`'de) | `ResultsTable.tsx`, `SiteFooter.tsx`, `messages/*.json` |
+| | | 8.0'ın yazdığı 8.x adımları | 8.0 belirler | J/K/L/M ile çakışmayanlar bu dalgada, kalanlar Dalga 5 |
+| **5** | Dalga 4 sonrası | P: Sonnet / medium | **1.8** | `scripts/qstash-sync.ts`, `lib/cron/qstashPrune.ts`, `qstash-sync.yml`, 1 test, `apex-reference.md` |
+| | | Sonnet / high | **9.2** (9.0 bittiyse) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
+| | | Antigravity | **15.2** (sahip 15.1'i koştuysa) | sayfa bileşenleri |
+| **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
+
+Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; 9.0 (GCP) kredi nedeniyle 2026-12-18'den önce gerekir, Kasım başında hatırlatılır.
+
+---
+
+## Teknik borç ve çevre
+
+| Madde | Durum | Aksiyon |
+|---|---|---|
+| CI `main` push'unda koşmuyor | Son koşu 2026-10-02 | 14.2 adım 5 (`push: main`) |
+| QStash ↔ kod sapması | Canlı `retries: 3` (kod 0/1), notify `*/10` (kod `*/5`); en kötü durum 960/1000 mesaj/gün | 1.8 |
+| Çift zamanlayıcı | GitHub + QStash aynı 4 rotayı tetikliyor (idempotent, zararsız) | 1.6 (R18 sonrası) |
+| `rewrite.ts` yorum/kod çelişkisi | Yorum "Gemini → Groq", kod Groq → Gemini | 9.2 |
+| Yasal adresler, logo | `.example` yer tutucu, geçici logo | 16.1, 16.2 |
+| C-7 yerel `next start` SSL uyarısı | Yalnızca yerel; canlıyı etkilemez | izlenir |
+| `any` / `eslint-disable` | 0 | korunur |
