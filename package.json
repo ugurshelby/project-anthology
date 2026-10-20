@@ -17,7 +17,8 @@
     "seed:stories": "npx tsx scripts/seed-stories.ts",
     "qstash:sync": "npx tsx scripts/qstash-sync.ts",
     "stories:credits": "npx tsx scripts/story-image-audit.ts",
-    "gen:pwa-icons": "node assets/scripts/generate-pwa-icons.mjs"
+    "gen:pwa-icons": "node assets/scripts/generate-pwa-icons.mjs",
+    "screenshots": "npx tsx scripts/capture-screenshots.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.56.0",
