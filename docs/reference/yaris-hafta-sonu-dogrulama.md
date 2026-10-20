@@ -1,6 +1,6 @@
 # Yarış Hafta Sonu Canlı Doğrulama Rehberi
 
-Last verified: 2026-10-11 (3.A: R17 canlı seansında OpenF1 401 ölçüldü, bkz. 3.A "R17 sonucu")
+Last verified: 2026-10-20 (R18 zaman çizelgesi, §2b QStash ölçümü: 4 zamanlama, ilk koşular SUCCESS; 3.A R17 sonucu 2026-10-11)
 
 Bu doküman, **gerçek bir yarış hafta sonunda** yapılabilecek canlı doğrulamaları (master-plan 1.1, 1.3, 1.4, 6.1, 6.2, 6.3 ve medya) tek yerde toplar. Sahip yarış zamanı yeni bir oturum açıp "**yarış hafta sonu doğrulamasını başlat — `docs/reference/yaris-hafta-sonu-dogrulama.md`**" dediğinde ajan bu dokümanı okur ve sırayla uygular. Sonuçlar `logs/YYYY-MM-DD.md` içine, geçen maddeler `docs/plans/master-plan.md` içine işlenir (ölçülmeden kutu işaretlenmez).
 
@@ -27,12 +27,28 @@ Kaynak: Jolpica 2026 takvimi (2026-10-06 alındı). Takvim değişebilir: oturum
 | R22 Katar | Paz 2026-11-29 16:00 | 19:00 | FP1 11-27 13:30 · FP2 17:00 · FP3 11-28 14:30 · **Quali 11-28 18:00** |
 | R23 Abu Dabi | Paz 2026-12-06 13:00 | 16:00 | FP1 12-04 09:30 · FP2 13:00 · FP3 12-05 10:30 · **Quali 12-05 14:00** |
 
-**Önerilen ilk deneme: R17 Singapur** — sprint hafta sonu olduğu için sprint + quali + yarış üç oturumu tek hafta sonunda kapsar.
+**Sıradaki doğrulama: R18 ABD (2026-10-23 … 25)** — sprint yok; qualifying + yarış iki oturum. R17 Singapur (sprint) 2026-10-11'de koşuldu; 3.A orada OpenF1 401 nedeniyle ölçülemedi.
 
-### R17 için zaman çizelgesi (kodun hesapladığı pencereler)
+### R18 için zaman çizelgesi (kodun hesapladığı pencereler)
+
+R18 sprint hafta sonu değildir. Qualifying Cmt 21:00 UTC'dir; TR saatiyle gece yarısını geçer (Paz 00:00), yarış TR'de Paz 23:00'dür ve sonuç koşuları Pzt sabaha sarkar.
 
 | Olay | UTC | TR | Dayanak |
 |---|---|---|---|
+| Quali bildirim penceresi | Cmt 20:25–20:35 | Cmt 23:25–23:35 | `notify-sessions`: `NOTIFY_WINDOW_MS` 30 dk ± 5 dk. QStash `*/10` ise tek uygun tik 20:30; GitHub `*/10` yedek (güvenilmez); `notified_sessions` çift bildirimi engeller |
+| **Quali canlı** | Cmt 21:00 → ~22:00 | Paz 00:00 → ~01:00 | OpenF1 `date_start`–`date_end` (+10 dk tolerans) |
+| Quali senkronu (due) | Cmt 22:30 | Paz 01:30 | `QUALI_SYNC_OFFSET_MS` = +90 dk; QStash `sync-f1` `*/30` tiki 22:30 ve 23:00 |
+| Yarış bildirim penceresi | Paz 19:25–19:35 | Paz 22:25–22:35 | aynı (tik 19:30) |
+| **Yarış canlı** | Paz 20:00 → ~22:00 | Paz 23:00 → Pzt ~01:00 | OpenF1; arayüz `RACE_LIVE_WINDOW_MS` = yarış başlangıcından 4 sa (Pzt 00:00 UTC'ye kadar "live") |
+| Yarış sonucu + pit stop (due) | Paz 22:30 | Pzt 01:30 | `RACE_RESULTS_OFFSET_MS` = +2,5 sa; tik 22:30 |
+| Puan durumu (due) | Paz 23:00 | Pzt 02:00 | `STANDINGS_OFFSET_MS` = +3 sa; tik 23:00 |
+| Settled (final) kontrolü | quali: Paz 22:30 sonrası · yarış: Pzt 22:30 sonrası · puan: Pzt 23:00 sonrası | quali: Pzt 01:30 · yarış: Sal 01:30 · puan: Sal 02:00 | due + 24 sa (`SNAPSHOT_SETTLE_AFTER_MS`) |
+
+Kapsam: `sync-f1` `scope=live` (`isRoundInLiveScope`) yarış gününden (UTC 23:59:59) sonra 7 gün boyunca turu işler (`lib/f1/syncSchedule.ts`); QStash çağrısında `scope` verilmez, yani sezon kapsamı geçerlidir ve yalnızca due penceresi gelmiş ve settled olmamış snapshot'lar çekilir.
+
+Not: FP1–FP3 için bildirim **gönderilmez** (yalnız qualifying, sprint, race bildirilir).
+
+---|---|---|---|
 | Sprint bildirim penceresi | Cmt ~08:25–08:35 | ~11:25–11:35 | `notify-sessions`: oturumdan ~30 dk önce (±5 dk); QStash her 5 dk (kuruluysa), GitHub yedeği her 10 dk ama güvenilmez |
 | **Sprint canlı** | Cmt 09:00 → ~10:00 | 12:00 → ~13:00 | OpenF1 `date_start`–`date_end` (+10 dk tolerans) |
 | Sprint sonuç senkronu (due) | Cmt 10:30 → ilk koşu ~10:42 | 13:30 → ~13:42 | `SPRINT_SYNC_OFFSET_MS` = +90 dk; `sync-f1-race-aware` her saat :12 |
@@ -64,13 +80,20 @@ Not: Sprint Quali (Cum 12:30) için bildirim **gönderilmez** (yalnız qualifyin
 
 ---
 
-## 2b. Zamanlayıcı gerçeği (2026-10-07 ölçümü)
+## 2b. Zamanlayıcı gerçeği (2026-10-20 ölçümü)
 
-GitHub Actions `schedule` tetikleri kâğıt üzerindeki sıklıkta çalışmıyor: `notify-sessions` (10 dk) ve saatlik workflow'lar gerçekte günde ~5 kez, medyan ~5 saat aralıkla koşuyor (en uzun ~9,4 sa). Bu yüzden oturum sırasında "saatlik koşuyu bul" yaklaşımı çoğu zaman sonuç vermez. Doğrulama oturumunda:
-- Belirli bir pencereyi sınamak için ilgili workflow'u **elle** tetikleyin: `gh workflow run notify-sessions.yml` (oturumdan ~30 dk önce), `gh workflow run sync-f1-race-aware.yml` (due zamanından sonra). Bu, canlı veriyi okuyup yazan normal işi çalıştırır; sahibin o anki onayıyla yapılır.
-- `sync-f1-scheduled.ts` artık 12 saat geriye bakıyor, yani geç gelen bir koşu da kaçan pencereyi tetikler. `notify-sessions` için böyle bir telafi yoktur (bildirim zaman duyarlıdır): güvenilir dış zamanlayıcı kurulana kadar push penceresi ancak elle tetikleme ile sınanabilir (master-plan 1.6).
-- **QStash kurulduysa (master-plan 1.6)** bu sorun kalmaz: zamanlayıcı dakikasında çalışır (`sync-f1` */30; `notify-sessions` QStash'te kurulu değil, mobil rafta). Koşular Upstash console → *Logs*'ta ve `npm run qstash:sync -- --list` çıktısında (son/sonraki çalışma) görünür; GitHub yalnızca yedektir ve elle `gh workflow run` yine çalışır. QStash kurulu değilse yukarıdaki elle tetikleme kuralları geçerlidir.
-- Bir koşunun "yok" olması hata sayılmaz; önce `gh run list --workflow=<ad>.yml --limit 10` ile gerçekten tetiklenip tetiklenmediğine bakın.
+Upstash MCP (`qstash_list_schedules` + `logs_list`, eu, 2026-10-20 ~12:50 UTC): QStash 4 zamanlama çalışıyor, hepsi POST, `retries: 3`, `isPaused: false`, son durum SUCCESS:
+- `sync-f1` `*/30` (`scd_5SQTf1Ru…`): son tetik 12:30Z → DELIVERED 200, 11,7 sn. Aynı gün bir koşu 184,5 sn sürdü (200); `maxDuration` 300 sn, yani pay dar.
+- `notify-sessions` `*/10` (`scd_6H9JdCRn…`, bugün 12:02Z'de açıldı): ilk iki tik (12:20Z, 12:30Z) DELIVERED 200, ~1,5 sn.
+- `sync-news` `11 *` (`scd_7XFsWyvs…`): son 11:11Z → 200, 22 sn.
+- `sync-media` `41 *` (`scd_7PjUexMo…`): son 12:41Z → 200, 7,3 sn.
+
+Kod (`lib/cron/qstashSchedules.ts`) ile sapma: canlıda `retries: 3` (kod 0/1) ve notify `*/10` (kod `*/5`); düzeltme master-plan 1.8. GitHub `schedule` tetikleri yedek olarak R18 boyunca açık kalır (best-effort: 2026-10-07'de `notify-sessions` günde ~5 koşu, medyan ~5 sa). Doğrulama oturumunda:
+- Koşular Upstash console → *Logs*'ta ve MCP `logs_list` (service `qstash`, region `eu`) çıktısında görünür; aranacak kayıt `DELIVERED` + `responseStatus: 200`. `CREATED → ACTIVE → DELIVERED` zinciri bir tetiktir.
+- Çift zamanlayıcı (GitHub + QStash) idempotenttir; çift koşu hata sayılmaz (master-plan 1.6).
+- Belirli bir pencereyi zorlamak gerekirse ilgili workflow elle tetiklenir: `gh workflow run notify-sessions.yml`, `gh workflow run sync-f1-race-aware.yml` (sahibin o anki onayıyla).
+- Bir koşunun "yok" olması hata sayılmaz; önce QStash logu, sonra `gh run list --workflow=<ad>.yml --limit 10` ile bakın.
+- `sync-f1-scheduled.ts` 12 saat geriye bakar; geç gelen koşu kaçan pencereyi telafi eder. `notify-sessions` için telafi yoktur (bildirim zaman duyarlıdır): tik 20:30/19:30 kaçarsa bildirim gönderilmez.
 
 ---
 
@@ -82,6 +105,7 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 
 - **Ne:** `/api/live-timing` + ana sayfadaki `LiveRaceTracker`, gerçek bir OpenF1 oturumunda.
 - **Nasıl:**
+  0. **İlk iş (ham OpenF1):** `curl -s -i "https://api.openf1.org/v1/sessions?session_key=latest"`. **401** ise "kilitli" ölçütü geçerlidir (OpenF1 aboneliği yok, sahip kararı 2026-10-20) ve aşağıdaki "Kimlik bilgisi yokken geçme ölçütü" uygulanır; tam ölçüt ölçülemez.
   1. Oturum başladıktan 2–3 dk sonra: `curl -s -D - https://project-anthology-eight.vercel.app/api/live-timing` (yanıt gövdesi ve başlıklar).
   2. 10 sn arayla iki kez daha çağır; farkı karşılaştır. Aynı 5 sn içinde iki çağrı aynı yanıtı döndürmeli (önbellek).
   3. Tarayıcıda ana sayfayı aç (yarış penceresinde), ağ sekmesinde `/api/live-timing` isteklerinin ~12 sn aralıkla gittiğini ve başka dış istek olmadığını doğrula.
@@ -156,13 +180,13 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 
 ## 4. Sonuç şablonu (ajan doldurur)
 
-| Madde | Ölçüt | Sonuç | Kanıt (komut, çıktı özeti) |
+| Madde | Ölçüt | Sonuç (R18 sütunu dahil) | Kanıt (komut, çıktı özeti) |
 |---|---|---|---|
-| 1.1 Canlı zamanlama | A | geçti / kaldı / ölçülmedi | R17 (2026-10-11): ölçülemedi, OpenF1 401 (kimliksiz canlı erişim kapalı); `logs/2026-10-11.md` §2, master-plan 1.7 |
-| 1.3 Senkron + settled + SWR | B | | |
-| 1.4 Push penceresi | C | | |
-| 6.1 JSON-LD | D (ajan) + sahip testleri | | |
-| 6.2 CWV | E | | |
-| 6.3 Sentry | F (sahip) | | |
+| 1.1 Canlı zamanlama | A | R17: ölçülemedi · R18: geçti / kaldı / ölçülmedi | R17 (2026-10-11): OpenF1 401 (kimliksiz canlı erişim kapalı); `logs/2026-10-11.md` §2, master-plan 1.7 · R18: |
+| 1.3 Senkron + settled + SWR | B | R17: — · R18: | |
+| 1.4 Push penceresi | C | R17: — · R18: | |
+| 6.1 JSON-LD | D (ajan) + sahip testleri | R17: — · R18: | |
+| 6.2 CWV | E | R17: — · R18: | |
+| 6.3 Sentry | F (sahip) | R17: — · R18: | |
 
 Doldurduktan sonra: `logs/YYYY-MM-DD.md` bölümü + `docs/plans/master-plan.md` (yalnız ölçülenler `[x]` → silinir) + gerekirse `apex-reference.md` ölçüm satırları. Bu rehberin kendisi, tüm maddeler kapandığında silinir (git geçmişi arşivdir).
