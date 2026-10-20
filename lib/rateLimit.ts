@@ -25,8 +25,8 @@ export interface RateLimitResult {
  * present it returns 'fallback:unknown', so every header-less request shares ONE
  * bucket (fail closed: limited together, never unlimited). On Vercel `x-real-ip`
  * is always set, so in production this only covers misconfigured proxies, local
- * runs and tests. The `clientIP !== 'unknown'` guards in the API routes never
- * match this value; they are kept only as harmless legacy checks.
+ * runs and tests. API routes do not call this directly: they go through
+ * `applyRateLimit`, which gives that shared bucket a tighter limit.
  */
 export function getClientIP(headers: Headers): string {
   const realIp = headers.get('x-real-ip');

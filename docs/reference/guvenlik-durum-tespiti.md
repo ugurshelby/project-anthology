@@ -79,23 +79,12 @@ Veritabanında kullanıcı verisi veya doğrudan bir açık bulunmasa bile uygul
   * Bu değişkenler eksikse veya Redis'e erişilemezse in-memory `Map` yapısına (`checkMemory`) düşülür ([`lib/rateLimit.ts:74-97, 117-120`](../../lib/rateLimit.ts#L74-L97)).
 * **İstemci IP Tespiti:**
   * [`lib/rateLimit.ts:31-40`](../../lib/rateLimit.ts#L31-L40) (`getClientIP`): Vercel'in bağlantı katmanında eklediği sahtelenemez `x-real-ip` başlığını okur. Bulamazsa `x-forwarded-for` başlığının en sağındaki IP'yi alır. Hiçbir başlık yoksa `'fallback:unknown'` döner.
-* **Tespit Edilen Rota Dengesizlikleri ve Güvenlik Açığı:**
-  1. **İki Farklı Fonksiyon Kullanımı:**
-     * `applyRateLimit`: IP tespit edilemediğinde (`fallback:unknown`), isteği reddetmez veya sınırsız bırakmaz; ortak bir havuza alarak normal sınırın 1/5'i oranında (`Math.floor(opts.max / 5)`) katı bir sınırlama uygular ([`lib/rateLimit.ts:141-151`](../../lib/rateLimit.ts#L141-L151)).
-     * Bu güvenli sarmalayıcı yalnızca 2 rotada kullanılmaktadır: [`app/api/live-timing/route.ts:224`](../../app/api/live-timing/route.ts#L224) ve [`app/api/f1-season/route.ts:152`](../../app/api/f1-season/route.ts#L152).
-     * Doğrudan `rateLimit` çağıran 7 rotada (`circuits/[id]`, `drivers/[driverId]/career`, `teams/[constructorId]/career`, `season/[year]`, `season/[year]/last-result`, `media`, `news`) `clientIP !== 'unknown'` şartı koşulmuştur. `getClientIP` artık `'fallback:unknown'` döndürdüğü için koruma devreye girer ancak 1/5 değil tam kota verilir.
-  2. **KRİTİK BYPASS AÇIĞI (`app/api/push/register/route.ts`):**
-     * [`app/api/push/register/route.ts:24-37`](../../app/api/push/register/route.ts#L24-L37) satırlarında:
-       ```typescript
-       const clientIP = getClientIP(req.headers);
-       if (process.env.NODE_ENV !== 'test' && clientIP !== 'unknown' && clientIP !== 'fallback:unknown') {
-         const { success, retryAfter } = await rateLimit(clientIP, { ... });
-         ...
-       }
-       ```
-     * **Bulgu:** `clientIP !== 'fallback:unknown'` kontrolü nedeniyle, `x-real-ip` ve `x-forwarded-for` başlıkları bulunmayan veya sıyrılmış gelen tüm isteklerde **Rate Limiting bloğu tamamen atlanmaktadır**. Bu rota üzerinden push abonelik veritabanına sınırsız istek gönderilebilir.
+* **Rota Kullanımı (2026-10-20, master-plan 14.1 ile kapatıldı):**
+  1. **Tek Fonksiyon:** 10 genel API rotasının tamamı `applyRateLimit(req.headers, { prefix, max, windowMs })` çağırır (`grep -rln "applyRateLimit" app/api` → 10). IP tespit edilemediğinde (`fallback:unknown`) istek ortak bir havuza alınır ve normal sınırın 1/5'i (`Math.floor(opts.max / 5)`) uygulanır; muafiyet yalnızca `NODE_ENV === 'test'` iken vardır ([`lib/rateLimit.ts`](../../lib/rateLimit.ts)). Eski `clientIP !== 'unknown'` korumaları kaldırıldı; `prefix`/`max`/`windowMs` değerleri değişmedi.
+  2. **Kapatılan bypass (`app/api/push/register/route.ts`):** Rota eskiden `clientIP !== 'fallback:unknown'` koşuluyla başlıksız istekleri hız sınırından tamamen muaf tutuyordu. Artık başlıksız istekler ortak havuzda `10/5 = 2` istek/dk ile sınırlanır; [`tests/rate-limit-routes.test.ts`](../../tests/rate-limit-routes.test.ts) üçüncü istekte 429 döndüğünü, `x-real-ip` taşıyan isteğin tam kotayı (10) aldığını doğrular.
   3. **Serverless Çoklu Konteyner Riski:**
      * Upstash ortam değişkenleri Vercel prodüksiyon ortamında eksik olduğunda hız sınırlama tek bir lamba örneğinin belleğiyle sınırlı kalır. Eşzamanlı açılan yeni lambdalar sıfır sayaçla başlar.
+     * Ölçüm (2026-10-20, Vercel `filter_project_envs`, yalnızca adlar): `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` Production ve Preview'da tanımlı; dağıtık limiter canlıda devrede.
 
 ---
 
@@ -181,8 +170,7 @@ Sistemde yetki izolasyonu hem uygulama kodunda hem de veritabanı rol seviyesind
   * Upstash Redis REST API tabanlı kayan pencere mekanizması kodlanmıştır ([`lib/rateLimit.ts`](../../lib/rateLimit.ts)).
   * Cron rotalarında `isCronTriggerAllowed` ile atomik dağıtık kilit (`SET cron:lock:<route> 1 NX EX <ttl>`) uygulanmıştır ([`lib/cronAuth.ts:148-161`](../../lib/cronAuth.ts#L148-L161)).
 * **Uygulama Açıkları:**
-  * `push/register` rotasındaki bypass açığı (bölüm 1.3'te detaylandırılan satır 25).
-  * 7 adet genel JSON rotasında `applyRateLimit` yerine doğrudan `rateLimit` çağrılması ve bilinmeyen IP havuzunun sıkılaştırılmamış olması.
+  * ~~`push/register` bypass açığı ve 7 rotada doğrudan `rateLimit` çağrısı~~: 2026-10-20'de kapatıldı (master-plan 14.1); 10 rotanın tamamı `applyRateLimit` kullanır.
   * Canlı ortam değişkenlerinde Upstash'in eksik kalması durumunda sınırların sunucusuz konteyner belleğine düşerek etkisizleşmesi.
 
 ### 3.3 Input Validation (Girdi Doğrulama) ve SQL Injection
@@ -234,7 +222,7 @@ Sistemde yetki izolasyonu hem uygulama kodunda hem de veritabanı rol seviyesind
 | **Veritabanı En Az Yetki (Least Privilege)** | `anon` ve `authenticated` rolleri yalnızca `SELECT` yapabilir; push tablolarında `SELECT` dahi yasaklı. | **GÜÇLÜ** | [`supabase/migrations/20261006000002_push_service_role_grants.sql`](../../supabase/migrations/20261006000002_push_service_role_grants.sql) |
 | **Transit Şifreleme & Başlıklar** | HSTS (2 yıl, preload), CSP, X-Frame-Options devrede. | **GÜÇLÜ** | [`next.config.ts:10-24`](../../next.config.ts#L10-L24) |
 | **Sabit Zamanlı Karşılaştırma** | `CRON_SECRET` ve QStash HMAC doğrulamalarında `timingSafeEqual` kullanımı. | **GÜÇLÜ** | [`lib/cronAuth.ts:21-26, 80`](../../lib/cronAuth.ts#L21-L26) |
-| **Push Register Rate Limit Bypass** | `clientIP === 'fallback:unknown'` olan isteklerde hız sınırlama tamamen atlanıyor. | **AÇIK / RİSKLİ** | [`app/api/push/register/route.ts:25`](../../app/api/push/register/route.ts#L25) |
+| **Genel Rota Hız Sınırı** | 10 genel rotanın tamamı `applyRateLimit`; başlıksız istekler ortak havuzda 1/5 kota (push bypass 2026-10-20'de kapatıldı). | **GÜÇLÜ** | [`lib/rateLimit.ts`](../../lib/rateLimit.ts), [`tests/rate-limit-routes.test.ts`](../../tests/rate-limit-routes.test.ts) |
 | **News RSS Kaynak Tüketimi** | `GET /api/news` önbellek ıskalamalarında 5 harici RSS ve onlarca görsele eşzamanlı HTTP isteği atıyor. | **ORTA RİSK** | [`lib/news/aggregate.ts:400-435`](../../lib/news/aggregate.ts#L400-L435) |
 | **WAF / Cloudflare Katmanı** | Cloudflare WAF yok; doğrudan Vercel üzerinde standart koruma ile çalışıyor. | **ORTA RİSK** | Alan adı / DNS mimarisi |
 | **Şema Tabanlı Girdi Doğrulama (Zod)** | Zod kurulu değil; doğrulama elle yazılmış regex desenleriyle yapılıyor. | **KISMEN YETERLİ** | [`package.json`](../../package.json), [`lib/api/validation.ts`](../../lib/api/validation.ts) |

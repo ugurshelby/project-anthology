@@ -8,8 +8,7 @@ vi.mock('@/lib/media/read', async (orig) => ({
   getMediaBatch: (...a: unknown[]) => getMediaBatch(...a),
 }));
 vi.mock('@/lib/rateLimit', () => ({
-  getClientIP: () => 'unknown',
-  rateLimit: vi.fn(async () => ({ success: true, retryAfter: 0 })),
+  applyRateLimit: vi.fn(async () => ({ success: true, retryAfter: 0 })),
 }));
 
 const { GET } = await import('@/app/api/media/route');

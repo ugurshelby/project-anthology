@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { jsonApiError, logApiError } from '@/lib/api/errors';
 import { isMediaEntityType, parseKeyList } from '@/lib/media/keys';
 import { getMediaBatch, type MediaResult } from '@/lib/media/read';
-import { getClientIP, rateLimit } from '@/lib/rateLimit';
+import { applyRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,19 +19,16 @@ const RATE_LIMIT_MAX_REQUESTS = 120;
  * CDN-cacheable: images change rarely and URLs are content-addressed.
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const clientIP = getClientIP(req.headers);
-  if (clientIP !== 'unknown') {
-    const { success, retryAfter } = await rateLimit(clientIP, {
-      prefix: 'media',
-      max: RATE_LIMIT_MAX_REQUESTS,
-      windowMs: RATE_LIMIT_WINDOW_MS,
-    });
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
-      );
-    }
+  const { success, retryAfter } = await applyRateLimit(req.headers, {
+    prefix: 'media',
+    max: RATE_LIMIT_MAX_REQUESTS,
+    windowMs: RATE_LIMIT_WINDOW_MS,
+  });
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+    );
   }
 
   const type = req.nextUrl.searchParams.get('type');

@@ -5,7 +5,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { aggregate } from '@/lib/news/aggregate';
-import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { applyRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,19 +18,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Invalid request parameters' }, { status: 400 });
   }
 
-  const clientIP = getClientIP(req.headers);
-  if (clientIP !== 'unknown') {
-    const { success, retryAfter } = await rateLimit(clientIP, {
-      prefix: 'news',
-      max: RATE_LIMIT_MAX_REQUESTS,
-      windowMs: RATE_LIMIT_WINDOW_MS,
-    });
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
-      );
-    }
+  const { success, retryAfter } = await applyRateLimit(req.headers, {
+    prefix: 'news',
+    max: RATE_LIMIT_MAX_REQUESTS,
+    windowMs: RATE_LIMIT_WINDOW_MS,
+  });
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+    );
   }
 
   try {

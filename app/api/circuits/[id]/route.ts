@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCircuitDetail } from '@/lib/data/circuits';
-import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { applyRateLimit } from '@/lib/rateLimit';
 import { isErgastSlug } from '@/lib/api/validation';
 import { jsonApiError, logApiError } from '@/lib/api/errors';
 
@@ -14,19 +14,16 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  const clientIP = getClientIP(req.headers);
-  if (clientIP !== 'unknown') {
-    const { success, retryAfter } = await rateLimit(clientIP, {
-      prefix: 'circuit-detail',
-      max: RATE_LIMIT_MAX_REQUESTS,
-      windowMs: RATE_LIMIT_WINDOW_MS,
-    });
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
-      );
-    }
+  const { success, retryAfter } = await applyRateLimit(req.headers, {
+    prefix: 'circuit-detail',
+    max: RATE_LIMIT_MAX_REQUESTS,
+    windowMs: RATE_LIMIT_WINDOW_MS,
+  });
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+    );
   }
 
   const { id } = await params;

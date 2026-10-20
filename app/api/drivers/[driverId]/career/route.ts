@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDriverCareer } from '@/lib/data/entities';
 import { getDriverLore } from '@/data/drivers';
-import { rateLimit, getClientIP } from '@/lib/rateLimit';
+import { applyRateLimit } from '@/lib/rateLimit';
 import { isErgastSlug } from '@/lib/api/validation';
 import { jsonApiError, logApiError } from '@/lib/api/errors';
 
@@ -15,19 +15,16 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ driverId: string }> },
 ): Promise<NextResponse> {
-  const clientIP = getClientIP(req.headers);
-  if (clientIP !== 'unknown') {
-    const { success, retryAfter } = await rateLimit(clientIP, {
-      prefix: 'driver-career',
-      max: RATE_LIMIT_MAX_REQUESTS,
-      windowMs: RATE_LIMIT_WINDOW_MS,
-    });
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
-      );
-    }
+  const { success, retryAfter } = await applyRateLimit(req.headers, {
+    prefix: 'driver-career',
+    max: RATE_LIMIT_MAX_REQUESTS,
+    windowMs: RATE_LIMIT_WINDOW_MS,
+  });
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter || 60) } },
+    );
   }
 
   const { driverId } = await params;

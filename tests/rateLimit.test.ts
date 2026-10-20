@@ -70,3 +70,31 @@ describe('getClientIP', () => {
     expect(getClientIP(new Headers())).toBe('fallback:unknown');
   });
 });
+
+describe('applyRateLimit', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('limits header-less requests in one shared bucket at max/5 outside tests', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    const { applyRateLimit } = await loadRateLimit();
+    const opts = { prefix: 'apply', max: 10, windowMs: 1000 };
+
+    expect((await applyRateLimit(new Headers(), opts)).success).toBe(true);
+    expect((await applyRateLimit(new Headers(), opts)).success).toBe(true);
+    expect((await applyRateLimit(new Headers(), opts)).success).toBe(false);
+    // A request with a real IP keeps its own full bucket.
+    expect((await applyRateLimit(new Headers({ 'x-real-ip': '1.2.3.4' }), opts)).success).toBe(true);
+  });
+
+  it('exempts header-less requests only when NODE_ENV is test', async () => {
+    vi.stubEnv('NODE_ENV', 'test');
+    const { applyRateLimit } = await loadRateLimit();
+    const opts = { prefix: 'apply-test', max: 1, windowMs: 1000 };
+
+    for (let i = 0; i < 3; i++) {
+      expect((await applyRateLimit(new Headers(), opts)).success).toBe(true);
+    }
+  });
+});
