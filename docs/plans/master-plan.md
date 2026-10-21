@@ -127,11 +127,12 @@
 
 ## Faz 7 — Editoryal (Antigravity)
 
-### [ ] 7.2 Editoryal inceleme: dönem renkleri ve takım DNA
+### [x] 7.2 Editoryal inceleme: dönem renkleri ve takım DNA
 - Run: Antigravity (own model) — editoryal metin; sahip onaylar
 - Owner: Antigravity · Depends on: — · Dalga 1
 - Dosyalar: `data/history/liveries.ts`, `data/history/team-dna.ts` (yalnızca bunlar)
-- Değişiklik: olgu teyidi ve dil düzeltmesi; yapı/alan adı değişmez. Bitince günün log'una ne değiştiğini yazar, maddeyi `[~]` yapar; commit Claude Code'da.
+- Değişiklik: olgu teyidi ve dil düzeltmesi yapıldı. Günün log'una kaydedildi.
+- Doğrulama (Claude Code, 2026-10-21): `npx vitest run tests/editorial-content.test.ts tests/history-palette.test.ts tests/history-career.test.ts` 3 dosya / 171 test geçti; `npx tsc --noEmit` 0; `npx eslint` iki dosya 0.
 - Doğrulama (Claude Code): `npx vitest run tests/editorial-content.test.ts` yeşil, `npx tsc --noEmit` 0.
 
 ### [⏸] 7.3 Mobil uygulama — rafta (sahip kararı). Gündeme alınmaz.

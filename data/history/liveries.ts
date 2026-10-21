@@ -44,7 +44,7 @@ export const LIVERIES: Readonly<Record<string, readonly LiveryEra[]>> = {
     [2017, null, '#FF8000', '#47C7FC'],
   ],
   williams: [
-    [1978, 1982, '#1A3B8F', WHITE],
+    [1978, 1982, GREEN, WHITE],
     [1983, 1993, '#0D3C97', '#FFD200'],
     [1994, 1999, '#0B3B8E', '#E8E8E8'],
     [2000, 2005, '#1D4F9B', '#E10600'],
@@ -74,14 +74,14 @@ export const LIVERIES: Readonly<Record<string, readonly LiveryEra[]>> = {
   tyrrell: [[1970, 1998, '#0F4C9B', WHITE, '#2F6FD0']],
   brabham: [
     [1962, 1969, '#0B5D3B', '#F2C400'],
-    [1970, 1976, '#1B3FA8', WHITE],
-    [1977, 1992, '#1B3FA8', WHITE],
+    [1970, 1992, '#1B3FA8', WHITE],
   ],
   renault: [
     [1977, 1985, '#FFD500', '#1A1A1A'],
-    [2002, 2005, '#1F6FDB', '#FFD500'],
-    [2006, 2009, '#FFD500', '#1F6FDB'],
-    [2010, 2011, '#161616', '#C8A646', '#C8A646'],
+    [2002, 2006, '#1F6FDB', '#FFD500'],
+    [2007, 2009, '#FFD500', '#1F6FDB'],
+    [2010, 2010, '#FFD500', '#1A1A1A'],
+    [2011, 2011, '#161616', '#C8A646', '#C8A646'],
     [2016, 2020, '#FFF500', '#1A1A1A'],
   ],
   alpine: [
@@ -145,8 +145,8 @@ export const LIVERIES: Readonly<Record<string, readonly LiveryEra[]>> = {
   rb: [[2024, 2024, '#6692FF', '#E8E8E8']],
   'racing-bulls': [[2025, null, '#1434CB', '#FFFFFF', '#3F5CE0']],
   haas: [
-    [2016, 2017, '#B3B6BA', '#C8102E', '#C8102E'],
-    [2018, 2019, '#161616', '#C8A646', '#C8A646'],
+    [2016, 2018, '#B3B6BA', '#C8102E', '#C8102E'],
+    [2019, 2019, '#161616', '#C8A646', '#C8A646'],
     [2020, 2022, WHITE, '#C8102E', '#C8102E'],
     [2023, null, WHITE, '#E10600', '#E10600'],
   ],

@@ -13,7 +13,7 @@ export interface TeamDnaNote {
 export const TEAM_DNA_NOTES: Readonly<Record<string, TeamDnaNote>> = {
   ferrari: {
     en: 'Founded by Enzo Ferrari, Scuderia Ferrari is the only team to have entered every Formula 1 World Championship season since the series began in 1950.',
-    tr: 'Enzo Ferrari tarafından kurulan Scuderia Ferrari, 1950\'de başlayan Formula 1 Dünya Şampiyonası\'nın her sezonuna katılmış tek takım.',
+    tr: 'Enzo Ferrari tarafından kurulan Scuderia Ferrari, 1950\'de başlayan Formula 1 Dünya Şampiyonası\'nın her sezonuna katılan tek takım.',
   },
   mclaren: {
     en: 'Founded by New Zealander Bruce McLaren, the team entered Formula 1 in 1966 and has stayed on the grid ever since.',
@@ -25,11 +25,11 @@ export const TEAM_DNA_NOTES: Readonly<Record<string, TeamDnaNote>> = {
   },
   'red-bull': {
     en: 'Jackie Stewart founded Stewart Grand Prix with Ford in 1997. Ford rebranded it as Jaguar Racing in 2000, and Red Bull bought the team at the end of 2004 and raced it as Red Bull Racing from 2005.',
-    tr: 'Jackie Stewart, 1997\'de Ford ile Stewart Grand Prix\'yi kurdu. Ford takımı 2000\'de Jaguar Racing\'e dönüştürdü; Red Bull 2004 sonunda takımı satın aldı ve 2005\'ten itibaren Red Bull Racing olarak yarıştırdı.',
+    tr: 'Jackie Stewart, 1997\'de Ford ile Stewart Grand Prix\'yi kurdu. Ford takımı 2000\'de Jaguar Racing\'e dönüştürdü; Red Bull 2004 sonunda takımı devraldı ve 2005\'ten itibaren Red Bull Racing olarak yarıştırdı.',
   },
   mercedes: {
     en: 'Mercedes-Benz raced as a works team in 1954 and 1955, then left. Today\'s team grew out of Tyrrell, which became British American Racing, then Honda, then Brawn GP, before Mercedes returned as a works team in 2010.',
-    tr: 'Mercedes-Benz 1954 ve 1955\'te fabrika takımı olarak yarıştı, sonra ayrıldı. Bugünkü takım Tyrrell\'den doğdu: sırasıyla British American Racing, Honda ve Brawn GP oldu; Mercedes 2010\'da fabrika takımı olarak geri döndü.',
+    tr: 'Mercedes-Benz 1954 ve 1955\'te fabrika takımı olarak yarıştı, sonra ayrıldı. Bugünkü takım Tyrrell\'den doğdu: sırasıyla British American Racing, Honda ve Brawn GP adlarını aldı; Mercedes 2010\'da fabrika takımı olarak geri döndü.',
   },
   alpine: {
     en: 'A lineage of reinventions: Toleman became Benetton, then Renault, then Lotus F1, then Renault again, and since 2021 the team races as Alpine, the Renault group\'s sports brand.',
@@ -44,8 +44,8 @@ export const TEAM_DNA_NOTES: Readonly<Record<string, TeamDnaNote>> = {
     tr: 'Minardi\'nin küçük İtalyan takımı Red Bull tarafından satın alındı ve sırasıyla Toro Rosso, AlphaTauri, RB ve Racing Bulls oldu: Red Bull\'un ikinci takımı.',
   },
   audi: {
-    en: 'Sauber entered Formula 1 in 1993, worked with BMW, raced as Alfa Romeo and as Kick Sauber, and became Audi\'s works team in 2026.',
-    tr: 'Sauber 1993\'te Formula 1\'e girdi, BMW ile çalıştı, Alfa Romeo ve Kick Sauber adlarıyla yarıştı ve 2026\'da Audi\'nin fabrika takımı oldu.',
+    en: 'Sauber entered Formula 1 in 1993, partnered with BMW, raced as Alfa Romeo and as Kick Sauber, and became Audi\'s works team in 2026.',
+    tr: 'Sauber 1993\'te Formula 1\'e girdi, BMW ile çalıştı, Alfa Romeo ve Kick Sauber adlarıyla yarıştı; 2026\'da Audi\'nin fabrika takımı oldu.',
   },
   haas: {
     en: 'Founded by American businessman Gene Haas, the team joined the grid in 2016.',
@@ -61,23 +61,23 @@ export const TEAM_DNA_NOTES: Readonly<Record<string, TeamDnaNote>> = {
   },
   tyrrell: {
     en: 'Ken Tyrrell\'s team raced under its own name from 1970 and won titles with Jackie Stewart. Its entry later became British American Racing, Honda, Brawn and Mercedes.',
-    tr: 'Ken Tyrrell\'in takımı 1970\'ten itibaren kendi adıyla yarıştı ve Jackie Stewart ile şampiyonluklar kazandı. Takımın lisansı sonradan British American Racing, Honda, Brawn ve Mercedes oldu.',
+    tr: 'Ken Tyrrell\'in takımı 1970\'ten itibaren kendi adıyla yarıştı ve Jackie Stewart ile şampiyonluklar kazandı. Takım daha sonra British American Racing, Honda, Brawn ve Mercedes\'e dönüştü.',
   },
   brabham: {
     en: 'Founded by three-time champion Jack Brabham and designer Ron Tauranac, Brabham won the 1966 title in a car bearing its founder\'s name.',
-    tr: 'Üç kez şampiyon Jack Brabham ve tasarımcı Ron Tauranac tarafından kurulan Brabham, 1966 şampiyonluğunu kurucusunun adını taşıyan bir araçla kazandı.',
+    tr: 'Üç kez dünya şampiyonu Jack Brabham ve tasarımcı Ron Tauranac tarafından kurulan Brabham, 1966 şampiyonluğunu kurucusunun adını taşıyan bir araçla kazandı.',
   },
   cooper: {
     en: 'Cooper\'s mid-engined cars changed the shape of Grand Prix racing and won both championships in 1959 and 1960.',
-    tr: 'Cooper\'ın orta motorlu araçları Grand Prix yarışının şeklini değiştirdi ve 1959 ile 1960\'ta iki şampiyonluğu da kazandı.',
+    tr: 'Cooper\'ın orta motorlu araçları Grand Prix yarışlarının çehresini değiştirdi; 1959 ve 1960\'ta hem sürücüler hem markalar şampiyonluğunu kazandı.',
   },
   vanwall: {
     en: 'Tony Vandervell\'s Vanwall won the first Constructors\' Championship in 1958.',
-    tr: 'Tony Vandervell\'in Vanwall\'ı, 1958\'de ilk Markalar Şampiyonası\'nı kazandı.',
+    tr: 'Tony Vandervell\'in kurduğu Vanwall, 1958\'de ilk Markalar Şampiyonası\'nı kazandı.',
   },
   matra: {
     en: 'The French team won the 1969 championship with Jackie Stewart, in cars run by Ken Tyrrell.',
-    tr: 'Fransız takım, Ken Tyrrell\'in işlettiği araçlarla 1969 şampiyonluğunu Jackie Stewart ile kazandı.',
+    tr: 'Fransız takım, Ken Tyrrell\'in yarıştırdığı araçlarla 1969 şampiyonluğunu Jackie Stewart ile kazandı.',
   },
   maserati: {
     en: 'Maserati raced in Formula 1 from 1950 to 1960 and carried Juan Manuel Fangio to his 1957 title.',

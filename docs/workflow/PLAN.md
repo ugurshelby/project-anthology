@@ -54,7 +54,7 @@ Goal: fact-checked livery and team-DNA text.
 Run (phase): Antigravity (own model) — editorial text; owner reviews.
 Out of scope: any file other than `data/history/liveries.ts`, `data/history/team-dna.ts`; any git command.
 Steps:
-- [ ] 7.2 — master-plan "7.2". First step.
+- [x] 7.2 — master-plan "7.2". First step.
 Acceptance: Antigravity logs what changed and marks 7.2 `[~]`; Claude Code runs the verify, commits.
 Stop conditions: a structural change (field names, types) seems needed → write it in the log, do not do it.
 
