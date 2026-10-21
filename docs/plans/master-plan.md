@@ -406,6 +406,18 @@ Bu fazın hiçbir adımı tetikten önce talep edilmez. Kod tarafı hazır olanl
 
 ---
 
+## Faz 17 — Yarış simülasyonu (fikir; tetik: sahip "kurslara hakimim" der)
+
+Kaynak: `docs/idea/simulation.md` (sahip, 2026-10-21). Sahip kendisi öğrenip dahil olmadan başlanmaz; amaç sağlam temelli, doğrulanmış bir model, "AI slop" değil.
+
+### [⏸] 17.1 Simülasyon tasarımı (Architect, sahiple birlikte)
+- Run: Opus / xhigh — model ve veri doğruluğu kararı; sahip oturumda
+- Owner: Opus + owner · Tetik: sahibin açık sözü · Depends on: 13.3 (telemetri verisi)
+- Karar verir: kapsam sırası (önce karşıolgusal strateji; enerji/boost en son, girdileri kamuya açık değil), veri kaynakları (OpenF1 2023+ laps/stints/pit, Jolpica tur süreleri ve pit stopları; FastF1 arşivi F1 TV kimliği istiyor), tur süresi modeli ve parametrelerin yarış verisinden kalibrasyonu, yayından önce geriye dönük test (gerçek yarış sonuçlarına karşı hata ölçütü ve eşik), arayüzde "model çıktısıdır" etiketi, hesaplamanın nerede koştuğu (tarayıcıda deterministik TS, sunucu gerekmez mi).
+- Okuma (sahip için öneri, 17.1'den önce): Heilmeier ve ark. (TUM FTM) yarış simülasyonu makaleleri ve açık kaynak `TUMFTM/race-simulation`; MATLAB/Simulink kursları kavrayış içindir, Apex'te çalışma zamanı olmaz.
+
+---
+
 ## Paralel Dalgalar
 
 Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında — `PLAN.md`, bu dosya, `DECISIONS.md`, `OPEN.md` — yalnızca kendi maddesini birebir metin değişimiyle işaretler/ekler). Her oturum için ilk adım kalın.
