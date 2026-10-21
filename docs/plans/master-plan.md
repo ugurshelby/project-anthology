@@ -165,23 +165,59 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 
 ---
 
-## Faz 9 — Google Cloud (kredi bitişi 2026-12-18)
+## Faz 9 — Google Cloud (kredi bitişi 2026-12-16)
 
-### [ ] 9.0 GCP projesi ve anahtar
-- Run: owner · Owner: owner · Depends on: — · Dalga 5
-- AB bölgesinde ayrı proje, Generative Language API, bütçe alarmı (kalıcı ≤ ₺50/ay).
+Sahip kararları (2026-10-21, `DECISIONS.md` "Faz 9 GCP"): Apex için ayrı GCP projesi; 2026-12-16'ya kadar bu projeye en çok **150 $** kredi (300 $'ın yarısı); kredi bitince Apex'in GCP maliyeti **aylık 5–10 $** (sahibin kartı). Konsol işlerini sahibin tarayıcısındaki Claude in Chrome oturumu yapar; **anahtar değerleri sohbete, log'a, dosyaya yazılmaz**, Vercel'e yalnızca sahip taşır (ajanların Vercel env yetkisi yok). Zincirin son halkası her zaman ücretsiz katman kalır: GCP anahtarı env'den kaldırılınca haber yeniden yazımı AI Studio → Groq ile sürer.
+
+### [ ] 9.0 GCP projesi, faturalandırma, bütçe ve kredi kapsamı
+- Run: Claude in Chrome (sahip onaylı konsol oturumu) + owner — konsol işleri; anahtar ve fatura sahibin
+- Owner: owner · Depends on: — · Dalga 3 (2026-10-26'dan sonra; repo dosyasına dokunmaz, her oturumla paralel)
+- Yapılacaklar (konsol):
+  1. Supabase projesinin bölgesini oku (read-only `supabase` MCP veya Supabase paneli); GCP bölgesi ona en yakın AB bölgesi (aday `europe-west1` / `europe-west3`).
+  2. Yeni proje (ör. `apex-f1`), faturalandırma hesabına bağla; Billing → Credits: deneme kredisinin kalan tutarı, bitiş tarihi ve **hangi hizmetleri kapsadığı** (Vertex AI, Gemini API ücretli katmanı, Compute Engine, Cloud Run, Vision) ekran okumasıyla log'a.
+  3. İki bütçe (yalnızca bu proje): "apex-credit" 150 $ (bitiş 2026-12-16; uyarı %25/50/75/90/100, gerçekleşen + tahmini) ve "apex-monthly" 10 $/ay (uyarı %50/90/100). Bütçe harcamayı durdurmaz; sert sınır API kotalarıdır (madde 4).
+  4. API'ler yalnızca gerektikçe açılır. Açılan her AI API'si için Quotas sayfasında günlük ve dakikalık istek üst sınırı (değer 9.4'te ölçülen hacimden; o zamana kadar varsayılan) — Denial of Wallet sınırı (16.8 ile aynı iş).
+  5. Kimlik bilgisi: 9.4 kararından önce anahtar üretilmez.
+- Doğrulama: log'da proje kimliği, bölge, bağlı faturalandırma, iki bütçe ve eşikleri, kredi kapsamı listesi, açık API listesi; hiçbir anahtar değeri yok.
+
+### [ ] 9.4 GCP hizmet seçimi (Architect)
+- Run: Opus / xhigh — maliyet, kapsam ve güvenlik kararı; Architect, kod yazmaz
+- Owner: Opus · Depends on: 9.0 · Dalga 3
+- Karar verir ve `DECISIONS.md`'ye yazar (her aday için: ne kazandırır, kredi döneminde ve sonrasında aylık maliyet tahmini — fiyat sayfasından, tarihli —, risk, sonra ne olur):
+  1. **LLM uç noktası:** Vertex AI (express mode API anahtarı) mı, Apex projesinde faturalandırılan Gemini API anahtarı mı — 9.0'ın ölçtüğü kredi kapsamına göre; env adı; kredi sonrası tahmini aylık maliyet (`sync-news` hacmi × ölçülen token). 5–10 $'ı aşıyorsa 2026-12-16'da GCP anahtarı zincirden çıkar.
+  2. **Diğer Google API adayları** (en az): Cloud Vision (medya adaylarında resmî logo / yüz tespiti, AGENTS logo yasağının otomatik kapısı), Cloud Monitoring uptime check, Cloud Run Jobs (8.6 toplu medya çözümlemesi, tek seferlik), Cloud Translation, Imagen (yalnızca `public/stories` dışı deneme, sahip onayı). Reddedilenler gerekçesiyle.
+  3. **Uzak geliştirme makinesi** (9.5): yerel ölçümle karar (aşağıdaki ölçüt).
+  4. Kredi sonrası tutulacakların listesi ve aylık toplam ≤ 10 $.
+- Çıktı: seçilen her iş için bu dosyada tam tarifli adım (dosyalar, env adı, doğrulama); 9.2'nin env adı ve uç noktası.
+- Doğrulama: karar girdisinde her aday için maliyet/kazanç/risk satırı; kredi sonrası toplam tahmin satırı.
 
 ### [ ] 9.2 LLM zinciri: Gemini (GCP) → Gemini (AI Studio) → Groq
 - Run: Sonnet / high — sağlayıcı zinciri, maliyet ve örtüşme korumaları
-- Owner: Sonnet · Depends on: 9.0, 14.4 (aynı dosya) · Dalga 5
+- Owner: Sonnet · Depends on: 9.4 (uç nokta + env adı), 14.4 (aynı dosya), sahip anahtarı Vercel'e girdi · Dalga 5
 - Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-order.test.ts`, `.env.example`
-- Değişiklik: `PROVIDERS` sırası Gemini-GCP → Gemini-AI-Studio → Groq; GCP anahtarı için yeni env adı `.env.example`'a boş değerle (ad 9.0'da belirlenir); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan sağlayıcı `gemini:*`.
-- Doğrulama: `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0.
+- Değişiklik: `PROVIDERS` sırası Gemini-GCP → Gemini-AI-Studio → Groq; GCP anahtarı için 9.4'ün env adı `.env.example`'a boş değerle; env yoksa sağlayıcı atlanır (zincir bugünkü gibi çalışır); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan `gemini-gcp`; GCP anahtarı yokken ilk çağrılan AI Studio.
+- Doğrulama: `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0; canlıda ilk `sync-news` sonrası log'da sağlayıcı adı (read-only).
 
-### [ ] 9.3 Kredi dönemi tek seferlik işler (2026-12-18'e kadar)
+### [ ] 9.5 Uzak geliştirme makinesi (yalnızca ölçüm haklı çıkarırsa)
+- Run: Sonnet / medium — ölç, karşılaştır, pilotu yönet · Owner: Sonnet + owner (VM, SSH anahtarı ve güvenlik duvarı sahip onaylı) · Depends on: 9.4 · Dalga 4
+- Bugünkü ölçüm (2026-10-21): GitHub CI (ücretsiz, Linux) tüm kapı 129 sn — lint 7, tsc 6, test 7, build 82 sn. Yerel (Windows) bilinen süreler: `vitest run` 35–70 sn, `npm run build` ~4 dk, `npm run lint` ~1 dk. Fark büyük ölçüde Windows dosya sistemi/tarayıcı koruma kaynaklı; tam kapı zaten `wip/` CI'da ücretsiz koşuyor.
+- Sıra (ucuzdan pahalıya; bir önceki yeterliyse sonrakine geçilmez):
+  1. Yerel tekrar ölçüm: `npx tsc --noEmit`, `npx vitest run`, `npm run lint` süreleri (aynı gün, aynı makine) log'a.
+  2. Ücretsiz seçenekler (sahip kararı, güvenlik ayarı olduğu için sahip yapar): depo klasörü için Windows Defender dışlaması veya depoyu WSL2 Linux dosya sistemine taşıma; aynı üç ölçüm.
+  3. Hâlâ yavaşsa GCP pilotu: tek Linux VM (8 vCPU sınıfı, Spot tercih), yalnızca IAP üzerinden SSH (genel 22 kapalı), boşta otomatik kapanma, `.env*` yok; Claude Code masaüstü SSH hedefi olarak. Kredi dönemi tahmini ve gerçek saatlik fiyat 9.4'te.
+- Kapanış: VM 2026-12-12'ye kadar silinir (disk dahil; kredi sonrası 5–10 $ bütçesine sığmaz) — 9.7.
+- Doğrulama: log'da her seçenek için üç komutun süresi; seçilen yol ve gerekçe.
+
+### [ ] 9.3 Kredi dönemi tek seferlik işler (2026-12-12'ye kadar)
 - Run: Sonnet / medium — tek seferlik betikler, harcama sahip onaylı
-- Owner: Sonnet · Depends on: 9.0, sahip onayı · Dalga 5 (Kasım başı hatırlatma)
-- 8.6 için toplu çözümleme, Cloud Monitoring uptime check. AI görsel/ikon denemesi `public/stories`'e giremez (AGENTS).
+- Owner: Sonnet · Depends on: 9.0, 9.4, sahip onayı · Dalga 5 (Kasım başı hatırlatma)
+- 9.4'ün seçtikleri: 8.6 toplu medya çözümlemesi (Cloud Run Jobs), Cloud Monitoring uptime check, Vision ile mevcut medya kayıtlarının logo/yüz taraması (rapor; silme sahip kararı). AI görsel/ikon denemesi `public/stories`'e giremez (AGENTS). 15.1 ekran görüntüsü denetiminin sahip koşusu kredili anahtarla yapılabilir.
+
+### [ ] 9.7 Kredi bitişi kapanışı (2026-12-10 → 2026-12-12)
+- Run: Claude in Chrome (sahip onaylı) + Sonnet / medium — envanter, silme, ölçüm
+- Owner: owner · Depends on: — (sabit tarih) · Dalga: takvim
+- Yapılacaklar: projedeki tüm kaynakların envanteri (Compute VM/disk/imaj, Cloud Run, Artifact Registry, Storage, açık API'ler, anahtarlar); 9.4 "tutulacaklar" listesinde olmayan her şey silinir; Billing raporunda son 30 günün maliyeti ve kredi sonrası günlük tahmin; tahmin 10 $/ay'ı aşarsa GCP anahtarı Vercel'den sahipçe kaldırılır (zincir ücretsiz katmana düşer).
+- Doğrulama: log'da envanter öncesi/sonrası, kalan kaynaklar, 2026-12-17'den sonraki ilk hafta Billing raporu (≤ 2,5 $/hafta).
 
 ### [⏸] 9.1 Vercel + GCP hibrit (Cloud Run Jobs)
 - Run: Opus / xhigh — mimari, yalnızca ihtiyaç doğarsa · Owner: Opus · Tetik: bir cron 300 sn sınırını ölçülerek aşarsa.
@@ -365,7 +401,7 @@ Bu fazın hiçbir adımı tetikten önce talep edilmez. Kod tarafı hazır olanl
 - Sorgular: `docs/reference/media-sistemi.md` §13. `review='rejected'` yazmak veri değişikliğidir: sahip onayı.
 
 ### [ ] 16.8 LLM konsol harcama tavanları (14.4 sahip kısmı)
-- Run: owner · Owner: owner · Depends on: tetik (GCP için 9.0)
+- Run: owner · Owner: owner · Depends on: tetik (GCP tarafı 9.0 madde 4'te kota olarak yapılır)
 - GCP ve Groq konsollarında aylık sert tavan + hız alarmı.
 
 ---
@@ -385,22 +421,25 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | **2** | 2026-10-23 → 25 (kod dondurma) | F: Sonnet / high | **1.1** (sonra 1.4, 1.3, 1.7, 1.9 gözlemi) | `logs/2026-10-2{3,4,5}.md`, rehber §4 |
 | | | G: Opus 5.5 / xhigh (Architect) | **13.1** ✓ | bu dosyada Faz 13, `DECISIONS.md`, `PLAN.md` |
 | **3** | 2026-10-26 → | H: Opus 5.5 / high (Builder; tek kod oturumu) | **14.2** | `package*.json`, `ci.yml`, `security-audit.yml`, `docs/procedures.md`, kırılan testler |
+| | | Claude in Chrome + owner | **9.0** | GCP konsolu (repo dosyası yok), günün log'u |
+| | | Opus / xhigh (Architect) | **9.4** (9.0'dan sonra) | bu dosyada Faz 9, `DECISIONS.md` |
 | | | I: Haiku / low | **1.6** | 4 workflow `.yml` (sync-*, notify-sessions) |
 | | | O: Opus / xhigh (Architect, ölçer) | **8.0** | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
 | | | Q: Sonnet / high | **1.10** | `lib/f1/provisional*.ts`, `lib/f1/sources/openf1.ts`, `sync-f1/route.ts`, 2 test |
 | **4** | 14.2 `main`'de | J: Opus 5.5 / high | **14.3** | `package*.json`, `lib/validation/`, 4 rota |
+| | | Sonnet / medium + owner | **9.5** (9.4 seçerse) | ölçüm, log; VM konsolda |
 | | | K: Opus 5.5 / high | **14.5** | `lib/data/news.ts`, `app/api/news/`, 2 test, `apex-reference.md` |
 | | | L: Opus 5.5 / medium | **14.4** | `lib/news/rewrite.ts`, 1 test |
 | | | M: Opus 5.5 / high → medium (Builder) | **13.2** (sonra 13.3) | `lib/telemetry/`, `lib/data/circuitTelemetry.ts`, `scripts/build-circuit-telemetry.ts`, `data/circuits/telemetry/`, 2 test |
 | | | Antigravity | **1.11** (1.10 `main`'de) | `ResultsTable.tsx`, `SiteFooter.tsx`, `messages/*.json` |
 | | | 8.0'ın yazdığı 8.x adımları | 8.0 belirler | J/K/L/M ile çakışmayanlar bu dalgada, kalanlar Dalga 5 |
 | **5** | Dalga 4 sonrası | P: Sonnet / medium | **1.8** | `scripts/qstash-sync.ts`, `lib/cron/qstashPrune.ts`, `qstash-sync.yml`, 1 test, `apex-reference.md` |
-| | | Sonnet / high | **9.2** (9.0 bittiyse) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
+| | | Sonnet / high | **9.2** (9.4 bitti, sahip anahtarı Vercel'de) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
 | | | Antigravity | **15.2** (sahip 15.1'i koştuysa) | sayfa bileşenleri |
 | | | Antigravity (15.2'den sonra; aynı ajan) | **13.4** (13.3 `main`'de) | `components/circuit/*Telemetry*`, `SpeedProfile.tsx`, `CircuitElevationProfile.tsx`, pist sayfası, `messages/*.json` |
 | **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
 
-Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; 9.0 (GCP) kredi nedeniyle 2026-12-18'den önce gerekir, Kasım başında hatırlatılır.
+Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; GCP kredisi 2026-12-16'da biter: 9.0 Dalga 3'te başlar, 9.7 kapanışı 2026-12-10 → 12 sabit tarihli; 9.3 Kasım başında hatırlatılır.
 
 ---
 
