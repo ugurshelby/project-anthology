@@ -189,17 +189,66 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 
 ## Faz 13 — İleri pist telemetrisi (Claude Opus 5.5 şartı)
 
-### [ ] 13.1 Tasarım: hangi veri, hangi kaynak, nasıl taşınır
+### [x] 13.1 Tasarım: hangi veri, hangi kaynak, nasıl taşınır
 - Run: Opus 5.5 / xhigh — sahip şartı; veri doğruluğu ve mimari
-- Owner: Opus 5.5 (Architect oturumu, kod yazmaz) · Depends on: — · Dalga 2 (yalnızca doküman; kod dondurmayla uyumlu)
-- Okur: `app/[locale]/circuits/[id]/page.tsx`, `lib/data/circuits.ts`, `data/circuits/*.ts`, FastF1 belgeleri (`get_circuit_info()`: köşeler, marshal ışıkları/sektörleri, rotasyon; hız tuzakları `Laps.SpeedI1/SpeedI2/SpeedFL/SpeedST`).
-- Karar verir: (a) Python FastF1 çalışma ortamı (yerel tek seferlik betik → commit'lenen statik JSON, ya da GCP 9.3), (b) depolama (`data/circuits/telemetry/*.json` ya da tablo → migration ise Opus/xhigh denetim adımı eklenir), (c) uydurma veri yasağının testi, (d) sayfa entegrasyonu Antigravity ile nasıl bölünür.
-- Çıktı: `DECISIONS.md` girdisi; bu dosyada 13.2 ve gerekirse 13.3 (migration denetimi), 13.4 (Antigravity UI) adımları tam tarifle; `PLAN.md` 13.2 dilimi.
-- Doğrulama: 13.2'nin her adımında dosya listesi, imza ve doğrulama komutu var; dosya listesi Dalga 4 oturumlarıyla çakışmıyor.
+- Sonuç (2026-10-21, `DECISIONS.md` "13.1 Track telemetry"): her güncel takvim pisti için tek ölçülmüş referans tur = oradaki en son tamamlanmış Sıralamanın resmî pole turu (2023+), OpenF1 ücretsiz geçmiş API'sinden. Node/TS betiği → pist başına statik JSON (`data/circuits/telemetry/`), git'te; tablo, migration, cron yok (13.3 migration denetimi gerekmez). FastF1/Python yok (F1 arşivi 2026-10-15'ten beri F1 TV kimliği istiyor). Ölçüm (Monza 2026 Q, oturum 11357): pole turu Jolpica ile birebir (GAS 1:21.786), 306 örnek / 81,3 sn, entegre tur uzunluğu resmîden +%0,9, 2026'da `drs` hep `null`.
 
-### [ ] 13.2 Uygulama (13.1 tanımlar)
-- Run: Opus 5.5 / xhigh — sahip şartı; "tam doğru olmalı"
-- Owner: Opus 5.5 · Depends on: 13.1 · Dalga 4
+### [ ] 13.2 Telemetri veri katmanı, betik ve testler
+- Run: Opus 5.5 / high — sahip şartı (Builder); tarifi kesin veri kodu, kenar durumlar
+- Owner: Opus 5.5 (Builder) · Depends on: 14.2 `main`'de (`vitest` sürümü) · Dalga 4 (oturum M; J/K/L dosyalarıyla çakışmaz)
+- Dosyalar: yeni `lib/telemetry/types.ts`, yeni `lib/telemetry/derive.ts`, yeni `lib/telemetry/select.ts`, yeni `lib/data/circuitTelemetry.ts`, yeni `scripts/build-circuit-telemetry.ts`, yeni `data/circuits/telemetry/index.ts` (betik üretir; ilk sürüm boş harita), yeni `tests/telemetry-derive.test.ts`, yeni `tests/circuit-telemetry-data.test.ts`
+- Değişiklik:
+  1. `lib/telemetry/types.ts`:
+     - `export type TelemetrySample = readonly [tMs: number, dM: number, kmh: number, gear: number, throttle: number, brake: 0 | 1, x: number, y: number]` — `tMs` turun başından, `dM` tamsayı metre, `throttle` 0–100, `x`/`y` 0–1000 kutusunda SVG yönünde (y aşağı).
+     - `export interface TelemetrySource { provider: 'OpenF1'; license: 'CC BY-NC-SA 4.0'; url: 'https://openf1.org'; year: number; round: number; raceName: string; session: 'Qualifying'; sessionKey: number; meetingKey: number; driverNumber: number; driverId: string; driverCode: string; lapNumber: number; lapTime: string; lapDurationMs: number; fetchedAt: string }`
+     - `export interface LapMetrics { lapLengthM: number; topSpeedKmh: number; minSpeedKmh: number; fullThrottlePct: number; brakingPct: number; gearShiftSteps: number }`
+     - `export interface SlowPoint { dM: number; kmh: number; gear: number; x: number; y: number }`
+     - `export interface SafetyCarHistory { years: number[]; races: number; withSafetyCar: number; withVsc: number }`
+     - `export interface CircuitTelemetry { version: 1; circuitId: string; source: TelemetrySource; sectors: { s1Ms: number; s2Ms: number; s3Ms: number; boundariesM: [number, number] }; speedTraps: { i1Kmh: number | null; i2Kmh: number | null; stKmh: number | null }; metrics: LapMetrics; slowPoints: SlowPoint[]; safetyCar: SafetyCarHistory | null; samples: TelemetrySample[] }`
+     - `export function isCircuitTelemetry(v: unknown): v is CircuitTelemetry` — alanların varlığı ve tipleri; `samples` her eleman 8 sayılık dizi.
+  2. `lib/telemetry/derive.ts` (saf, G/Ç yok):
+     - `export interface RawCarSample { date: string; speed: number; n_gear: number; throttle: number; brake: number }`; `export interface RawLocation { date: string; x: number; y: number }`.
+     - `export function parseLapTime(s: string): number` — `"1:21.786"` → `81786` (ms); `"58.123"` → `58123`.
+     - `export function normaliseTrace(points: { x: number; y: number }[], box = 1000): { x: number; y: number }[]` — tek ölçek (büyük kenar = `box`), y ters çevrilir, kısa eksende ortalanır, tamsayı.
+     - `export function buildSamples(car: RawCarSample[], loc: RawLocation[], lapStartIso: string): TelemetrySample[]` — tarihe göre sıralar; `tMs` = tarih − tur başı (yuvarlanır); `dM` = hız (km/h → m/s) üzerinden yamuk entegrasyon, kümülatif kayan nokta, kayıtta yuvarlanır; `throttle` 0–100'e, `gear` 0–8'e kırpılır; `brake` = `brake > 0 ? 1 : 0`; `x`/`y` zamanca en yakın `loc` örneğinden, sonra `normaliseTrace`.
+     - `export function lapMetrics(samples: readonly TelemetrySample[]): LapMetrics` — `lapLengthM` son `dM`; hız en büyük/en küçük; `fullThrottlePct` = başlangıç örneğinde `throttle ≥ 98` olan aralıkların süre payı (1 ondalık); `brakingPct` aynı yöntemle `brake = 1`; `gearShiftSteps` = ardışık örneklerde iki vites de ≥ 1 iken `Σ|Δgear|`.
+     - `export function sectorBoundaries(samples: readonly TelemetrySample[], s1Ms: number, s2Ms: number): [number, number]` — `tMs = s1Ms` ve `s1Ms + s2Ms` anlarındaki `dM`, iki örnek arasında doğrusal ara değer, tamsayı.
+     - `export function slowPoints(samples: readonly TelemetrySample[], minRiseKmh = 25): SlowPoint[]` — örnek i, sol ve sağda hızın `kmh_i + minRiseKmh`'e ulaştığı en yakın örnekler arasındaki en küçük hızsa (eşitlikte ilk indeks) yavaş noktadır; bir tarafta bu yükselme yoksa (tur kenarı) sayılmaz; `dM`'ye göre sıralı.
+     - `export function safetyCarFlags(rows: { category: string | null; message: string | null }[]): { safetyCar: boolean; vsc: boolean }` — `category === 'SafetyCar'` ve mesaj `SAFETY CAR DEPLOYED` ile başlıyorsa `safetyCar`; `VSC DEPLOYED` veya `VIRTUAL SAFETY CAR DEPLOYED` ile başlıyorsa `vsc`.
+  3. `lib/telemetry/select.ts` (saf):
+     - `export function matchSessionByStart<T extends { date_start: string; is_cancelled?: boolean }>(sessions: T[], startMs: number, toleranceMs = 6 * 3_600_000): T | null` — iptal olmayan, başlangıcı toleransta olan en yakın oturum.
+     - `export function pickPoleLap<T extends { driver_number: number; lap_duration: number | null; is_pit_out_lap: boolean }>(laps: T[], carNumber: number, poleTimeMs: number): T | null` — o arabanın, `|lap_duration × 1000 − poleTimeMs| ≤ 1.5` olan, pit çıkışı olmayan turu; birden çoksa en küçük farklı.
+  4. `lib/data/circuitTelemetry.ts`: `export const getCircuitTelemetry = cache(async function getCircuitTelemetry(circuitId: string): Promise<CircuitTelemetry | null>)` — `TELEMETRY_LOADERS`'ta kendi anahtarı (`Object.hasOwn`) yoksa `null`; yükler, `isCircuitTelemetry` değilse `console.warn(`[circuitTelemetry] invalid file ${circuitId}`)` ve `null`. Yalnızca sunucu bileşenlerinden çağrılır (React `cache`).
+  5. `scripts/build-circuit-telemetry.ts` (`npx tsx`; env okumaz, `.env*` yüklemez; `package.json`'a dokunulmaz):
+     - Bayraklar: `--circuit <circuitId>` (tek pist), `--dry-run` (yalnızca takvim + oturum listeleri; hangi pist hangi yıl/oturum/pole eşleşir, tablo yazar, dosya yazmaz).
+     - HTTP: kendi `getJson(url)`; OpenF1 çağrıları arasında ≥ 2.500 ms, Jolpica ≥ 500 ms; 429/≥ 500 → en çok 3 yeniden deneme (1, 2, 4 sn); OpenF1 401 → "OpenF1 canlı seans kilidi: seans penceresi dışında çalıştırın" yazar, o ana kadar yazılanları korur, çıkış 2. `User-Agent: project-anthology/1.0`. Tarih süzgeci sorgu dizesine olduğu gibi yazılır (`date>=…&date<…`).
+     - Akış: pist kümesi = `CURRENT_SEASON` (`lib/f1Calendar.ts`) Jolpica takviminin `Circuit.circuitId`'leri. `Y = CURRENT_SEASON … 2023` için Jolpica `/{Y}.json` ve OpenF1 `sessions?year=Y&session_name=Qualifying` / `Race`. Her pist için en yeni Y: o pistteki yarışın `Qualifying` başlangıcı + 2 sa < şimdi ve `matchSessionByStart` eşleşmesi var. Jolpica `/{Y}/{round}/qualifying.json` 1. sıra: `number`, `Driver.driverId`, `Driver.code`, süre = `Q3 ?? Q2 ?? Q1` (`parseLapTime`). OpenF1 `laps?session_key=…&driver_number=…` → `pickPoleLap`; yoksa pist "pole turu bulunamadı" ile atlanır. `car_data` ve `location`: `date >= date_start` ve `< date_start + lap_duration + 0.5 sn`; < 100 örnek → atlanır. `buildSamples`, `lapMetrics`, `sectorBoundaries(duration_sector_1, duration_sector_2)`, `slowPoints`, hız tuzakları `i1_speed`/`i2_speed`/`st_speed`.
+     - Güvenlik aracı geçmişi: 2023 … `CURRENT_SEASON` içinde o pistteki her yarış (başlangıç + 3 sa < şimdi, OpenF1 `Race` eşleşmesi var): `race_control?session_key=…` → `safetyCarFlags`; hiç yarış yoksa `safetyCar: null`.
+     - Yazım: başarıda `data/circuits/telemetry/<circuitId>.json` = `JSON.stringify(data) + '\n'`; sonra klasördeki `*.json`'lardan `index.ts` yeniden üretilir: başlık yorumu "Generated by scripts/build-circuit-telemetry.ts — do not edit.", `export const TELEMETRY_LOADERS: Readonly<Record<string, () => Promise<unknown>>> = { <id>: () => import('./<id>.json').then((m) => m.default), … }` (alfabetik).
+     - Özet tablo: pist, yıl, sürücü, tur süresi, örnek sayısı, tur uzunluğu ve `CIRCUIT_FACTS[id].lengthKm`'ye göre %, durum/atlama nedeni. ≥ 1 dosya yazıldıysa çıkış 0, hiç yoksa 1.
+  6. `data/circuits/telemetry/index.ts` ilk sürüm: aynı başlık, boş harita `{}`.
+- Test:
+  - `tests/telemetry-derive.test.ts` (sentetik girdi): `parseLapTime` iki biçim; sabit 360 km/h × 10 sn → `dM` son değer 1000; `throttle` 104 → 100, `brake` 104 → 1; `fullThrottlePct` süre ağırlıklı (eşit aralıksız örneklerle); 8 → 3 vites = 5 adım, vites 0 adımları sayılmaz; `sectorBoundaries` ara değer; `slowPoints`: 300→80→300 bulunur, 10 km/h'lik çukur bulunmaz, kenardaki yükselmesiz minimum bulunmaz; `normaliseTrace` kutu, en-boy oranı, y ters; `safetyCarFlags` dört mesaj biçimi ve `Other` kategorisindeki "SAFETY CAR LIGHTS ON" → false; `matchSessionByStart` iptal ve tolerans; `pickPoleLap` 1,5 ms sınırı ve pit çıkış turu.
+  - `tests/circuit-telemetry-data.test.ts` (uydurma veri yasağı): `data/circuits/telemetry/*.json` her dosya için `isCircuitTelemetry`; `source` alanları dolu, `provider === 'OpenF1'`, `2023 ≤ year ≤ CURRENT_SEASON`; saklı örneklerden `lapMetrics`/`sectorBoundaries`/`slowPoints` yeniden hesaplanır ve saklı değerlere eşit; son `tMs` ile `lapDurationMs` farkı ≤ 1.500; `CIRCUIT_FACTS[id].lengthKm` varsa `lapLengthM` ±%3 içinde; `tMs` ve `dM` azalmaz; `0 ≤ kmh ≤ 400`, `0 ≤ gear ≤ 8`, `0 ≤ throttle ≤ 100`; `0 < boundariesM[0] < boundariesM[1] < lapLengthM`; `TELEMETRY_LOADERS` anahtarları dosya adlarıyla birebir. Dosya yoksa tek test: harita boş.
+- Doğrulama: `npx vitest run tests/telemetry-derive.test.ts tests/circuit-telemetry-data.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/telemetry lib/data/circuitTelemetry.ts scripts/build-circuit-telemetry.ts data/circuits/telemetry` 0; `npx tsx scripts/build-circuit-telemetry.ts --dry-run` env'siz çıkış 0 ve güncel takvimdeki her pist için bir satır (eşleşme ya da neden).
+
+### [ ] 13.3 Telemetri verisini üret ve commit et
+- Run: Opus 5.5 / medium — sahip şartı (Builder, 13.2 ile aynı oturum); betiği koşturmak, sonucu ölçmek
+- Owner: Opus 5.5 (Builder) · Depends on: 13.2 · Dalga 4 (oturum M, 13.2'den sonra `/effort medium`)
+- Dosyalar: `data/circuits/telemetry/*.json`, `data/circuits/telemetry/index.ts` (betik üretir), günün log'u
+- Değişiklik: bir seans penceresi dışında (`docs/reference/yaris-hafta-sonu-dogrulama.md` takvimi; OpenF1 seans sırasında tüm API'yi kilitler) `npx tsx scripts/build-circuit-telemetry.ts` (~8–12 dk). 401 ile durursa pencere dışında yeniden. Atlanan pistler nedenleriyle log'a.
+- Doğrulama: `npx vitest run tests/circuit-telemetry-data.test.ts` yeşil (her dosya için); `du -sh data/circuits/telemetry` ≤ 600 KB; `npx tsc --noEmit` 0; log'da özet tablo (pist, yıl, sürücü, tur süresi, uzunluk farkı %) ve atlananlar; `wip/` CI + Vercel preview yeşil, sonra `main`.
+
+### [ ] 13.4 Pist sayfası telemetri arayüzü
+- Run: Antigravity (own model) — arayüz ve metin; Claude Code (Opus 5.5 / medium) doğrular, commit eder
+- Owner: Antigravity · Depends on: 13.3 `main`'de, 1.11 bitmiş (`messages/*.json` ortak) · Dalga 5
+- Dosyalar: yeni `components/circuit/TelemetryTrace.tsx`, yeni `components/circuit/SpeedProfile.tsx`, yeni `components/circuit/TelemetryStats.tsx`, `components/circuit/CircuitElevationProfile.tsx`, `app/[locale]/circuits/[id]/page.tsx`, `messages/tr.json`, `messages/en.json`
+- Değişiklik:
+  - Sayfa `getCircuitTelemetry(id)`'yi mevcut `Promise.all`'a ekler. Telemetri varsa "blueprint" kartı `TelemetryTrace`'i gösterir (örneklerin `x`/`y` çizgisi, üç sektör renk/sınır işareti, `slowPoints` iğneleri: dokunma/üzerine gelme/klavye odağında hız ve vites); yoksa bugünkü MIT SVG aynen kalır.
+  - Yeni bento satırı: `SpeedProfile` (mesafeye göre hız çizgisi, altında vites bandı ve gaz/fren şeritleri, sektör çizgileri) ve `TelemetryStats` (en yüksek/en düşük hız, tam gaz %, fren %, vites adımı "≥ N", hız tuzakları I1/I2/ST, "Güvenlik aracı: k / n yarış (yıllar)", kaynak satırı "OpenF1 · {year} Sıralama · {driverCode} pole turu {lapTime} · CC BY-NC-SA 4.0").
+  - `CircuitElevationProfile`: telemetri varsa vites ve gaz kutucukları ölçülen değeri (`gearShiftSteps`, `fullThrottlePct`, "ölçüm" etiketiyle) gösterir; tahmin değeri gösterilmez.
+  - Yasak: viraj numarası/adı, hız tuzağı konumu, DRS, lastik aşınması, downforce endeksi (kaynak yok); değerler saklandığı gibi, yalnızca görüntü biçimlenir; `prefers-reduced-motion`; mobil önce; `docs/design/apex-component-rules.md` §9 bağlayıcı (mor yalnızca tur rekoru).
+- Doğrulama: Antigravity log'a yazar, `[~]` işaretler. Claude Code: `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest related --run <değişen dosyalar>` yeşil; tarayıcıda `/tr/circuits/monza` ve telemetrisi olmayan bir pist, 375 ve 1440 genişlikte (yatay kaydırma yok, iğneler klavyeyle odaklanır, konsol hatası yok); `docs/reference/apex-reference.md` pist sayfası veri kaynakları ve `Last verified`, `docs/PRODUCT.md` güncel; `wip/` CI + preview yeşil, sonra `main`.
 
 ---
 
@@ -333,7 +382,7 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | | | E: Antigravity | **7.2** | `data/history/liveries.ts`, `team-dna.ts` |
 | | | N: Opus / xhigh (Architect) | **1.9** ✓ | bu dosyada 1.9/1.10/1.11, `DECISIONS.md`, `PLAN.md` Session F |
 | **2** | 2026-10-23 → 25 (kod dondurma) | F: Sonnet / high | **1.1** (sonra 1.4, 1.3, 1.7, 1.9 gözlemi) | `logs/2026-10-2{3,4,5}.md`, rehber §4 |
-| | | G: Opus 5.5 / xhigh (Architect) | **13.1** | bu dosyada Faz 13, `DECISIONS.md`, `PLAN.md` |
+| | | G: Opus 5.5 / xhigh (Architect) | **13.1** ✓ | bu dosyada Faz 13, `DECISIONS.md`, `PLAN.md` |
 | **3** | 2026-10-26 → | H: Opus 5.5 / high (Builder; tek kod oturumu) | **14.2** | `package*.json`, `ci.yml`, `security-audit.yml`, `docs/procedures.md`, kırılan testler |
 | | | I: Haiku / low | **1.6** | 4 workflow `.yml` (sync-*, notify-sessions) |
 | | | O: Opus / xhigh (Architect, ölçer) | **8.0** | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
@@ -341,12 +390,13 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | **4** | 14.2 `main`'de | J: Opus 5.5 / high | **14.3** | `package*.json`, `lib/validation/`, 4 rota |
 | | | K: Opus 5.5 / high | **14.5** | `lib/data/news.ts`, `app/api/news/`, 2 test, `apex-reference.md` |
 | | | L: Opus 5.5 / medium | **14.4** | `lib/news/rewrite.ts`, 1 test |
-| | | M: Opus 5.5 / xhigh | **13.2** | 13.1'in tanımladığı alan (J/K/L ile çakışmaz; çakışırsa J'den sonra) |
+| | | M: Opus 5.5 / high → medium (Builder) | **13.2** (sonra 13.3) | `lib/telemetry/`, `lib/data/circuitTelemetry.ts`, `scripts/build-circuit-telemetry.ts`, `data/circuits/telemetry/`, 2 test |
 | | | Antigravity | **1.11** (1.10 `main`'de) | `ResultsTable.tsx`, `SiteFooter.tsx`, `messages/*.json` |
 | | | 8.0'ın yazdığı 8.x adımları | 8.0 belirler | J/K/L/M ile çakışmayanlar bu dalgada, kalanlar Dalga 5 |
 | **5** | Dalga 4 sonrası | P: Sonnet / medium | **1.8** | `scripts/qstash-sync.ts`, `lib/cron/qstashPrune.ts`, `qstash-sync.yml`, 1 test, `apex-reference.md` |
 | | | Sonnet / high | **9.2** (9.0 bittiyse) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
 | | | Antigravity | **15.2** (sahip 15.1'i koştuysa) | sayfa bileşenleri |
+| | | Antigravity (15.2'den sonra; aynı ajan) | **13.4** (13.3 `main`'de) | `components/circuit/*Telemetry*`, `SpeedProfile.tsx`, `CircuitElevationProfile.tsx`, pist sayfası, `messages/*.json` |
 | **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
 
 Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; 9.0 (GCP) kredi nedeniyle 2026-12-18'den önce gerekir, Kasım başında hatırlatılır.

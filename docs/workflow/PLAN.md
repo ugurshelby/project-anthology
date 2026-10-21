@@ -91,6 +91,20 @@ Goal: decide what telemetry Apex shows, from which source, how it is stored and 
 Run (phase): Opus 5.5 / xhigh — owner-mandated model (Faz 13); data accuracy and architecture. Architect session: no source code edits.
 Out of scope: implementation.
 Steps:
-- [ ] 13.1 — master-plan "13.1". First step.
+- [x] 13.1 — master-plan "13.1". First step. Done 2026-10-21: `DECISIONS.md` "13.1 Track telemetry"; master-plan 13.2, 13.3, 13.4 written (no migration, so no 13.3 audit); Session M below.
 Acceptance: `DECISIONS.md` entry; master-plan 13.2 (and 13.3 migration audit / 13.4 Antigravity UI if needed) written with files, signatures, verify; files do not overlap Dalga 4 sessions J/K/L.
 Stop conditions: the design needs paid data, a new hosted runtime, or a licence decision → "Sahibe sorular" in the report, not decided.
+
+---
+
+## Dalga 4 (prepared early by 13.1; starts when 14.2 is on `main`)
+
+### Session M — Track telemetry data layer
+Goal: one measured, sourced reference lap per current-calendar circuit as static JSON, with a reader and tests that reject invented values.
+Run (phase): Opus 5.5 / high — owner-mandated model (Faz 13), Builder session; data code with an exact recipe. 13.3 at `/effort medium`.
+Out of scope: UI (13.4, Antigravity), `lib/f1/*` (1.10), `package.json`, any table or migration, F1 live-timing or MultiViewer endpoints, Python.
+Steps:
+- [ ] 13.2 — master-plan "13.2". First step.
+- [ ] 13.3 — master-plan "13.3" (`/effort medium`). Run outside any F1 session window.
+Acceptance: master-plan 13.2 and 13.3 verify commands pass; the day's log has the summary table and every skipped circuit with its reason.
+Stop conditions: the pole lap cannot be matched for more than a third of the circuits, or integrated lap length misses `CIRCUIT_FACTS` by more than 3 % on any circuit → `OPEN.md` `To: Opus`, no data commit. OpenF1 terms or response shape changed → `OPEN.md` `To: Opus`.
