@@ -96,3 +96,7 @@ Architect appends; newest last. One entry per decision.
 - Rejected: scraping formula1.com pages; a self-hosted SignalR relay (new runtime, terms); showing estimated positions (invented data).
 - Owner questions (not blocking 1.10): Apex must stay non-commercial (no ads, sponsorship or paid tier) for OpenF1 and Jolpica terms; a commercial turn needs both maintainers' consent.
 - Affects: master-plan 1.9 (done), new 1.10, 1.11; PLAN.md Session F (1.9 observation).
+
+## 2026-10-21 Non-commercial status (owner answer to 1.9)
+- Decision: Apex is a non-profit, non-commercial project today. The free, non-commercial terms of OpenF1 and Jolpica (CC BY-NC-SA 4.0) fit. If Apex ever turns commercial, the data sources move to paid or licensed access before that change (owner, 2026-10-21).
+- Affects: 1.9 owner question closed; 1.11 credit line stays.
