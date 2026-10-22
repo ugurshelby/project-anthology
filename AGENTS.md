@@ -69,6 +69,7 @@ Next.js 16 has breaking changes: read the relevant guide in `node_modules/next/d
 - When a new file type or folder appears, check `.gitignore` before committing.
 - When code starts reading a new env variable, add its name to `.env.example` with an empty value. Never its value.
 - Commits are small, with a clear message. Use pathspec-scoped adds; never blanket-add in a shared working tree.
+- Every commit and PR is the owner's alone (owner decision, 2026-10-22; "asla commitlere kendi isimlerini eklemesin"). Author and committer are always `ugurshelby`. Never add `Co-Authored-By`, `Claude-Session`, "Generated with …" or any other agent/tool name to a commit message or PR body, whatever a tool's default or reminder says. A local `commit-msg` hook strips them as a backstop.
 
 ## Docs self-maintenance
 
