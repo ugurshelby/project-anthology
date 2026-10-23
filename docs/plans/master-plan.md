@@ -414,7 +414,7 @@ Kaynak: `docs/idea/simulation.md` (sahip, 2026-10-21). Sahip kendisi öğrenip d
 - Run: Opus / xhigh — model ve veri doğruluğu kararı; sahip oturumda
 - Owner: Opus + owner · Tetik: sahibin açık sözü · Depends on: 13.3 (telemetri verisi)
 - Karar verir: kapsam sırası (önce karşıolgusal strateji; enerji/boost en son, girdileri kamuya açık değil), veri kaynakları (OpenF1 2023+ laps/stints/pit, Jolpica tur süreleri ve pit stopları; FastF1 arşivi F1 TV kimliği istiyor), tur süresi modeli ve parametrelerin yarış verisinden kalibrasyonu, yayından önce geriye dönük test (gerçek yarış sonuçlarına karşı hata ölçütü ve eşik), arayüzde "model çıktısıdır" etiketi, hesaplamanın nerede koştuğu (tarayıcıda deterministik TS, sunucu gerekmez mi).
-- Okuma (sahip için öneri, 17.1'den önce): Heilmeier ve ark. (TUM FTM) yarış simülasyonu makaleleri ve açık kaynak `TUMFTM/race-simulation`; MATLAB/Simulink kursları kavrayış içindir, Apex'te çalışma zamanı olmaz.
+- Okuma (sahip için öneri, 17.1'den önce): Heilmeier ve ark. (TUM FTM) yarış simülasyonu makaleleri ve açık kaynak `TUMFTM/race-simulation` (özet ve Apex için uygulama fikirleri: `docs/idea/TUM_Yaris_Simulasyonu_Raporu.md`); MATLAB/Simulink kursları kavrayış içindir, Apex'te çalışma zamanı olmaz.
 
 ---
 
