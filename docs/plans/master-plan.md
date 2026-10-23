@@ -156,6 +156,7 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 - Run: Opus / xhigh — ölçüt tasarımı ve çok katmanlı plan
 - Owner: Opus (Architect; ölçer, kod yazmaz) · Depends on: — · Dalga 3
 - Yapar: K1–K6'yı canlıya karşı ölçer (read-only `supabase` MCP, Upstash günlükleri, tarayıcı paneli, Lighthouse); her geçmeyen ölçüt için bu fazda 8.1… adımları tam tarifle yazar (dosya, değişiklik, doğrulama, `Run:`); geçenleri ölçümüyle log'a yazar.
+- Girdi: `logs/2026-10-23.md` canlı inceleme (görselsiz 12/155 haber; grid'de 4 takım yer tutucu; ana sayfa hero görseli 958 px doğal genişlikte, sürücü hero 640 px → 893 px, antolojide 3 büyütülmüş görsel; Norris portre kırpması).
 - Dosyalar: bu dosyada Faz 8, `DECISIONS.md`, `logs/<gün>.md`.
 - Doğrulama: K1–K6'nın her biri için ölçüm komutu ve sayı log'da; her FAIL için en az bir adım var.
 
@@ -418,6 +419,115 @@ Kaynak: `docs/idea/simulation.md` (sahip, 2026-10-21). Sahip kendisi öğrenip d
 
 ---
 
+## Faz 18 — Canlı site incelemesi: veri ve yönlendirme hataları
+
+Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümler orada). Kullanıcıya yanlış bilgi gösteren hatalar; kod dondurmadan sonra.
+
+- Run (faz): Sonnet / high — veri doğruluğu, rota durum kodları, çok dosya
+- Owner: Sonnet · Depends on: kod dondurmanın bitmesi (2026-10-26 12:00 TR) · Dalga 3 (oturum R)
+
+### [ ] 18.1 Sıralama kesmesi, DNF oranı, soyadı
+- Dosyalar: `lib/f1/mrdata.ts`, `components/season/DriverPodiumStandings.tsx`, `components/season/SeasonHighlightTiles.tsx`, `messages/tr.json`, `messages/en.json` (yalnızca `retirements` anahtarı), yeni `tests/mrdata-standings.test.ts`
+- Değişiklik:
+  1. `getDriverStandings(data, limit?: number)` ve `getConstructorStandings(data, limit?: number)`: varsayılan sınır kalkar (`limit` yoksa tüm satırlar). Ana sayfa çağrıları (`app/[locale]/(home)/page.tsx` 6 ve 3) aynen kalır. Bugün 2026'da 23. sürücü (Pérez) ve 1989'da 30 sürücünün 8'i kesiliyor.
+  2. `DriverStandingRow`'a `familyName: string` (Jolpica `Driver.familyName`); `DriverPodiumStandings.tsx` iki yerde `driverName.split(' ').pop()` yerine `familyName` ("de Cesaris" → "DE CESARIS").
+  3. `buildSeasonHighlights`: yarış dışı = durum `Finished` değil **ve** `/^\+\d+ Laps?$/` değil **ve** `Lapped` değil (Engine, Gearbox, Collision, Spun off, Disqualified… sayılır). Payda her başlayan satır; alan adı `classifiedCount` → `starterCount`. `retirements` metni: TR `"{dnf} yarış dışı · {starters} start"`, EN `"{dnf} retirements · {starters} starts"`.
+- Test: 23 satırlık fixture → 23 satır; `limit: 6` → 6; durum fixture'ı (`Finished`, `+1 Lap`, `+2 Laps`, `Lapped`, `Engine`, `Collision`, `Disqualified`) → DNF 3, starter 7; `familyName` "de Cesaris".
+- Doğrulama: `npx vitest run tests/mrdata-standings.test.ts tests/mrdata-round.test.ts tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1/mrdata.ts components/season` 0; preview'da `/tr/season` 23 sürücü, `/tr/season/1989` 30 sürücü ve yarış dışı sayısı ≥ 200.
+
+### [ ] 18.2 Var olmayan sayfalar 404 dönsün
+- Dosyalar: `app/[locale]/season/[year]/round/[n]/page.tsx`, `app/[locale]/drivers/[driverId]/`, `app/[locale]/circuits/[id]/`, `app/[locale]/news/[id]/` (`page.tsx`, gerekirse `loading.tsx`), yeni `tests/round-not-found.test.ts`
+- Değişiklik:
+  1. Yarış sayfası: takvim snapshot'ında o `round` yoksa `notFound()` (sayfada ve `generateMetadata`'da). Bugün `/tr/season/2026/round/30` "30. Yarış 2026" başlığıyla 200 dönüyor, `noindex` yok.
+  2. Bulunamayan sürücü/pist/haber: bugün `notFound()` çağrılıyor ama durum 200 (+`noindex`). Neden büyük olasılıkla `loading.tsx` ile akışın `notFound()`'dan önce başlaması. Önce `node_modules/next/dist/docs/` içinde `not-found` ve `loading` bölümleri okunur; varlık kontrolü akış başlamadan yapılabiliyorsa öyle düzeltilir. Tek çözüm `loading.tsx`'i kaldırmaksa (yükleme iskeleti gider) → `OPEN.md` `To: Opus`, adım atlanır.
+- Doğrulama: `npx vitest run tests/round-not-found.test.ts` yeşil (takvimde olmayan tur → `notFound` çağrılır); `npx tsc --noEmit` 0; `wip/` preview'da `curl -s -o /dev/null -w "%{http_code}"` → `/tr/season/2026/round/30`, `/tr/drivers/olmayan`, `/tr/circuits/olmayan`, `/tr/news/olmayan` hepsi `404`; `/tr/season/2026/round/17` ve `/tr/drivers/max_verstappen` `200`.
+
+### [ ] 18.3 Pistler sayıları ve 2026 DRS
+- Run: Sonnet / medium — kapsamı net küçük düzeltme
+- Dosyalar: `components/circuit/CircuitsDirectory.tsx`, `app/[locale]/circuits/page.tsx`, `app/[locale]/circuits/[id]/page.tsx`, `components/circuit/NextCircuitHero.tsx`, `lib/f1Calendar.ts`, `messages/tr.json`, `messages/en.json` (`ui.circuit.totalCalendar`), ilgili test
+- Değişiklik:
+  1. Sekme sayıları öne çıkan (sıradaki) yarışı da sayar: Tümü = takvimdeki yarış sayısı, Yaklaşan = bitmemiş yarışlar (sıradaki dahil), Tamamlanan = biten. Bugün "Tümü 22 · Yaklaşan 5 · Tamamlanan 17", sayfada 23 yarış, 6'sı kalan.
+  2. `totalCalendar` sabit metni ("24 Grand Prix · 21 Ülke"; AGENTS: sabit sezon verisi yasak) → ICU `"{races} Grand Prix · {countries} Ülke"`; sayılar takvim snapshot'ından (`Circuit.Location.country` tekil sayısı) sayfada hesaplanır.
+  3. `lib/f1Calendar.ts`: `export const DRS_LAST_SEASON = 2025;` (2026 kurallarında DRS yok; OpenF1 2026 `drs: null`, `DECISIONS.md` 13.1). Pist sayfası ve `NextCircuitHero` DRS bilgisini yalnızca gösterilen sezon ≤ `DRS_LAST_SEASON` ise gösterir.
+- Doğrulama: `npx vitest related --run components/circuit/CircuitsDirectory.tsx lib/f1Calendar.ts` ve `npx vitest run tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; preview'da `/tr/circuits` sekme sayıları tutarlı, `/tr/circuits/americas` DRS satırı yok.
+
+### [ ] 18.4 Sitemap: arşiv sayfaları
+- Run: Sonnet / medium — tek dosya, veri kaynakları mevcut
+- Dosyalar: `app/sitemap.ts`, sitemap testi (yoksa yeni `tests/sitemap.test.ts`)
+- Değişiklik: bugün 109 adres. Eklenecekler: `/season/{yıl}` (`F1_SEASON_MIN` → `CURRENT_SEASON`, her biri `withI18n`), `/machinery`, son 14 günün haber detayları (`news_stories`, mevcut okuyucu üzerinden). Tüm zamanların sürücü/takım sayfaları yalnızca `lib/data` zaten bir kimlik listesi veriyorsa eklenir; yeni veri kaynağı gerekiyorsa `OPEN.md` `To: Opus`.
+- Doğrulama: test sezon adresi sayısı = `CURRENT_SEASON − F1_SEASON_MIN + 1` (dil başına) ve `/machinery` var; `npx tsc --noEmit` 0; preview'da `curl -s <preview>/sitemap.xml | grep -c "<loc>"` > 300.
+
+### [ ] 18.5 Yerel sayı biçimi yardımcıları
+- Run: Sonnet / medium — küçük yardımcı ve test
+- Dosyalar: `lib/i18n/format.ts`, `tests/format.test.ts`
+- Değişiklik: `export function formatNumber(value: number, locale: string | null | undefined, maxFractionDigits = 1): string` ve `export function formatPercent(value: number, locale: string | null | undefined, maxFractionDigits = 1): string` (`value` 0–100; `Intl.NumberFormat(intlTag(locale), { style: 'percent' })` ile `value / 100`). Bileşenlere uygulama 20.2'de.
+- Doğrulama: `formatPercent(19, 'tr')` → `"%19"`, `formatPercent(93.75, 'tr', 2)` → `"%93,75"`, `formatPercent(29.3, 'en')` → `"29.3%"`, `formatNumber(3665.5, 'tr')` → `"3.665,5"`; `npx vitest run tests/format.test.ts` yeşil; `npx tsc --noEmit` 0.
+
+---
+
+## Faz 19 — Haber hattı kalitesi
+
+- Run (faz): Sonnet / high — haber hattı, LLM çıktısı, kenar durumlar
+- Owner: Sonnet · Depends on: kod dondurmanın bitmesi · Dalga 3 (19.1, 19.3; oturum S); 19.2 Dalga 5
+
+### [ ] 19.1 "On This Day" geçmiş yazılarını haber akışından çıkar
+- Dosyalar: `lib/news/aggregate.ts`, `tests/aggregate.test.ts`
+- Değişiklik: kaynak başlığı `/^On This Day\b/i` ile başlayan RSS öğeleri haber olarak alınmaz (RaceFans "On This Day: …" kısa yazıları; ölçülen: 155 kayıttan 3'ü, ör. `ca1by8` 2016 ABD GP'si 2026 haberi gibi listeleniyor). Mevcut 3 satır silinmez (veri değişikliği sahip onayı ister); akış penceresinden kendiliğinden düşerler.
+- Doğrulama: test "On This Day: Hamilton wins…" başlıklı öğe elenir, normal başlık kalır; `npx vitest run tests/aggregate.test.ts` yeşil; `npx tsc --noEmit` 0; ilk `sync-news` sonrası read-only SQL `select count(*) from news_stories where sources::text ilike '%On This Day%' and cached_at > '<deploy zamanı>'` = 0.
+
+### [ ] 19.2 Yeniden yazım kalitesi ve olgu koruması
+- Depends on: 14.4 `main`'de (aynı dosya); 9.2'den **önce** (aynı dosya, sıralı)
+- Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-guard.test.ts`
+- Ölçülen hatalar: kaynak "Antonelli eyes title…" → İngilizce yeniden yazım "Russell leads Mercedes by 102 points…" (olgu ters çevrilmiş, `6k42s3`); "the sport" → "Sport,"; "resurfacing" çevrilmemiş; "Austin'da"; başlıklarda karışık Title Case.
+- Değişiklik:
+  1. İstem kuralları: özne/nesne ve sayılar kaynaktaki gibi kalır; "the sport" = "Formula 1"; Türkçe başlık cümle düzeninde; yabancı özel adlara ünlü uyumlu ek (Austin'de); İngilizce terim bırakılmaz (Türkçe karşılık ya da kısa açıklama).
+  2. Olgu koruması (saf fonksiyon, dışa verilir): yeniden yazılmış başlıktaki her sayı ve her özel ad kaynak başlık + özette geçmiyorsa yeniden yazım reddedilir, sıradaki sağlayıcıya geçilir; hepsi reddederse öğe mevcut başarısızlık yolundan geçer (yeniden yazılmadan atlanır).
+- Doğrulama: uydurma sayı ("by 120 points", kaynakta 102) reddedilir; kaynaktaki ad ve sayılarla kurulmuş başlık geçer; test, ad/sayı kontrolünün özne-nesne ters çevirmeyi yakalamadığını belgeler (istem kuralı bunun içindir); `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0. Canlı: ilk `sync-news` sonrası 20 yeni Türkçe başlık log'a yazılır, sahip okur.
+
+### [ ] 19.3 Telgraf akışı sırası ve kaynak etiketi
+- Run: Sonnet / medium — tek bileşen
+- Dosyalar: `components/news/NewsList.tsx` (telgraf bölümü), ilgili test
+- Değişiklik: telgraf öğeleri yayın zamanına göre azalan sırada (bugün 23:01, 20:12, 23:01, 08:02, 06:16); köşeli etiket kaynak adı (bugün bir öğede "[FERRARI]", kaynak RaceFans): etiketin hangi alandan geldiği okunur, kaynak adı yazılır.
+- Doğrulama: `npx vitest related --run components/news/NewsList.tsx` yeşil; preview'da `/tr/news` telgraf saatleri azalan, etiketler kaynak adları.
+
+---
+
+## Faz 20 — Arayüz, Türkçe ve okunabilirlik
+
+- Run (faz): Antigravity (own model) — UI metni ve görünüm; Claude Code doğrular, commit eder
+- Owner: Antigravity · Depends on: 1.11'den sonra (aynı ajan, `messages/*.json`); 20.2 için 18.5 `main`'de · Dalga 4
+- Kurallar: `docs/design/apex-component-rules.md` bağlayıcı; resmî logo yok; her sayfa tarayıcıda 375 ve 1440 px'te kontrol.
+- Doğrulama (faz): Antigravity log'a yazar, `[~]` işaretler. Claude Code: `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest run tests/i18n-messages.test.ts` ve `npx vitest related --run <değişen dosyalar>` yeşil; değişen her sayfa tarayıcıda iki genişlikte, konsol hatası yok.
+
+### [ ] 20.1 Türkçe sayfada İngilizce metin kalmasın
+- `components/standings/GarageTeamPanel.tsx` (288, 304, 309, 316: "AHEAD", "PTS", "H2H … PTS") → `messages`; `components/media/placeholders/TeamPlaceholder.tsx:124` "FORMULA 1 CONSTRUCTOR" → `messages`; antoloji kategori etiketleri (`data/stories/content.ts` değerleri İngilizce kalır; görünen ad `messages` eşlemesinden: MODERN ERA, MIRACLE, TRAGEDY, MYTH, COMBAT, DYNASTY…).
+- Doğrulama: `/tr/grid` ve `/tr/anthology` metninde `AHEAD|PTS|CONSTRUCTOR|MIRACLE|TRAGEDY|MYTH|COMBAT|DYNASTY` yok.
+
+### [ ] 20.2 Sayı ve yüzde biçimi
+- 18.5 yardımcılarıyla: `SeasonHighlightTiles.tsx` ("19%"), Araçlar galibiyet oranı ("93.75%"), sürücü sayfası oranları ("%29.3") ve puan ("3665.5").
+- Doğrulama: `/tr/season`, `/tr/machinery`, `/tr/drivers/max_verstappen` → "%19", "%93,75", "%29,3", "3.665,5"; İngilizce sayfalarda "19%", "3,665.5".
+
+### [ ] 20.3 Metin ve işaret düzeltmeleri
+- `SeasonTitleFightHero.tsx`: "PUAN FARKI" iki kez görünüyor → bir kez.
+- Ana sayfa `ChampionshipPulse.tsx`: P2 ve sonrası "+102 PUAN" liderden geride olmayı anlatıyor → "−102" ya da "102 geride"; tek biçim.
+- Sezon sayfası sıradaki yarış kartı "Hafta sonu programı mevcut" → anlamlı metin (ör. ilk seansın günü ve saati).
+- Pist sayfası "±41 metre" → "41 m irtifa farkı".
+- Ana sayfa hafta sonu programı FP2/FP3'ü gizliyor (`components/home/WeekendHero.tsx:53` filtresi): tüm seanslar gösterilir; sığmıyorsa filtre kalır ve başlık "Öne çıkan seanslar" olur.
+
+### [ ] 20.4 Büyük harf ve İngilizce özel adlar
+- `lang="tr"` altında CSS `uppercase` İngilizce adlarda noktalı İ üretiyor: "CİRCUİT OF THE AMERİCAS", "SHANGHAİ INTERNATİONAL CİRCUİT", "MİRACLE". Pist resmî adlarını ve İngilizce kalan etiketleri çizen öğelere `lang="en"` (sürücü başlığında zaten var: `DriverProfileHero.tsx:302`). Türkçe haber başlıklarına dokunulmaz (Türkçe yazımda "NORRİS" kabul).
+- Doğrulama: `/tr/circuits` ve `/tr/circuits/americas` ekranında "CIRCUIT OF THE AMERICAS" noktasız.
+
+### [ ] 20.5 Kontrast ve küçük metin
+- Ana sayfa hero'da fotoğraf üstündeki kırmızı "2026 · 18. YARIŞ" satırı (hava durumu çipi gibi zemin alır); pist kartlarında "BİTTİ" rozeti; ana sayfa son kazanan kartında soyadının fotoğrafa girip kesilmesi.
+- Mobil (375 px): 11 px altı metin bugün `/tr/grid` 116, sürücü sayfası 57, yarış sayfası 49, Araçlar 39 öğe → en az 11 px; `/tr/season` 23 dokunma hedefi < 24 px → ≥ 24 px.
+- Doğrulama: aynı iframe ölçümü (`logs/2026-10-23.md` yöntemi) 11 px altı metin 0, < 24 px hedef 0; üç öğede WCAG AA kontrast (4.5:1) ölçülür.
+
+### [ ] 20.6 Grid takım kartı
+- Araç görseli gri şeritli küçük kutuda (letterbox) → kartı dolduran kırpma (`object-cover`, odak araç); logo yerindeki boş daireler → kaldırılır ya da takım rengi işareti (resmî logo yok). Görseli olmayan takımlar (bugün Ferrari, McLaren, RB, Cadillac yer tutucu) 8.0'ın medya adımlarına girer, burada değil.
+
+---
+
 ## Paralel Dalgalar
 
 Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında — `PLAN.md`, bu dosya, `DECISIONS.md`, `OPEN.md` — yalnızca kendi maddesini birebir metin değişimiyle işaretler/ekler). Her oturum için ilk adım kalın.
@@ -438,15 +548,18 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | | | I: Haiku / low | **1.6** | 4 workflow `.yml` (sync-*, notify-sessions) |
 | | | O: Opus / xhigh (Architect, ölçer) | **8.0** | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
 | | | Q: Sonnet / high | **1.10** | `lib/f1/provisional*.ts`, `lib/f1/sources/openf1.ts`, `sync-f1/route.ts`, 2 test |
+| | | R: Sonnet / high | **18.1** (sonra 18.2–18.5) | `lib/f1/mrdata.ts`, `components/season/*`, `components/circuit/*`, `app/[locale]/{season,drivers,circuits,news}/**`, `app/sitemap.ts`, `lib/i18n/format.ts`, `lib/f1Calendar.ts` (yalnızca `DRS_LAST_SEASON`), `messages/*.json` (yalnızca 18.x anahtarları), testler |
+| | | S: Sonnet / high | **19.1** (sonra 19.3) | `lib/news/aggregate.ts`, `components/news/NewsList.tsx`, 2 test |
 | **4** | 14.2 `main`'de | J: Opus 5.5 / high | **14.3** | `package*.json`, `lib/validation/`, 4 rota |
 | | | Sonnet / medium + owner | **9.5** (9.4 seçerse) | ölçüm, log; VM konsolda |
 | | | K: Opus 5.5 / high | **14.5** | `lib/data/news.ts`, `app/api/news/`, 2 test, `apex-reference.md` |
 | | | L: Opus 5.5 / medium | **14.4** | `lib/news/rewrite.ts`, 1 test |
 | | | M: Opus 5.5 / high → medium (Builder) | **13.2** (sonra 13.3) | `lib/telemetry/`, `lib/data/circuitTelemetry.ts`, `scripts/build-circuit-telemetry.ts`, `data/circuits/telemetry/`, 2 test |
 | | | Antigravity | **1.11** (1.10 `main`'de) | `ResultsTable.tsx`, `SiteFooter.tsx`, `messages/*.json` |
+| | | Antigravity (1.11'den sonra; aynı ajan) | **20.1** (sonra 20.2–20.6; 20.2 için 18.5 `main`'de) | `components/standings/GarageTeamPanel.tsx`, `components/home/*`, `components/season/*`, `components/circuit/*`, `components/anthology/*`, `messages/*.json` |
 | | | 8.0'ın yazdığı 8.x adımları | 8.0 belirler | J/K/L/M ile çakışmayanlar bu dalgada, kalanlar Dalga 5 |
 | **5** | Dalga 4 sonrası | P: Sonnet / medium | **1.8** | `scripts/qstash-sync.ts`, `lib/cron/qstashPrune.ts`, `qstash-sync.yml`, 1 test, `apex-reference.md` |
-| | | Sonnet / high | **9.2** (9.4 bitti, sahip anahtarı Vercel'de) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
+| | | Sonnet / high | **19.2** (14.4 `main`'de), ardından aynı dosyada **9.2** (9.4 bitti, sahip anahtarı Vercel'de) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
 | | | Antigravity | **15.2** (sahip 15.1'i koştuysa) | sayfa bileşenleri |
 | | | Antigravity (15.2'den sonra; aynı ajan) | **13.4** (13.3 `main`'de) | `components/circuit/*Telemetry*`, `SpeedProfile.tsx`, `CircuitElevationProfile.tsx`, pist sayfası, `messages/*.json` |
 | **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
