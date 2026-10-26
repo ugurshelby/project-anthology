@@ -61,7 +61,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { year, round } = parsed;
 
   const calendar = await fetchSeasonSnapshotTyped(year, 'calendar');
-  const race = getRacesFromCalendar(calendar).find((r) => Number(r.round) === round);
+  const calendarRaces = getRacesFromCalendar(calendar);
+  const race = calendarRaces.find((r) => Number(r.round) === round);
+  if (calendarRaces.length > 0 && !race) {
+    return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('round') };
+  }
   const raceName = localRaceName(race?.raceName ?? t('fallbackName', { round }), locale);
   const title = t('title', { name: raceName, year });
   const description = t('description', { name: raceName, round, year });
@@ -92,15 +96,19 @@ export default async function RoundPage({ params }: PageProps) {
   if (!parsed) notFound();
   const { year, round } = parsed;
 
-  const [calendar, resultsData, qualiData, sprintData, pitstopsData] = await Promise.all([
-    fetchSeasonSnapshotTyped(year, 'calendar'),
+  const calendar = await fetchSeasonSnapshotTyped(year, 'calendar');
+  const calendarRaces = getRacesFromCalendar(calendar);
+  const race = calendarRaces.find((r) => Number(r.round) === round);
+  // An empty calendar means the snapshot is missing, not that the round does not exist.
+  if (calendarRaces.length > 0 && !race) notFound();
+
+  const [resultsData, qualiData, sprintData, pitstopsData] = await Promise.all([
     fetchRoundSnapshot(year, round, 'results'),
     fetchRoundSnapshot(year, round, 'qualifying'),
     fetchRoundSnapshot(year, round, 'sprint'),
     fetchRoundSnapshot(year, round, 'pitstops'),
   ]);
 
-  const race = getRacesFromCalendar(calendar).find((r) => Number(r.round) === round);
   const circuitId = race?.Circuit?.circuitId;
   const weather = circuitId ? await getCircuitWeather(circuitId) : null;
   const circuitFacts = circuitId ? getCircuitFacts(circuitId, locale) : null;
