@@ -244,7 +244,11 @@ async function extractImageFromHtml(html: string, baseUrl: string): Promise<stri
 
 // ── F1 relevance filter ───────────────────────────────────────────────────
 
+// RaceFans "On This Day: …" short pieces are retrospectives, not news.
+const RETROSPECTIVE_TITLE = /^On This Day\b/i;
+
 function isF1Related(item: { title: string; summary: string; url: string }): boolean {
+  if (RETROSPECTIVE_TITLE.test(item.title.trim())) return false;
   const url = item.url.toLowerCase();
   const haystack = ` ${item.title} ${item.summary} `.toLowerCase();
   for (const kw of NON_F1_KEYWORDS) {

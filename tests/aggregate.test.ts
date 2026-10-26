@@ -48,6 +48,19 @@ describe('processFeeds', () => {
     expect(items).toEqual([]);
   });
 
+  it('drops "On This Day" retrospectives and keeps a normal title', () => {
+    const items = processFeeds([
+      raw({
+        canonicalUrl: 'https://x/f1/otd',
+        url: 'https://x/f1/otd',
+        title: 'On This Day: Hamilton wins the United States Grand Prix',
+      }),
+      raw({ canonicalUrl: 'https://x/f1/live', url: 'https://x/f1/live', title: 'Hamilton wins the F1 race today' }),
+    ]);
+    expect(items).toHaveLength(1);
+    expect(items[0].title).toBe('Hamilton wins the F1 race today');
+  });
+
   it('sorts surviving items newest-first', () => {
     const items = processFeeds([
       raw({ canonicalUrl: 'https://x/f1/old', url: 'https://x/f1/old', publishedTs: 1_000, title: 'Leclerc qualifying lap in F1' }),
