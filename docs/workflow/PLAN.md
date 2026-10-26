@@ -2,11 +2,11 @@
 
 Written by the Architect. Executed by the Builder. Long-lived checklist: `docs/plans/master-plan.md`; this file is the active session slices. Step details (files, exact change, signatures, verify) live in the master-plan step with the same number; a Builder implements that step exactly and ticks it in both files.
 
-Written: 2026-10-20 (Opus 5.5, Architect). Active: Dalga 1 and Dalga 2. Dalga 3-6 are in master-plan "Paralel Dalgalar"; the Architect copies them here when Dalga 2 is done.
+Written: 2026-10-20 (Opus 5.5, Architect). Updated 2026-10-26 (Opus, Architect): Dalga 2 done, Dalga 3 copied below. Dalga 5-6 are in master-plan "Paralel Dalgalar"; the Architect copies them here when Dalga 4 is done.
 
 Shared rules for every session below:
 - Start with `git status`; other sessions work in the same tree. Stage only your own files (pathspec adds). One commit per step, local; push only after the owner approves.
-- Race-weekend code freeze: 2026-10-23 00:00 → 2026-10-26 12:00 (TR). No code push to `main` in that window.
+- Race-weekend code freeze: 2026-10-23 00:00 → 2026-10-26 12:00 (TR), ended. Next race weekends (R19 2026-10-30 → 11-01) have no freeze unless the owner sets one.
 - Blocked or conflicting with the code: append to `OPEN.md` with `To:`, skip to the next unblocked step, report.
 
 ---
@@ -76,9 +76,9 @@ Goal: measured results for 1.1, 1.3, 1.4, 1.7 on the live race weekend.
 Run (phase): Sonnet / high — live-race debugging and edge cases (1.4 may drop to `/effort medium`).
 Out of scope: code changes (freeze). Findings that need code go to `OPEN.md` `To: Opus`.
 Steps (guide §3, in session order):
-- [~] 1.1 — live timing during Quali (10-24) and race (10-25). Race measured 2026-10-25 (locked criterion passed); Quali not measured live (session was down); open: R19 Quali repeat decision in `OPEN.md`.
+- [x] 1.1 — live timing during Quali (10-24) and race (10-25). Closed 2026-10-26 on the race measurement (`DECISIONS.md` 2026-10-26 decision 1); quali latency is read at R19 under 1.10.
 - [x] 1.4 — push window ~30 min before Quali and race. Done 2026-10-26: both rows written by QStash, no GitHub run in either window.
-- [~] 1.3 — first `sync-f1` after the race, then a second run (idempotency). First run measured; rows rewritten each tick until due+24 h; open: two ticks after the settle thresholds (results/pitstops 22:30Z 10-26, standings 23:00Z 10-26).
+- [~] 1.3 — first `sync-f1` after the race, then a second run (idempotency). First run measured; criterion changed to "no write after settle" (`DECISIONS.md` 2026-10-26 decision 2); moved to Session R step 1.
 - [x] 1.7 — OpenF1 is locked during sessions (no subscription): measure the "locked" criterion and the provisional results after the race.
 - QStash now also triggers `notify-sessions` (`*/10`, created 2026-10-20); for 1.4 record which scheduler (QStash or GitHub) delivered the run that wrote the `notified_sessions` row.
 - [x] 1.9 observation (race: 32.3 min from `date_end`; Quali not measured live) (read-only, Run: Sonnet / medium): after Quali (10-24, ends ~22:00Z) and the race (10-25, ends ~22:00Z) run `curl -s -o /dev/null -w "%{http_code}" "https://api.openf1.org/v1/sessions?session_key=latest"` every 5 min from the session end until it returns 200; log each time and code, then the minutes from session end to the first 200. At the first 200 also log `curl -s "https://api.openf1.org/v1/session_result?session_key=latest" | jq length` (rows published or 0). This sets the expected latency for 1.10; no code, no other source.
@@ -97,6 +97,82 @@ Steps:
 - [x] 13.1 — master-plan "13.1". First step. Done 2026-10-21: `DECISIONS.md` "13.1 Track telemetry"; master-plan 13.2, 13.3, 13.4 written (no migration, so no 13.3 audit); Session M below.
 Acceptance: `DECISIONS.md` entry; master-plan 13.2 (and 13.3 migration audit / 13.4 Antigravity UI if needed) written with files, signatures, verify; files do not overlap Dalga 4 sessions J/K/L.
 Stop conditions: the design needs paid data, a new hosted runtime, or a licence decision → "Sahibe sorular" in the report, not decided.
+
+---
+
+## Dalga 3 (2026-10-26 12:00 TR →)
+
+Written: 2026-10-26 (Opus, Architect). Order: H first and alone for `node_modules` (vitest major upgrade). O and the 9.0 console work may run next to H (no repo code, no `npm`). Q, R, S, I start when 14.2 is on `main` and run in parallel (file areas do not overlap; shared bridge files only by exact-text edits of their own items).
+
+### Session H — Dependency vulnerabilities and CI gate
+Goal: no high production vulnerability, CI runs on `main` and `wip/**`, weekly audit workflow.
+Run (phase): Opus 5.5 / high — owner-mandated model (Faz 14); major upgrades. Builder session.
+Out of scope: Zod (14.3), any app code change beyond what an upgrade breaks.
+Steps:
+- [ ] 14.2 — master-plan "14.2" (eight sub-steps, one commit each). First step.
+Acceptance: master-plan 14.2 verify passes; `wip/deps-2026-10` CI and Vercel preview green, fast-forwarded to `main` with owner approval, branch deleted locally and on `origin`.
+Stop conditions: a major upgrade needs a behaviour change in app code or deletes a behaviour test → `OPEN.md` `To: Opus`. Third failed attempt at one CI error → `OPEN.md`, stop.
+
+### Session O — Media and news gate measurement (Architect)
+Goal: K1–K6 measured against live; every FAIL becomes an exact 8.x step.
+Run (phase): Opus / xhigh — gate design and multi-layer plan. Architect: measures, no source edits.
+Out of scope: implementation; Faz 18–20 items (already planned).
+Steps:
+- [ ] 8.0 — master-plan "8.0" (input line: `logs/2026-10-23.md`). First step.
+Acceptance: each K with command and number in the day's log; each FAIL has at least one 8.x step with `Run:`; files of new steps listed for Dalga 4.
+Stop conditions: a K needs a licence or asset decision → "Sahibe sorular" in the report.
+
+### Session 9.0 — GCP project, billing, budgets (owner + Claude in Chrome)
+Goal: Apex GCP project with two budgets and the credit scope recorded.
+Run (phase): owner + Claude in Chrome — console work; keys and billing are the owner's.
+Steps:
+- [ ] 9.0 — master-plan "9.0". Then **9.4** in a separate Opus / xhigh Architect session.
+Acceptance and stop conditions: as master-plan 9.0; no key value in chat, logs or files.
+
+### Session Q — Provisional Qualifying and Sprint results
+Goal: OpenF1 provisional `qualifying` and `sprint` snapshots about 30 min after the session.
+Run (phase): Sonnet / high — data accuracy, multi-file cron step.
+Depends on: 14.2 on `main`.
+Out of scope: UI (1.11), schedules, migrations, env.
+Steps:
+- [ ] 1.10 — master-plan "1.10". First step.
+Acceptance: master-plan 1.10 verify passes; `wip/` CI and preview green; R19 Quali observation is a follow-up read, not part of this session.
+Stop conditions: OpenF1 response shape differs from the plan's types → `OPEN.md` `To: Opus`.
+
+### Session R — Live review fixes: data and routing
+Goal: correct standings, DNF rate, race counts, 404s, sitemap and number helpers.
+Run (phase): Sonnet / high — data correctness, route status codes (1.3 at `/effort low`, 18.3–18.5 at `/effort medium`).
+Depends on: 14.2 on `main` (1.3 does not: read-only, run it first, on or after 2026-10-27 00:00Z).
+Out of scope: UI copy and styling (Faz 20), `lib/f1/provisional*`, `sync-f1` route (Q).
+Steps:
+- [ ] 1.3 — master-plan "1.3" (read-only SQL, `/effort low`). First step.
+- [ ] 18.1 — master-plan "18.1".
+- [ ] 18.2 — master-plan "18.2".
+- [ ] 18.3 — master-plan "18.3" (`/effort medium`).
+- [ ] 18.4 — master-plan "18.4" (`/effort medium`).
+- [ ] 18.5 — master-plan "18.5" (`/effort medium`).
+Acceptance: each step's verify passes; one commit per step; `wip/` CI and preview green before `main`.
+Stop conditions: 18.2 needs `loading.tsx` removed, or 18.4 needs a new data source → `OPEN.md` `To: Opus`, continue with the next step.
+
+### Session S — News pipeline fixes
+Goal: no retrospective "On This Day" items in the feed; telegraph in time order with source tags.
+Run (phase): Sonnet / high — news pipeline (19.3 at `/effort medium`).
+Depends on: 14.2 on `main`.
+Out of scope: `lib/news/rewrite.ts` (19.2 waits for 14.4, then precedes 9.2), `lib/data/news.ts` (14.5).
+Steps:
+- [ ] 19.1 — master-plan "19.1". First step.
+- [ ] 19.3 — master-plan "19.3" (`/effort medium`).
+Acceptance: verifies pass; first `sync-news` after deploy logged with the SQL count.
+Stop conditions: the RSS item lacks the source title at the filter point → `OPEN.md` `To: Opus`.
+
+### Session I — Remove GitHub schedules
+Goal: QStash is the only scheduler for the four cron routes.
+Run (phase): Haiku / low — fully specified deletion.
+Depends on: 14.2 on `main` (shares `.github/workflows/` with H). Gate passed (`DECISIONS.md` 2026-10-26 decision 3).
+Steps:
+- [ ] 1.6 — master-plan "1.6". First step.
+Acceptance: master-plan 1.6 verify passes; after push, `qstash_list_schedules` (eu) unchanged and the next tick of each route DELIVERED (logged).
+Stop conditions: any other line in the four files would change → stop.
 
 ---
 

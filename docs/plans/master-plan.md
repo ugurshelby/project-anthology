@@ -63,17 +63,17 @@
   4. §4 sonuç tablosuna R18 sütunu ekle; `Last verified: 2026-10-2x` satırını güncelle.
 - Doğrulama: `grep -n "R18" docs/reference/yaris-hafta-sonu-dogrulama.md` ≥ 4 satır; `grep -c "R17 için zaman çizelgesi"` = 0.
 
-### [~] 1.1, 1.3 Açık kalan R18 ölçümleri
-- Run: Sonnet / high — canlı veri doğruluğu, ölçüm yorumu
-- Owner: Sonnet · Depends on: 1.0 · R18 Session F bitti (2026-10-26); ölçülenler (1.4, 1.7, 1.9 gözlemi, 1.1 yarış, 1.3 quali) silindi, kanıt `logs/2026-10-25.md`, `logs/2026-10-26.md`, rehber §4
-- Açık:
-  - **1.1** Quali gecesi (10-24/25) oturum çalışmadığı için canlı `/api/live-timing`, ham OpenF1 401 ve quali kilit açılma dakikası ölçülmedi. Telafi seçeneği `OPEN.md`'de (R19 Meksika quali 2026-10-31 21:00Z), karar Opus'ta.
-  - **1.3** results/pitstops/standings için "ilk yazım sonrası ardışık iki tikte değişmedi" ölçütü sağlanmadı: satırlar due+24 sa dolana kadar her tikte yeniden yazılıyor (tasarım). Settle sonrası (results/pitstops 22:30Z 10-26, standings 23:00Z 10-26) iki ardışık tikte `f1_snapshots.fetched_at`/`source` ölçülecek ya da ölçüt `OPEN.md`'deki karara göre değişecek.
-- Not: 1.6 kapısı için QStash `sync-f1` yarış sonrası tikleri 200, 3 günlük istatistikte `failed` 0 / `dlq` 0; `error`/`retry` 64 atfedilmemiş (`OPEN.md`).
+### [~] 1.3 R18 snapshot yeniden yazmama (settle sonrası)
+- Run: Sonnet / low — read-only SQL, tek ölçüm
+- Owner: Sonnet · Depends on: 2026-10-27 00:00Z sonrası, R19 hafta sonundan (2026-10-30) önce · Dalga 3 (oturum R'nin ilk adımı)
+- Ölçüt (`DECISIONS.md` 2026-10-26 karar 2): settle eşiğine (due + 24 sa) kadar her tikte yeniden yazım tasarım gereği. Geçer: R18 `results` ve `pitstops` `fetched_at` < 2026-10-26 23:00Z; `standings_drivers` ve `standings_constructors` (`round` NULL, `StandingsTable.round` 18) `fetched_at` < 2026-10-26 23:30Z; hepsi `source='jolpica'`. `md5(data::text)` 00:37Z değerlerinin yanına yazılır (`logs/2026-10-26.md`); fark başarısızlık değildir.
+- Komut (read-only `supabase` MCP): `select id, type, round, source, fetched_at, md5(data::text) from f1_snapshots where season = 2026 and ((round = 18 and type in ('results','pitstops','qualifying')) or type in ('standings_drivers','standings_constructors'))`
+- Doğrulama: satırlar ve sonuç günün log'unda; geçerse madde silinir, geçmezse `OPEN.md` `To: Opus`.
+- Kapanan: 1.1 yarış ölçümüyle kapandı (karar 1; quali kilit süresi 1.10 doğrulamasında, R19'da sonradan okunur). 1.4, 1.7, 1.9 gözlemi ölçüldü (`logs/2026-10-25.md`, `logs/2026-10-26.md`, rehber §4).
 
 ### [ ] 1.6 GitHub `schedule:` tetikleyicilerini kaldır
 - Run: Haiku / low — üç dosyada aynı blok silinir
-- Owner: Haiku · Depends on: 1.1-1.7 oturumunun log'unda QStash `sync-f1`'in yarış hafta sonu SUCCESS gösterdiğinin yazılı olması · Dalga 3
+- Owner: Haiku · Depends on: kapı geçti (2026-10-26, `DECISIONS.md` karar 3: QStash `sync-f1` her tik DELIVERED, FAILED 0; 6 adet 429 GitHub zamanlamasıyla çakışmadan) · Dalga 3
 - Dosyalar: `.github/workflows/sync-f1-race-aware.yml`, `.github/workflows/sync-news.yml`, `.github/workflows/sync-media.yml`, `.github/workflows/notify-sessions.yml`
 - Değişiklik: her dosyada `on:` altındaki `schedule:` anahtarını ve altındaki `- cron:` satırını sil; `workflow_dispatch:` kalır. Başka satıra dokunma. (QStash 4 rotayı da tetikliyor, 2026-10-20.)
 - Doğrulama: `grep -n "schedule:" .github/workflows/sync-*.yml .github/workflows/notify-sessions.yml` → çıktı yok; `grep -c "workflow_dispatch" ` aynı 4 dosyada her biri ≥ 1; her dosya için `npx --yes js-yaml <dosya> >/dev/null` çıkış 0.
@@ -112,7 +112,7 @@
   4. `sync-f1/route.ts` adım 6: mevcut çağrıdan sonra sırayla (paralel değil; OpenF1 3 req/sn) `qualifying` ve `sprint` için çağır; yanıta `provisionalSessions: { qualifying, sprint }` ekle; dosya başındaki "Response shape" yorumunu güncelle.
 - Kurallar: yeni zamanlayıcı, migration veya env yok (`qualifying`/`sprint` tipleri ve `source='openf1'` DB'de izinli). Jolpica adımı `isSettled` ile yalnızca `jolpica` satırlarına bakar (`loadSnapshotFetchTimes`), bu yüzden geçici satır Jolpica'yı engellemez ve Jolpica satırı onu ezer.
 - Test: `provisional-openf1.test.ts` — `formatLapTime`; Q1/Q2/Q3 eşlemesi (`[86.1, null, null]` yalnızca Q1); DSQ ve `position: null` sonda; sprint `SprintResults` anahtarı; üç builder'da `apexProvisional === true`. `provisional-sync.test.ts` — `jolpica` satırı varken OpenF1 mock'u hiç çağrılmaz; seans sürerken `session-running`; `OpenF1RestrictedError` → `locked`; yazımda `upsertF1Snapshot(…, 'qualifying', …, 'openf1')`; takvimde `Sprint` yoksa `no-session`.
-- Doğrulama: `npx vitest run tests/provisional-openf1.test.ts tests/provisional-sync.test.ts tests/sync-f1-idempotent.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1 app/api/cron/sync-f1` 0; `npm run build` `wip/` üzerinde yeşil. Canlı ilk gözlem R19 Sıralama (2026-10-31 21:00Z): sonraki `sync-f1` yanıtında `provisionalSessions.qualifying.status` ve `f1_snapshots` satırı (read-only), log'a.
+- Doğrulama: `npx vitest run tests/provisional-openf1.test.ts tests/provisional-sync.test.ts tests/sync-f1-idempotent.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1 app/api/cron/sync-f1` 0; `npm run build` `wip/` üzerinde yeşil. Canlı ilk gözlem R19 Sıralama (2026-10-31 21:00Z): sonraki `sync-f1` yanıtında `provisionalSessions.qualifying.status` ve `f1_snapshots` satırı (read-only), log'a. Sonradan okunan gecikme (`DECISIONS.md` 2026-10-26 karar 1): OpenF1 R19 quali `date_end` → `source='openf1'` `qualifying` `fetched_at` → ilk `source='jolpica'` yazımı, dakika olarak log'a. Beklenen OpenF1 gecikmesi ~30 dk (R18 yarışı 32,3 dk).
 
 ### [ ] 1.11 Geçici veri etiketi ve veri kaynağı atfı
 - Run: Antigravity (own model) — arayüz ve metin; Claude Code doğrular, commit eder
