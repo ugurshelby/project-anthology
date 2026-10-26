@@ -1,6 +1,6 @@
 # Yarış Hafta Sonu Canlı Doğrulama Rehberi
 
-Last verified: 2026-10-20 (R18 zaman çizelgesi, §2b QStash ölçümü: 4 zamanlama, ilk koşular SUCCESS; 3.A R17 sonucu 2026-10-11)
+Last verified: 2026-10-26 (R18 Session F sonuçları §4; §2b QStash 2026-10-20; 3.A R17 sonucu 2026-10-11)
 
 Bu doküman, **gerçek bir yarış hafta sonunda** yapılabilecek canlı doğrulamaları (master-plan 1.1, 1.3, 1.4, 6.1, 6.2, 6.3 ve medya) tek yerde toplar. Sahip yarış zamanı yeni bir oturum açıp "**yarış hafta sonu doğrulamasını başlat — `docs/reference/yaris-hafta-sonu-dogrulama.md`**" dediğinde ajan bu dokümanı okur ve sırayla uygular. Sonuçlar `logs/YYYY-MM-DD.md` içine, geçen maddeler `docs/plans/master-plan.md` içine işlenir (ölçülmeden kutu işaretlenmez).
 
@@ -182,11 +182,15 @@ Her madde: **ne**, **ne zaman**, **nasıl**, **geçme ölçütü**, **başarıs�
 
 | Madde | Ölçüt | Sonuç (R18 sütunu dahil) | Kanıt (komut, çıktı özeti) |
 |---|---|---|---|
-| 1.1 Canlı zamanlama | A | R17: ölçülemedi · R18: geçti / kaldı / ölçülmedi | R17 (2026-10-11): OpenF1 401 (kimliksiz canlı erişim kapalı); `logs/2026-10-11.md` §2, master-plan 1.7 · R18: |
-| 1.3 Senkron + settled + SWR | B | R17: — · R18: | |
-| 1.4 Push penceresi | C | R17: — · R18: | |
-| 6.1 JSON-LD | D (ajan) + sahip testleri | R17: — · R18: | |
-| 6.2 CWV | E | R17: — · R18: | |
-| 6.3 Sentry | F (sahip) | R17: — · R18: | |
+| 1.1 Canlı zamanlama | A | R17: ölçülemedi · R18 yarış: kilitli ölçüt GEÇTİ · R18 quali: canlı ölçülmedi | R17 (2026-10-11): OpenF1 401; `logs/2026-10-11.md` §2. R18 yarış (2026-10-25T20:12Z): OpenF1 401; `/api/live-timing` 200 `{live:true,restricted:true,rows:[]}`, `Cache-Control: public`, 502 yok; ana sayfada 60 sn aralıkla 200 (11. ve 71. sn) ve "kısıtlıdır" metni. `live:false`: 22:17Z'de hâlâ `live:true` (canlı pencere yarış başlangıcından 4 sa), 2026-10-26T00:55:49Z'de `{live:false,sessionName:"Race",rows:[]}` (`X-Vercel-Cache: HIT`). Quali gecesi (10-24/25): oturum çalışmadı, canlı ölçülmedi. `logs/2026-10-25.md`, `logs/2026-10-26.md` |
+| 1.3 Senkron + settled + SWR | B | R17: — · R18: quali tekrar yazmama GEÇTİ; results/pitstops/standings AÇIK | Quali (id 64481) `fetched_at` 22:30:03.716Z, sonraki 4 tikte (23:00–00:30Z) değişmedi. Results (id 64500) ve pitstops (id 64504) her tikte yeniden yazıldı (23:30:04Z → 00:30:07Z; 23:30:06Z → 00:30:09Z): kod due+24 sa (settled eşiği 22:30Z 10-26) dolana kadar yeniden çeker. Standings (id 231/232, `round` NULL) 00:30:06Z. Settle sonrası iki ardışık tik ölçülmedi. `logs/2026-10-26.md` |
+| 1.4 Push penceresi | C | R17: — · R18: GEÇTİ (quali geri kurulum, yarış canlı) | `notified_sessions` R18 quali 20:30:04.674Z, yarış 19:30:03.063Z (tek satır); iki pencerede de GitHub `schedule` koşusu yok, QStash tiki 200 (yarış 19:30:00Z, 2515 ms) ⇒ tetikleyen QStash; `push_subscriptions` 0. `logs/2026-10-25.md` |
+| 1.7 OpenF1 kilit ve geçici sonuç | A (kilitli) | R18 yarış: GEÇTİ · quali: canlı ölçülmedi | Yarış: OpenF1 401 (20:12Z–22:27Z), ilk 200 22:32:16Z; `results` satırı `source='openf1'` 22:30:09.8Z (22 satır), 23:30:04Z'de `jolpica` ile yerinde değişti; `provisional.status` dizisi logs_list'ten okunamadı. `logs/2026-10-26.md` |
+| 1.9 gözlemi: kilit açılma süresi | — | R18 yarış: 32,3 dk · quali: canlı ölçülmedi | `date_end` 22:00:00Z; son 401 22:27:16Z, ilk 200 22:32:16Z (27,3–32,3 dk); `session_result` 22 satır. `logs/2026-10-26.md` |
+| Jolpica gecikmesi (taban çizgisi) | — | R18 | Quali: ilk `jolpica` satırı 2026-10-25T20:00:06Z (bitişten ~22 sa; 11:00Z'de Jolpica `total: 0`); yarış sonucu: `results` 23:30:04Z, `pitstops` 23:30:06Z (bitişten 1 sa 30 dk). `logs/2026-10-25.md`, `logs/2026-10-26.md` |
+| QStash `sync-f1` hafta sonu (1.6 kapısı) | — | R18 | Yarış sonrası tikler 22:30, 23:00, 23:30, 00:00, 00:30Z DELIVERED 200; 3 günlük `qstash_get_stats`: `failed` 0, `dlq` 0, `error`/`retry` toplam 64 (hangi zamanlama bilinmiyor). `logs/2026-10-26.md` |
+| 6.1 JSON-LD | D (ajan) + sahip testleri | R17: — · R18: ölçülmedi | Session F kapsamı dışı |
+| 6.2 CWV | E | R17: — · R18: ölçülmedi | Session F kapsamı dışı |
+| 6.3 Sentry | F (sahip) | R17: — · R18: ölçülmedi | Session F kapsamı dışı |
 
 Doldurduktan sonra: `logs/YYYY-MM-DD.md` bölümü + `docs/plans/master-plan.md` (yalnız ölçülenler `[x]` → silinir) + gerekirse `apex-reference.md` ölçüm satırları. Bu rehberin kendisi, tüm maddeler kapandığında silinir (git geçmişi arşivdir).

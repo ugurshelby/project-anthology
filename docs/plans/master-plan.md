@@ -63,16 +63,13 @@
   4. §4 sonuç tablosuna R18 sütunu ekle; `Last verified: 2026-10-2x` satırını güncelle.
 - Doğrulama: `grep -n "R18" docs/reference/yaris-hafta-sonu-dogrulama.md` ≥ 4 satır; `grep -c "R17 için zaman çizelgesi"` = 0.
 
-### [~] 1.1, 1.3, 1.4, 1.7 Canlı hafta sonu ölçümleri (tek oturum)
-- Run: Sonnet / high — canlı yarış hata ayıklama, kenar durumları
-- Owner: Sonnet · Depends on: 1.0 · Dalga 2 (kod dondurma içinde; kod değişikliği yok, bulgular `OPEN.md`'ye `To: Opus`)
-- Dosyalar: `logs/2026-10-23.md`, `logs/2026-10-24.md`, `logs/2026-10-25.md`, `docs/reference/yaris-hafta-sonu-dogrulama.md` §4, bu dosyada Faz 1 kutuları
-- Adımlar (rehber §3):
-  - **1.1** Canlı zamanlama (§3.A): Quali 10-24 ve yarış 10-25 sırasında `/api/live-timing` yanıtı, `Cache-Control`, `X-Vercel-Cache`, tracker davranışı.
-  - **1.3** Snapshot/idempotency (§3.B, B0): yarış sonrası ilk `sync-f1` (QStash, ≤30 dk) yanıtında `provisional.status`, `f1_snapshots` satırları (read-only `supabase` MCP), ikinci koşuda `upserted` artmaz.
-  - **1.4** Push penceresi (§3.C) — Run: Sonnet / medium: Quali ve yarıştan ~30 dk önce `notified_sessions` kaydı (read-only SQL).
-  - **1.7** OpenF1 erişimi (abonelik yok, sahip kararı 2026-10-20): "kilitli" ölçütü — `200 {live:true, restricted:true}` + arayüz metni; yarış bitişinde `provisionalSync` sonucu. 1.9 bir pasif gözlem eklediyse onu da ölçer.
-- Doğrulama: her alt madde için log'da komut + sonuç; geçen alt madde silinir, kalan `[~]` ve neyin açık olduğu yazılır.
+### [~] 1.1, 1.3 Açık kalan R18 ölçümleri
+- Run: Sonnet / high — canlı veri doğruluğu, ölçüm yorumu
+- Owner: Sonnet · Depends on: 1.0 · R18 Session F bitti (2026-10-26); ölçülenler (1.4, 1.7, 1.9 gözlemi, 1.1 yarış, 1.3 quali) silindi, kanıt `logs/2026-10-25.md`, `logs/2026-10-26.md`, rehber §4
+- Açık:
+  - **1.1** Quali gecesi (10-24/25) oturum çalışmadığı için canlı `/api/live-timing`, ham OpenF1 401 ve quali kilit açılma dakikası ölçülmedi. Telafi seçeneği `OPEN.md`'de (R19 Meksika quali 2026-10-31 21:00Z), karar Opus'ta.
+  - **1.3** results/pitstops/standings için "ilk yazım sonrası ardışık iki tikte değişmedi" ölçütü sağlanmadı: satırlar due+24 sa dolana kadar her tikte yeniden yazılıyor (tasarım). Settle sonrası (results/pitstops 22:30Z 10-26, standings 23:00Z 10-26) iki ardışık tikte `f1_snapshots.fetched_at`/`source` ölçülecek ya da ölçüt `OPEN.md`'deki karara göre değişecek.
+- Not: 1.6 kapısı için QStash `sync-f1` yarış sonrası tikleri 200, 3 günlük istatistikte `failed` 0 / `dlq` 0; `error`/`retry` 64 atfedilmemiş (`OPEN.md`).
 
 ### [ ] 1.6 GitHub `schedule:` tetikleyicilerini kaldır
 - Run: Haiku / low — üç dosyada aynı blok silinir
