@@ -160,7 +160,7 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 | K5 | medya PASS; haber lisansı sahipte | 10-19 09:00Z → 10-26 09:00Z: `sync-media` 168/168, `sync-news` 168/168 DELIVERED (2 × 429 yeniden denemeyle teslim); 233 çözülmüş görselde lisans/yazar/kaynak/atıf eksik 0. Haber: 197/223 yayıncı görseli, lisans kaydı yok | 8.9 (sahip sorusu 2) |
 | K6 | FAIL | medya: en yeni sezon her koşuda keşfediliyor, testi yok; 10-07'den beri yeni varlık yok (ilk dolum 232/233 ≤ 24 sa, en çok 28,2 sa). Haber: akışında görsel olmayan kaynak hiç görsel almıyor (RaceFans 26/35) | 8.7, 8.9 |
 
-Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım logoları: AGENTS resmî takım logosunu yasaklıyor, canlıda 11 Commons logosu var → 8.11; (2) haber fotoğrafları: 197/223 yayıncı fotoğrafı lisans kaydı olmadan → 8.9 kapsamı; (3) Lusail, Madring, Las Vegas: 8.8 aday listesinden dosya ya da pist çizimi; (4) hikâye: 57 `unverified` → 16.6 erkene alınır mı.
+Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım logoları: cevaplandı 2026-10-27, resmî ve Commons logoları kalkar, 11 takım tek tasarım işareti → 8.11, 8.11b; (2) haber fotoğrafları: 197/223 yayıncı fotoğrafı lisans kaydı olmadan → 8.9 kapsamı; (3) Lusail, Madring, Las Vegas: 8.8 aday listesinden dosya ya da pist çizimi; (4) hikâye: 57 `unverified` → 16.6 erkene alınır mı.
 
 ### [ ] 8.1 Arşiv kimlik eşleşmesi (F1DB ↔ Jolpica)
 - Run: Sonnet / high — eşleşme kenar durumları, yanlış alias riski
@@ -239,12 +239,19 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: görseli olmayan öğede `fallbackMedia` varsa `MediaAssetView` (`initialResult={fallbackMedia.result}`) + görünür "Arşiv görseli / Archive image" etiketi + atıf (`MediaCredit`); yoksa bugünkü metin kartı. `ApexImage` yeni `fallback?: ReactNode`: yükleme hatasında `ApexFallback` yerine bunu çizer; haber bileşenleri `fallbackMedia` görünümünü ya da `null` geçer (haberde `ApexFallback` görünmez).
 - Doğrulama: Faz 20 doğrulaması; tarayıcı 375 ve 1440 px `/tr/news`, `/en/news`, bir RaceFans haber detayı: kırık 0, `ApexFallback` 0, RaceFans öğeleri arşiv görseli + atıf.
 
-### [ ] 8.11 Takım işareti (sahip sorusu 1)
+### [ ] 8.11 Takım işareti (sahip kararı 2026-10-27)
 - Run: Antigravity (own model) — tasarım; Claude Code doğrular, commit eder
-- Owner: Antigravity · Depends on: sahip cevabı "resmî logo yok"; 20.1 ve 20.6 ile aynı ajan, onlardan sonra · Dalga 5
+- Owner: Antigravity · Depends on: 20.1 ve 20.6 ile aynı ajan, onlardan sonra · Dalga 5
 - Dosyalar: `components/media/placeholders/TeamPlaceholder.tsx` (tüm takımlar için tasarım işaretine döner), `components/standings/GarageTeamPanel.tsx`, `components/history/TeamSeasonHero.tsx`, `app/[locale]/teams/[constructorId]/page.tsx`
-- Değişiklik: arayüzde `MediaAssetView type="team"` ve `getMedia('team', …)` kalmaz; 11 takım aynı özgün kelime işaretini (takım rengi; resmî logo taklidi yok) gösterir. `media_assets` takım satırları silinmez. Sahip "Commons logoları kalsın" derse adım düşer ve 4 takımın tipografik rozeti sahip kararıyla tasarlanmış yedek sayılır (K3 sayımından çıkar).
-- Doğrulama: `grep -rn 'type="team"' components app` boş; tarayıcı `/tr/grid` 375 ve 1440 px: 11 takım aynı işaret dili, takım logosu `img` 0.
+- Değişiklik: sahip kararı (2026-10-27, `DECISIONS.md`): resmî ve Commons takım logoları arayüzden kalkar. Arayüzde `MediaAssetView type="team"` ve `getMedia('team', …)` kalmaz; 11 takım aynı özgün kelime işaretini gösterir (takım rengi, `TeamPlaceholder` dili; resmî logo taklidi yok). İşaret yer tutucu değil tasarım öğesidir: `aria-label` "<takım> takım işareti" / "<team> team mark" (`messages`), "typography badge" değil. Takım satırları ve Storage dosyaları bu adımda değişmez (8.11b).
+- Doğrulama: `grep -rnE "type=\"team\"|getMedia(Batch)?\('team'" components app` boş; tarayıcı `/tr/grid`, `/tr/teams`, `/tr/teams/ferrari` 375 ve 1440 px: 11 takım aynı işaret dili, takım logosu `img` 0; K3 taramasında etiketler "takım işareti".
+
+### [ ] 8.11b Takım logosu temini ve sunumu durur
+- Run: Sonnet / medium — üç dosyada tür dışlama, bilinen davranış testleri
+- Owner: Sonnet · Depends on: 8.11 ve oturum T (8.1, 8.5; aynı `lib/media/*`) `main`'de · Dalga 5
+- Dosyalar: `lib/media/universe.ts`, `lib/media/sync.ts`, `lib/media/read.ts`, `tests/media-sync.test.ts`, `tests/media-read.test.ts`, `docs/reference/media-sistemi.md` (§1, §4, §7, §8)
+- Değişiklik: `discoverSeason` `team` varlığı üretmez (araç varlığı ve `teamAliases`'tan türeyen araç alias'ları aynen kalır); `runMediaSync` vadesi gelen `entity_type = 'team'` satırlarını işlemez (Wikimedia isteği yok); `getMediaBatch('team', …)` sorgu yapmadan her anahtar için `placeholderResult` döner (böylece `/api/media?type=team` da). `LOGO_OVERRIDES` ve logo kapıları kodda kalır (geri dönüş tek değişiklik). `media_assets` takım satırları ve Storage dosyaları silinmez; temizlik ayrı veri değişikliğidir, sahip onayı ister.
+- Doğrulama: test: `getMediaBatch('team', ['mercedes'])` Supabase istemcisini çağırmadan `placeholder`; bellek deposunda vadesi gelmiş takım satırı işlenmez; keşif `team` üretmez, `car` üretir. `npx vitest run tests/media-sync.test.ts tests/media-read.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0. Canlı: deploy sonrası `/api/media?type=team&keys=mercedes` → `"status":"placeholder"`; sonraki `sync-media` raporunda takım öğesi 0.
 
 ### [ ] 8.12 Lighthouse laboratuvar ölçümü (K2 süre)
 - Run: Sonnet / medium — elle tetiklenen yeni workflow ve ölçüm
@@ -666,8 +673,8 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | | | Antigravity (15.2'den sonra; aynı ajan) | **13.4** (13.3 `main`'de) | `components/circuit/*Telemetry*`, `SpeedProfile.tsx`, `CircuitElevationProfile.tsx`, pist sayfası, `messages/*.json` |
 | | | Haiku / low | **8.4** (8.2 ve 20.1 `main`'de) | `components/anthology/StoryCard.tsx`, `app/[locale]/anthology/page.tsx` |
 | | | Sonnet / high | **8.9** (14.5, 19.1 `main`'de; sahip sorusu 2) | `lib/news/fallbackImage.ts`, `lib/data/{types,news}.ts`, `lib/news/stories.ts`, 2 test |
-| | | Antigravity (20.x'ten sonra; aynı ajan) | **8.10** (8.9 `main`'de), **8.11** (sahip sorusu 1) | `components/news/{NewsList,NewsLeadBlock,NewsEditorialFeed}.tsx`, `app/[locale]/news/[id]/page.tsx`, `ApexImage.tsx` (`fallback`), `TeamPlaceholder.tsx`, `GarageTeamPanel.tsx`, `TeamSeasonHero.tsx`, takım sayfası, `messages/*.json` |
-| | | Sonnet / medium | **8.12** (8.2, 8.3, 8.5 `main`'de), en son **8.13** | `.github/workflows/lighthouse.yml`, günün log'u |
+| | | Antigravity (20.x'ten sonra; aynı ajan) | **8.10** (8.9 `main`'de), **8.11** (sahip kararı 2026-10-27) | `components/news/{NewsList,NewsLeadBlock,NewsEditorialFeed}.tsx`, `app/[locale]/news/[id]/page.tsx`, `ApexImage.tsx` (`fallback`), `TeamPlaceholder.tsx`, `GarageTeamPanel.tsx`, `TeamSeasonHero.tsx`, takım sayfası, `messages/*.json` |
+| | | Sonnet / medium | **8.11b** (8.11 ve T `main`'de), **8.12** (8.2, 8.3, 8.5 `main`'de), en son **8.13** | `lib/media/{universe,sync,read}.ts`, `tests/media-{sync,read}.test.ts`, `media-sistemi.md`, `.github/workflows/lighthouse.yml`, günün log'u |
 | **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
 
 Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; GCP kredisi 2026-12-18'de biter: 9.0 Dalga 3'te başladı, 9.7 kapanışı 2026-12-12 → 14 sabit tarihli; 9.3 Kasım başında hatırlatılır.

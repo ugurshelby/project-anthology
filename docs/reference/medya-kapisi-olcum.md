@@ -53,7 +53,7 @@ const K = async () => {
 await K()
 ```
 
-`pendingN` > 0 ise o görsellerin görünür olup olmadığına bakılır (gizli yuva, kapalı sekme); görünür ve yüklenmemişse kırık sayılır. Önbellek başlıkları: `curl -s -o /dev/null -D - <url> | grep -iE "^(cache-control|x-vercel-cache):"`.
+`ph` etiketi "takım işareti" / "team mark" ile biten öğeler tasarlanmış takım işaretidir (sahip kararı 2026-10-27, 8.11), yer tutucu sayılmaz. `pendingN` > 0 ise o görsellerin görünür olup olmadığına bakılır (gizli yuva, kapalı sekme); görünür ve yüklenmemişse kırık sayılır. Önbellek başlıkları: `curl -s -o /dev/null -D - <url> | grep -iE "^(cache-control|x-vercel-cache):"`.
 
 ## K4 Güvenli fallback
 
