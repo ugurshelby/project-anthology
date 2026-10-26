@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { CircuitCardView } from './CircuitCardView';
-import type { CircuitCard } from '@/lib/data/circuits';
+import type { CircuitCard, CircuitCounts } from '@/lib/data/circuits';
 import type { CircuitFacts } from '@/data/circuits/facts';
 import type { MediaResult } from '@/lib/media/read';
 
@@ -14,7 +14,7 @@ export interface CardWithFacts extends CircuitCard {
 export interface CircuitsDirectoryProps {
   cards: CardWithFacts[];
   mediaRecord: Record<string, MediaResult>;
-  totalCount: number;
+  counts: CircuitCounts;
 }
 
 type FilterState = 'all' | 'upcoming' | 'done';
@@ -28,14 +28,11 @@ type ViewMode = 'cards' | 'compact';
 export function CircuitsDirectory({
   cards,
   mediaRecord,
-  totalCount,
+  counts,
 }: CircuitsDirectoryProps) {
   const t = useTranslations('ui.circuit');
   const [filter, setFilter] = useState<FilterState>('all');
   const [view, setView] = useState<ViewMode>('cards');
-
-  const upcomingCount = useMemo(() => cards.filter((c) => !c.done).length, [cards]);
-  const doneCount = useMemo(() => cards.filter((c) => c.done).length, [cards]);
 
   const filteredCards = useMemo(() => {
     if (filter === 'upcoming') return cards.filter((c) => !c.done);
@@ -66,7 +63,7 @@ export function CircuitsDirectory({
           >
             <span>{t('filterAll')}</span>
             <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-text-low">
-              {totalCount}
+              {counts.all}
             </span>
           </button>
 
@@ -83,7 +80,7 @@ export function CircuitsDirectory({
           >
             <span>{t('filterUpcoming')}</span>
             <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-accent font-600">
-              {upcomingCount}
+              {counts.upcoming}
             </span>
           </button>
 
@@ -100,7 +97,7 @@ export function CircuitsDirectory({
           >
             <span>{t('filterDone')}</span>
             <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-text-low">
-              {doneCount}
+              {counts.done}
             </span>
           </button>
         </div>
@@ -108,7 +105,7 @@ export function CircuitsDirectory({
         {/* View Mode Switcher (Cards / List) */}
         <div className="flex items-center gap-3 self-end sm:self-auto">
           <span className="hidden lg:inline-block font-mono text-xs text-text-low">
-            {t('totalCalendar')}
+            {t('totalCalendar', { races: counts.all, countries: counts.countries })}
           </span>
           <div className="inline-flex items-center rounded-lg border border-white/[0.08] bg-surface/60 p-1">
             <button

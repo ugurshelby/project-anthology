@@ -31,6 +31,13 @@ export const F1_SEASON_MIN = 1950;
  */
 export const CURRENT_SEASON: number = new Date().getUTCFullYear();
 
+/** Last season with DRS; the 2026 regulations removed it (OpenF1 2026 `drs: null`, DECISIONS 13.1). */
+export const DRS_LAST_SEASON = 2025;
+
+export function seasonHasDrs(season: number): boolean {
+  return season <= DRS_LAST_SEASON;
+}
+
 /** Minimal shape of an Ergast/Jolpica race (only what temporal helpers need). */
 export interface CalendarCircuit {
   circuitId?: string;

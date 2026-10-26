@@ -7,7 +7,7 @@ import { Link } from '@/i18n/routing';
 import { Countdown } from '@/components/home/Countdown';
 import { CountryFlag } from '@/components/ui/CountryFlag';
 import { getCircuitFacts } from '@/data/circuits/facts';
-import { CURRENT_SEASON, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
+import { CURRENT_SEASON, raceStartMs, seasonHasDrs, type CalendarRace } from '@/lib/f1Calendar';
 import type { CircuitCard } from '@/lib/data/circuits';
 
 import type { MediaResult } from '@/lib/media/read';
@@ -46,7 +46,7 @@ export function NextCircuitHero({
   const stats = [
     facts?.lengthKm != null ? { label: t('length'), value: t('km', { value: facts.lengthKm }) } : null,
     facts?.corners != null ? { label: t('corners'), value: String(facts.corners) } : null,
-    facts?.drsZones != null ? { label: t('drs'), value: t('zones', { count: facts.drsZones }) } : null,
+    facts?.drsZones != null && seasonHasDrs(CURRENT_SEASON) ? { label: t('drs'), value: t('zones', { count: facts.drsZones }) } : null,
     facts?.lapRecord ? { label: t('lapRecordShort'), value: facts.lapRecord } : null,
   ].filter((s): s is { label: string; value: string } => s !== null);
 

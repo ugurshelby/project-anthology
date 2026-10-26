@@ -198,6 +198,20 @@ export function raceToCircuitCard(race: CalendarRace): CircuitCard | null {
   };
 }
 
+export interface CircuitCounts {
+  all: number;
+  upcoming: number;
+  done: number;
+  countries: number;
+}
+
+/** Tab and header counts over the whole calendar, the featured next race included. */
+export function circuitCounts(cards: Pick<CircuitCard, 'done' | 'country'>[]): CircuitCounts {
+  const done = cards.filter((c) => c.done).length;
+  const countries = new Set(cards.map((c) => c.country).filter((c) => c && c !== '—'));
+  return { all: cards.length, upcoming: cards.length - done, done, countries: countries.size };
+}
+
 export async function getCurrentSeasonCircuitCards(): Promise<CircuitCard[]> {
   const races = await getCurrentSeasonRaces();
   return races

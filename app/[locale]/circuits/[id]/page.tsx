@@ -5,6 +5,7 @@ import { countryName } from '@/lib/i18n/format';
 import { localizedAlternates } from '@/lib/seo';
 import { getCircuitDetail, getCurrentSeasonResults, getCircuitWeather } from '@/lib/data/circuits';
 import { getCircuitFacts } from '@/data/circuits/facts';
+import { CURRENT_SEASON, seasonHasDrs } from '@/lib/f1Calendar';
 import nextDynamic from 'next/dynamic';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
@@ -82,7 +83,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
     return Number.isFinite(n) ? n : null;
   };
   const lengthKm = num(facts?.lengthKm) ?? num(circuit.editorial.lapLengthKm);
-  const drsZones = num(facts?.drsZones) ?? num(circuit.editorial.drsZones);
+  const drsZones = seasonHasDrs(CURRENT_SEASON) ? (num(facts?.drsZones) ?? num(circuit.editorial.drsZones)) : null;
 
   // Plan Faz 13 (component rules §9). One home per figure: hero = place, date, status;
   // strip = lap and race numbers; map = outline + DRS; guide = character text.

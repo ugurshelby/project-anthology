@@ -409,7 +409,7 @@
       "viewGrid": "Kartlar",
       "viewCompact": "Liste",
       "cornersShort": "viraj",
-      "totalCalendar": "24 Grand Prix · 21 Ülke",
+      "totalCalendar": "{races} Grand Prix · {countries} Ülke",
       "metaTitle": "Pistler",
       "metaDescription": "Formula 1 takviminin pist haritaları. Her pist temiz bir vektör çizimi olarak; karakteri, tur rekoru ve hava durumuyla.",
       "metaOg": "{title} — F1 Pist Haritaları",

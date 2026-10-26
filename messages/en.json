@@ -409,7 +409,7 @@
       "viewGrid": "Cards",
       "viewCompact": "List",
       "cornersShort": "corners",
-      "totalCalendar": "24 Grands Prix · 21 Countries",
+      "totalCalendar": "{races} Grands Prix · {countries} Countries",
       "metaTitle": "Circuits",
       "metaDescription": "Track maps of the Formula 1 calendar. Every circuit as a clean vector layout, with its character, lap record and weather.",
       "metaOg": "{title} — F1 Track Maps",

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
+  circuitCounts,
   getCurrentSeasonCircuitCards,
   getCurrentSeasonRaces,
   nextCircuitIndex,
@@ -81,7 +82,7 @@ export default async function CircuitsPage({ params }: { params: Promise<{ local
       <CircuitsDirectory
         cards={gridCards}
         mediaRecord={mediaRecord}
-        totalCount={gridCards.length}
+        counts={circuitCounts(cards)}
       />
     </PageShell>
   );
