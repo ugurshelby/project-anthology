@@ -9,8 +9,6 @@ name: sync-news
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '7 * * * *' # hourly, off the :00 peak (UTC)
 
 jobs:
   sync:

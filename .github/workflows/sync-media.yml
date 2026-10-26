@@ -11,8 +11,6 @@ name: sync-media
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '17 * * * *' # hourly, off the :00 peak (UTC)
 
 jobs:
   sync:
