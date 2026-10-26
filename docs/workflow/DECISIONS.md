@@ -147,3 +147,10 @@ Architect appends; newest last. One entry per decision.
 - Decision 5 (OpenF1 unlock): 1.10 assumes about 30 min after `date_end` (race: last 401 27.3 min, first 200 32.3 min; provisional `results` row 30 min 10 s after `date_end`). 1.11 copy uses "about 30 minutes". Quali latency comes from decision 1.
 - Also: Dalga 2 is done; Dalga 3 sessions are copied into `PLAN.md`. 14.2 changes `node_modules`, so code sessions Q, R, S, I start when 14.2 is on `main`; O (8.0, measurement only) and the 9.0 console work may run alongside 14.2.
 - Affects: master-plan 1.1 (closed), 1.3, 1.6, 1.10; `PLAN.md` Session F, Dalga 3; `OPEN.md` (five entries removed).
+
+## 2026-10-26 Faz 9 update: Vertex first, existing project, credit end 12-18
+- Decision (owner): the news rewrite chain is Vertex AI (`VERTEX_API_KEY`, owner-generated, paid from the GCP credit) → Gemini free tier (`GEMINI_API_KEY`) → Groq. This closes 9.4 item 1; 9.2 implements it after 14.4 and 19.2 (same file). The account is at its project limit, so the owner chose the existing `the-curate` project instead of a new one.
+- Measured by 9.0 (`logs/2026-10-26.md`): trial credit ends 2026-12-18 (not 12-16), TRY 12,553 left; account currency TRY (Google rate about 48.14 TRY/$), so budgets are TRY 7,220 (credit) and TRY 481/month; two Developer Program credits (about TRY 970) valid to 2027; Supabase region `eu-west-1`, GCP candidate `europe-west1`.
+- Guard: a paid key is live in the owner's hands before any quota exists, so 9.2 may not go live until 9.0 items 3–4 (budgets and a Vertex request quota) are set in the key's project. 9.0 also reads which project holds `GEMINI_API_KEY` and whether that project has billing; if it does, that key is not free tier and the "last link is free" rule breaks → `OPEN.md` `To: Opus`.
+- Dates: 9.3 and the VM deletion by 2026-12-14, 9.7 close-out 2026-12-12 → 14, first post-credit billing week after 2026-12-19.
+- Affects: master-plan Faz 9 header, 9.0, 9.4, 9.2, 9.5, 9.3, 9.7, wave note and Dalga 5 row.
