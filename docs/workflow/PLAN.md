@@ -118,7 +118,7 @@ Goal: K1–K6 measured against live; every FAIL becomes an exact 8.x step.
 Run (phase): Opus / xhigh — gate design and multi-layer plan. Architect: measures, no source edits.
 Out of scope: implementation; Faz 18–20 items (already planned).
 Steps:
-- [ ] 8.0 — master-plan "8.0" (input line: `logs/2026-10-23.md`). First step.
+- [x] 8.0 — master-plan "8.0" (input line: `logs/2026-10-23.md`). First step. Done 2026-10-26: K1, K2 (structure), K3, K4, K6 FAIL, K5 media PASS / news licence with the owner; `DECISIONS.md` "8.0"; master-plan 8.1–8.5, 8.7–8.13; Sessions T and U in Dalga 4 below; four owner questions in the report.
 Acceptance: each K with command and number in the day's log; each FAIL has at least one 8.x step with `Run:`; files of new steps listed for Dalga 4.
 Stop conditions: a K needs a licence or asset decision → "Sahibe sorular" in the report.
 
@@ -177,6 +177,30 @@ Stop conditions: any other line in the four files would change → stop.
 ---
 
 ## Dalga 4 (prepared early by 13.1; starts when 14.2 is on `main`)
+
+### Session T — Media pipeline: archive ids, driver resolution, new-entity test, circuit candidates
+Goal: archive pages find their images by F1DB id; driver photos get a 1280 px variant; new entities are test-covered; the owner gets a candidate list for the three circuits without a free photo.
+Run (phase): Sonnet / high — media pipeline writes, matching edge cases (8.7 and 8.8 at `/effort medium`).
+Depends on: 14.2 on `main`.
+Out of scope: `components/`, `lib/media/read.ts`, `app/api/media/route.ts` (J, 14.3), migrations, env, `package.json`.
+Steps:
+- [ ] 8.1 — master-plan "8.1". First step.
+- [ ] 8.5 — master-plan "8.5".
+- [ ] 8.7 — master-plan "8.7" (`/effort medium`).
+- [ ] 8.8 — master-plan "8.8" (`/effort medium`): (a) report; (b) only after the owner picks.
+Acceptance: each step's verify passes; one commit per step; `wip/` CI and Vercel preview green before `main`; after deploy, the 8.1 `/api/media` checks and the 8.5 width count are in the day's log.
+Stop conditions: the 8.1 subset rule maps a current driver to more than one F1DB id, or `needsLargerVariants` would requeue more than 120 rows → `OPEN.md` `To: Opus`. A Storage upload 4xx during the live check → `OPEN.md` `To: Opus`, no retry loop.
+
+### Session U — Image delivery: srcset and LCP priority
+Goal: media images ship a srcset; LCP images carry `fetchpriority=high` and are never lazy; image load errors are tested.
+Run (phase): Sonnet / medium — two shared components and three call sites.
+Depends on: 14.2 on `main` (Next 16.4).
+Out of scope: `components/home/*`, `components/circuit/*`, `components/anthology/*`, `components/standings/*` (Antigravity 20.x, R), `lib/media/*` (T), `messages/*.json`.
+Steps:
+- [ ] 8.2 — master-plan "8.2". First step.
+- [ ] 8.3 — master-plan "8.3".
+Acceptance: verifies pass; browser checks at 375 and 1440 px logged (LCP `img` attributes, `currentSrc`); `wip/` CI and preview green before `main`.
+Stop conditions: `next/image` rejects `loader` together with `fetchPriority`/`loading`, or 16.4 renders no srcset for a custom loader → `OPEN.md` `To: Opus`.
 
 ### Session M — Track telemetry data layer
 Goal: one measured, sourced reference lap per current-calendar circuit as static JSON, with a reader and tests that reject invented values.

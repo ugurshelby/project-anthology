@@ -149,13 +149,115 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 | K5 Güvenli otomatik güncelleme | `sync-media` ve `sync-news` 7 gün kesintisiz SUCCESS; otomatik eklenen her görselin lisans kaydı var | QStash günlükleri + SQL |
 | K6 Yeni kaynak | Yeni varlık (pilot/takım/sezon) veya yeni RSS kaynağı ≤ 24 saatte görselini alır | fixture'lı test + bir canlı gözlem |
 
-### [ ] 8.0 Kapı denetimi: K1–K6 ölç, eksikleri adımlara çevir
-- Run: Opus / xhigh — ölçüt tasarımı ve çok katmanlı plan
-- Owner: Opus (Architect; ölçer, kod yazmaz) · Depends on: — · Dalga 3
-- Yapar: K1–K6'yı canlıya karşı ölçer (read-only `supabase` MCP, Upstash günlükleri, tarayıcı paneli, Lighthouse); her geçmeyen ölçüt için bu fazda 8.1… adımları tam tarifle yazar (dosya, değişiklik, doğrulama, `Run:`); geçenleri ölçümüyle log'a yazar.
-- Girdi: `logs/2026-10-23.md` canlı inceleme (görselsiz 12/155 haber; grid'de 4 takım yer tutucu; ana sayfa hero görseli 958 px doğal genişlikte, sürücü hero 640 px → 893 px, antolojide 3 büyütülmüş görsel; Norris portre kırpması).
-- Dosyalar: bu dosyada Faz 8, `DECISIONS.md`, `logs/<gün>.md`.
-- Doğrulama: K1–K6'nın her biri için ölçüm komutu ve sayı log'da; her FAIL için en az bir adım var.
+### Kapı ölçümü 2026-10-26 (8.0 bitti; ayrıntı `logs/2026-10-26.md`, yöntem `docs/reference/medya-kapisi-olcum.md`, kararlar `DECISIONS.md` 2026-10-26 "8.0")
+
+| Kod | Sonuç | Ölçülen | Adım |
+|---|---|---|---|
+| K1 | FAIL | 2026: pilot 23/23, araç 11/11, pist 19/22 (`losail`, `madring`, `vegas` yok), takım logosu 7/11 (`ferrari`, `rb`, `cadillac` yok; `mclaren` sahip kararıyla gizli). 2018–2026 arşiv: 6 F1DB kimliği hiçbir satıra eşlenmiyor (`carlos-sainz-jr`, `kimi-antonelli`, `kick-sauber` + `kick-sauber:2024/2025`, `melbourne`, `paul-ricard`, `sirius`); görselleri var. Haber: 223'te 26 görselsiz, hepsi RaceFans (akışta görsel etiketi 0). Hikâye: 59 kaydın 57'si `unverified` | 8.1, 8.8, 8.11, 8.9, 8.10; hikâye 16.6 |
+| K2 | FAIL (yapı); süre ölçülmedi | LCP 16 sayfanın 8'inde görsel: `fetchpriority=high` 0/8 (`priority` Next 16'da yalnızca preload bağlantısı üretiyor), `loading=lazy` LCP 2 (`/tr/anthology`, `/tr/machinery`). `MediaAssetView` srcset üretmiyor (pist/araç her ekranda 1600 px). Pilot hero dosyası 320–640 px; gereken 1163 (375 px @2x), 1413 (1440 px @1,25); Norris 320×441 dosya 1131×794 css. CLS en çok 0,019. Lighthouse yok (PSI 429) | 8.2, 8.3, 8.4, 8.5, 8.12 |
+| K3 | FAIL | kırık görsel 0/16 sayfa; yer tutucu: `/tr/grid`, `/tr/drivers`, `/tr/teams` 4'er takım rozeti, `/tr/circuits` 3 pist çizimi | 8.8, 8.11 |
+| K4 | FAIL | çözümleyici kademeleri testli; çalışma anı yükleme hatası testi 0 (`MediaAssetView`, `ApexImage`); haber görseli ilk yoklamadan sonra hiç yoklanmıyor, yükleme hatasında `ApexFallback` | 8.2, 8.9, 8.10 |
+| K5 | medya PASS; haber lisansı sahipte | 10-19 09:00Z → 10-26 09:00Z: `sync-media` 168/168, `sync-news` 168/168 DELIVERED (2 × 429 yeniden denemeyle teslim); 233 çözülmüş görselde lisans/yazar/kaynak/atıf eksik 0. Haber: 197/223 yayıncı görseli, lisans kaydı yok | 8.9 (sahip sorusu 2) |
+| K6 | FAIL | medya: en yeni sezon her koşuda keşfediliyor, testi yok; 10-07'den beri yeni varlık yok (ilk dolum 232/233 ≤ 24 sa, en çok 28,2 sa). Haber: akışında görsel olmayan kaynak hiç görsel almıyor (RaceFans 26/35) | 8.7, 8.9 |
+
+Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım logoları: AGENTS resmî takım logosunu yasaklıyor, canlıda 11 Commons logosu var → 8.11; (2) haber fotoğrafları: 197/223 yayıncı fotoğrafı lisans kaydı olmadan → 8.9 kapsamı; (3) Lusail, Madring, Las Vegas: 8.8 aday listesinden dosya ya da pist çizimi; (4) hikâye: 57 `unverified` → 16.6 erkene alınır mı.
+
+### [ ] 8.1 Arşiv kimlik eşleşmesi (F1DB ↔ Jolpica)
+- Run: Sonnet / high — eşleşme kenar durumları, yanlış alias riski
+- Owner: Sonnet · Depends on: 14.2 `main`'de · Dalga 4 (oturum T, ilk adım)
+- Dosyalar: `lib/media/aliases.ts`, `data/media/curated.ts`, `lib/media/universe.ts`, `lib/media/sync.ts`, `tests/media-aliases.test.ts`, `tests/media-sync.test.ts`
+- Değişiklik:
+  1. `driverAliases`: ad karşılaştırmasından önce kuşak ekleri atılır (`jr`, `sr`, `ii`, `iii`: "Carlos Sainz Jr." = "Carlos Sainz"). Tam ad tutmazsa: F1DB adı en az 2 sözcük, bütün sözcükleri Jolpica adında geçiyor ve son sözcükler aynıysa eşleşir ("Kimi Antonelli" ⊂ "Andrea Kimi Antonelli"); bu kural birden çok F1DB kimliği verirse hiçbiri eklenmez.
+  2. `data/media/curated.ts`: yeni `export const TEAM_ALIASES: Record<string, string[]> = { sauber: ['kick-sauber'] }`; `CIRCUIT_ALIASES`'a `albert_park: ['melbourne']`, `ricard: ['paul-ricard']`, `sochi: ['sirius']`. `teamAliases(key, displayName, wikipediaTitle, curated: string[] = [])`; `universe.ts` `TEAM_ALIASES[key]` geçirir (araç alias'ları buradan türer).
+  3. `lib/media/sync.ts`: `export const DISCOVERY_VERSION = 2`; `discovered_seasons` durumu `{ seasons: number[]; version?: number }`; kayıtlı `version` farklıysa `done` boş sayılır (eski sezonlar koşu başına 2'şer yeniden keşfedilir, alias'ları yenilenir), sürüm yazılır. Yeni sütun, migration, env yok.
+- Doğrulama: test: "Carlos Sainz" → `carlos-sainz-jr`; "Andrea Kimi Antonelli" → `kimi-antonelli`; "Max Verstappen" `jos-verstappen` vermez; "Mick Schumacher" `michael-schumacher` vermez; `teamAliases('sauber', 'Sauber', null, TEAM_ALIASES.sauber)` `kick-sauber` içerir; sürüm değişince eski sezonlar yeniden keşfedilir, aynı sürümde keşfedilmez. `npx vitest run tests/media-aliases.test.ts tests/media-sync.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint <değişenler>` 0. Canlı (deploy + ≥ 5 `sync-media` koşusu): `/api/media?type=driver&keys=carlos-sainz-jr,kimi-antonelli`, `type=team&keys=kick-sauber`, `type=car&keys=kick-sauber:2024,kick-sauber:2025`, `type=circuit&keys=melbourne,paul-ricard,sirius` → her anahtar `"status":"image"`; K1 evren farkı sorgusu (`medya-kapisi-olcum.md`) yalnızca `hit` dolu (kaynak boşluğu) satır döndürür.
+
+### [ ] 8.2 `MediaAssetView` ve `ApexImage`: srcset, LCP önceliği, hata testleri
+- Run: Sonnet / medium — iki paylaşılan bileşen, bilinen davranış testleri
+- Owner: Sonnet · Depends on: 14.2 `main`'de (Next 16.4) · Dalga 4 (oturum U, ilk adım)
+- Dosyalar: yeni `components/media/variantLoader.ts`, `components/media/ApexImage.tsx`, `components/media/MediaAssetView.tsx`, `tests/media-components.test.ts`
+- Değişiklik:
+  1. `variantLoader` `ApexImage.tsx`'ten taşınır: `export function variantLoader(variants: ReadonlyArray<{ w: number; src: string }>): ImageLoader` (davranış aynı).
+  2. `MediaAssetView`: `image.variants.length > 1` ise `loader={variantLoader(image.variants)}`, `unoptimized` yok; `sizes` prop'u verilmemişse `'100vw'` (üst sınır; dar yuvalar kendi `sizes`'ını verir). Tek varyantta bugünkü gibi `unoptimized`.
+  3. `priority` iki bileşende de `next/image`'a geçirilmez (Next 16'da kullanımdan kalktı): `priority` → `fetchPriority="high"` + `loading="eager"`; değilse `loading="lazy"` (`ApexImage`'da çağıranın açık `loading`'i korunur). Çağrı yerleri `priority` vermeye devam eder.
+- Doğrulama: test: 3 varyantlı sonuçta `img` `srcset`'i en az 2 farklı varyant URL'si içerir; `priority` → `fetchpriority="high"` ve `loading="eager"`, yokken `loading="lazy"`; `img` `error` olayı → `MediaAssetView` tür yer tutucusunu çizer ve yeni `img` açmaz, `ApexImage` `ApexFallback` çizer (K4). `npx vitest run tests/media-components.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint components/media` 0. Tarayıcı (`wip/` preview, 375 px): `/tr` ve `/tr/circuits/monza` LCP `img` `fetchpriority=high`; Monza `currentSrc` `960.webp` (bugün `1600.webp`).
+
+### [ ] 8.3 Pilot hero ve Araçlar ilk kartı
+- Run: Sonnet / medium — üç çağrı yeri
+- Owner: Sonnet · Depends on: 8.2 · Dalga 4 (oturum U)
+- Dosyalar: `components/profile/DriverProfileHero.tsx`, `components/machinery/MachineryCard.tsx`, `app/[locale]/machinery/page.tsx`
+- Değişiklik: `DriverProfileHero` medya dalı: `next/image` `loader={variantLoader(mediaResult.image.variants)}` (varyant > 1 ise, `unoptimized` yalnızca tek varyantta), `priority` yerine `fetchPriority="high"` + `loading="eager"`, `sizes="(max-width: 768px) 155vw, 80vw"` (ölçülen kutu: 375 px'te 582 css, ölçek 1,55; 1440 px'te 1131 css). `ApexImage` dalı değişmez (8.2 kapsar). `MachineryCard` `priority?: boolean` alır, `MachineryVisual`'a geçirir; `machinery/page.tsx` ilk karta (`index === 0`) `priority` verir.
+- Doğrulama: `npx tsc --noEmit` 0; `npx eslint <3 dosya>` 0; `npx vitest related --run <3 dosya>` yeşil. Tarayıcı 375 ve 1440 px: `/tr/drivers/alonso`, `/tr/drivers/norris` LCP `img` `fetchpriority=high`, `currentSrc` satırın en büyük varyantı; `/tr/machinery` LCP `img` `loading` ≠ `lazy`.
+
+### [ ] 8.4 Antoloji ilk kartı
+- Run: Haiku / low — tam tarifli iki prop
+- Owner: Haiku · Depends on: 8.2 ve 20.1 `main`'de (aynı klasör) · Dalga 5
+- Dosyalar: `components/anthology/StoryCard.tsx`, `app/[locale]/anthology/page.tsx`
+- Değişiklik: `StoryCard` `priority?: boolean` alır, `ApexImage`'a `priority={priority}` geçirir; dar kart `sizes` `'(max-width: 768px) 100vw, 33vw'` → `'(max-width: 768px) 100vw, 45vw'` (ölçülen: 1440 px'te 635 css). Sayfa: `<StoryCard story={lead} wide priority />`.
+- Doğrulama: `npx tsc --noEmit` 0; `npx eslint` 2 dosya 0; tarayıcı `/tr/anthology` 375 px LCP `img` `loading` ≠ `lazy`, `fetchpriority=high`.
+
+### [ ] 8.5 Pilot görseli 1280 px ve ara genişlik
+- Run: Sonnet / high — medya hattı, Storage yazımı, yeniden işleme
+- Owner: Sonnet · Depends on: 8.1 (aynı `sync.ts`) · Dalga 4 (oturum T)
+- Dosyalar: `lib/media/process.ts`, `lib/media/score.ts`, `lib/media/sync.ts`, `lib/media/repo.ts`, `tests/media-process.test.ts`, `tests/media-sync.test.ts`, `docs/reference/media-sistemi.md` (§11, §14)
+- Değişiklik:
+  1. `VARIANT_WIDTHS.driver = [160, 320, 640, 1280]`; `THUMB_WIDTH.driver = 1400`.
+  2. `processImage`: kaynak, sığan en büyük basamaktan en az %15 genişse kaynak genişliği de son varyant olur (500 px → 160, 320, 500; büyütme yok). Tüm türlere uygulanır.
+  3. `sync.ts` "unchanged" dalı: aynı dosya seçilse de `needsLargerVariants(row.variants, best.file.width, entity.type)` ise yeniden indirilir ve işlenir. `export function needsLargerVariants(stored: Array<{ w: number }>, sourceWidth: number, type: MediaEntityType): boolean` = kayıtlı en büyük `w` < `min(sourceWidth, THUMB_WIDTH[type], max(VARIANT_WIDTHS[type])) × 0,95`.
+  4. Tek seferlik kuyruk: `media_sync_state` anahtarı `variant_ladder` = `{ [type]: number[] }`; kayıtlı merdiveni koddakinden farklı türün `status = 'resolved' and review = 'auto'` satırları `next_check_at = now` olur (yeni `requeueResolved(type: MediaEntityType, nowIso: string): Promise<number>`, iki depoda da), sonra merdiven yazılır; sayı raporun `requeued`'una eklenir. Bugün `approved` satır 0 (ölçüldü).
+- Doğrulama: test: 2000 px → 160/320/640/1280; 500 px → 160/320/500; 700 px → 160/320/640; aynı dosya + kayıtlı 640 + kaynak 1400 → yeniden işlenir; aynı dosya + kayıtlı 1280 → `unchanged`; merdiven değişince yalnızca o türün `auto` çözülmüş satırları kuyruğa girer, ikinci koşuda girmez. `npx vitest run tests/media-process.test.ts tests/media-sync.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0; `wip/` build yeşil. Canlı (deploy + 3 `sync-media`): `select width, count(*) from media_assets where entity_type='driver' and status='resolved' group by 1` log'a (bugün 640: 55, 320: 5); `sync-media` teslimleri 200.
+
+### [ ] 8.7 Yeni varlık testi ve canlı gözlem (K6 medya)
+- Run: Sonnet / medium — bilinen davranış testi
+- Owner: Sonnet · Depends on: 8.5 (aynı test dosyası) · Dalga 4 (oturum T)
+- Dosyalar: `tests/media-sync.test.ts`
+- Değişiklik: bellek deposu + sahte Jolpica: en yeni sezona sonradan eklenen pilot sonraki `runMediaSync` koşusunda `pending` eklenir ve aynı koşuda `resolved` olur; keşfedilmiş eski sezona eklenen pilot aynı `DISCOVERY_VERSION`'da keşfedilmez (bilinçli sınır, testte belgelenir).
+- Doğrulama: `npx vitest run tests/media-sync.test.ts` yeşil. Canlı gözlem (tetik: 2026-10-26'dan sonra ilk yeni `media_assets` satırı): K6 sorgusu (`medya-kapisi-olcum.md`) → `resolved_at - created_at` ≤ 24 sa ya da `missing` + `last_error`; log'a.
+
+### [ ] 8.8 Serbest fotoğrafı olmayan güncel pistler
+- Run: Sonnet / medium — kuru çalıştırma raporu; seçim sahibin
+- Owner: Sonnet → owner → Sonnet · Depends on: 8.1 (aynı `curated.ts`, `universe.ts`), (b) için sahip sorusu 3 · Dalga 4 (oturum T, son adım; seçim gelmezse (a)'da durur)
+- Dosyalar: (a) yok, rapor log'a; (b) `data/media/curated.ts`, `lib/media/universe.ts`, `lib/media/sync.ts`, `tests/media-resolve-stages.test.ts`
+- Değişiklik: (a) `npx tsx scripts/media-sync.ts --seasons 2026-2026 --only circuit:losail,circuit:madring,circuit:vegas --out <scratch> --report <scratch>/rapor.json` (env okumaz, DB'ye yazmaz). Her pist için eşik altı en iyi 3 aday: dosya, Commons sayfası, lisans, puan, red nedeni → log. (b) Sahip pist başına bir dosya ya da "pist çizimi kalsın" der. Seçilenler yeni `export const CIRCUIT_FILES: Record<string, string[]>` ile `universe.ts` `discoverSeason` pist varlığının `extra.curatedFiles`'ına girer (lisans ve konu kapıları yine uygulanır); `RESOLVER_VERSION` 2 → 3 `missing` satırları bir kez yeniden dener.
+- Doğrulama: (b) test: `curatedFiles` verilen takvim pisti önce curated aşamasını dener; `npx vitest run tests/media-resolve-stages.test.ts` yeşil; deploy + bir `sync-media` sonra seçilen pistler `status = 'resolved'`, `source_file` seçilen dosya; `/tr/circuits` yer tutucu sayısı = "çizim kalsın" denen pist sayısı.
+
+### [ ] 8.9 Haber: lisanslı yedek görsel ve yeniden yoklama (sunucu)
+- Run: Sonnet / high — haber hattı, okuma katmanı, kenar durumlar
+- Owner: Sonnet · Depends on: 14.5 (`lib/data/news.ts`, `tests/news-stories.test.ts`) ve 19.1 `main`'de; kapsam için sahip sorusu 2 · Dalga 5
+- Dosyalar: yeni `lib/news/fallbackImage.ts`, `lib/data/types.ts`, `lib/data/news.ts`, `lib/news/stories.ts`, yeni `tests/news-fallback-image.test.ts`, `tests/news-stories.test.ts`
+- Değişiklik:
+  1. `lib/news/fallbackImage.ts` (saf): `export interface NewsEntity { type: 'driver' | 'team' | 'circuit'; key: string; names: string[] }`; `export function pickNewsEntity(title: string, summary: string, entities: NewsEntity[]): { type: NewsEntity['type']; key: string } | null` — başlıkta en erken geçen ad (sözcük sınırı; harf ve aksan katlanmış), yoksa özette; aynı konumda pilot > takım > pist. Adlar sabit liste değil: güncel sezon pilotları (soyadı, tam ad), takımlar (ad), takvim pistleri (`Location.locality`, `raceName`) `lib/data/f1.ts` snapshot okuyucularından.
+  2. `lib/data/news.ts`: `hasRealImage` olmayan öğede eşleşen varlık için `getMediaBatch` (tür başına tek sorgu) sonucu `status === 'image'` ise `fallbackMedia` eklenir. Sahip "yayıncı fotoğrafı kalmasın" derse aynı kural tüm öğelere uygulanır ve `image` boş geçilir (tek koşul).
+  3. `lib/news/stories.ts`: son 48 saatte yayımlanmış ve `image_url`'i dolu hikâyeler her koşuda yeniden yoklanır (`probeImage`, `IMAGE_CONCURRENCY`, koşu başına en çok 60); erişilemiyorsa `bestImage(members)`, o da yoksa `null`.
+- İmza: `NewsItem.fallbackMedia?: { type: 'driver' | 'team' | 'circuit'; key: string; result: MediaResult }`.
+- Doğrulama: test: "Verstappen eyes…" → `driver`; "Ferrari confirms…" → `team`; "Mexico City GP preview" → takvimdeki pist; eşleşme yok → `null`; aynı başlıkta iki ad → önce geçen; görsel etiketi olmayan yeni kaynak fixture'ı → `fallbackMedia` dolu (K6 haber); depolanmış URL 404 → üye görseli ya da `null` (K4). `npx vitest run tests/news-fallback-image.test.ts tests/news-stories.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0; `wip/` build yeşil.
+
+### [ ] 8.10 Haber: yedek görselin çizimi
+- Run: Antigravity (own model) — haber kartı görünümü ve metni; Claude Code doğrular, commit eder
+- Owner: Antigravity · Depends on: 8.9, 8.2, 19.3 ve 20.x `main`'de · Dalga 5
+- Dosyalar: `components/news/NewsList.tsx`, `components/news/NewsLeadBlock.tsx`, `components/news/NewsEditorialFeed.tsx`, `app/[locale]/news/[id]/page.tsx`, `components/media/ApexImage.tsx` (yalnızca `fallback` prop'u), `messages/en.json`, `messages/tr.json`
+- Değişiklik: görseli olmayan öğede `fallbackMedia` varsa `MediaAssetView` (`initialResult={fallbackMedia.result}`) + görünür "Arşiv görseli / Archive image" etiketi + atıf (`MediaCredit`); yoksa bugünkü metin kartı. `ApexImage` yeni `fallback?: ReactNode`: yükleme hatasında `ApexFallback` yerine bunu çizer; haber bileşenleri `fallbackMedia` görünümünü ya da `null` geçer (haberde `ApexFallback` görünmez).
+- Doğrulama: Faz 20 doğrulaması; tarayıcı 375 ve 1440 px `/tr/news`, `/en/news`, bir RaceFans haber detayı: kırık 0, `ApexFallback` 0, RaceFans öğeleri arşiv görseli + atıf.
+
+### [ ] 8.11 Takım işareti (sahip sorusu 1)
+- Run: Antigravity (own model) — tasarım; Claude Code doğrular, commit eder
+- Owner: Antigravity · Depends on: sahip cevabı "resmî logo yok"; 20.1 ve 20.6 ile aynı ajan, onlardan sonra · Dalga 5
+- Dosyalar: `components/media/placeholders/TeamPlaceholder.tsx` (tüm takımlar için tasarım işaretine döner), `components/standings/GarageTeamPanel.tsx`, `components/history/TeamSeasonHero.tsx`, `app/[locale]/teams/[constructorId]/page.tsx`
+- Değişiklik: arayüzde `MediaAssetView type="team"` ve `getMedia('team', …)` kalmaz; 11 takım aynı özgün kelime işaretini (takım rengi; resmî logo taklidi yok) gösterir. `media_assets` takım satırları silinmez. Sahip "Commons logoları kalsın" derse adım düşer ve 4 takımın tipografik rozeti sahip kararıyla tasarlanmış yedek sayılır (K3 sayımından çıkar).
+- Doğrulama: `grep -rn 'type="team"' components app` boş; tarayıcı `/tr/grid` 375 ve 1440 px: 11 takım aynı işaret dili, takım logosu `img` 0.
+
+### [ ] 8.12 Lighthouse laboratuvar ölçümü (K2 süre)
+- Run: Sonnet / medium — elle tetiklenen yeni workflow ve ölçüm
+- Owner: Sonnet · Depends on: 8.2, 8.3, 8.5 `main`'de; H (14.2) ve I (1.6) workflow dosyalarına dokunmaz · Dalga 5
+- Dosyalar: yeni `.github/workflows/lighthouse.yml`
+- Değişiklik: yalnızca `workflow_dispatch`; `actions/setup-node` (Node sürümü `ci.yml` ile aynı), `npx --yes @lhci/cli@<tam sürüm, ≥ 2 hafta eski> collect` (LHCI varsayılanı: mobil öykünme, simüle yavaşlatma) `--numberOfRuns=3`, URL'ler `${{ vars.SITE_URL }}` + `scripts/capture-screenshots.ts` `PAGES` yolları (host dosyada yok), `upload --target=filesystem`, `actions/upload-artifact` (`ci.yml`'deki sürüm). Gizli değer yok, zamanlama yok.
+- Doğrulama: `gh workflow run lighthouse.yml` başarılı; `gh run download <id>` + `jq`: her yol için medyan LCP, CLS, LCP öğesi ve LCP keşif denetimi (`lcp-discovery-insight`; sürümde yoksa `prioritize-lcp-image` + `lcp-lazy-loaded`) log'a tablo. K2 eşiği: LCP < 2,5 s, CLS < 0,1, keşif denetimi geçer.
+
+### [ ] 8.13 Kapı yeniden ölçümü
+- Run: Sonnet / medium — tarifli read-only ölçüm; PASS kararı Opus / medium (Architect)
+- Owner: Sonnet → Opus · Depends on: 8.1–8.12 (sahip cevabıyla düşenler hariç) `main`'de; 8.5'ten sonra ≥ 7 gün QStash · Dalga 5 sonu
+- Dosyalar: günün log'u; Opus: bu dosyada Faz 8, `DECISIONS.md`, `docs/reference/medya-kapisi-olcum.md` (PASS'te silinir)
+- Yapar: 8.0 yöntemini aynen tekrarlar (`medya-kapisi-olcum.md`; K2 süresi 8.12 workflow'undan). Hepsi PASS → Opus 8.6'yı rafdan indirir ve bu fazı kapatır.
 
 ### [⏸] 8.6 Eski sezonlar (1950–2017) medya genişletmesi
 - Run: plan Opus / high; uygulama Sonnet / medium
@@ -523,7 +625,7 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Doğrulama: aynı iframe ölçümü (`logs/2026-10-23.md` yöntemi) 11 px altı metin 0, < 24 px hedef 0; üç öğede WCAG AA kontrast (4.5:1) ölçülür.
 
 ### [ ] 20.6 Grid takım kartı
-- Araç görseli gri şeritli küçük kutuda (letterbox) → kartı dolduran kırpma (`object-cover`, odak araç); logo yerindeki boş daireler → kaldırılır ya da takım rengi işareti (resmî logo yok). Görseli olmayan takımlar (bugün Ferrari, McLaren, RB, Cadillac yer tutucu) 8.0'ın medya adımlarına girer, burada değil.
+- Araç görseli gri şeritli küçük kutuda (letterbox) → kartı dolduran kırpma (`object-cover`, odak araç); logo yerindeki boş daireler → kaldırılır ya da takım rengi işareti (resmî logo yok). Görseli olmayan takımlar (bugün Ferrari, McLaren, RB, Cadillac yer tutucu) 8.11'e girer (sahip sorusu 1), burada değil. 8.2 `main`'deyse araç `MediaAssetView`'ına yuvanın gerçek genişliğiyle `sizes` verilir (ölçülen: bugün her ekranda `1600.webp`).
 
 ---
 
@@ -545,7 +647,7 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | | | Claude in Chrome + owner | **9.0** | GCP konsolu (repo dosyası yok), günün log'u |
 | | | Opus / xhigh (Architect) | **9.4** (9.0'dan sonra) | bu dosyada Faz 9, `DECISIONS.md` |
 | | | I: Haiku / low | **1.6** | 4 workflow `.yml` (sync-*, notify-sessions) |
-| | | O: Opus / xhigh (Architect, ölçer) | **8.0** | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
+| | | O: Opus / xhigh (Architect, ölçer) | **8.0** ✓ | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
 | | | Q: Sonnet / high | **1.10** | `lib/f1/provisional*.ts`, `lib/f1/sources/openf1.ts`, `sync-f1/route.ts`, 2 test |
 | | | R: Sonnet / high | **18.1** (sonra 18.2–18.5) | `lib/f1/mrdata.ts`, `components/season/*`, `components/circuit/*`, `app/[locale]/{season,drivers,circuits,news}/**`, `app/sitemap.ts`, `lib/i18n/format.ts`, `lib/f1Calendar.ts` (yalnızca `DRS_LAST_SEASON`), `messages/*.json` (yalnızca 18.x anahtarları), testler |
 | | | S: Sonnet / high | **19.1** (sonra 19.3) | `lib/news/aggregate.ts`, `components/news/NewsList.tsx`, 2 test |
@@ -556,11 +658,16 @@ Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında 
 | | | M: Opus 5.5 / high → medium (Builder) | **13.2** (sonra 13.3) | `lib/telemetry/`, `lib/data/circuitTelemetry.ts`, `scripts/build-circuit-telemetry.ts`, `data/circuits/telemetry/`, 2 test |
 | | | Antigravity | **1.11** (1.10 `main`'de) | `ResultsTable.tsx`, `SiteFooter.tsx`, `messages/*.json` |
 | | | Antigravity (1.11'den sonra; aynı ajan) | **20.1** (sonra 20.2–20.6; 20.2 için 18.5 `main`'de) | `components/standings/GarageTeamPanel.tsx`, `components/home/*`, `components/season/*`, `components/circuit/*`, `components/anthology/*`, `messages/*.json` |
-| | | 8.0'ın yazdığı 8.x adımları | 8.0 belirler | J/K/L/M ile çakışmayanlar bu dalgada, kalanlar Dalga 5 |
+| | | T: Sonnet / high (8.7, 8.8 `/effort medium`) | **8.1** (sonra 8.5, 8.7, 8.8) | `lib/media/{aliases,universe,sync,repo,process,score}.ts`, `data/media/curated.ts`, `tests/media-{aliases,sync,process,resolve-stages}.test.ts`, `docs/reference/media-sistemi.md` |
+| | | U: Sonnet / medium | **8.2** (sonra 8.3) | `components/media/{ApexImage.tsx,MediaAssetView.tsx,variantLoader.ts}`, `components/profile/DriverProfileHero.tsx`, `components/machinery/MachineryCard.tsx`, `app/[locale]/machinery/page.tsx`, `tests/media-components.test.ts` |
 | **5** | Dalga 4 sonrası | P: Sonnet / medium | **1.8** | `scripts/qstash-sync.ts`, `lib/cron/qstashPrune.ts`, `qstash-sync.yml`, 1 test, `apex-reference.md` |
 | | | Sonnet / high | **19.2** (14.4 `main`'de), ardından aynı dosyada **9.2** (9.0 bütçe ve kota kurulu, sahip `VERTEX_API_KEY`'i Vercel'de) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
 | | | Antigravity | **15.2** (sahip 15.1'i koştuysa) | sayfa bileşenleri |
 | | | Antigravity (15.2'den sonra; aynı ajan) | **13.4** (13.3 `main`'de) | `components/circuit/*Telemetry*`, `SpeedProfile.tsx`, `CircuitElevationProfile.tsx`, pist sayfası, `messages/*.json` |
+| | | Haiku / low | **8.4** (8.2 ve 20.1 `main`'de) | `components/anthology/StoryCard.tsx`, `app/[locale]/anthology/page.tsx` |
+| | | Sonnet / high | **8.9** (14.5, 19.1 `main`'de; sahip sorusu 2) | `lib/news/fallbackImage.ts`, `lib/data/{types,news}.ts`, `lib/news/stories.ts`, 2 test |
+| | | Antigravity (20.x'ten sonra; aynı ajan) | **8.10** (8.9 `main`'de), **8.11** (sahip sorusu 1) | `components/news/{NewsList,NewsLeadBlock,NewsEditorialFeed}.tsx`, `app/[locale]/news/[id]/page.tsx`, `ApexImage.tsx` (`fallback`), `TeamPlaceholder.tsx`, `GarageTeamPanel.tsx`, `TeamSeasonHero.tsx`, takım sayfası, `messages/*.json` |
+| | | Sonnet / medium | **8.12** (8.2, 8.3, 8.5 `main`'de), en son **8.13** | `.github/workflows/lighthouse.yml`, günün log'u |
 | **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
 
 Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; GCP kredisi 2026-12-18'de biter: 9.0 Dalga 3'te başladı, 9.7 kapanışı 2026-12-12 → 14 sabit tarihli; 9.3 Kasım başında hatırlatılır.
@@ -576,4 +683,5 @@ Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu
 | `rewrite.ts` yorum/kod çelişkisi | Yorum "Gemini → Groq", kod Groq → Gemini | 9.2 |
 | Yasal adresler, logo | `.example` yer tutucu, geçici logo | 16.1, 16.2 |
 | C-7 yerel `next start` SSL uyarısı | Yalnızca yerel; canlıyı etkilemez | izlenir |
+| Sayfalar CDN'de önbelleğe alınmıyor | 2026-10-26: 16/16 sayfa `Cache-Control: private, no-cache, no-store`, art arda istekte `X-Vercel-Cache: MISS`, her yanıtta `Set-Cookie: NEXT_LOCALE` (`revalidate = 900` diyen `/tr/anthology` dahil); TTFB 0,38–0,86 s | Opus tasarım oturumu (önbellek/ISR, maliyet), 8.12 ölçümünden sonra |
 | `any` / `eslint-disable` | 0 | korunur |
