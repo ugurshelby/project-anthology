@@ -544,11 +544,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Doğrulama: `npx vitest run tests/mrdata-standings.test.ts tests/mrdata-round.test.ts tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1/mrdata.ts components/season` 0; preview'da `/tr/season` 23 sürücü, `/tr/season/1989` 30 sürücü ve yarış dışı sayısı ≥ 200.
 
 ### [ ] 18.2 Var olmayan sayfalar 404 dönsün
-- Dosyalar: `app/[locale]/season/[year]/round/[n]/page.tsx`, `app/[locale]/drivers/[driverId]/`, `app/[locale]/circuits/[id]/`, `app/[locale]/news/[id]/` (`page.tsx`, gerekirse `loading.tsx`), yeni `tests/round-not-found.test.ts`
-- Değişiklik:
-  1. Yarış sayfası: takvim snapshot'ında o `round` yoksa `notFound()` (sayfada ve `generateMetadata`'da). Bugün `/tr/season/2026/round/30` "30. Yarış 2026" başlığıyla 200 dönüyor, `noindex` yok.
-  2. Bulunamayan sürücü/pist/haber: bugün `notFound()` çağrılıyor ama durum 200 (+`noindex`). Neden büyük olasılıkla `loading.tsx` ile akışın `notFound()`'dan önce başlaması. Önce `node_modules/next/dist/docs/` içinde `not-found` ve `loading` bölümleri okunur; varlık kontrolü akış başlamadan yapılabiliyorsa öyle düzeltilir. Tek çözüm `loading.tsx`'i kaldırmaksa (yükleme iskeleti gider) → `OPEN.md` `To: Opus`, adım atlanır.
-- Doğrulama: `npx vitest run tests/round-not-found.test.ts` yeşil (takvimde olmayan tur → `notFound` çağrılır); `npx tsc --noEmit` 0; `wip/` preview'da `curl -s -o /dev/null -w "%{http_code}"` → `/tr/season/2026/round/30`, `/tr/drivers/olmayan`, `/tr/circuits/olmayan`, `/tr/news/olmayan` hepsi `404`; `/tr/season/2026/round/17` ve `/tr/drivers/max_verstappen` `200`.
+- Kapsam değişti (`DECISIONS.md` 2026-10-27 "18.2 and 19.3"): Next 16 `loading.tsx` varken `notFound()` 200 + `noindex` akıtır (belgelenen davranış); durum kodu hedefi bırakıldı. Bölüm 1 bitti (`b3402fe`: takvimde olmayan tur `notFound()`, sayfa ve `generateMetadata`). Bölüm 2 yapılmaz (iskeletler kalır).
+- Doğrulama (canlı): `/tr/season/2026/round/30`, `/tr/drivers/olmayan`, `/tr/circuits/olmayan`, `/tr/news/olmayan` HTML'inde `noindex` var ve başlık "bulunamadı"; `/tr/season/2026/round/17` `noindex` içermez.
 
 ### [ ] 18.3 Pistler sayıları ve 2026 DRS
 - Run: Sonnet / medium — kapsamı net küçük düzeltme
@@ -593,11 +590,10 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Doğrulama: uydurma sayı ("by 120 points", kaynakta 102) reddedilir; kaynaktaki ad ve sayılarla kurulmuş başlık geçer; test, ad/sayı kontrolünün özne-nesne ters çevirmeyi yakalamadığını belgeler (istem kuralı bunun içindir); `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0. Canlı: ilk `sync-news` sonrası 20 yeni Türkçe başlık log'a yazılır, sahip okur.
 
 ### [ ] 19.3 Telgraf akışı sırası ve kaynak etiketi
-- Run: Sonnet / medium — tek bileşen
-- Dosyalar: `components/news/NewsList.tsx` (telgraf bölümü), ilgili test
-- Değişiklik: telgraf öğeleri yayın zamanına göre azalan sırada (bugün 23:01, 20:12, 23:01, 08:02, 06:16); köşeli etiket kaynak adı (bugün bir öğede "[FERRARI]", kaynak RaceFans): etiketin hangi alandan geldiği okunur, kaynak adı yazılır.
-- Doğrulama: `npx vitest related --run components/news/NewsList.tsx` yeşil; preview'da `/tr/news` telgraf saatleri azalan, etiketler kaynak adları.
-
+- Run: Sonnet / medium — iki dosya ve saf yardımcı
+- Dosyalar (`DECISIONS.md` 2026-10-27 "18.2 and 19.3"; plan ilk hâlinde yanlış bileşeni gösteriyordu): `app/[locale]/news/page.tsx` (`wirePool`), `components/news/NewsWireFeed.tsx`, `lib/news/categories.ts`, `tests/news-categories.test.ts`; kullanılmayan `components/news/NewsList.tsx` (`grep` ile içe aktaran yoksa) silinir.
+- Değişiklik: `lib/news/categories.ts`'e saf `sortWireByTime<T extends { publishedTs: number }>(items: T[]): T[]` (azalan, kopya döner); `wirePool` bununla sıralanır. `NewsWireFeed` köşeli etiketi `item.sourceName` (bugün `detectTeamTag` metindeki takım adını yazıyor: "[FERRARI]"); ayrı "Source: …" satırı tekrar olduğu için kalkar. `detectTeamTag` başka yerde kullanılıyorsa kalır. Ana sayfa telgrafı (`components/home/HomeWireFeed.tsx`) 20.3'te Antigravity'de.
+- Doğrulama: test sıralama (karışık saatler → azalan) ve etiket kaynağı; `npx vitest run tests/news-categories.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint` değişen dosyalar 0; canlıda `/tr/news` telgraf saatleri azalan, etiketler kaynak adları.
 ---
 
 ## Faz 20 — Arayüz, Türkçe ve okunabilirlik
@@ -616,6 +612,7 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Doğrulama: `/tr/season`, `/tr/machinery`, `/tr/drivers/max_verstappen` → "%19", "%93,75", "%29,3", "3.665,5"; İngilizce sayfalarda "19%", "3,665.5".
 
 ### [ ] 20.3 Metin ve işaret düzeltmeleri
+- Ana sayfa telgrafı `components/home/HomeWireFeed.tsx`: 19.3 ile aynı kural (yayın zamanına göre azalan, köşeli etiket kaynak adı; 19.3'ün `sortWireByTime` yardımcısı kullanılır).
 - `SeasonTitleFightHero.tsx`: "PUAN FARKI" iki kez görünüyor → bir kez.
 - Ana sayfa `ChampionshipPulse.tsx`: P2 ve sonrası "+102 PUAN" liderden geride olmayı anlatıyor → "−102" ya da "102 geride"; tek biçim.
 - Sezon sayfası sıradaki yarış kartı "Hafta sonu programı mevcut" → anlamlı metin (ör. ilk seansın günü ve saati).
