@@ -3,8 +3,14 @@ import { getCircuitIdsForSitemap } from '@/lib/data/circuits';
 import { getStorySitemapEntries } from '@/lib/data/stories';
 import { getCurrentDrivers, getCurrentTeams } from '@/lib/data/entities';
 import { getCurrentSeasonRaces } from '@/lib/data/circuits';
-import { CURRENT_SEASON } from '@/lib/f1Calendar';
+import { getLatestNews } from '@/lib/data/news';
+import { allConstructorIds, allDriverIds, resolveDriverId } from '@/lib/history/store';
+import { resolveConstructorId } from '@/lib/history/ids';
+import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
 import { siteUrl } from '@/lib/seo';
+
+const NEWS_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+const NEWS_SITEMAP_LIMIT = 200;
 
 /**
  * XML sitemap. Static top-level routes + every published anthology story
@@ -39,6 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     withI18n({ url: `${base}/teams`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 }, '/teams'),
     withI18n({ url: `${base}/news`, lastModified: now, changeFrequency: 'hourly', priority: 0.8 }, '/news'),
     withI18n({ url: `${base}/circuits`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 }, '/circuits'),
+    withI18n({ url: `${base}/machinery`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 }, '/machinery'),
     withI18n({ url: `${base}/anthology`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 }, '/anthology'),
     withI18n({ url: `${base}/tech-glossary`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 }, '/tech-glossary'),
     withI18n({ url: `${base}/disclaimer`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 }, '/disclaimer'),
@@ -47,12 +54,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     withI18n({ url: `${base}/dmca`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 }, '/dmca'),
   ];
 
-  const [stories, circuitIds, drivers, teams, races] = await Promise.all([
+  const [stories, circuitIds, drivers, teams, races, news] = await Promise.all([
     getStorySitemapEntries(),
     getCircuitIdsForSitemap(),
     getCurrentDrivers(),
     getCurrentTeams(),
     getCurrentSeasonRaces(),
+    getLatestNews(NEWS_SITEMAP_LIMIT, { includeImageless: true }).catch(() => []),
   ]);
   const storyRoutes: MetadataRoute.Sitemap = stories.map((story) => {
     const updated = Date.parse(story.updatedAt);
@@ -116,5 +124,66 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     );
 
-  return [...staticRoutes, ...storyRoutes, ...circuitRoutes, ...driverRoutes, ...teamRoutes, ...raceRoutes];
+  const seasonRoutes: MetadataRoute.Sitemap = [];
+  for (let year = CURRENT_SEASON; year >= F1_SEASON_MIN; year--) {
+    seasonRoutes.push(
+      withI18n(
+        {
+          url: `${base}/season/${year}`,
+          lastModified: now,
+          changeFrequency: year === CURRENT_SEASON ? ('daily' as const) : ('yearly' as const),
+          priority: year === CURRENT_SEASON ? 0.8 : 0.5,
+        },
+        `/season/${year}`,
+      ),
+    );
+  }
+
+  const newsRoutes = news
+    .filter((item) => item.id && item.publishedTs >= now.getTime() - NEWS_WINDOW_MS)
+    .map((item) =>
+      withI18n(
+        {
+          url: `${base}/news/${item.id}`,
+          lastModified: new Date(item.publishedTs),
+          changeFrequency: 'never' as const,
+          priority: 0.5,
+        },
+        `/news/${item.id}`,
+      ),
+    );
+
+  // All-time archive pages from the F1DB index; ids already covered by the current
+  // standings rows (Jolpica ids that resolve to the same record) are not repeated.
+  const currentDriverKeys = new Set(drivers.rows.map((d) => resolveDriverId(d.driverId) ?? d.driverId));
+  const currentTeamKeys = new Set(teams.rows.map((t) => resolveConstructorId(t.constructorId) ?? t.constructorId));
+  const archiveDriverRoutes = allDriverIds()
+    .filter((id) => !currentDriverKeys.has(id))
+    .map((id) =>
+      withI18n(
+        { url: `${base}/drivers/${id}`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.4 },
+        `/drivers/${id}`,
+      ),
+    );
+  const archiveTeamRoutes = allConstructorIds()
+    .filter((id) => !currentTeamKeys.has(id))
+    .map((id) =>
+      withI18n(
+        { url: `${base}/teams/${id}`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.4 },
+        `/teams/${id}`,
+      ),
+    );
+
+  return [
+    ...staticRoutes,
+    ...storyRoutes,
+    ...circuitRoutes,
+    ...driverRoutes,
+    ...teamRoutes,
+    ...raceRoutes,
+    ...seasonRoutes,
+    ...newsRoutes,
+    ...archiveDriverRoutes,
+    ...archiveTeamRoutes,
+  ];
 }
