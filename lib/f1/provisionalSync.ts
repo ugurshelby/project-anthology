@@ -8,14 +8,20 @@
  * both standings), then stays idle until Jolpica's rows replace them.
  */
 
-import { CURRENT_SEASON, getLastFinishedRace, raceStartMs, type CalendarRace } from '@/lib/f1Calendar';
-import { buildIdentityMap, buildProvisionalResults, buildProvisionalStandings } from '@/lib/f1/provisional';
+import { CURRENT_SEASON, getLastFinishedRace, raceStartMs, sessionStartMs, type CalendarRace } from '@/lib/f1Calendar';
+import {
+  buildIdentityMap,
+  buildProvisionalQualifying,
+  buildProvisionalResults,
+  buildProvisionalStandings,
+} from '@/lib/f1/provisional';
 import {
   fetchChampionshipDrivers,
   fetchChampionshipTeams,
   fetchLiveDrivers,
   fetchRaceSessionsOfYear,
   fetchSessionResult,
+  fetchSessionsOfYear,
 } from '@/lib/f1/sources/openf1';
 import { isOpenF1Restricted } from '@/lib/f1/sources/openf1Errors';
 import { upsertF1Snapshot, type IngestStats } from '@/lib/f1Ingest';
@@ -162,6 +168,96 @@ export async function syncProvisionalFromOpenF1(opts: {
   } catch (err) {
     if (isOpenF1Restricted(err)) return { status: 'locked', round };
     stats.errors.push(`provisional R${round}: ${err instanceof Error ? err.message : String(err)}`);
+    return { status: 'error', round };
+  }
+}
+
+export type ProvisionalSessionStatus =
+  | 'no-session'
+  | 'jolpica-has-data'
+  | 'already-written'
+  | 'session-not-found'
+  | 'session-running'
+  | 'locked'
+  | 'not-published'
+  | 'written'
+  | 'error';
+
+export interface ProvisionalSessionOutcome {
+  status: ProvisionalSessionStatus;
+  round: number | null;
+}
+
+/** An OpenF1 session counts as the calendar's session when the start times are this close. */
+const SESSION_MATCH_MS = 6 * 60 * 60 * 1000;
+
+/**
+ * Provisional Qualifying or Sprint classification from OpenF1, for the latest
+ * weekend whose session started within PROVISIONAL_WINDOW_MS. Same contract as
+ * the race step: a `jolpica` row ends it, an `openf1` row means done, Jolpica's
+ * row replaces ours later.
+ */
+export async function syncProvisionalSessionFromOpenF1(opts: {
+  kind: 'qualifying' | 'sprint';
+  races: CalendarRace[];
+  now: Date;
+  stats: IngestStats;
+}): Promise<ProvisionalSessionOutcome> {
+  const { kind, races, now, stats } = opts;
+  const nowMs = now.getTime();
+
+  let race: CalendarRace | null = null;
+  let start = 0;
+  for (const r of races) {
+    const s = sessionStartMs(kind === 'qualifying' ? r.Qualifying : r.Sprint);
+    if (s !== null && s <= nowMs && nowMs - s <= PROVISIONAL_WINDOW_MS && (race === null || s > start)) {
+      race = r;
+      start = s;
+    }
+  }
+  const round = Number(race?.round);
+  if (!race || !round) return { status: 'no-session', round: null };
+
+  try {
+    const rows = await loadRows(CURRENT_SEASON, round);
+    const existing = rows.find((x) => x.type === kind && x.round === round);
+    if (existing?.source === 'jolpica') return { status: 'jolpica-has-data', round };
+    if (existing?.source === 'openf1') return { status: 'already-written', round };
+
+    const sessions = await fetchSessionsOfYear(CURRENT_SEASON, kind === 'qualifying' ? 'Qualifying' : 'Sprint');
+    const session = sessions
+      .map((s) => ({ s, gap: Math.abs(Date.parse(s.date_start) - start) }))
+      .filter((x) => x.gap < SESSION_MATCH_MS)
+      .sort((a, b) => a.gap - b.gap)[0]?.s;
+    if (!session) return { status: 'session-not-found', round };
+    const end = Date.parse(session.date_end);
+    if (!Number.isFinite(end) || nowMs < end + AFTER_SESSION_END_MS) return { status: 'session-running', round };
+
+    const classification = await fetchSessionResult(session.session_key);
+    if (classification.length === 0) return { status: 'not-published', round };
+
+    const roster = await fetchLiveDrivers(session.session_key);
+    const find = (type: SnapshotType, r: number | null) => rows.find((x) => x.type === type && x.round === r);
+    const ids = buildIdentityMap({
+      entryLists: [find('sprint', round)?.data, find('qualifying', round)?.data, find('results', round - 1)?.data].filter(
+        (x) => x !== undefined,
+      ),
+      driverStandings: find('standings_drivers', null)?.data,
+      constructorStandings: find('standings_constructors', null)?.data,
+    });
+
+    const snapshot =
+      kind === 'qualifying'
+        ? buildProvisionalQualifying({ season: CURRENT_SEASON, race, results: classification, roster, ids })
+        : buildProvisionalResults({ season: CURRENT_SEASON, race, results: classification, roster, ids, key: 'SprintResults' });
+    if (!snapshot) return { status: 'not-published', round };
+
+    await upsertF1Snapshot(CURRENT_SEASON, round, kind, snapshot as Json, 'openf1');
+    stats.upserted++;
+    return { status: 'written', round };
+  } catch (err) {
+    if (isOpenF1Restricted(err)) return { status: 'locked', round };
+    stats.errors.push(`provisional ${kind} R${round}: ${err instanceof Error ? err.message : String(err)}`);
     return { status: 'error', round };
   }
 }

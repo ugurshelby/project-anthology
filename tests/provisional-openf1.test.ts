@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { getDriverStandings, getConstructorStandings, getLastRaceResult } from '@/lib/f1/mrdata';
-import { buildIdentityMap, buildProvisionalResults, buildProvisionalStandings } from '@/lib/f1/provisional';
+import {
+  buildIdentityMap,
+  buildProvisionalQualifying,
+  buildProvisionalResults,
+  buildProvisionalStandings,
+  formatLapTime,
+} from '@/lib/f1/provisional';
 import type { OpenF1Driver, OpenF1SessionResult } from '@/lib/f1/sources/openf1';
 import type { CalendarRace } from '@/lib/f1Calendar';
 
@@ -156,6 +162,93 @@ describe('provisional standings from OpenF1', () => {
   it('records the round it reflects', () => {
     const list = (built?.drivers as { MRData: { StandingsTable: { round: string } } }).MRData.StandingsTable;
     expect(list.round).toBe('17');
+  });
+});
+
+describe('formatLapTime', () => {
+  it('formats seconds as m:ss.SSS', () => {
+    expect(formatLapTime(86.123)).toBe('1:26.123');
+    expect(formatLapTime(90)).toBe('1:30.000');
+    expect(formatLapTime(59.5)).toBe('0:59.500');
+  });
+});
+
+describe('provisional qualifying from OpenF1', () => {
+  const rows = [
+    result({ position: 2, driver_number: 16, duration: [86.5, 85.9, 85.4] }),
+    result({ position: 1, driver_number: 3, duration: [86.1, 85.8, 85.2] }),
+    result({ position: 4, driver_number: 99, duration: [88.0, null, null] }),
+    result({ position: 3, driver_number: 12, duration: 87.25 }),
+    result({ position: null, driver_number: 12 }), // repeated row is dropped
+  ];
+  const snapshot = buildProvisionalQualifying({ season: 2026, race, results: rows, roster, ids });
+  const list = (s: unknown) =>
+    (s as { MRData: { RaceTable: { Races: Array<{ QualifyingResults: Array<Record<string, unknown>> }> } } }).MRData
+      .RaceTable.Races[0].QualifyingResults;
+
+  it('orders by position and maps duration to Q1/Q2/Q3 with Jolpica identities', () => {
+    const q = list(snapshot);
+    expect(q.map((r) => [r.position, r.number])).toEqual([['1', '3'], ['2', '16'], ['3', '12'], ['4', '99']]);
+    expect(q[0]).toMatchObject({ Q1: '1:26.100', Q2: '1:25.800', Q3: '1:25.200' });
+    expect((q[0].Driver as { driverId: string }).driverId).toBe('max_verstappen');
+  });
+
+  it('writes only the parts a driver ran: null elements and a single number give Q1 only', () => {
+    const q = list(snapshot);
+    expect(q[3]).toMatchObject({ Q1: '1:28.000' });
+    expect(q[3]).not.toHaveProperty('Q2');
+    expect(q[3]).not.toHaveProperty('Q3');
+    expect(q[2]).toMatchObject({ Q1: '1:27.250' });
+    expect(q[2]).not.toHaveProperty('Q2');
+  });
+
+  it('puts DSQ and position null last', () => {
+    const q = list(
+      buildProvisionalQualifying({
+        season: 2026,
+        race,
+        results: [
+          result({ position: null, driver_number: 99 }),
+          result({ position: 1, driver_number: 16, dsq: true }),
+          result({ position: 2, driver_number: 3, duration: [86, 85, 84] }),
+        ],
+        roster,
+        ids,
+      }),
+    );
+    expect(q.map((r) => r.number)).toEqual(['3', '99', '16']);
+  });
+
+  it('returns null without a classification', () => {
+    expect(buildProvisionalQualifying({ season: 2026, race, results: [], roster, ids })).toBeNull();
+  });
+});
+
+describe('sprint classification and the provisional flag', () => {
+  const sprintResults = [result({ position: 1, driver_number: 3, points: 8, duration: 1500.5, gap_to_leader: 0 })];
+
+  it('writes the array under SprintResults', () => {
+    const snap = buildProvisionalResults({ season: 2026, race, results: sprintResults, roster, ids, key: 'SprintResults' });
+    const raceRow = (snap as { MRData: { RaceTable: { Races: Array<Record<string, unknown>> } } }).MRData.RaceTable.Races[0];
+    expect(raceRow.SprintResults).toHaveLength(1);
+    expect(raceRow).not.toHaveProperty('Results');
+  });
+
+  it('marks results, qualifying and both standings with apexProvisional', () => {
+    const flag = (s: unknown) => (s as { MRData: { apexProvisional?: boolean } }).MRData.apexProvisional;
+    const standings = buildProvisionalStandings({
+      season: 2026,
+      round: 17,
+      drivers: [{ driver_number: 3, position_start: 5, position_current: 4, points_start: 196, points_current: 221, meeting_key: 1, session_key: 1 }],
+      teams: [{ team_name: 'Red Bull Racing', position_start: 4, position_current: 4, points_start: 306, points_current: 332, meeting_key: 1, session_key: 1 }],
+      roster,
+      ids,
+      winnerNumber: null,
+    });
+    expect(flag(buildProvisionalResults({ season: 2026, race, results: sprintResults, roster, ids }))).toBe(true);
+    expect(flag(buildProvisionalQualifying({ season: 2026, race, results: sprintResults, roster, ids }))).toBe(true);
+    expect(flag(standings?.drivers)).toBe(true);
+    expect(flag(standings?.constructors)).toBe(true);
   });
 });
 

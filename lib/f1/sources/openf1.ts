@@ -282,8 +282,8 @@ export interface OpenF1SessionResult {
   dnf: boolean;
   dns: boolean;
   dsq: boolean;
-  /** Race: total time in seconds (winner) — may be null for non-finishers. */
-  duration: number | number[] | null;
+  /** Race: total time in seconds (winner) — may be null for non-finishers. Qualifying: [Q1, Q2, Q3] lap times, null where the driver did not run. */
+  duration: number | Array<number | null> | null;
   /** Race: seconds behind the winner, or a string such as "+1 LAP". */
   gap_to_leader: number | string | number[] | null;
   meeting_key: number;
@@ -313,6 +313,11 @@ export interface OpenF1ChampionshipTeam {
 /** Race sessions of a season (one row per Grand Prix). */
 export async function fetchRaceSessionsOfYear(year: number): Promise<OpenF1Session[]> {
   return openf1Fetch<OpenF1Session>('sessions', { year, session_name: 'Race' });
+}
+
+/** Qualifying or Sprint sessions of a season (one row per Grand Prix weekend that has one). */
+export async function fetchSessionsOfYear(year: number, sessionName: 'Qualifying' | 'Sprint'): Promise<OpenF1Session[]> {
+  return openf1Fetch<OpenF1Session>('sessions', { year, session_name: sessionName });
 }
 
 /** Final classification of a session (empty until OpenF1 has published it). */

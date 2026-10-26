@@ -14,6 +14,7 @@ const HOUR = 3_600_000;
 let dbRows: Array<{ round: number | null; type: string; source: string; data: unknown }> = [];
 const mockUpsert = vi.fn();
 const mockSessions = vi.fn();
+const mockSessionsOfKind = vi.fn();
 const mockResult = vi.fn();
 const mockRoster = vi.fn();
 const mockChampDrivers = vi.fn();
@@ -33,13 +34,16 @@ vi.mock('@/lib/f1Ingest', () => ({
 
 vi.mock('@/lib/f1/sources/openf1', () => ({
   fetchRaceSessionsOfYear: () => mockSessions(),
+  fetchSessionsOfYear: (...a: unknown[]) => mockSessionsOfKind(...a),
   fetchSessionResult: () => mockResult(),
   fetchLiveDrivers: () => mockRoster(),
   fetchChampionshipDrivers: () => mockChampDrivers(),
   fetchChampionshipTeams: () => mockChampTeams(),
 }));
 
-const { syncProvisionalFromOpenF1, keepProvisionalStandings } = await import('@/lib/f1/provisionalSync');
+const { syncProvisionalFromOpenF1, syncProvisionalSessionFromOpenF1, keepProvisionalStandings } = await import(
+  '@/lib/f1/provisionalSync'
+);
 
 const race: CalendarRace = {
   round: '17',
@@ -92,7 +96,7 @@ const run = (nowMs: number, onStandings = vi.fn()) =>
 
 beforeEach(() => {
   dbRows = [qualifyingRow, jolpicaStandings(17)];
-  for (const m of [mockUpsert, mockSessions, mockResult, mockRoster, mockChampDrivers, mockChampTeams]) m.mockReset();
+  for (const m of [mockUpsert, mockSessions, mockSessionsOfKind, mockResult, mockRoster, mockChampDrivers, mockChampTeams]) m.mockReset();
   seedOpenF1();
 });
 
@@ -153,6 +157,82 @@ describe('OpenF1 provisional step', () => {
 
   it('gives up three days after the race', async () => {
     expect((await run(RACE_START + 80 * HOUR)).status).toBe('no-race');
+  });
+});
+
+describe('OpenF1 provisional Qualifying and Sprint step', () => {
+  const QUALI_START = Date.parse(`${SEASON}-10-10T09:00:00Z`);
+  const weekend: CalendarRace = {
+    ...race,
+    Qualifying: { date: `${SEASON}-10-10`, time: '09:00:00Z' },
+    Sprint: { date: `${SEASON}-10-10`, time: '05:00:00Z' },
+  };
+  const noSprint: CalendarRace = { ...race, Qualifying: weekend.Qualifying };
+  const runSession = (kind: 'qualifying' | 'sprint', nowMs: number, calendar = [weekend]) => {
+    const stats = { upserted: 0, skipped: 0, errors: [] as string[] };
+    return syncProvisionalSessionFromOpenF1({ kind, races: calendar, now: new Date(nowMs), stats }).then((out) => ({ out, stats }));
+  };
+
+  beforeEach(() => {
+    // Entry list comes from the previous round's results, so neither kind's own row exists yet.
+    dbRows = [{ ...qualifyingRow, type: 'results', round: 16 }, jolpicaStandings(17)];
+    mockSessionsOfKind.mockResolvedValue([
+      { session_key: 11380, date_start: new Date(QUALI_START).toISOString(), date_end: new Date(QUALI_START + HOUR).toISOString() },
+    ]);
+    mockResult.mockResolvedValue([
+      { position: 1, driver_number: 3, number_of_laps: 18, points: 0, dnf: false, dns: false, dsq: false, duration: [86.1, 85.8, 85.2], gap_to_leader: [0, 0, 0] },
+    ]);
+  });
+
+  it('writes the qualifying snapshot as source=openf1 once the session has ended', async () => {
+    const { out, stats } = await runSession('qualifying', QUALI_START + 1.5 * HOUR);
+    expect(out).toEqual({ status: 'written', round: 17 });
+    expect(stats.upserted).toBe(1);
+    expect(mockSessionsOfKind).toHaveBeenCalledWith(SEASON, 'Qualifying');
+    expect(mockUpsert.mock.calls.map((c) => [c[1], c[2], c[4]])).toEqual([[17, 'qualifying', 'openf1']]);
+  });
+
+  it('writes the sprint snapshot under SprintResults', async () => {
+    const start = Date.parse(`${SEASON}-10-10T05:00:00Z`);
+    mockSessionsOfKind.mockResolvedValue([
+      { session_key: 11379, date_start: new Date(start).toISOString(), date_end: new Date(start + 0.75 * HOUR).toISOString() },
+    ]);
+    const { out } = await runSession('sprint', start + 1.5 * HOUR);
+    expect(out.status).toBe('written');
+    expect(mockSessionsOfKind).toHaveBeenCalledWith(SEASON, 'Sprint');
+    expect(mockUpsert.mock.calls[0].slice(1, 3)).toEqual([17, 'sprint']);
+    expect(JSON.stringify(mockUpsert.mock.calls[0][3])).toContain('SprintResults');
+  });
+
+  it('never calls OpenF1 when Jolpica already has the session', async () => {
+    dbRows = [...dbRows, { round: 17, type: 'qualifying', source: 'jolpica', data: {} }];
+    const { out } = await runSession('qualifying', QUALI_START + 2 * HOUR);
+    expect(out.status).toBe('jolpica-has-data');
+    expect(mockSessionsOfKind).not.toHaveBeenCalled();
+  });
+
+  it('is idle once the provisional row exists', async () => {
+    dbRows = [{ round: 17, type: 'qualifying', source: 'openf1', data: {} }];
+    expect((await runSession('qualifying', QUALI_START + 2 * HOUR)).out.status).toBe('already-written');
+    expect(mockSessionsOfKind).not.toHaveBeenCalled();
+  });
+
+  it('waits while the session is running', async () => {
+    expect((await runSession('qualifying', QUALI_START + 0.5 * HOUR)).out.status).toBe('session-running');
+    expect(mockResult).not.toHaveBeenCalled();
+  });
+
+  it('reports the live-session lock instead of an error', async () => {
+    mockSessionsOfKind.mockRejectedValue(new OpenF1RestrictedError('sessions'));
+    const { out, stats } = await runSession('qualifying', QUALI_START + 1.5 * HOUR);
+    expect(out.status).toBe('locked');
+    expect(stats.errors).toEqual([]);
+  });
+
+  it('is no-session when the calendar has no Sprint', async () => {
+    const { out } = await runSession('sprint', QUALI_START + 1.5 * HOUR, [noSprint]);
+    expect(out).toEqual({ status: 'no-session', round: null });
+    expect(mockSessionsOfKind).not.toHaveBeenCalled();
   });
 });
 

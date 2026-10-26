@@ -14,7 +14,11 @@
  *   race that just finished (lib/f1/provisionalSync.ts); Jolpica's rows replace
  *   them once Jolpica publishes.
  *
- * Response shape: { source, scope, season, upserted, skipped, settled, provisional, errors, durationMs }
+ * - Then OpenF1 provisional `qualifying` and `sprint` classifications for the
+ *   latest weekend (about 30 min after the session; same replace rule).
+ *
+ * Response shape: { source, scope, season, upserted, skipped, settled, provisional,
+ *   provisionalSessions: { qualifying, sprint }, errors, durationMs }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -58,7 +62,12 @@ import {
   sprintSyncDueMs,
 } from '@/lib/f1/syncSchedule';
 import { getSupabaseAdmin } from '@/lib/supabase';
-import { keepProvisionalStandings, syncProvisionalFromOpenF1, type ProvisionalOutcome } from '@/lib/f1/provisionalSync';
+import {
+  keepProvisionalStandings,
+  syncProvisionalFromOpenF1,
+  syncProvisionalSessionFromOpenF1,
+  type ProvisionalOutcome,
+} from '@/lib/f1/provisionalSync';
 import { sendExpoPushNotifications } from '@/lib/push/sendExpoPush';
 import type { ExpoPushMessage } from 'expo-server-sdk';
 import type { Json, SnapshotType } from '@/types/database';
@@ -451,6 +460,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       onStandings: (prev, next) => notifyLeaderChanges(getSupabaseAdmin(), prev, next),
     });
 
+    // 7) OpenF1 provisional Qualifying and Sprint classifications. Sequential:
+    // OpenF1 allows 3 req/s.
+    const qualifying = await syncProvisionalSessionFromOpenF1({ kind: 'qualifying', races, now, stats });
+    const sprint = await syncProvisionalSessionFromOpenF1({ kind: 'sprint', races, now, stats });
+
     return NextResponse.json({
       source: 'jolpica',
       scope,
@@ -459,6 +473,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       skipped: stats.skipped,
       settled: settledSkips,
       provisional,
+      provisionalSessions: { qualifying, sprint },
       errors: stats.errors,
       durationMs: Date.now() - startedAt,
     });

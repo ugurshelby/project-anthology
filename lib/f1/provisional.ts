@@ -198,6 +198,8 @@ export function buildProvisionalResults(input: {
   results: OpenF1SessionResult[];
   roster: OpenF1Driver[];
   ids: IdentityMap;
+  /** Array key inside `Races[0]`: `SprintResults` for a sprint classification. */
+  key?: 'Results' | 'SprintResults';
 }): Json | null {
   const roster = new Map(input.roster.map((d) => [d.driver_number, d]));
   const seen = new Set<number>();
@@ -246,29 +248,83 @@ export function buildProvisionalResults(input: {
     });
   }
   if (Results.length === 0) return null;
+  return raceEnvelope(input.season, input.race, input.key ?? 'Results', Results);
+}
 
-  const race = input.race;
+/** Ergast `RaceTable` wrapper shared by the results, sprint and qualifying builders. */
+function raceEnvelope(season: number, race: CalendarRace, key: string, rows: Array<Record<string, unknown>>): Json {
   return {
     MRData: {
       series: 'f1',
-      total: String(Results.length),
+      apexProvisional: true,
+      total: String(rows.length),
       RaceTable: {
-        season: String(input.season),
+        season: String(season),
         round: String(race.round),
         Races: [
           {
-            season: String(input.season),
+            season: String(season),
             round: String(race.round),
             raceName: race.raceName,
             Circuit: race.Circuit,
             date: race.date,
             ...(race.time ? { time: race.time } : {}),
-            Results,
+            [key]: rows,
           },
         ],
       },
     },
   };
+}
+
+/** Lap time in seconds → `m:ss.SSS` (86.123 → "1:26.123"). */
+export function formatLapTime(seconds: number): string {
+  const totalMs = Math.round(seconds * 1000);
+  const m = Math.floor(totalMs / 60_000);
+  const s = Math.floor((totalMs % 60_000) / 1000);
+  const ms = totalMs % 1000;
+  return `${m}:${String(s).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+}
+
+/**
+ * OpenF1 qualifying session_result → Ergast `qualifying` snapshot for one round.
+ * `duration` is [Q1, Q2, Q3] lap times (null where the driver did not run that
+ * part); a single number is a Q1-only time. Drivers with a numeric position
+ * (not DSQ/DNS) come first in order, everyone else follows.
+ */
+export function buildProvisionalQualifying(input: {
+  season: number;
+  race: CalendarRace;
+  results: OpenF1SessionResult[];
+  roster: OpenF1Driver[];
+  ids: IdentityMap;
+}): Json | null {
+  const roster = new Map(input.roster.map((d) => [d.driver_number, d]));
+  const seen = new Set<number>();
+  const rows = input.results.filter((r) => (seen.has(r.driver_number) ? false : (seen.add(r.driver_number), true)));
+  const ranked = rows
+    .filter((r) => typeof r.position === 'number' && !r.dsq && !r.dns)
+    .sort((a, b) => (a.position as number) - (b.position as number));
+  const ordered = [...ranked, ...rows.filter((r) => !ranked.includes(r))];
+
+  const QualifyingResults: Array<Record<string, unknown>> = [];
+  for (const [i, r] of ordered.entries()) {
+    const id = identityFor(r.driver_number, input.ids, roster);
+    if (!id) continue;
+    const laps = Array.isArray(r.duration) ? r.duration : typeof r.duration === 'number' ? [r.duration] : [];
+    const lap = (n: number) => (typeof laps[n] === 'number' ? { [`Q${n + 1}`]: formatLapTime(laps[n] as number) } : {});
+    QualifyingResults.push({
+      number: String(r.driver_number),
+      position: String(i + 1),
+      Driver: id.driver,
+      Constructor: id.constructor,
+      ...lap(0),
+      ...lap(1),
+      ...lap(2),
+    });
+  }
+  if (QualifyingResults.length === 0) return null;
+  return raceEnvelope(input.season, input.race, 'QualifyingResults', QualifyingResults);
 }
 
 /**
@@ -342,6 +398,7 @@ export function buildProvisionalStandings(input: {
   const envelope = (key: 'DriverStandings' | 'ConstructorStandings', rows: unknown[]) => ({
     MRData: {
       series: 'f1',
+      apexProvisional: true,
       total: String(rows.length),
       StandingsTable: {
         season: String(input.season),

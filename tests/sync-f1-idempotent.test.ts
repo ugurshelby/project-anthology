@@ -123,6 +123,7 @@ vi.mock('@/lib/push/sendExpoPush', () => ({ sendExpoPushNotifications: async () 
 vi.mock('@/lib/f1/provisionalSync', () => ({
   keepProvisionalStandings: () => false,
   syncProvisionalFromOpenF1: async () => ({ status: 'no-race', round: null }),
+  syncProvisionalSessionFromOpenF1: async () => ({ status: 'no-session', round: null }),
 }));
 
 const CALENDAR: CalendarRace[] = [
