@@ -346,7 +346,7 @@
       "noData": "No data yet",
       "hardship": "Season Hardship",
       "dnfRate": "DNF rate",
-      "retirements": "{dnf} retirements · {classified} classified entries",
+      "retirements": "{dnf} retirements · {starters} starts",
       "timeline": "Season timeline",
       "roundsProgress": "{done} / {total} rounds",
       "roundState": "R{round} {name} {state}",

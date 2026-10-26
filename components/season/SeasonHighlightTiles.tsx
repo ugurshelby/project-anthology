@@ -38,7 +38,7 @@ export function SeasonHighlightTiles({
           <span className="hero-number text-4xl text-text-hi">{highlights.dnfRatePercent}%</span>
           <span className="data-tabular text-sm text-text-mid">{t('dnfRate')}</span>
           <span className="data-tabular text-xs text-text-low">
-            {t('retirements', { dnf: highlights.dnfCount, classified: highlights.classifiedCount })}
+            {t('retirements', { dnf: highlights.dnfCount, starters: highlights.starterCount })}
           </span>
         </div>
       </BentoCard>

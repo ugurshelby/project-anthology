@@ -346,7 +346,7 @@
       "noData": "Henüz veri yok",
       "hardship": "Sezonun Zorluğu",
       "dnfRate": "Yarış dışı kalma oranı",
-      "retirements": "{dnf} yarış dışı · {classified} sıralı bitiriş",
+      "retirements": "{dnf} yarış dışı · {starters} start",
       "timeline": "Sezon zaman çizgisi",
       "roundsProgress": "{done} / {total} yarış",
       "roundState": "{round}. yarış {name} {state}",

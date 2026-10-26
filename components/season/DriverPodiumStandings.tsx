@@ -45,7 +45,7 @@ export function DriverPodiumStandings({
                     <td className="data-tabular w-8 py-1.5 pr-2 text-right text-text-low">{row.position}</td>
                     <td className="py-1.5 pr-2">
                       <Link lang="en" href={`/drivers/${row.driverId}?season=${season}`} className="font-condensed text-sm font-600 uppercase text-text-hi hover:text-accent" style={{ fontFamily: 'var(--font-condensed)' }}>
-                        {row.driverName.split(' ').pop()}
+                        {row.familyName}
                       </Link>
                     </td>
                     <td className="hidden py-1.5 pr-2 sm:table-cell">
@@ -78,7 +78,7 @@ function PodiumBlock({ row, season }: { row: DriverStandingRow; season: number }
     >
       <span className="data-tabular text-text-low">P{row.position}</span>
       <span lang="en" className="font-condensed text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
-        {row.driverName.split(' ').pop()}
+        {row.familyName}
       </span>
       <span className="data-tabular text-xs" style={{ color }}>{row.constructorName}</span>
       <div className="flex items-end justify-between">

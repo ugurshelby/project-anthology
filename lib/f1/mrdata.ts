@@ -26,9 +26,11 @@ export interface DriverStandingRow {
    * (pre-2014 seasons predate the permanent-number rule).
    */
   permanentNumber: string | null;
+  /** Jolpica `Driver.familyName` ("de Cesaris"), not the last word of `driverName`. */
+  familyName: string;
 }
 
-export function getDriverStandings(data: MrData | null, limit = 22): DriverStandingRow[] {
+export function getDriverStandings(data: MrData | null, limit?: number): DriverStandingRow[] {
   const list = (
     data?.MRData as {
       StandingsTable?: {
@@ -59,6 +61,7 @@ export function getDriverStandings(data: MrData | null, limit = 22): DriverStand
       position: row.position ?? '—',
       points: row.points ?? '0',
       driverName: `${given} ${family}`.trim() || '—',
+      familyName: family || '—',
       driverCode: (row.Driver?.code ?? '').toLowerCase(),
       driverId: (row.Driver?.driverId ?? '').toLowerCase(),
       constructorName: row.Constructors?.[0]?.name ?? '—',
@@ -79,7 +82,7 @@ export interface ConstructorStandingRow {
 
 export function getConstructorStandings(
   data: MrData | null,
-  limit = 12,
+  limit?: number,
 ): ConstructorStandingRow[] {
   const list = (
     data?.MRData as {
@@ -755,6 +758,8 @@ export interface RaceResultRow {
   laps: string | null;
   /** Finishing time for the leader / gap for the rest, or the status (+1 Lap, DNF…). */
   timeOrStatus: string;
+  /** Raw Jolpica `status` ("Finished", "+1 Lap", "Engine"…), null when upstream omits it. */
+  status: string | null;
   points: string;
   fastestLap: boolean;
 }
@@ -797,6 +802,7 @@ function toResultRow(r: RawSessionResult, leaderLaps: number | null = null): Rac
     grid: r.grid ?? null,
     laps: r.laps ?? null,
     timeOrStatus: timeOrStatusFor(r, leaderLaps),
+    status: r.status ?? null,
     points: r.points ?? '0',
     fastestLap: r.FastestLap?.rank === '1',
   };
@@ -840,7 +846,7 @@ export interface SeasonHighlights {
   fastestLapKing: { driverName: string; driverCode: string; count: number } | null;
   dnfRatePercent: number;
   dnfCount: number;
-  classifiedCount: number;
+  starterCount: number;
 }
 
 /** Per-round recap map for the season race strip and micro-summary panel. */
@@ -875,19 +881,22 @@ export function buildSeasonRaceSummaries(
   });
 }
 
+/** A started car that neither finished nor was flagged as lapped counts as a retirement. */
+function isRetirementStatus(status: string | null): boolean {
+  if (!status) return false;
+  return status !== 'Finished' && status !== 'Lapped' && !/^\+\d+ Laps?$/.test(status);
+}
+
 /** Fastest-lap king and DNF rate across all finished rounds. */
 export function buildSeasonHighlights(allRoundResults: MrData[]): SeasonHighlights {
   const flCounts = new Map<string, { driverName: string; driverCode: string; count: number }>();
   let dnfCount = 0;
-  let classifiedCount = 0;
+  let starterCount = 0;
 
   for (const snapshot of allRoundResults) {
     for (const row of getRaceResultRows(snapshot)) {
-      classifiedCount++;
-      const status = row.timeOrStatus.toUpperCase();
-      if (status.includes('DNF') || status.includes('RETIRED') || status.includes('ACCIDENT')) {
-        dnfCount++;
-      }
+      starterCount++;
+      if (isRetirementStatus(row.status)) dnfCount++;
       if (row.fastestLap) {
         const cur = flCounts.get(row.driverName) ?? {
           driverName: row.driverName,
@@ -905,9 +914,9 @@ export function buildSeasonHighlights(allRoundResults: MrData[]): SeasonHighligh
 
   return {
     fastestLapKing,
-    dnfRatePercent: classifiedCount > 0 ? Math.round((dnfCount / classifiedCount) * 100) : 0,
+    dnfRatePercent: starterCount > 0 ? Math.round((dnfCount / starterCount) * 100) : 0,
     dnfCount,
-    classifiedCount,
+    starterCount,
   };
 }
 
