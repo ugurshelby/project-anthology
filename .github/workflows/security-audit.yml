@@ -1,0 +1,28 @@
+name: security-audit
+
+# Weekly production dependency audit (high and above). A failed run reaches the
+# owner by GitHub email; agents read it in the routine session (docs/procedures.md §2).
+# Opens no pull requests and needs no secrets.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
