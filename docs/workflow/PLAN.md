@@ -109,7 +109,7 @@ Goal: no high production vulnerability, CI runs on `main` and `wip/**`, weekly a
 Run (phase): Opus 5.5 / high — owner-mandated model (Faz 14); major upgrades. Builder session.
 Out of scope: Zod (14.3), any app code change beyond what an upgrade breaks.
 Steps:
-- [ ] 14.2 — master-plan "14.2" (eight sub-steps, one commit each). First step.
+- [x] 14.2 — master-plan "14.2" (eight sub-steps, one commit each). First step. Done 2026-10-26: `main` 20ae974, CI and security-audit green, `wip/deps-2026-10` deleted (`logs/2026-10-26.md`).
 Acceptance: master-plan 14.2 verify passes; `wip/deps-2026-10` CI and Vercel preview green, fast-forwarded to `main` with owner approval, branch deleted locally and on `origin`.
 Stop conditions: a major upgrade needs a behaviour change in app code or deletes a behaviour test → `OPEN.md` `To: Opus`. Third failed attempt at one CI error → `OPEN.md`, stop.
 

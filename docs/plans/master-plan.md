@@ -299,7 +299,7 @@ Sahip kararları (2026-10-21, `DECISIONS.md` "Faz 9 GCP"): Apex için ayrı GCP 
 - Ek kontrol (yalnızca okuma): Vercel MCP `filter_project_envs` ile Production'da `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` **adlarının** varlığı log'a yazılır (değer okunmaz).
 - Doğrulama: `grep -rn "clientIP !== 'unknown'" app/api` → çıktı yok; `grep -rln "applyRateLimit" app/api | wc -l` → 10; `npx vitest run tests/rateLimit.test.ts tests/rate-limit-routes.test.ts tests/api-media.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint app/api lib/rateLimit.ts` 0.
 
-### [ ] 14.2 Bağımlılık zafiyetleri + CI kapısı
+### [x] 14.2 Bağımlılık zafiyetleri + CI kapısı
 - Run: Opus 5.5 / high — sahip şartı; major yükseltmeler, CI kapısı
 - Owner: Opus 5.5 · Depends on: kod dondurmanın bitmesi (2026-10-26) · Dalga 3 · **tek başına koşar** (`node_modules`)
 - Dosyalar: `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, yeni `.github/workflows/security-audit.yml`, `docs/procedures.md` (§2), kırılırsa yalnızca ilgili `tests/*` ve `vitest.config.*`
@@ -569,7 +569,6 @@ Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu
 
 | Madde | Durum | Aksiyon |
 |---|---|---|
-| CI `main` push'unda koşmuyor | Son koşu 2026-10-02 | 14.2 adım 5 (`push: main`) |
 | QStash ↔ kod sapması | Canlı `retries: 3` (kod 0/1), notify `*/10` (kod `*/5`); en kötü durum 960/1000 mesaj/gün | 1.8 |
 | Çift zamanlayıcı | GitHub + QStash aynı 4 rotayı tetikliyor (idempotent, zararsız) | 1.6 (R18 sonrası) |
 | `rewrite.ts` yorum/kod çelişkisi | Yorum "Gemini → Groq", kod Groq → Gemini | 9.2 |
