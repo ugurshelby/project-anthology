@@ -29,6 +29,7 @@ The owner triggers these with a phrase (Turkish or English). Rules in `/AGENTS.m
 
 - Triggers: "güvenlik denetimi", "maliyet kontrolü", "security audit".
 - Scope: `app/api/**`, `lib/rateLimit.ts`, `lib/cronAuth.ts`, `next.config.ts`, `lib/security/csp.ts`, `.github/workflows`, `vercel.json`, `.gitignore`, `.env.example`.
+- First steps: `gh api "repos/ugurshelby/project-anthology/dependabot/alerts?state=open" --jq length` and `gh run list --workflow security-audit.yml --limit 3`. An open alert or a failed run becomes the next plan's 14.x upgrade step (through the `wip/` CI gate).
 - Steps: every public route is rate-limited and validated; every cron route calls `isCronAuthorized`; proxies take whitelisted paths only; quota exposure (OpenF1, Jolpica, Groq, Gemini, MyMemory) per visitor action; `git ls-files` shows no `.env*` except `.env.example`; `.gitignore` covers new file types; env names read in code (`grep process.env`) versus `.env.example`; crons scheduled twice (`vercel.json` vs workflows); idle CI minutes (steps that run when nothing is due); no secret values in code, docs, or logs.
 - May change: `.env.example` (names only), rate-limit or validation code with tests, workflow steps that waste minutes when provably safe.
 - Only report: dashboard or provider state (Vercel plan, Upstash, Sentry, GitHub variables), consent and privacy decisions, anything needing a secret.
