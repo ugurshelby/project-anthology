@@ -191,15 +191,17 @@ Sistemde yetki izolasyonu hem uygulama kodunda hem de veritabanı rol seviyesind
 ### 3.4 Automated Security Audits ve CI/CD Ajanları
 
 * **CI/CD Hattı:**
-  * GitHub Actions iş akışı [`/.github/workflows/ci.yml`](../../.github/workflows/ci.yml) Pull Request anında (ve 2026-10-20 itibarıyla `wip/**` dallarına push'ta) tetiklenir:
+  * GitHub Actions iş akışı [`/.github/workflows/ci.yml`](../../.github/workflows/ci.yml) Pull Request anında ve (2026-10-26 itibarıyla) `main` ile `wip/**` dallarına push'ta tetiklenir:
     * `npm ci`
+    * `npm audit --omit=dev --audit-level=high` (2026-10-26)
     * `npm run lint`
     * `npx tsc --noEmit`
     * `npm test`
     * `npm run build`
-  * **İş akışında `npm audit` veya herhangi bir bağımlılık güvenlik tarama adımı YOKTUR.**
-  * **Dependabot yapılandırması (`.github/dependabot.yml`) MEVCUT DEĞİLDİR.**
+  * 2026-10-26 (14.2): `ci.yml` üretim bağımlılıklarını `npm audit --omit=dev --audit-level=high` ile denetler; haftalık [`security-audit.yml`](../../.github/workflows/security-audit.yml) aynı denetimi pazartesi 06:00 UTC'de koşar; Dependabot uyarıları açıldı (otomatik PR kapalı).
+  * Dependabot yapılandırması (`.github/dependabot.yml`) bilinçli olarak yoktur (PR açar; politika PR yok).
   * **Snyk veya benzeri bir SAST (Statik Güvenlik Analizi) aracı entegre EDİLMEMİŞTİR.**
+* **2026-10-26 sonrası (14.2):** `next` 16.4.2, `vitest` 5.0.5, `sharp` 0.35.5, `npm audit fix`; `npm audit` toplam 0 açık. Aşağıdaki liste 2026-10-16 ölçümüdür (tarihsel).
 * **Mevcut Bağımlılık Güvenlik Açığı Taraması (`npm audit` Ölçüm Sonucu - 2026-10-16):**
   * Toplam **23 Güvenlik Açığı** tespit edilmiştir (1 Low, 5 Moderate, 14 High, 3 Critical):
     * **3 Critical:**

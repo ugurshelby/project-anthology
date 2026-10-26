@@ -9,7 +9,7 @@
 
 | Katman | Teknoloji |
 |---|---|
-| Framework | Next.js **16.2.7** (App Router, RSC), React **19.2.4** |
+| Framework | Next.js **16.4.2** (App Router, RSC), React **19.2.4** |
 | Dil | TypeScript 5 |
 | Veri tabanı | Supabase (PostgreSQL + PostgREST + RLS) |
 | Stil | Tailwind CSS 4 |

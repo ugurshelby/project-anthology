@@ -11,7 +11,7 @@
 
 | Katman | Sürüm / Araç |
 |---|---|
-| Web framework | Next.js **16.2.7** (App Router), React **19.2.4**, TypeScript **5** (`strict`) |
+| Web framework | Next.js **16.4.2** (App Router), React **19.2.4**, TypeScript **5** (`strict`) |
 | Stil | Tailwind CSS **4**, Framer Motion 12 |
 | i18n | `next-intl` 4 — `en` (önek yok) ve `tr` (`/tr/...`); locale proxy `proxy.ts` (`middleware.ts` değil) |
 | Veritabanı | Supabase (PostgreSQL + RLS); anon okuma, service-role yazma (`lib/supabase.ts`) |
