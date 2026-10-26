@@ -226,3 +226,28 @@ export function circuitName(name: string | null | undefined, locale: string | nu
     .replace(/\s+Racing\s+Course$/i, ' Pisti');
 }
 
+
+/* ------------------------------------------------------------------ */
+/* numbers                                                             */
+/* ------------------------------------------------------------------ */
+
+/** Locale-aware decimal number: "3.665,5" (tr) / "3,665.5" (en). */
+export function formatNumber(
+  value: number,
+  locale: string | null | undefined,
+  maxFractionDigits = 1,
+): string {
+  return new Intl.NumberFormat(intlTag(locale), { maximumFractionDigits: maxFractionDigits }).format(value);
+}
+
+/** Locale-aware percent for a 0–100 value: "%19" (tr) / "19%" (en). */
+export function formatPercent(
+  value: number,
+  locale: string | null | undefined,
+  maxFractionDigits = 1,
+): string {
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: 'percent',
+    maximumFractionDigits: maxFractionDigits,
+  }).format(value / 100);
+}
