@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { countryName, raceName as localRaceName } from '@/lib/i18n/format';
 import { weatherSummary } from '@/lib/i18n/labels';
 import { notFound } from 'next/navigation';
-import { fetchRoundSnapshot, fetchSeasonSnapshotTyped } from '@/lib/data/f1';
+import { fetchRoundSnapshot, fetchSeasonSnapshotTyped, type MrData } from '@/lib/data/f1';
 import {
   getRacesFromCalendar,
   getRaceResultRows,
@@ -28,6 +28,7 @@ import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { RaceResultsTable, QualifyingTable } from '@/components/season/ResultsTable';
 import { PitStopsTable } from '@/components/season/PitStopsTable';
+import { ProvisionalBadge } from '@/components/season/ProvisionalBadge';
 import { LiveRaceTracker } from '@/components/home/LiveRaceTracker';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { sportsEventJsonLd, localizedAlternates } from '@/lib/seo';
@@ -39,6 +40,11 @@ export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 const MAX_ROUNDS = 35;
+
+/** OpenF1-built snapshots carry `MRData.apexProvisional`; Jolpica rows do not. */
+function isProvisional(data: MrData | null): boolean {
+  return data?.MRData?.apexProvisional === true;
+}
 
 interface PageProps {
   params: Promise<{ year: string; n: string; locale: string }>;
@@ -204,6 +210,7 @@ export default async function RoundPage({ params }: PageProps) {
         {results.length > 0 ? (
           <BentoCard span={sprint.length > 0 || quali.length > 0 || pitstops.length > 0 ? 8 : 12}>
             <span className="label-caps mb-3 block text-text-mid">{t('classification')}</span>
+            {isProvisional(resultsData) ? <ProvisionalBadge /> : null}
             <RaceResultsTable rows={results} />
           </BentoCard>
         ) : null}
@@ -211,6 +218,7 @@ export default async function RoundPage({ params }: PageProps) {
         {quali.length > 0 ? (
           <BentoCard span={4}>
             <span className="label-caps mb-3 block text-text-mid">{t('qualifying')}</span>
+            {isProvisional(qualiData) ? <ProvisionalBadge /> : null}
             <QualifyingTable rows={quali} />
           </BentoCard>
         ) : null}
@@ -228,6 +236,7 @@ export default async function RoundPage({ params }: PageProps) {
         {sprint.length > 0 ? (
           <BentoCard span={6}>
             <span className="label-caps mb-3 block text-text-mid">{t('sprint')}</span>
+            {isProvisional(sprintData) ? <ProvisionalBadge /> : null}
             <RaceResultsTable rows={sprint} />
           </BentoCard>
         ) : null}

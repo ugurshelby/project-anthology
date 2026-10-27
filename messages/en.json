@@ -65,7 +65,8 @@
     "legalDmca": "Copyright / DMCA",
     "legalMediaSources": "Media & Attributions",
     "analyticsSettings": "Analytics settings",
-    "dataCredit": "Historical data"
+    "dataCredit": "Historical data",
+    "dataSources": "Race data"
   },
   "common": {
     "loading": "Loading…",
@@ -393,6 +394,8 @@
       "unavailable": "Grid data unavailable right now.",
       "metaTitle": "Grid",
       "metaDescription": "Every Formula 1 grid since 1950: each constructor with its driver line-up, championship standings and points. Pick any season."
+      "provisional": "Provisional · OpenF1",
+      "provisionalNote": "Updated when the official result is published.",
     },
     "status": {
       "done": "DONE",

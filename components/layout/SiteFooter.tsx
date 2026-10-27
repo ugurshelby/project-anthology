@@ -92,6 +92,7 @@ export function SiteFooter() {
           <p className="label-caps text-text-mid">
             © {YEAR} Apex F1 — {tFooter('archiveTagline')}
           </p>
+          <div className="flex flex-col gap-1 md:items-end">
           <p className="data-tabular text-xs text-text-mid">
             {tFooter('builtFor')}
             <span className="mx-2 text-text-low">·</span>
@@ -106,6 +107,28 @@ export function SiteFooter() {
             </a>{' '}
             (CC BY 4.0)
           </p>
+          <p className="data-tabular text-xs text-text-mid">
+            {tFooter('dataSources')}:{' '}
+            <a
+              href="https://github.com/jolpica/jolpica-f1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-8 items-center underline decoration-white/30 underline-offset-4 transition-colors hover:text-text-hi"
+            >
+              Jolpica F1
+            </a>
+            <span className="mx-2 text-text-low">·</span>
+            <a
+              href="https://openf1.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-8 items-center underline decoration-white/30 underline-offset-4 transition-colors hover:text-text-hi"
+            >
+              OpenF1
+            </a>{' '}
+            (CC BY-NC-SA 4.0)
+          </p>
+          </div>
         </div>
       </div>
     </footer>

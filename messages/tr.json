@@ -65,7 +65,8 @@
     "legalDmca": "Telif / DMCA",
     "legalMediaSources": "Görsel Kaynakları",
     "analyticsSettings": "Analitik ayarları",
-    "dataCredit": "Tarihsel veri"
+    "dataCredit": "Tarihsel veri",
+    "dataSources": "Yarış verisi"
   },
   "common": {
     "loading": "Yükleniyor…",
@@ -393,6 +394,8 @@
       "unavailable": "Grid verisi şu an yok.",
       "metaTitle": "Grid",
       "metaDescription": "1950'den beri her Formula 1 gridi: her takımın sürücü kadrosu, şampiyona sıralaması ve puanları. İstediğiniz sezonu seçin."
+      "provisional": "Geçici sonuç · OpenF1",
+      "provisionalNote": "Resmî sonuç yayımlanınca güncellenir.",
     },
     "status": {
       "done": "BİTTİ",
