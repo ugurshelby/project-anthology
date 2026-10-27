@@ -72,7 +72,7 @@ export function NextCircuitHero({
               {formatRaceDate(card.date, locale)}
             </p>
             <p className="label-caps text-accent">{displayUpper(raceName, locale)}</p>
-            <h2 className="headline-lg uppercase text-text-hi">{card.circuitName}</h2>
+            <h2 lang="en" className="headline-lg uppercase text-text-hi">{card.circuitName}</h2>
           </div>
 
           {targetMs ? (

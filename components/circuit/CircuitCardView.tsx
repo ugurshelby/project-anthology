@@ -52,6 +52,7 @@ export function CircuitCardView({
           <span className="font-mono text-xs text-text-low shrink-0 w-8">R{card.round}</span>
           <CountryFlag country={card.country} className="h-3 w-4 shrink-0 rounded-[2px]" />
           <span
+            lang="en"
             className="truncate font-condensed text-base font-700 uppercase tracking-tight text-text-hi group-hover:text-white transition-colors"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
@@ -150,6 +151,7 @@ export function CircuitCardView({
         <h3
           className="font-condensed text-xl sm:text-2xl font-700 leading-[0.98] tracking-tight uppercase text-text-hi transition-colors group-hover:text-white line-clamp-1"
           style={{ fontFamily: 'var(--font-condensed)' }}
+          lang="en"
         >
           {card.circuitName}
         </h3>
