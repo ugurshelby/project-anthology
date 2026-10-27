@@ -29,6 +29,8 @@ export const MEDIA_MIN_SEASON = 2018;
  *       Commons category as a source, chassis-designation queries, horse-racing/stamp/cycling rejections.
  */
 export const RESOLVER_VERSION = 2;
+/** Bump when discovery output (aliases) changes: already discovered seasons are discovered again, a few per run. */
+export const DISCOVERY_VERSION = 2;
 
 const DAY_MS = 86_400_000;
 const RESOLVED_RECHECK_DAYS = 90;
@@ -110,8 +112,8 @@ function rowToEntity(r: DueRow): MediaEntity {
 async function discover(repo: MediaRepo, opts: SyncOptions, deadlineMs: number, report: SyncReport): Promise<void> {
   const minSeason = opts.minSeason ?? MEDIA_MIN_SEASON;
   const maxSeason = opts.maxSeason ?? CURRENT_SEASON;
-  const state = (await repo.getState<{ seasons: number[] }>('discovered_seasons')) ?? { seasons: [] };
-  const done = new Set(state.seasons);
+  const state = (await repo.getState<{ seasons: number[]; version?: number }>('discovered_seasons')) ?? { seasons: [] };
+  const done = new Set(state.version === DISCOVERY_VERSION ? state.seasons : []);
 
   // Newest season is rediscovered every run (new drivers/teams join mid-year); older ones once.
   const todo: number[] = [maxSeason];
@@ -139,7 +141,7 @@ async function discover(repo: MediaRepo, opts: SyncOptions, deadlineMs: number, 
   const merged = mergeEntities(all);
   await repo.upsertDiscovered(merged);
   report.newEntities = merged.length;
-  await repo.setState('discovered_seasons', { seasons: Array.from(done).sort((a, b) => a - b) });
+  await repo.setState('discovered_seasons', { seasons: Array.from(done).sort((a, b) => a - b), version: DISCOVERY_VERSION });
 }
 
 /** Once per RESOLVER_VERSION: retry everything that was given up on. Failing to record it must never fail the run. */

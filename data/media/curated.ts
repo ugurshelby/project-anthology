@@ -71,6 +71,14 @@ export const CIRCUIT_ALIASES: Record<string, string[]> = {
   yeongam: ['korean-international-circuit'],
   nurburgring: ['nurburgring-gp'],
   hockenheimring: ['hockenheim'],
+  albert_park: ['melbourne'],
+  ricard: ['paul-ricard'],
+  sochi: ['sirius'],
+};
+
+/** Team ids whose F1DB id differs from the Jolpica id (hyphen/underscore variants are generated automatically). */
+export const TEAM_ALIASES: Record<string, string[]> = {
+  sauber: ['kick-sauber'],
 };
 
 export const ICONIC_CARS: IconicCar[] = [

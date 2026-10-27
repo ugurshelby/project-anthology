@@ -34,7 +34,7 @@ vi.mock('@/lib/media/wikimedia', async (orig) => ({
   getCommonsFileInfos: (...a: unknown[]) => getCommonsFileInfos(...a),
 }));
 
-const { runMediaSync, nextCheckFor, backoffFor, RESOLVER_VERSION } = await import('@/lib/media/sync');
+const { runMediaSync, nextCheckFor, backoffFor, RESOLVER_VERSION, DISCOVERY_VERSION } = await import('@/lib/media/sync');
 
 const candidate = (title = 'File:A.jpg'): Candidate => ({
   file: makeFile({ title }),
@@ -110,6 +110,27 @@ describe('runMediaSync', () => {
     }
     const quiet = await run(repo);
     expect(quiet).toMatchObject({ requeued: 0, due: 0 });
+  });
+
+  it('discovers finished seasons again when DISCOVERY_VERSION changes, not on the same version', async () => {
+    resolveEntity.mockResolvedValue({ best: candidate(), inspected: 1, notes: [] });
+    const repo = createMemoryRepo();
+    const seasonsAsked = () => discoverSeason.mock.calls.map((c) => c[0]);
+
+    await run(repo, { minSeason: 2024 });
+    expect(seasonsAsked()).toEqual([2025, 2024]);
+    expect(repo.state.get('discovered_seasons')).toEqual({ seasons: [2024], version: DISCOVERY_VERSION });
+
+    discoverSeason.mockClear();
+    await run(repo, { minSeason: 2024 });
+    expect(seasonsAsked()).toEqual([2025]); // 2024 is already done on this version
+
+    // state written before versioning (no `version`) or by an older discovery: discover everything again
+    repo.state.set('discovered_seasons', { seasons: [2024] });
+    discoverSeason.mockClear();
+    await run(repo, { minSeason: 2024 });
+    expect(seasonsAsked()).toEqual([2025, 2024]);
+    expect(repo.state.get('discovered_seasons')).toEqual({ seasons: [2024], version: DISCOVERY_VERSION });
   });
 
   it('a failing resolver-version bookkeeping never fails the run', async () => {

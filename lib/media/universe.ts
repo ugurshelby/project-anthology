@@ -3,7 +3,7 @@ import { carKey, iconicCarKey } from '@/lib/media/keys';
 import { circuitAliases, driverAliases, teamAliases } from '@/lib/media/aliases';
 import { wikipediaTitleFromUrl } from '@/lib/media/wikimedia';
 import type { MediaEntity } from '@/lib/media/types';
-import { CIRCUIT_ALIASES, EXTRA_CIRCUITS, ICONIC_CARS, LOGO_OVERRIDES } from '@/data/media/curated';
+import { CIRCUIT_ALIASES, EXTRA_CIRCUITS, ICONIC_CARS, LOGO_OVERRIDES, TEAM_ALIASES } from '@/data/media/curated';
 
 /**
  * The set of things that need an image, derived from live data (Jolpica) so a
@@ -59,7 +59,7 @@ export async function discoverSeason(season: number): Promise<MediaEntity[]> {
     const key = lower(c.constructorId);
     if (!key) continue;
     const override = LOGO_OVERRIDES.find((o) => o.constructorId === key);
-    const aliases = teamAliases(key, c.name, wikipediaTitleFromUrl(c.url));
+    const aliases = teamAliases(key, c.name, wikipediaTitleFromUrl(c.url), TEAM_ALIASES[key]);
     out.push({
       type: 'team',
       key,
