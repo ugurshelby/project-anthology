@@ -137,6 +137,28 @@ describe('runMediaSync', () => {
     expect(repo.state.get('discovered_seasons')).toEqual({ seasons: [2024], version: DISCOVERY_VERSION });
   });
 
+  it('a driver added to the newest season is picked up and resolved on the next run; one added to a finished season is not (deliberate limit)', async () => {
+    resolveEntity.mockResolvedValue({ best: candidate(), inspected: 1, notes: [] });
+    const bySeason: Record<number, MediaEntity[]> = {
+      2025: [{ ...driver('norris'), season: 2025 }],
+      2024: [{ ...driver('alonso'), season: 2024 }],
+    };
+    discoverSeason.mockImplementation(async (season: number) => bySeason[season] ?? []);
+    const repo = createMemoryRepo();
+    const first = await run(repo, { minSeason: 2024 });
+    expect(first).toMatchObject({ newEntities: 2, resolved: 2 });
+
+    // the newest season gains a rookie, a finished season gains a driver the first discovery missed
+    bySeason[2025] = [...bySeason[2025]!, { ...driver('rookie'), season: 2025 }];
+    bySeason[2024] = [...bySeason[2024]!, { ...driver('latecomer'), season: 2024 }];
+    const second = await run(repo, { minSeason: 2024 });
+    expect(second).toMatchObject({ newEntities: 2, due: 1, resolved: 1 }); // norris is merged again, only the rookie is new and due
+    expect(repo.records.get('driver|rookie')?.status).toBe('resolved');
+    // 2024 is discovered once per DISCOVERY_VERSION: the latecomer waits for the next version bump
+    expect(discoverSeason.mock.calls.filter((c) => c[0] === 2024)).toHaveLength(1);
+    expect(repo.records.has('driver|latecomer')).toBe(false);
+  });
+
   it('a failing resolver-version bookkeeping never fails the run', async () => {
     resolveEntity.mockResolvedValue({ best: candidate(), inspected: 1, notes: [] });
     const repo = createMemoryRepo();
