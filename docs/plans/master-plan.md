@@ -71,7 +71,7 @@
 - Doğrulama: satırlar ve sonuç günün log'unda; geçerse madde silinir, geçmezse `OPEN.md` `To: Opus`.
 - Kapanan: 1.1 yarış ölçümüyle kapandı (karar 1; quali kilit süresi 1.10 doğrulamasında, R19'da sonradan okunur). 1.4, 1.7, 1.9 gözlemi ölçüldü (`logs/2026-10-25.md`, `logs/2026-10-26.md`, rehber §4).
 
-### [ ] 1.6 GitHub `schedule:` tetikleyicilerini kaldır
+### [x] 1.6 GitHub `schedule:` tetikleyicilerini kaldır
 - Run: Haiku / low — üç dosyada aynı blok silinir
 - Owner: Haiku · Depends on: kapı geçti (2026-10-26, `DECISIONS.md` karar 3: QStash `sync-f1` her tik DELIVERED, FAILED 0; 6 adet 429 GitHub zamanlamasıyla çakışmadan) · Dalga 3
 - Dosyalar: `.github/workflows/sync-f1-race-aware.yml`, `.github/workflows/sync-news.yml`, `.github/workflows/sync-media.yml`, `.github/workflows/notify-sessions.yml`
@@ -534,7 +534,7 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Run (faz): Sonnet / high — veri doğruluğu, rota durum kodları, çok dosya
 - Owner: Sonnet · Depends on: kod dondurmanın bitmesi (2026-10-26 12:00 TR) · Dalga 3 (oturum R)
 
-### [ ] 18.1 Sıralama kesmesi, DNF oranı, soyadı
+### [~] 18.1 Sıralama kesmesi, DNF oranı, soyadı
 - Dosyalar: `lib/f1/mrdata.ts`, `components/season/DriverPodiumStandings.tsx`, `components/season/SeasonHighlightTiles.tsx`, `messages/tr.json`, `messages/en.json` (yalnızca `retirements` anahtarı), yeni `tests/mrdata-standings.test.ts`
 - Değişiklik:
   1. `getDriverStandings(data, limit?: number)` ve `getConstructorStandings(data, limit?: number)`: varsayılan sınır kalkar (`limit` yoksa tüm satırlar). Ana sayfa çağrıları (`app/[locale]/(home)/page.tsx` 6 ve 3) aynen kalır. Bugün 2026'da 23. sürücü (Pérez) ve 1989'da 30 sürücünün 8'i kesiliyor.
@@ -543,11 +543,11 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Test: 23 satırlık fixture → 23 satır; `limit: 6` → 6; durum fixture'ı (`Finished`, `+1 Lap`, `+2 Laps`, `Lapped`, `Engine`, `Collision`, `Disqualified`) → DNF 3, starter 7; `familyName` "de Cesaris".
 - Doğrulama: `npx vitest run tests/mrdata-standings.test.ts tests/mrdata-round.test.ts tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1/mrdata.ts components/season` 0; preview'da `/tr/season` 23 sürücü, `/tr/season/1989` 30 sürücü ve yarış dışı sayısı ≥ 200.
 
-### [ ] 18.2 Var olmayan sayfalar 404 dönsün
+### [~] 18.2 Var olmayan sayfalar 404 dönsün
 - Kapsam değişti (`DECISIONS.md` 2026-10-27 "18.2 and 19.3"): Next 16 `loading.tsx` varken `notFound()` 200 + `noindex` akıtır (belgelenen davranış); durum kodu hedefi bırakıldı. Bölüm 1 bitti (`b3402fe`: takvimde olmayan tur `notFound()`, sayfa ve `generateMetadata`). Bölüm 2 yapılmaz (iskeletler kalır).
 - Doğrulama (canlı): `/tr/season/2026/round/30`, `/tr/drivers/olmayan`, `/tr/circuits/olmayan`, `/tr/news/olmayan` HTML'inde `noindex` var ve başlık "bulunamadı"; `/tr/season/2026/round/17` `noindex` içermez.
 
-### [ ] 18.3 Pistler sayıları ve 2026 DRS
+### [~] 18.3 Pistler sayıları ve 2026 DRS
 - Run: Sonnet / medium — kapsamı net küçük düzeltme
 - Dosyalar: `components/circuit/CircuitsDirectory.tsx`, `app/[locale]/circuits/page.tsx`, `app/[locale]/circuits/[id]/page.tsx`, `components/circuit/NextCircuitHero.tsx`, `lib/f1Calendar.ts`, `messages/tr.json`, `messages/en.json` (`ui.circuit.totalCalendar`), ilgili test
 - Değişiklik:
@@ -556,13 +556,13 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
   3. `lib/f1Calendar.ts`: `export const DRS_LAST_SEASON = 2025;` (2026 kurallarında DRS yok; OpenF1 2026 `drs: null`, `DECISIONS.md` 13.1). Pist sayfası ve `NextCircuitHero` DRS bilgisini yalnızca gösterilen sezon ≤ `DRS_LAST_SEASON` ise gösterir.
 - Doğrulama: `npx vitest related --run components/circuit/CircuitsDirectory.tsx lib/f1Calendar.ts` ve `npx vitest run tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; preview'da `/tr/circuits` sekme sayıları tutarlı, `/tr/circuits/americas` DRS satırı yok.
 
-### [ ] 18.4 Sitemap: arşiv sayfaları
+### [~] 18.4 Sitemap: arşiv sayfaları
 - Run: Sonnet / medium — tek dosya, veri kaynakları mevcut
 - Dosyalar: `app/sitemap.ts`, sitemap testi (yoksa yeni `tests/sitemap.test.ts`)
 - Değişiklik: bugün 109 adres. Eklenecekler: `/season/{yıl}` (`F1_SEASON_MIN` → `CURRENT_SEASON`, her biri `withI18n`), `/machinery`, son 14 günün haber detayları (`news_stories`, mevcut okuyucu üzerinden). Tüm zamanların sürücü/takım sayfaları yalnızca `lib/data` zaten bir kimlik listesi veriyorsa eklenir; yeni veri kaynağı gerekiyorsa `OPEN.md` `To: Opus`.
 - Doğrulama: test sezon adresi sayısı = `CURRENT_SEASON − F1_SEASON_MIN + 1` (dil başına) ve `/machinery` var; `npx tsc --noEmit` 0; preview'da `curl -s <preview>/sitemap.xml | grep -c "<loc>"` > 300.
 
-### [ ] 18.5 Yerel sayı biçimi yardımcıları
+### [~] 18.5 Yerel sayı biçimi yardımcıları
 - Run: Sonnet / medium — küçük yardımcı ve test
 - Dosyalar: `lib/i18n/format.ts`, `tests/format.test.ts`
 - Değişiklik: `export function formatNumber(value: number, locale: string | null | undefined, maxFractionDigits = 1): string` ve `export function formatPercent(value: number, locale: string | null | undefined, maxFractionDigits = 1): string` (`value` 0–100; `Intl.NumberFormat(intlTag(locale), { style: 'percent' })` ile `value / 100`). Bileşenlere uygulama 20.2'de.
@@ -575,7 +575,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Run (faz): Sonnet / high — haber hattı, LLM çıktısı, kenar durumlar
 - Owner: Sonnet · Depends on: kod dondurmanın bitmesi · Dalga 3 (19.1, 19.3; oturum S); 19.2 Dalga 5
 
-### [ ] 19.1 "On This Day" geçmiş yazılarını haber akışından çıkar
+### [~] 19.1 "On This Day" geçmiş yazılarını haber akışından çıkar
+- Durum 2026-10-26: kod + test commit `f14623f` (vitest 5/5, tsc 0, eslint 0); açık: push + deploy sonrası ilk `sync-news` ve SQL sayımı.
 - Dosyalar: `lib/news/aggregate.ts`, `tests/aggregate.test.ts`
 - Değişiklik: kaynak başlığı `/^On This Day\b/i` ile başlayan RSS öğeleri haber olarak alınmaz (RaceFans "On This Day: …" kısa yazıları; ölçülen: 155 kayıttan 3'ü, ör. `ca1by8` 2016 ABD GP'si 2026 haberi gibi listeleniyor). Mevcut 3 satır silinmez (veri değişikliği sahip onayı ister); akış penceresinden kendiliğinden düşerler.
 - Doğrulama: test "On This Day: Hamilton wins…" başlıklı öğe elenir, normal başlık kalır; `npx vitest run tests/aggregate.test.ts` yeşil; `npx tsc --noEmit` 0; ilk `sync-news` sonrası read-only SQL `select count(*) from news_stories where sources::text ilike '%On This Day%' and cached_at > '<deploy zamanı>'` = 0.

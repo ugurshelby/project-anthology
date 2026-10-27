@@ -146,11 +146,11 @@ Depends on: 14.2 on `main` (1.3 does not: read-only, run it first, on or after 2
 Out of scope: UI copy and styling (Faz 20), `lib/f1/provisional*`, `sync-f1` route (Q).
 Steps:
 - [ ] 1.3 — master-plan "1.3" (read-only SQL, `/effort low`). First step.
-- [ ] 18.1 — master-plan "18.1".
-- [ ] 18.2 — master-plan "18.2".
-- [ ] 18.3 — master-plan "18.3" (`/effort medium`).
-- [ ] 18.4 — master-plan "18.4" (`/effort medium`).
-- [ ] 18.5 — master-plan "18.5" (`/effort medium`).
+- [~] 18.1 — master-plan "18.1". Code + tests done (commit b37bd7b); open: preview check (/tr/season 23 drivers, /tr/season/1989 30 drivers, DNF ≥ 200).
+- [~] 18.2 — master-plan "18.2". Part 1 done (b3402fe); part 2 and the 404 curls blocked by loading.tsx, see OPEN.md "18.2 entity 404s".
+- [~] 18.3 — master-plan "18.3" (`/effort medium`). Code + tests done (1b11d9f); open: preview check (tab counts, no DRS row on /tr/circuits/americas).
+- [~] 18.4 — master-plan "18.4" (`/effort medium`). Code + tests done (024b860); open: preview `sitemap.xml` `<loc>` count > 300.
+- [~] 18.5 — master-plan "18.5" (`/effort medium`). Done and verified locally (b121831); ticks `[x]` after wip CI green.
 Acceptance: each step's verify passes; one commit per step; `wip/` CI and preview green before `main`.
 Stop conditions: 18.2 needs `loading.tsx` removed, or 18.4 needs a new data source → `OPEN.md` `To: Opus`, continue with the next step.
 
@@ -160,8 +160,8 @@ Run (phase): Sonnet / high — news pipeline (19.3 at `/effort medium`).
 Depends on: 14.2 on `main`.
 Out of scope: `lib/news/rewrite.ts` (19.2 waits for 14.4, then precedes 9.2), `lib/data/news.ts` (14.5).
 Steps:
-- [ ] 19.1 — master-plan "19.1". First step.
-- [ ] 19.3 — master-plan "19.3" (`/effort medium`).
+- [~] 19.1 — master-plan "19.1". First step. Code and test committed `f14623f`; open: push, first `sync-news` SQL count.
+- [ ] 19.3 — master-plan "19.3" (`/effort medium`). Blocked 2026-10-26: plan names `NewsList.tsx`, the telegraph is `NewsWireFeed.tsx`; `OPEN.md` `To: Opus`.
 Acceptance: verifies pass; first `sync-news` after deploy logged with the SQL count.
 Stop conditions: the RSS item lacks the source title at the filter point → `OPEN.md` `To: Opus`.
 
@@ -170,7 +170,7 @@ Goal: QStash is the only scheduler for the four cron routes.
 Run (phase): Haiku / low — fully specified deletion.
 Depends on: 14.2 on `main` (shares `.github/workflows/` with H). Gate passed (`DECISIONS.md` 2026-10-26 decision 3).
 Steps:
-- [ ] 1.6 — master-plan "1.6". First step.
+- [x] 1.6 — master-plan "1.6". First step. Commit `5115943` (local); post-push QStash check pending.
 Acceptance: master-plan 1.6 verify passes; after push, `qstash_list_schedules` (eu) unchanged and the next tick of each route DELIVERED (logged).
 Stop conditions: any other line in the four files would change → stop.
 
