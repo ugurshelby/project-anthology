@@ -27,7 +27,7 @@ const MIN_WIDTH: Record<MediaEntityType, number> = {
 
 /** Width we ask Commons to render (we never need more than the biggest variant). */
 export const THUMB_WIDTH: Record<MediaEntityType, number> = {
-  driver: 1000,
+  driver: 1400,
   team: 800,
   car: 1600,
   circuit: 1600,

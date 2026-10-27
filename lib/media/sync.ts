@@ -1,11 +1,11 @@
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { buildAttributionFor } from '@/lib/media/attribution';
 import { MediaHttpError, type FetchOptions } from '@/lib/media/http';
-import { downloadImage, processImage } from '@/lib/media/process';
+import { downloadImage, plannedWidths, processImage, VARIANT_WIDTHS } from '@/lib/media/process';
 import { createSupabaseRepo, type DueRow, type MediaRepo } from '@/lib/media/repo';
 import { describeMiss, resolveEntity } from '@/lib/media/resolve';
 import { THUMB_WIDTH } from '@/lib/media/score';
-import type { MediaEntity } from '@/lib/media/types';
+import type { MediaEntity, MediaEntityType } from '@/lib/media/types';
 import { curatedCarEntities, discoverSeason, extraCircuitEntities, mergeEntities } from '@/lib/media/universe';
 import { getCommonsFileInfos, getWikidataMedia, resolveQids, wikipediaTitleFromUrl, type WikidataMedia } from '@/lib/media/wikimedia';
 import { classifyLicense } from '@/lib/media/license';
@@ -31,6 +31,20 @@ export const MEDIA_MIN_SEASON = 2018;
 export const RESOLVER_VERSION = 2;
 /** Bump when discovery output (aliases) changes: already discovered seasons are discovered again, a few per run. */
 export const DISCOVERY_VERSION = 2;
+
+/** Variant widths before the 1280 px driver step (8.5): what rows are on when no ladder has been recorded yet. */
+const LADDER_BEFORE_RECORDING: Record<MediaEntityType, number[]> = {
+  driver: [160, 320, 640],
+  team: [96, 192, 384],
+  car: [480, 960, 1600],
+  circuit: [480, 960, 1600],
+};
+
+/** A same-file recheck still re-processes when the stored variants stop well short of what the source can give now. */
+export function needsLargerVariants(stored: Array<{ w: number }>, sourceWidth: number, type: MediaEntityType): boolean {
+  const wanted = Math.max(...plannedWidths(type, Math.min(sourceWidth, THUMB_WIDTH[type])));
+  return Math.max(0, ...stored.map((v) => v.w)) < wanted * 0.95;
+}
 
 const DAY_MS = 86_400_000;
 const RESOLVED_RECHECK_DAYS = 90;
@@ -158,6 +172,25 @@ async function requeueMissingForNewResolver(repo: MediaRepo, now: Date, log: (ms
   }
 }
 
+/** Once per variant-ladder change: resolved rows of that type are made due so they are re-processed at the new widths. */
+async function requeueForNewLadder(repo: MediaRepo, now: Date, log: (msg: string) => void): Promise<number> {
+  try {
+    const recorded = await repo.getState<Partial<Record<MediaEntityType, number[]>>>('variant_ladder');
+    const before = recorded ?? LADDER_BEFORE_RECORDING;
+    const changed = (Object.keys(VARIANT_WIDTHS) as MediaEntityType[]).filter(
+      (t) => (before[t] ?? []).join(',') !== VARIANT_WIDTHS[t].join(','),
+    );
+    if (recorded && changed.length === 0) return 0;
+    let n = 0;
+    for (const type of changed) n += await repo.requeueResolved(type, now.toISOString());
+    await repo.setState('variant_ladder', VARIANT_WIDTHS);
+    return n;
+  } catch (err) {
+    log(`variant ladder requeue failed: ${String(err)}`);
+    return 0;
+  }
+}
+
 export async function runMediaSync(opts: SyncOptions): Promise<SyncReport> {
   const startedAt = Date.now();
   const now = opts.now ?? new Date();
@@ -181,7 +214,7 @@ export async function runMediaSync(opts: SyncOptions): Promise<SyncReport> {
   };
 
   if (!opts.skipDiscovery) await discover(repo, opts, deadlineMs, report);
-  report.requeued = await requeueMissingForNewResolver(repo, now, log);
+  report.requeued = (await requeueMissingForNewResolver(repo, now, log)) + (await requeueForNewLadder(repo, now, log));
 
   let due = await repo.claimDue(opts.maxDue ?? MAX_DUE_PER_RUN, now.toISOString());
   if (opts.only?.length) {
@@ -260,7 +293,12 @@ export async function runMediaSync(opts: SyncOptions): Promise<SyncReport> {
       const best = outcome.best;
 
       if (best) {
-        if (row.status === 'resolved' && row.source_file === best.file.title) {
+        const storedVariants = (row.variants ?? []) as unknown as Array<{ w: number }>;
+        if (
+          row.status === 'resolved' &&
+          row.source_file === best.file.title &&
+          !needsLargerVariants(storedVariants, best.file.width, entity.type)
+        ) {
           await repo.touch(entity, nextCheckFor('resolved', entity, now));
           report.unchanged++;
           report.items.push({ type: entity.type, key: entity.key, outcome: 'unchanged', detail: best.file.title });

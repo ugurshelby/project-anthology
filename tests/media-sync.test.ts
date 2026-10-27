@@ -17,7 +17,8 @@ vi.mock('@/lib/media/resolve', () => ({
   resolveEntity: (...a: unknown[]) => resolveEntity(...a),
   describeMiss: () => 'no candidate',
 }));
-vi.mock('@/lib/media/process', () => ({
+vi.mock('@/lib/media/process', async (orig) => ({
+  ...(await orig<typeof import('@/lib/media/process')>()),
   downloadImage: (...a: unknown[]) => downloadImage(...a),
   processImage: (...a: unknown[]) => processImage(...a),
 }));
@@ -34,7 +35,7 @@ vi.mock('@/lib/media/wikimedia', async (orig) => ({
   getCommonsFileInfos: (...a: unknown[]) => getCommonsFileInfos(...a),
 }));
 
-const { runMediaSync, nextCheckFor, backoffFor, RESOLVER_VERSION, DISCOVERY_VERSION } = await import('@/lib/media/sync');
+const { runMediaSync, nextCheckFor, backoffFor, needsLargerVariants, RESOLVER_VERSION, DISCOVERY_VERSION } = await import('@/lib/media/sync');
 
 const candidate = (title = 'File:A.jpg'): Candidate => ({
   file: makeFile({ title }),
@@ -44,8 +45,11 @@ const candidate = (title = 'File:A.jpg'): Candidate => ({
 });
 
 const processed = {
-  width: 640, height: 800, sha256: 'a'.repeat(64), blurDataUrl: 'data:image/webp;base64,xx', dominantColor: '#112233',
-  variants: [{ w: 640, h: 800, bytes: 10, buffer: Buffer.from('x') }],
+  width: 1280, height: 1600, sha256: 'a'.repeat(64), blurDataUrl: 'data:image/webp;base64,xx', dominantColor: '#112233',
+  variants: [
+    { w: 640, h: 800, bytes: 10, buffer: Buffer.from('x') },
+    { w: 1280, h: 1600, bytes: 20, buffer: Buffer.from('y') },
+  ],
 };
 
 const driver = (key: string): MediaEntity => ({ type: 'driver', key, season: 2025, displayName: key, wikipediaUrl: `https://en.wikipedia.org/wiki/${key}` });
@@ -240,6 +244,68 @@ describe('runMediaSync', () => {
     const report = await run(repo, { only: [{ type: 'driver', key: 'norris' }] });
     expect(report.due).toBe(1);
     expect(resolveEntity).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('variant ladder (8.5)', () => {
+  const team = (key: string): MediaEntity => ({ type: 'team', key, season: 2025, displayName: key, wikipediaUrl: `https://en.wikipedia.org/wiki/${key}` });
+
+  it('needsLargerVariants compares the stored widest variant with what the source supports now', () => {
+    expect(needsLargerVariants([{ w: 640 }], 1400, 'driver')).toBe(true);
+    expect(needsLargerVariants([{ w: 1280 }], 1400, 'driver')).toBe(false);
+    expect(needsLargerVariants([{ w: 1280 }], 3000, 'driver')).toBe(false); // capped by the thumbnail width and the ladder
+    expect(needsLargerVariants([{ w: 640 }], 700, 'driver')).toBe(false); // 700 px yields 640: must not requeue forever
+    expect(needsLargerVariants([{ w: 320 }], 500, 'driver')).toBe(true);
+    expect(needsLargerVariants([{ w: 500 }], 500, 'driver')).toBe(false);
+    expect(needsLargerVariants([], 3000, 'driver')).toBe(true);
+  });
+
+  it('the same file is re-processed when the stored variants are short of the source, and left alone otherwise', async () => {
+    resolveEntity.mockResolvedValue({ best: candidate('File:A.jpg'), inspected: 1, notes: [] });
+    discoverSeason.mockResolvedValue([driver('norris'), driver('piastri')]);
+    const repo = createMemoryRepo();
+    await run(repo); // fixture source is 3000 px wide, processed variants reach 1280
+    const due = () => {
+      for (const r of repo.records.values()) r.nextCheckAt = new Date(0).toISOString();
+    };
+    repo.records.get('driver|norris')!.detail!.variants = [{ w: 640, h: 800, path: 'old/640.webp', bytes: 10 }];
+
+    downloadImage.mockClear();
+    due();
+    const again = await run(repo);
+    expect(again).toMatchObject({ resolved: 1, unchanged: 1 });
+    expect(downloadImage).toHaveBeenCalledTimes(1);
+    expect(Math.max(...repo.records.get('driver|norris')!.detail!.variants.map((v) => v.w))).toBe(1280);
+
+    downloadImage.mockClear();
+    due();
+    expect(await run(repo)).toMatchObject({ resolved: 0, unchanged: 2 });
+    expect(downloadImage).not.toHaveBeenCalled();
+  });
+
+  it('requeues only resolved rows of a type whose ladder changed, once; with no ladder recorded only drivers (the old ladder)', async () => {
+    resolveEntity.mockResolvedValue({ best: candidate(), inspected: 1, notes: [] });
+    discoverSeason.mockResolvedValue([driver('norris'), driver('piastri'), team('ferrari')]);
+    const repo = createMemoryRepo();
+    const first = await run(repo);
+    expect(first).toMatchObject({ resolved: 3, requeued: 0 }); // nothing resolved yet at requeue time
+    expect(repo.state.get('variant_ladder')).toMatchObject({ driver: [160, 320, 640, 1280] });
+    const later = () => {
+      for (const r of repo.records.values()) r.nextCheckAt = new Date(Date.now() + 20 * 86_400_000).toISOString();
+    };
+
+    later();
+    repo.state.delete('variant_ladder'); // as on the first run after the 1280 px step shipped
+    const migrated = await run(repo);
+    expect(migrated).toMatchObject({ requeued: 2, due: 2 }); // the two drivers; the team row keeps its schedule
+
+    later();
+    expect(await run(repo)).toMatchObject({ requeued: 0, due: 0 });
+
+    later();
+    repo.state.set('variant_ladder', { ...(repo.state.get('variant_ladder') as object), team: [96, 192] });
+    expect(await run(repo)).toMatchObject({ requeued: 1, due: 1 });
+    expect(repo.state.get('variant_ladder')).toMatchObject({ team: [96, 192, 384] });
   });
 });
 

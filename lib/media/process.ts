@@ -12,11 +12,27 @@ import type { MediaEntityType, ProcessedImage } from '@/lib/media/types';
 
 /** Variant widths per type. Smallest first; the largest never exceeds the source. */
 export const VARIANT_WIDTHS: Record<MediaEntityType, number[]> = {
-  driver: [160, 320, 640],
+  driver: [160, 320, 640, 1280],
   team: [96, 192, 384],
   car: [480, 960, 1600],
   circuit: [480, 960, 1600],
 };
+
+/** A source this much wider than the largest step that fits (and still below the top step) is kept at its own width too. */
+const INTERMEDIATE_SOURCE_RATIO = 1.15;
+
+/**
+ * Widths `processImage` writes for a source `sourceWidth` px wide. Never upscales: the steps the source can
+ * supply, plus the source width itself when it falls well between two steps (500 px → 160, 320, 500).
+ */
+export function plannedWidths(type: MediaEntityType, sourceWidth: number): number[] {
+  const ladder = VARIANT_WIDTHS[type];
+  const fitting = ladder.filter((w) => w <= sourceWidth);
+  if (!fitting.length) return [sourceWidth];
+  const top = fitting[fitting.length - 1]!;
+  if (sourceWidth < ladder[ladder.length - 1]! && sourceWidth >= top * INTERMEDIATE_SOURCE_RATIO) return [...fitting, sourceWidth];
+  return fitting;
+}
 
 const WEBP_QUALITY: Record<MediaEntityType, number> = { driver: 78, team: 90, car: 76, circuit: 74 };
 
@@ -119,9 +135,7 @@ export async function processImage(input: Buffer, type: MediaEntityType): Promis
   if (!meta.width || !meta.height) throw new Error('image has no dimensions');
 
   const isLogo = type === 'team';
-  // Never upscale: keep configured widths the source can supply, else just the source width.
-  const fitting = VARIANT_WIDTHS[type].filter((w) => w <= meta.width!);
-  const widths = fitting.length ? fitting : [meta.width];
+  const widths = plannedWidths(type, meta.width);
   const variants: ProcessedImage['variants'] = [];
   for (const w of widths) {
     const targetW = Math.min(w, meta.width);

@@ -41,6 +41,8 @@ export interface MediaRepo {
   acknowledgeRejection(entity: MediaEntity, rejectedFiles: string[]): Promise<void>;
   /** Make every `missing` row due now (the resolver improved, so a previous "nothing found" may be stale). Returns how many. */
   requeueMissing(nowIso: string): Promise<number>;
+  /** Make every resolved, non-owner-approved row of one type due now (its variant ladder changed). Returns how many. */
+  requeueResolved(type: MediaEntityType, nowIso: string): Promise<number>;
   getState<T>(key: string): Promise<T | null>;
   setState(key: string, value: unknown): Promise<void>;
 }
@@ -270,6 +272,18 @@ export function createSupabaseRepo(): MediaRepo {
       return (data ?? []).length;
     },
 
+    async requeueResolved(type, now) {
+      const { data, error } = await db
+        .from('media_assets')
+        .update({ next_check_at: now, updated_at: now })
+        .eq('entity_type', type)
+        .eq('status', 'resolved')
+        .eq('review', 'auto')
+        .select('entity_key');
+      if (error) throw new Error(`media_assets requeueResolved: ${error.message}`);
+      return (data ?? []).length;
+    },
+
     async getState<T>(key: string) {
       const { data, error } = await db.from('media_sync_state').select('value').eq('key', key).maybeSingle();
       if (error) throw new Error(`media_sync_state get: ${error.message}`);
@@ -408,6 +422,15 @@ export function createMemoryRepo(outDir?: string): MediaRepo & { records: Map<st
       let n = 0;
       for (const r of records.values()) {
         if (r.status !== 'missing') continue;
+        r.nextCheckAt = now;
+        n++;
+      }
+      return n;
+    },
+    async requeueResolved(type, now) {
+      let n = 0;
+      for (const r of records.values()) {
+        if (r.entity.type !== type || r.status !== 'resolved') continue;
         r.nextCheckAt = now;
         n++;
       }

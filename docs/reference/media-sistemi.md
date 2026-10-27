@@ -1,6 +1,6 @@
 # Medya (görsel) sistemi: pilot, takım, araç, pist
 
-Last verified: 2026-10-06
+Last verified: 2026-10-28 (§5, §11, §14: 8.1 alias eşleşmesi, 8.5 pilot 1280 px)
 
 Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend'in (Antigravity) bu sisteme nasıl güvenli bağlanacağını** anlatır. Kod ve migration hazırdır; migration canlı veritabanına uygulandı ve kod/workflow 2026-10-06'da canlıya çıktı; ilk `sync-media` koşusuyla dolum başlar (bkz. Bölüm 13).
 
@@ -136,6 +136,8 @@ Route: `app/api/cron/sync-media` · Zamanlama: saatlik, **QStash** (`apex-sync-m
 - **Keşif:** Jolpica'dan sezon başına pilot/takım/pist listesi. En yeni sezon her çalışmada, eski sezonlar çalışma başına en fazla 2 tane geriye doğru (2018'e kadar). Ek olarak ikonik araçlar ve tarihî pistler (`data/media/curated.ts`). **Yeni sezon (2027, 2028…) için kod değişikliği gerekmez.**
 - **İşleme:** vadesi gelenler (önce `pending`), toplu kimlik çözümü (Wikipedia→Wikidata→görsel talepleri) sonra varlık başına aday arama/puanlama/indirme.
 - **Çözümleyici sürümü (`RESOLVER_VERSION`, `lib/media/sync.ts`):** kapılar/puanlama/arama aşamaları/curated veri iyileştiğinde sürüm artırılır; bir sonraki çalışma **bir kez** tüm `missing` satırları vadesi gelmiş yapar (`next_check_at = now`) ve sürümü `media_sync_state.resolver_version` içine yazar. Böylece iyileştirme, 7–21 gün beklemeden vazgeçilmiş varlıklara ulaşır; kayıt başarısız olsa bile çalışma düşmez. Yanıtta `requeued` sayısı döner.
+- **Varyant merdiveni (`variant_ladder`, `media_sync_state`):** koddaki `VARIANT_WIDTHS` kayıtlı merdivenden farklı olan türün `status = 'resolved'` ve `review = 'auto'` satırları bir kez vadesi gelmiş yapılır (`requeueResolved`), sonra merdiven yazılır; sayı `requeued`'a eklenir. Kayıt yoksa 1280 px basamağından önceki merdiven varsayılır (yalnızca pilotlar kuyruğa girer). Aynı dosya yeniden seçilse de kayıtlı en geniş varyant, kaynağın bugün verebileceğinin %95'inden darsa görsel yeniden indirilip işlenir (`needsLargerVariants`).
+- **Keşif sürümü (`DISCOVERY_VERSION`, `lib/media/sync.ts`):** alias üretimi değiştiğinde artırılır; `discovered_seasons` durumundaki `version` farklıysa biten sezonlar çalışma başına 2'şer yeniden keşfedilir.
 - **Vade takvimi:** `resolved` 90 gün · `approved` 180 gün · `missing`: son iki sezonun aracı 7 gün (yeni sezon fotoğrafları haftalar sonra çıkar), diğerleri 21 gün · hata: 10 dk × 2ⁿ (en çok 6 saat).
 - **Rate limit koruması:** host başına istek aralığı (Wikimedia ≥ 1.1 sn), `Retry-After`'a uyulur, açıklayıcı `User-Agent` (`MEDIA_CONTACT` env veya site URL'si). Art arda 3 geçici hata → çalışma durur.
 - **İdempotent:** aynı dosya seçilirse indirme yapılmaz; vadesi gelmemiş satıra (çözülmüş: 90 gün, onaylı: 180 gün) dokunulmaz — elle veya zamanlı her tetikleme yalnızca vadesi gelen (yeni, hatalı, vadesi dolmuş `missing`) varlıkları arar. Eski sürümün Storage dosyaları temizlenir.
@@ -274,7 +276,7 @@ Ortak: koyu/açık tema, WCAG AA kontrast, sabit en-boy oranı (görsel yerine g
 
 ## 11. Performans notları
 
-- Her görsel 3 genişlikte WebP (pilot 160/320/640, logo 96/192/384, araç/pist 480/960/1600) + 16 px blur data-URL + baskın renk. Kaynaktan büyütme yapılmaz.
+- Her görsel WebP varyantlarında (pilot 160/320/640/1280, logo 96/192/384, araç/pist 480/960/1600) + 16 px blur data-URL + baskın renk. Kaynaktan büyütme yapılmaz. Kaynak, sığan en büyük basamaktan en az %15 geniş ve en üst basamaktan dar ise kaynak genişliği de son varyant olur (500 px pilot → 160/320/500; `plannedWidths`, `lib/media/process.ts`). Commons'tan istenen küçük resim genişliği pilotta 1400 px (`THUMB_WIDTH`, `lib/media/score.ts`).
 - Storage dosyaları `immutable`, 1 yıl cache; API cevabı CDN'de 1 saat (+ stale-while-revalidate 1 gün).
 - Listeler için **tek sorgu** (`getMediaBatch`, `in` + `ov` filtresi, GIN indeksli `aliases`).
 - Sayfalarda hiçbir yerde görsel için canlı Wikimedia/Jolpica çağrısı yoktur.
@@ -355,7 +357,7 @@ Görsel **anında** herkese kapanır. Bir sonraki cron çalışması dosyayı ka
 - **Görsel kalite çeşitliliği:** pilot fotoğrafları çoğunlukla pist kenarı/hayran bölgesi çekimleri (stüdyo portresi değil). Puanlama yalnızca metadata'ya bakar, pikselleri görmez; aday sırası iyi ama kusursuz değildir. Kötü olanı `rejected` yapın.
 - **Araç fotoğrafları:** yeni sezonun görselleri genellikle testlerden/ilk yarışlardan sonra Commons'a girer; o zamana kadar placeholder. Garaj içi/müze çekimleri ikinci sırada tutulur ama yalnızca onlar varsa seçilir.
 - **Pist:** bazı pistlerde uygun serbest fotoğraf yoktur ya da yalnızca şehir/hava görüntüsü vardır; eşik altı kalanlar placeholder olur.
-- **F1DB kimlik eşleşmesi:** pilot/takım alias'ları sitenin F1DB indeksinden isim eşleşmesiyle üretilir; pist F1DB kimlikleri için tire/alt çizgi varyantları + `CIRCUIT_ALIASES` kullanılır (doğrulanmamış girişler zararsızdır).
+- **F1DB kimlik eşleşmesi:** pilot/takım alias'ları sitenin F1DB indeksinden isim eşleşmesiyle üretilir; pist F1DB kimlikleri için tire/alt çizgi varyantları + `CIRCUIT_ALIASES`, takımlar için `TEAM_ALIASES` kullanılır (doğrulanmamış girişler zararsızdır). Pilot adlarında `Jr/Sr/II/III` eki yok sayılır; tam ad tutmazsa F1DB adı (en az 2 sözcük, son sözcük aynı) Jolpica adının sözcük alt kümesiyse ve tek F1DB kimliği veriyorsa eşleşir ("Kimi Antonelli" ⊂ "Andrea Kimi Antonelli"; birden çok sonuçta hiçbiri).
 - **Wikimedia bağımlılığı:** kaynak tarafındaki silinme/lisans değişikliği bir sonraki yeniden kontrolde (90 gün) görülür.
 
 ---

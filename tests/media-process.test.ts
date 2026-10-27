@@ -31,10 +31,22 @@ describe('processImage', () => {
   });
 
   it('keeps only the widths the source can supply', async () => {
-    const out = await processImage(await png(500, 625), 'driver');
-    expect(out.variants.map((v) => v.w)).toEqual([160, 320]);
     const tiny = await processImage(await png(100, 100), 'driver');
     expect(tiny.variants.map((v) => v.w)).toEqual([100]);
+  });
+
+  it('driver ladder reaches 1280 px and never upscales past the source', async () => {
+    const big = await processImage(await png(2000, 2500), 'driver');
+    expect(big.variants.map((v) => v.w)).toEqual([160, 320, 640, 1280]);
+    expect(big.width).toBe(1280);
+  });
+
+  it('a source well between two steps also becomes the last variant; one just above a step does not', async () => {
+    const mid = await processImage(await png(500, 625), 'driver');
+    expect(mid.variants.map((v) => v.w)).toEqual([160, 320, 500]);
+    expect(mid.width).toBe(500);
+    const near = await processImage(await png(700, 875), 'driver');
+    expect(near.variants.map((v) => v.w)).toEqual([160, 320, 640]);
   });
 
   it('preserves transparency for logos', async () => {
