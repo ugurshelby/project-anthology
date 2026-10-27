@@ -162,7 +162,8 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 
 Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım logoları: cevaplandı 2026-10-27, resmî ve Commons logoları kalkar, 11 takım tek tasarım işareti → 8.11, 8.11b; (2) haber fotoğrafları: 197/223 yayıncı fotoğrafı lisans kaydı olmadan → 8.9 kapsamı; (3) Lusail, Madring, Las Vegas: 8.8 aday listesinden dosya ya da pist çizimi; (4) hikâye: 57 `unverified` → 16.6 erkene alınır mı.
 
-### [ ] 8.1 Arşiv kimlik eşleşmesi (F1DB ↔ Jolpica)
+### [~] 8.1 Arşiv kimlik eşleşmesi (F1DB ↔ Jolpica)
+- Durum 2026-10-28: kod + test bitti (7b1bdb7). Açık: push, ≥ 5 `sync-media` koşusu, canlı `/api/media` kontrolleri.
 - Run: Sonnet / high — eşleşme kenar durumları, yanlış alias riski
 - Owner: Sonnet · Depends on: 14.2 `main`'de · Dalga 4 (oturum T, ilk adım)
 - Dosyalar: `lib/media/aliases.ts`, `data/media/curated.ts`, `lib/media/universe.ts`, `lib/media/sync.ts`, `tests/media-aliases.test.ts`, `tests/media-sync.test.ts`
@@ -196,7 +197,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: `StoryCard` `priority?: boolean` alır, `ApexImage`'a `priority={priority}` geçirir; dar kart `sizes` `'(max-width: 768px) 100vw, 33vw'` → `'(max-width: 768px) 100vw, 45vw'` (ölçülen: 1440 px'te 635 css). Sayfa: `<StoryCard story={lead} wide priority />`.
 - Doğrulama: `npx tsc --noEmit` 0; `npx eslint` 2 dosya 0; tarayıcı `/tr/anthology` 375 px LCP `img` `loading` ≠ `lazy`, `fetchpriority=high`.
 
-### [ ] 8.5 Pilot görseli 1280 px ve ara genişlik
+### [~] 8.5 Pilot görseli 1280 px ve ara genişlik
+- Durum 2026-10-28: kod + test bitti (be7704b; `needsLargerVariants` hedefi `plannedWidths`'in verdiği en geniş genişlik, 700 px kaynakta sonsuz yeniden kuyruk olmasın diye; kayıtlı merdiven yoksa 1280 öncesi merdiven varsayılır). Açık: `wip/` build, canlı genişlik sayımı.
 - Run: Sonnet / high — medya hattı, Storage yazımı, yeniden işleme
 - Owner: Sonnet · Depends on: 8.1 (aynı `sync.ts`) · Dalga 4 (oturum T)
 - Dosyalar: `lib/media/process.ts`, `lib/media/score.ts`, `lib/media/sync.ts`, `lib/media/repo.ts`, `tests/media-process.test.ts`, `tests/media-sync.test.ts`, `docs/reference/media-sistemi.md` (§11, §14)
@@ -207,14 +209,16 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
   4. Tek seferlik kuyruk: `media_sync_state` anahtarı `variant_ladder` = `{ [type]: number[] }`; kayıtlı merdiveni koddakinden farklı türün `status = 'resolved' and review = 'auto'` satırları `next_check_at = now` olur (yeni `requeueResolved(type: MediaEntityType, nowIso: string): Promise<number>`, iki depoda da), sonra merdiven yazılır; sayı raporun `requeued`'una eklenir. Bugün `approved` satır 0 (ölçüldü).
 - Doğrulama: test: 2000 px → 160/320/640/1280; 500 px → 160/320/500; 700 px → 160/320/640; aynı dosya + kayıtlı 640 + kaynak 1400 → yeniden işlenir; aynı dosya + kayıtlı 1280 → `unchanged`; merdiven değişince yalnızca o türün `auto` çözülmüş satırları kuyruğa girer, ikinci koşuda girmez. `npx vitest run tests/media-process.test.ts tests/media-sync.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0; `wip/` build yeşil. Canlı (deploy + 3 `sync-media`): `select width, count(*) from media_assets where entity_type='driver' and status='resolved' group by 1` log'a (bugün 640: 55, 320: 5); `sync-media` teslimleri 200.
 
-### [ ] 8.7 Yeni varlık testi ve canlı gözlem (K6 medya)
+### [~] 8.7 Yeni varlık testi ve canlı gözlem (K6 medya)
+- Durum 2026-10-28: test bitti (6d4c312). Açık: canlı K6 gözlemi (ilk yeni `media_assets` satırı).
 - Run: Sonnet / medium — bilinen davranış testi
 - Owner: Sonnet · Depends on: 8.5 (aynı test dosyası) · Dalga 4 (oturum T)
 - Dosyalar: `tests/media-sync.test.ts`
 - Değişiklik: bellek deposu + sahte Jolpica: en yeni sezona sonradan eklenen pilot sonraki `runMediaSync` koşusunda `pending` eklenir ve aynı koşuda `resolved` olur; keşfedilmiş eski sezona eklenen pilot aynı `DISCOVERY_VERSION`'da keşfedilmez (bilinçli sınır, testte belgelenir).
 - Doğrulama: `npx vitest run tests/media-sync.test.ts` yeşil. Canlı gözlem (tetik: 2026-10-26'dan sonra ilk yeni `media_assets` satırı): K6 sorgusu (`medya-kapisi-olcum.md`) → `resolved_at - created_at` ≤ 24 sa ya da `missing` + `last_error`; log'a.
 
-### [ ] 8.8 Serbest fotoğrafı olmayan güncel pistler
+### [~] 8.8 Serbest fotoğrafı olmayan güncel pistler
+- Durum 2026-10-28: (a) bitti, aday listesi `logs/2026-10-28.md` "Session T" (Losail: serbest F1 fotoğrafı yok; Madring: fotoğraf adayı yok; Las Vegas: 3 PD aday, puan 44 < 50). (b) sahibin seçimini bekler (sahip sorusu 3).
 - Run: Sonnet / medium — kuru çalıştırma raporu; seçim sahibin
 - Owner: Sonnet → owner → Sonnet · Depends on: 8.1 (aynı `curated.ts`, `universe.ts`), (b) için sahip sorusu 3 · Dalga 4 (oturum T, son adım; seçim gelmezse (a)'da durur)
 - Dosyalar: (a) yok, rapor log'a; (b) `data/media/curated.ts`, `lib/media/universe.ts`, `lib/media/sync.ts`, `tests/media-resolve-stages.test.ts`

@@ -184,10 +184,10 @@ Run (phase): Sonnet / high — media pipeline writes, matching edge cases (8.7 a
 Depends on: 14.2 on `main`.
 Out of scope: `components/`, `lib/media/read.ts`, `app/api/media/route.ts` (J, 14.3), migrations, env, `package.json`.
 Steps:
-- [ ] 8.1 — master-plan "8.1". First step.
-- [ ] 8.5 — master-plan "8.5".
-- [ ] 8.7 — master-plan "8.7" (`/effort medium`).
-- [ ] 8.8 — master-plan "8.8" (`/effort medium`): (a) report; (b) only after the owner picks.
+- [~] 8.1 — master-plan "8.1". First step. Code + tests done (7b1bdb7); open: push, ≥ 5 `sync-media` runs, live `/api/media` checks.
+- [~] 8.5 — master-plan "8.5". Code + tests done (be7704b); open: `wip/` build, live width count after 3 `sync-media`.
+- [~] 8.7 — master-plan "8.7" (`/effort medium`). Test done (6d4c312); open: live K6 observation (first new `media_assets` row).
+- [~] 8.8 — master-plan "8.8" (`/effort medium`): (a) report done 2026-10-28 (`logs/2026-10-28.md`); (b) only after the owner picks.
 Acceptance: each step's verify passes; one commit per step; `wip/` CI and Vercel preview green before `main`; after deploy, the 8.1 `/api/media` checks and the 8.5 width count are in the day's log.
 Stop conditions: the 8.1 subset rule maps a current driver to more than one F1DB id, or `needsLargerVariants` would requeue more than 120 rows → `OPEN.md` `To: Opus`. A Storage upload 4xx during the live check → `OPEN.md` `To: Opus`, no retry loop.
 
