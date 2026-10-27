@@ -394,6 +394,8 @@
       "fastest": "Fastest",
       "timeStatus": "Time / Status",
       "best": "Best",
+      "provisional": "Provisional · OpenF1",
+      "provisionalNote": "Updated when the official result is published.",
       "gridDelta": "Places gained or lost against the starting grid (grid penalties and pit-lane starts included).",
       "lapsDown": "+{count, plural, one {# lap} other {# laps}}",
       "status": {
@@ -410,8 +412,6 @@
       "unavailable": "Grid data unavailable right now.",
       "metaTitle": "Grid",
       "metaDescription": "Every Formula 1 grid since 1950: each constructor with its driver line-up, championship standings and points. Pick any season."
-      "provisional": "Provisional · OpenF1",
-      "provisionalNote": "Updated when the official result is published.",
     },
     "status": {
       "done": "DONE",

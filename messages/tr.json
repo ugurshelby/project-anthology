@@ -394,6 +394,8 @@
       "fastest": "En hızlı",
       "timeStatus": "Süre / Durum",
       "best": "En iyi",
+      "provisional": "Geçici sonuç · OpenF1",
+      "provisionalNote": "Resmî sonuç yayımlanınca güncellenir.",
       "gridDelta": "Başlangıç gridine göre kazanılan ya da kaybedilen sıra (grid cezaları ve pit çıkışından başlamalar dahil).",
       "lapsDown": "+{count} tur",
       "status": {
@@ -410,8 +412,6 @@
       "unavailable": "Grid verisi şu an yok.",
       "metaTitle": "Grid",
       "metaDescription": "1950'den beri her Formula 1 gridi: her takımın sürücü kadrosu, şampiyona sıralaması ve puanları. İstediğiniz sezonu seçin."
-      "provisional": "Geçici sonuç · OpenF1",
-      "provisionalNote": "Resmî sonuç yayımlanınca güncellenir.",
     },
     "status": {
       "done": "BİTTİ",

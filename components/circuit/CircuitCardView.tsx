@@ -151,9 +151,9 @@ export function CircuitCardView({
         </div>
 
         <h3
+          lang="en"
           className="font-condensed text-xl sm:text-2xl font-700 leading-[0.98] tracking-tight uppercase text-text-hi transition-colors group-hover:text-white line-clamp-1"
           style={{ fontFamily: 'var(--font-condensed)' }}
-          lang="en"
         >
           {card.circuitName}
         </h3>
