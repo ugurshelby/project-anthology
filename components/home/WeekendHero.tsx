@@ -94,7 +94,7 @@ export function WeekendHero({
 
       <div className="relative z-10 flex min-h-[520px] flex-col justify-end px-5 pb-8 pt-32 md:min-h-[640px] md:px-8 md:pb-10 md:pt-40 lg:px-16">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="label-caps text-accent">{eyebrow}</span>
+          <span className="label-caps rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-accent backdrop-blur-md">{eyebrow}</span>
           {weather ? (
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-xs text-text-mid backdrop-blur-md">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />

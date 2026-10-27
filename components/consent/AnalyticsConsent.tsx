@@ -58,7 +58,7 @@ export function AnalyticsConsent() {
           </h2>
           <p className="body-sm mt-2 text-text-mid">
             {t('body')}{' '}
-            <Link href="/privacy" className="text-text-hi underline decoration-accent underline-offset-4">
+            <Link href="/privacy" className="inline-flex min-h-6 items-center text-text-hi underline decoration-accent underline-offset-4">
               {t('privacyLink')}
             </Link>
           </p>

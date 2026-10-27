@@ -49,7 +49,7 @@ export function LastWinnerCard({
         style={{ background: `radial-gradient(ellipse 70% 90% at 85% 40%, color-mix(in srgb, ${teamColor} 28%, transparent), transparent 70%)` }}
       />
       {photo ? (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[60%] [mask-image:linear-gradient(to_right,transparent,black_45%),linear-gradient(to_top,transparent,black_40%)] [mask-composite:intersect]">
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[52%] [mask-image:linear-gradient(to_right,transparent,black_55%),linear-gradient(to_top,transparent,black_40%)] [mask-composite:intersect]">
           <ApexImage
             src={photo.image.src}
             variants={photo.image.variants}
@@ -95,8 +95,8 @@ export function LastWinnerCard({
             {first !== surname ? <span lang="en" className="label-caps block text-text-mid">{first}</span> : null}
             <span
               lang="en"
-              className="block truncate font-condensed text-[clamp(1.25rem,8.5cqi,1.875rem)] font-bold uppercase italic leading-none tracking-tight text-white transition-colors duration-200 group-hover:text-accent"
-              style={{ fontFamily: 'var(--font-condensed)' }}
+              className="block font-condensed text-[clamp(1.25rem,8.5cqi,1.875rem)] font-bold uppercase italic leading-none tracking-tight text-white transition-colors duration-200 [overflow-wrap:anywhere] group-hover:text-accent"
+              style={{ fontFamily: 'var(--font-condensed)', textShadow: '0 2px 12px rgba(0,0,0,0.85)' }}
             >
               {latinUpper(surname)}
             </span>

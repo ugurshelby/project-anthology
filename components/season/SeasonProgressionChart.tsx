@@ -176,7 +176,7 @@ export function SeasonProgressionChart({ series, season }: SeasonProgressionChar
                   x={padding.left - 8}
                   y={y + 3}
                   textAnchor="end"
-                  className="fill-text-low font-mono text-[10px]"
+                  className="fill-text-low font-mono text-[11px]"
                 >
                   {tick}
                 </text>
@@ -200,7 +200,7 @@ export function SeasonProgressionChart({ series, season }: SeasonProgressionChar
                   x={x}
                   y={height - padding.bottom + 16}
                   textAnchor="middle"
-                  className="fill-text-low font-mono text-[10px]"
+                  className="fill-text-low font-mono text-[11px]"
                 >
                   R{round}
                 </text>

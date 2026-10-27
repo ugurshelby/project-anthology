@@ -292,7 +292,7 @@ function TeammateHeadToHead({
         </div>
 
         {hasH2H ? (
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-wider">
+          <div className="flex items-center gap-2 text-[11px] font-mono tracking-wider">
             <span className="text-text-mid">
               <span className="text-text-low font-semibold">Q</span> {quali1}:{quali2}
             </span>
@@ -326,7 +326,7 @@ function TeammateHeadToHead({
       {hasH2H ? (
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 text-[8px] font-mono font-bold text-text-low">R</span>
+            <span className="w-2.5 text-[11px] font-mono font-bold text-text-low">R</span>
             <div className="relative flex h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
               <div
                 className="h-full transition-all duration-300"
@@ -345,7 +345,7 @@ function TeammateHeadToHead({
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 text-[8px] font-mono font-bold text-text-low">Q</span>
+            <span className="w-2.5 text-[11px] font-mono font-bold text-text-low">Q</span>
             <div className="relative flex h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
               <div
                 className="h-full transition-all duration-300"

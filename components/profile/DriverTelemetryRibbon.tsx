@@ -66,7 +66,7 @@ export function DriverTelemetryRibbon({ career, year }: DriverTelemetryRibbonPro
             ) : null}
 
             <div>
-              <span className="label-caps block font-mono text-[10px] tracking-[0.14em] text-text-low sm:text-[11px]">
+              <span className="label-caps block font-mono text-[11px] tracking-[0.14em] text-text-low sm:text-[11px]">
                 {tile.label}
               </span>
               <span

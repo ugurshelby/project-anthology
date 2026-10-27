@@ -69,13 +69,13 @@ export async function MachineryCrossLink({
                   <span className="font-mono text-xs font-bold text-accent">
                     {car.year}
                   </span>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-text-mid">
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-text-mid">
                     {isTr ? car.eraTr : car.era}
                   </span>
                 </div>
 
                 <div className="mt-2">
-                  <span lang="en" className="label-caps block text-[10px] text-text-mid">
+                  <span lang="en" className="label-caps block text-[11px] text-text-mid">
                     {car.constructorName}
                   </span>
                   <h4 lang="en"
@@ -97,7 +97,7 @@ export async function MachineryCrossLink({
                 </div>
                 {/* The card is a link, so the photo credit is plain text (no nested button or link). */}
                 {shot?.status === 'image' && shot.attribution.text ? (
-                  <p className="-mt-1 mb-2 truncate font-mono text-[10px] text-text-low">{shot.attribution.text}</p>
+                  <p className="-mt-1 mb-2 truncate font-mono text-[11px] text-text-low">{shot.attribution.text}</p>
                 ) : null}
 
                 <p className="line-clamp-2 text-xs leading-relaxed text-text-mid">

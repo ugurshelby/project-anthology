@@ -104,7 +104,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
       {/* Header */}
       <header className="mb-8 flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-text-mid">
+          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-text-mid">
             {isTr ? car.eraTr : car.era}
           </span>
           <span className="font-mono text-xs font-bold text-accent">
@@ -203,7 +203,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
           </div>
 
           <div className="mt-6 border-t border-hairline pt-4">
-            <span className="label-caps mb-1 block text-[10px] text-text-low">
+            <span className="label-caps mb-1 block text-[11px] text-text-low">
               {isTr ? 'MİRAS & TARİHİ ETKİ' : 'LEGACY & PEDIGREE'}
             </span>
             <p className="text-xs text-text-hi italic">
@@ -305,7 +305,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
                   </span>
                 </div>
                 {driver.isChampion ? (
-                  <span className="rounded bg-accent/20 px-2 py-0.5 font-mono text-[10px] font-bold text-accent">
+                  <span className="rounded bg-accent/20 px-2 py-0.5 font-mono text-[11px] font-bold text-accent">
                     {isTr ? 'DÜNYA ŞAMPİYONU' : 'CHAMPION'}
                   </span>
                 ) : (

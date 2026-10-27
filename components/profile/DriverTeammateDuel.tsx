@@ -68,14 +68,14 @@ export function DriverTeammateDuel({
             >
               {driverName}
             </span>
-            <span className="font-mono text-[10px] uppercase text-text-low">
+            <span className="font-mono text-[11px] uppercase text-text-low">
               {driverCode.toUpperCase()}
               {driverPosition != null ? ` · P${driverPosition}` : ''}
             </span>
           </div>
         </div>
 
-        <span className="rounded-full border border-hairline bg-surface-raised px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-mid">
+        <span className="rounded-full border border-hairline bg-surface-raised px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-text-mid">
           {td('duelTitle')}
         </span>
 
@@ -88,7 +88,7 @@ export function DriverTeammateDuel({
             >
               {teammateName}
             </span>
-            <span className="font-mono text-[10px] uppercase text-text-low">
+            <span className="font-mono text-[11px] uppercase text-text-low">
               {teammateCode.toUpperCase()}
               {teammatePosition != null ? ` · P${teammatePosition}` : ''}
             </span>
@@ -105,7 +105,7 @@ export function DriverTeammateDuel({
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between font-mono text-xs">
           <span className="font-700 text-text-hi">{qualiScore[0]}</span>
-          <span className="label-caps text-[10px] tracking-wider text-text-low">
+          <span className="label-caps text-[11px] tracking-wider text-text-low">
             {td('duelQuali')}
           </span>
           <span className="text-text-mid">{qualiScore[1]}</span>
@@ -128,7 +128,7 @@ export function DriverTeammateDuel({
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between font-mono text-xs">
           <span className="font-700 text-text-hi">{raceScore[0]}</span>
-          <span className="label-caps text-[10px] tracking-wider text-text-low">
+          <span className="label-caps text-[11px] tracking-wider text-text-low">
             {td('duelRace')}
           </span>
           <span className="text-text-mid">{raceScore[1]}</span>
@@ -153,7 +153,7 @@ export function DriverTeammateDuel({
           <span className="font-700 text-text-hi">
             {Number.isInteger(driverPoints) ? driverPoints : driverPoints.toFixed(1)}
           </span>
-          <span className="label-caps text-[10px] tracking-wider text-text-low">
+          <span className="label-caps text-[11px] tracking-wider text-text-low">
             {td('duelPtsShare', { pct: driverPtsPct })}
           </span>
           <span className="text-text-mid">
@@ -174,7 +174,7 @@ export function DriverTeammateDuel({
         </div>
       </div>
 
-      <div className="pt-1 text-center font-mono text-[10px] text-text-low">
+      <div className="pt-1 text-center font-mono text-[11px] text-text-low">
         <span>{td('duelFooter', { team: teamName })}</span>
       </div>
     </div>

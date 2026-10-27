@@ -78,7 +78,7 @@ export default async function MachineryPage({ params }: PageProps) {
       <footer className="mt-14 overflow-hidden rounded-[16px] border border-white/10 bg-[#0d1117] p-6 sm:p-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-2xl">
-            <span className="label-caps font-mono text-[10px] text-text-low">
+            <span className="label-caps font-mono text-[11px] text-text-low">
               {isTr ? 'GÖRSEL STANDARDI' : 'IMAGE STANDARD'}
             </span>
             <h3

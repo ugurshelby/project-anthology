@@ -107,7 +107,7 @@ function HomeLink({ active }: { active: boolean }) {
         </span>
         <span
           className={[
-            'mt-0.5 text-[9px] font-semibold uppercase tracking-[0.28em] transition-colors duration-200',
+            'mt-0.5 text-[11px] font-semibold uppercase tracking-[0.28em] transition-colors duration-200',
             active ? 'text-accent' : 'text-text-low group-hover:text-text-mid',
           ].join(' ')}
         >

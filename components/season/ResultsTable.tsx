@@ -13,7 +13,7 @@ function GridDeltaBadge({ grid, finish }: { grid: string | null; finish: string 
     return (
       <span
         title={`Grid P${g} → P${f} (+${delta})`}
-        className="inline-flex w-8 items-center justify-center rounded-[4px] border border-[#00d26a]/25 bg-[#00d26a]/10 px-1 py-0.5 font-mono text-[10px] font-bold tracking-tight text-[#00d26a]"
+        className="inline-flex w-8 items-center justify-center rounded-[4px] border border-[#00d26a]/25 bg-[#00d26a]/10 px-1 py-0.5 font-mono text-[11px] font-bold tracking-tight text-[#00d26a]"
       >
         +{delta}
       </span>
@@ -23,7 +23,7 @@ function GridDeltaBadge({ grid, finish }: { grid: string | null; finish: string 
     return (
       <span
         title={`Grid P${g} → P${f} (${delta})`}
-        className="inline-flex w-8 items-center justify-center rounded-[4px] border border-[#ff3b30]/25 bg-[#ff3b30]/10 px-1 py-0.5 font-mono text-[10px] font-bold tracking-tight text-[#ff3b30]"
+        className="inline-flex w-8 items-center justify-center rounded-[4px] border border-[#ff3b30]/25 bg-[#ff3b30]/10 px-1 py-0.5 font-mono text-[11px] font-bold tracking-tight text-[#ff3b30]"
       >
         {delta}
       </span>
@@ -32,7 +32,7 @@ function GridDeltaBadge({ grid, finish }: { grid: string | null; finish: string 
   return (
     <span
       title={`Grid P${g} → P${f} (=)`}
-      className="inline-flex w-8 items-center justify-center rounded-[4px] border border-white/5 bg-white/[0.02] px-1 py-0.5 font-mono text-[10px] text-text-low"
+      className="inline-flex w-8 items-center justify-center rounded-[4px] border border-white/5 bg-white/[0.02] px-1 py-0.5 font-mono text-[11px] text-text-low"
     >
       0
     </span>
@@ -67,7 +67,7 @@ export function RaceResultsTable({ rows }: { rows: RaceResultRow[] }) {
     <div className="flex flex-col">
       <div className="label-caps flex items-center gap-2 border-b border-hairline py-2 text-text-low sm:gap-3">
         <span className="w-6 text-right">P</span>
-        <span className="w-8 cursor-help text-center text-[10px] font-mono tracking-wider" title={t('gridDelta')}>
+        <span className="w-8 cursor-help text-center text-[11px] font-mono tracking-wider" title={t('gridDelta')}>
           +/-
         </span>
         <span className="flex-1">{tc('driver')}</span>

@@ -132,7 +132,9 @@ export function CircuitCardView({
             {t('next')}
           </span>
         ) : (
-          <StatusChip status={status} />
+          <span className="rounded-[var(--radius-chip)] bg-black/60 backdrop-blur-md">
+            <StatusChip status={status} />
+          </span>
         )}
       </div>
 

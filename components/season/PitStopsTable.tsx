@@ -98,7 +98,7 @@ export function PitStopsTable({ rows, results = [] }: PitStopsTableProps) {
                   {row.duration ? `${row.duration}s` : '—'}
                 </span>
                 {isFastest ? (
-                  <span className="label-caps text-[9px] text-accent font-mono uppercase tracking-wider">
+                  <span className="label-caps text-[11px] text-accent font-mono uppercase tracking-wider">
                     {t('fastest')}
                   </span>
                 ) : null}

@@ -117,7 +117,7 @@ export function DriverSeasonPulse({
                 />
               ) : null}
 
-              <span className="font-mono text-[10px] uppercase tracking-wider text-text-low">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-text-low">
                 {shortGp || `R${r.round}`}
               </span>
 
@@ -132,11 +132,11 @@ export function DriverSeasonPulse({
               </span>
 
               {r.points && parseFloat(r.points) > 0 ? (
-                <span className="mt-1 font-mono text-[10px] text-text-mid">
+                <span className="mt-1 font-mono text-[11px] text-text-mid">
                   +{r.points}
                 </span>
               ) : (
-                <span className="mt-1 font-mono text-[10px] text-text-low opacity-60">
+                <span className="mt-1 font-mono text-[11px] text-text-low opacity-60">
                   —
                 </span>
               )}
