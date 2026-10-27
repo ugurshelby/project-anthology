@@ -126,7 +126,7 @@ Stop conditions: a K needs a licence or asset decision → "Sahibe sorular" in t
 Goal: Apex GCP project with two budgets and the credit scope recorded.
 Run (phase): owner + Claude in Chrome — console work; keys and billing are the owner's.
 Steps:
-- [ ] 9.0 — master-plan "9.0". Then **9.4** in a separate Opus / xhigh Architect session.
+- [x] 9.0 — master-plan "9.0". Closed 2026-10-27 (project `the-curate`, shared on purpose; spend guard moves into 9.2). **9.4** remains: a separate Opus / xhigh Architect session.
 Acceptance and stop conditions: as master-plan 9.0; no key value in chat, logs or files.
 
 ### Session Q — Provisional Qualifying and Sprint results
@@ -201,6 +201,51 @@ Steps:
 - [ ] 8.3 — master-plan "8.3".
 Acceptance: verifies pass; browser checks at 375 and 1440 px logged (LCP `img` attributes, `currentSrc`); `wip/` CI and preview green before `main`.
 Stop conditions: `next/image` rejects `loader` together with `fetchPriority`/`loading`, or 16.4 renders no srcset for a custom loader → `OPEN.md` `To: Opus`.
+
+### Session J — Zod schema validation (first, alone for `npm install`)
+Goal: the four public routes validate input with Zod, same status codes and bodies.
+Run (phase): Opus 5.5 / high — owner-mandated model (Faz 14), Builder session.
+Depends on: 14.2 on `main` (done).
+Out of scope: rate limits (14.1), news route (14.5).
+Steps:
+- [ ] 14.3 — master-plan "14.3". First step: `npm install zod@^4` and its own commit, then tell the owner "zod kuruldu" so K, L, M, T, U, S2 can start.
+Acceptance: master-plan 14.3 verify; `wip/` CI and preview green before `main`.
+Stop conditions: a route's error body or status would change → `OPEN.md` `To: Opus`.
+
+### Session K — Remove the `/api/news` live scrape
+Run (phase): Opus 5.5 / high — owner-mandated model (Faz 14), Builder session.
+Depends on: J's `npm install` committed.
+Steps:
+- [ ] 14.5 — master-plan "14.5". First step.
+Acceptance: master-plan 14.5 verify; `wip/` CI and preview green before `main`.
+
+### Session L — LLM spend limits as named constants
+Run (phase): Opus 5.5 / medium — owner-mandated model (Faz 14), small scope.
+Depends on: J's `npm install` committed. Then 19.2 and 9.2 follow in this file order (same `lib/news/rewrite.ts`).
+Steps:
+- [ ] 14.4 — master-plan "14.4". First step.
+Acceptance: master-plan 14.4 verify.
+
+### Session S2 — Telegraph order and source label
+Run (phase): Sonnet / medium — two files and a pure helper.
+Depends on: J's `npm install` committed.
+Steps:
+- [ ] 19.3 — master-plan "19.3" (rewritten 2026-10-27: `NewsWireFeed.tsx`, `news/page.tsx` `wirePool`, `lib/news/categories.ts`). First step.
+Acceptance: master-plan 19.3 verify.
+
+### Session R2 — Post-deploy checks for Dalga 3
+Run (phase): Sonnet / low — read-only SQL and HTTP checks.
+Depends on: 2026-10-27 00:00Z passed (1.3); `*.vercel.app` reachable from the machine (owner's home network failed TLS on 2026-10-27; use another network if needed).
+Steps:
+- [ ] 1.3 — master-plan "1.3". First step.
+- [ ] Live verify of 18.1, 18.2 (noindex criterion), 18.3, 18.4 and 19.1 (first `sync-news` SQL count): each master-plan step's live line; tick the boxes that pass, keep the rest `[~]` with what is open.
+Acceptance: results in the day's log; boxes updated in master-plan and this file.
+
+### Session V — Antigravity: provisional label, then independent Faz 20 items
+Run (phase): Antigravity (own model) — UI and copy; no git commands; Claude Code verifies and commits.
+Order (`DECISIONS.md` 2026-10-27): 1.11 → 20.1 → 20.4 → 20.6 → 20.5 → 20.2 (driver and machinery parts after Session U is on `main`) → 20.3 (after 19.3 on `main`) → 8.11.
+Out of scope until U is on `main`: `components/profile/DriverProfileHero.tsx`, `components/machinery/MachineryCard.tsx`, `components/media/*`.
+Acceptance: per item the Faz 20 verify; Antigravity logs and marks `[~]`; Claude Code ticks after its browser check.
 
 ### Session M — Track telemetry data layer
 Goal: one measured, sourced reference lap per current-calendar circuit as static JSON, with a reader and tests that reject invented values.

@@ -278,7 +278,8 @@ Sahip kararları (2026-10-21, `DECISIONS.md` "Faz 9 GCP"): Apex için ayrı GCP 
 
 Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9 update"): deneme kredisi **2026-12-18**'de biter (kalan ₺12.553), hesap ₺ ile çalışır (Google kuru ≈ 48,14 ₺/$), ayrıca 2027'ye kadar geçerli ≈ ₺970 Developer Program kredisi var. Hesap proje limitinde; sahip yeni proje yerine mevcut **`the-curate`** projesini seçti. LLM zinciri sahip kararıyla **Vertex (`VERTEX_API_KEY`, ücretli, kredi) → Gemini ücretsiz katman (`GEMINI_API_KEY`) → Groq**; Vertex anahtarı sahip tarafından üretildi.
 
-### [ ] 9.0 GCP projesi, faturalandırma, bütçe ve kredi kapsamı
+### [x] 9.0 GCP projesi, faturalandırma, bütçe ve kredi kapsamı
+- Kapanış 2026-10-27 (`DECISIONS.md` "Owner decisions: shared GCP project…"): proje `the-curate` (Curate, Prompter, Lyrica ile bilinçli paylaşım), kredi bitişi 2026-12-18, ₺, bölge `europe-west1`; Apex'e özel proje bütçesi ve anahtar kısıtlaması yok (paylaşılan anahtar), Apex harcama koruması uygulama içinde (9.2). Ölçümler `logs/2026-10-26.md`.
 - Run: Claude in Chrome (sahip onaylı konsol oturumu) + owner — konsol işleri; anahtar ve fatura sahibin
 - Owner: owner · Depends on: — · Dalga 3 (2026-10-26'dan sonra; repo dosyasına dokunmaz, her oturumla paralel)
 - Yapılacaklar (konsol):
@@ -304,7 +305,7 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Run: Sonnet / high — sağlayıcı zinciri, maliyet ve örtüşme korumaları
 - Owner: Sonnet · Depends on: 14.4 ve 19.2 (aynı dosya, sıralı), 9.0 madde 3–4 (bütçe ve kota), sahip `VERTEX_API_KEY`'i Vercel'e girdi · Dalga 5
 - Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-order.test.ts`, `.env.example`
-- Değişiklik: `PROVIDERS` sırası `vertex` → `gemini` (AI Studio) → `groq`; `vertex` Vertex AI express mode REST uç noktasını API anahtarıyla çağırır (uç nokta ve model adı Google'ın güncel belgesinden okunur, tarihle yorumda); `VERTEX_API_KEY=` `.env.example`'a boş değerle; env yoksa sağlayıcı atlanır (zincir bugünkü gibi çalışır); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan `vertex`; `VERTEX_API_KEY` yokken ilk çağrılan `gemini`.
+- Değişiklik: `PROVIDERS` sırası `vertex` → `gemini` (AI Studio) → `groq`; `vertex` Vertex AI express mode REST uç noktasını API anahtarıyla çağırır (uç nokta ve model adı Google'ın güncel belgesinden okunur, tarihle yorumda); `VERTEX_API_KEY=` `.env.example`'a boş değerle; env yoksa sağlayıcı atlanır (zincir bugünkü gibi çalışır); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan `vertex`; `VERTEX_API_KEY` yokken ilk çağrılan `gemini`. Günlük tavan (paylaşılan GCP projesi, `DECISIONS.md` 2026-10-27): `export const VERTEX_DAILY_CALL_CAP = 300` (14.4 sabitlerinin yanına; 9.4 ölçülen hacimle günceller); her `vertex` çağrısından önce mevcut Upstash Redis'te `INCR apex:llm:vertex:<UTC YYYY-MM-DD>` (ilk artışta `EXPIRE` 172800 sn); sayaç tavanı aşarsa ya da Redis yoksa/hata verirse `vertex` atlanır, zincir `gemini` → `groq` ile sürer (ücretli tarafta kapalı başarısızlık); `sync-news` yanıtına günün `vertex` sayısı. Test: tavan aşımında `vertex` çağrılmaz; Redis hatasında `vertex` çağrılmaz.
 - Doğrulama: `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0; canlıda ilk `sync-news` sonrası log'da sağlayıcı adı (read-only).
 
 ### [ ] 9.5 Uzak geliştirme makinesi (yalnızca ölçüm haklı çıkarırsa)
@@ -471,6 +472,7 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 Bu fazın hiçbir adımı tetikten önce talep edilmez. Kod tarafı hazır olanlar: SEO meta + JSON-LD, Sentry (DSN'e bağlı), atıf arayüzü.
 
 ### [ ] 16.1 Gerçek iletişim bilgileri ve yasal adresler
+- Ek (sahip kararı 2026-10-27): özel alan adı bu adımla birlikte alınır ve Vercel'e bağlanır (sahip işi; ajanların alan adı yetkisi yok). Gerekçe: `*.vercel.app` sahibin ev ağından 2026-10-27'de TLS hatası verdi (mobil veride açılıyor).
 - Run: owner, ardından Haiku / low — yer tutucu değişimi
 - Owner: owner → Haiku · Depends on: tetik
 - Dosyalar: `messages/en.json`, `messages/tr.json`
@@ -600,7 +602,7 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 ## Faz 20 — Arayüz, Türkçe ve okunabilirlik
 
 - Run (faz): Antigravity (own model) — UI metni ve görünüm; Claude Code doğrular, commit eder
-- Owner: Antigravity · Depends on: 1.11'den sonra (aynı ajan, `messages/*.json`); 20.2 için 18.5 `main`'de · Dalga 4
+- Owner: Antigravity · Sıra (sahip kararı 2026-10-27, bağımsızlar öne): 1.11 → 20.1 → 20.4 → 20.6 → 20.5 (Session U dosyaları hariç) → 20.2 (sürücü ve Araçlar kısmı Session U `main`'de olunca) → 20.3 (19.3 `main`'de olunca) → 8.11 · Dalga 4
 - Kurallar: `docs/design/apex-component-rules.md` bağlayıcı; resmî logo yok; her sayfa tarayıcıda 375 ve 1440 px'te kontrol.
 - Doğrulama (faz): Antigravity log'a yazar, `[~]` işaretler. Claude Code: `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest run tests/i18n-messages.test.ts` ve `npx vitest related --run <değişen dosyalar>` yeşil; değişen her sayfa tarayıcıda iki genişlikte, konsol hatası yok.
 
