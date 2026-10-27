@@ -225,6 +225,7 @@ function TeammateHeadToHead({
   color: string;
   h2h?: TeamHeadToHead;
 }) {
+  const t = useTranslations('ui.common');
   const pts1 = parseFloat(d1.points) || 0;
   const pts2 = parseFloat(d2.points) || 0;
   const pos1 = parseInt(d1.position, 10) || 99;
@@ -284,8 +285,8 @@ function TeammateHeadToHead({
             {d1.driverCode || d1.driverName.slice(0, 3)}
           </span>
           {d1Ahead ? (
-            <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[9px] font-bold text-[#00d26a]">
-              AHEAD
+            <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[11px] font-bold text-[#00d26a]">
+              {t('ahead')}
             </span>
           ) : null}
         </div>
@@ -301,19 +302,19 @@ function TeammateHeadToHead({
             </span>
             <span className="text-hairline">·</span>
             <span className="text-text-low">
-              {pts1}:{pts2} PTS
+              {pts1}:{pts2} {t('pts')}
             </span>
           </div>
         ) : (
-          <span className="label-caps tracking-widest text-text-low text-[10px]">
-            H2H · {pts1} : {pts2} PTS
+          <span className="label-caps tracking-widest text-text-low text-[11px]">
+            {t('headToHead')} · {pts1} : {pts2} {t('pts')}
           </span>
         )}
 
         <div className="flex items-center gap-1.5">
           {d2Ahead ? (
-            <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[9px] font-bold text-[#00d26a]">
-              AHEAD
+            <span className="rounded-[3px] border border-[#00d26a]/25 bg-[#00d26a]/15 px-1 py-0.5 text-[11px] font-bold text-[#00d26a]">
+              {t('ahead')}
             </span>
           ) : null}
           <span className={`font-600 uppercase ${d2Ahead ? 'text-text-hi' : 'text-text-mid'}`}>

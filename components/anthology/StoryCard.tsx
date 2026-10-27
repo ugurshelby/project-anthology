@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { Story } from '@/lib/data/stories';
 import { truncateToWord } from '@/lib/text/truncateToWord';
 import { ApexImage } from '@/components/media/ApexImage';
@@ -7,6 +7,9 @@ import { ApexImage } from '@/components/media/ApexImage';
 /** Anthology hub story card — hero image, condensed title, category/year mono. */
 export function StoryCard({ story, wide = false }: { story: Story; wide?: boolean }) {
   const locale = useLocale();
+  const tCat = useTranslations('anthology.categories');
+  const categoryKey = story.category.replace(/\s+(\w)/g, (_, c: string) => c.toUpperCase()).replace(/^\w/, (c) => c.toLowerCase());
+  const category = tCat.has(categoryKey) ? tCat(categoryKey) : story.category;
   const isTr = locale === 'tr';
   const title = isTr && story.titleTr ? story.titleTr : story.title;
   const subtitle = isTr && story.subtitleTr ? story.subtitleTr : story.subtitle;
@@ -40,7 +43,7 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
       <div className="relative z-10 flex flex-col gap-1.5">
         <span className="label-caps flex items-center gap-1.5 text-text-mid">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          {story.category}
+          {category}
           {story.year ? ` · ${story.year}` : ''}
         </span>
         <h3 className={[wide ? 'headline-lg' : 'headline-md', 'uppercase text-text-hi transition-colors duration-200 group-hover:text-white'].join(' ')}>

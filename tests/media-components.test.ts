@@ -39,7 +39,7 @@ describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () =>
 
   describe('TeamPlaceholder', () => {
     it('renders typographic wordmark with team secondary color and carbon texture', () => {
-      const html = renderToStaticMarkup(
+      const html = renderIntl(
         React.createElement(TeamPlaceholder, {
           seed: 'ferrari',
           name: 'Scuderia Ferrari',

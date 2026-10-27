@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface TeamPlaceholderProps {
   seed: string;
   name?: string;
@@ -18,6 +20,7 @@ export function TeamPlaceholder({
   teamColor = '#ff1801',
   className = 'h-full w-full',
 }: TeamPlaceholderProps) {
+  const t = useTranslations('ui.common');
   const cleanName = (name || seed.replace(/[-_]/g, ' ')).toUpperCase();
   const words = cleanName.split(/\s+/).filter(Boolean);
 
@@ -121,7 +124,7 @@ export function TeamPlaceholder({
           fontFamily="monospace"
           letterSpacing="0.2em"
         >
-          FORMULA 1 CONSTRUCTOR
+          {t('constructorTag')}
         </text>
       </svg>
     </div>
