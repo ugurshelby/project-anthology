@@ -340,7 +340,7 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Run: Opus 5.5 / xhigh — sahip şartı; veri doğruluğu ve mimari
 - Sonuç (2026-10-21, `DECISIONS.md` "13.1 Track telemetry"): her güncel takvim pisti için tek ölçülmüş referans tur = oradaki en son tamamlanmış Sıralamanın resmî pole turu (2023+), OpenF1 ücretsiz geçmiş API'sinden. Node/TS betiği → pist başına statik JSON (`data/circuits/telemetry/`), git'te; tablo, migration, cron yok (13.3 migration denetimi gerekmez). FastF1/Python yok (F1 arşivi 2026-10-15'ten beri F1 TV kimliği istiyor). Ölçüm (Monza 2026 Q, oturum 11357): pole turu Jolpica ile birebir (GAS 1:21.786), 306 örnek / 81,3 sn, entegre tur uzunluğu resmîden +%0,9, 2026'da `drs` hep `null`.
 
-### [ ] 13.2 Telemetri veri katmanı, betik ve testler
+### [x] 13.2 Telemetri veri katmanı, betik ve testler
 - Run: Opus 5.5 / high — sahip şartı (Builder); tarifi kesin veri kodu, kenar durumlar
 - Owner: Opus 5.5 (Builder) · Depends on: 14.2 `main`'de (`vitest` sürümü) · Dalga 4 (oturum M; J/K/L dosyalarıyla çakışmaz)
 - Dosyalar: yeni `lib/telemetry/types.ts`, yeni `lib/telemetry/derive.ts`, yeni `lib/telemetry/select.ts`, yeni `lib/data/circuitTelemetry.ts`, yeni `scripts/build-circuit-telemetry.ts`, yeni `data/circuits/telemetry/index.ts` (betik üretir; ilk sürüm boş harita), yeni `tests/telemetry-derive.test.ts`, yeni `tests/circuit-telemetry-data.test.ts`

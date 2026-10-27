@@ -252,7 +252,7 @@ Goal: one measured, sourced reference lap per current-calendar circuit as static
 Run (phase): Opus 5.5 / high — owner-mandated model (Faz 13), Builder session; data code with an exact recipe. 13.3 at `/effort medium`.
 Out of scope: UI (13.4, Antigravity), `lib/f1/*` (1.10), `package.json`, any table or migration, F1 live-timing or MultiViewer endpoints, Python.
 Steps:
-- [ ] 13.2 — master-plan "13.2". First step.
+- [x] 13.2 — master-plan "13.2". First step. Done 2026-10-28: dry run 22 of 23 circuits matched (losail Jolpica 429).
 - [ ] 13.3 — master-plan "13.3" (`/effort medium`). Run outside any F1 session window.
 Acceptance: master-plan 13.2 and 13.3 verify commands pass; the day's log has the summary table and every skipped circuit with its reason.
 Stop conditions: the pole lap cannot be matched for more than a third of the circuits, or integrated lap length misses `CIRCUIT_FACTS` by more than 3 % on any circuit → `OPEN.md` `To: Opus`, no data commit. OpenF1 terms or response shape changed → `OPEN.md` `To: Opus`.
