@@ -15,6 +15,7 @@
 Veritabanında kullanıcı verisi veya doğrudan bir açık bulunmasa bile uygulama katmanı (Next.js serverless lambdaları ve sunucu kaynakları) dış isteklerle tüketilebilir:
 
 #### A. Canlı Haber Toplama (RSS & Görsel Taraması)
+> **Durum (2026-10-28):** Kapatıldı. `app/api/news/route.ts` silindi (master-plan 14.5); haber yalnızca `news_stories` → `news_cache` → `public/news-fallback.json` zincirinden okunur, RSS taraması yalnızca `sync-news` cron'unda çalışır. Aşağıdaki metin 2026-10-16 durumudur.
 * **İlgili Dosyalar:** [`app/api/news/route.ts`](../../app/api/news/route.ts), [`lib/news/aggregate.ts`](../../lib/news/aggregate.ts)
 * **Mevcut Durum:**
   * `GET /api/news` rotası çağrıldığında [`lib/news/aggregate.ts:37`](../../app/api/news/route.ts#L37) üzerinden `aggregate({ maxItems: 60 })` fonksiyonu tetiklenir.
@@ -225,7 +226,7 @@ Sistemde yetki izolasyonu hem uygulama kodunda hem de veritabanı rol seviyesind
 | **Transit Şifreleme & Başlıklar** | HSTS (2 yıl, preload), CSP, X-Frame-Options devrede. | **GÜÇLÜ** | [`next.config.ts:10-24`](../../next.config.ts#L10-L24) |
 | **Sabit Zamanlı Karşılaştırma** | `CRON_SECRET` ve QStash HMAC doğrulamalarında `timingSafeEqual` kullanımı. | **GÜÇLÜ** | [`lib/cronAuth.ts:21-26, 80`](../../lib/cronAuth.ts#L21-L26) |
 | **Genel Rota Hız Sınırı** | 10 genel rotanın tamamı `applyRateLimit`; başlıksız istekler ortak havuzda 1/5 kota (push bypass 2026-10-20'de kapatıldı). | **GÜÇLÜ** | [`lib/rateLimit.ts`](../../lib/rateLimit.ts), [`tests/rate-limit-routes.test.ts`](../../tests/rate-limit-routes.test.ts) |
-| **News RSS Kaynak Tüketimi** | `GET /api/news` önbellek ıskalamalarında 5 harici RSS ve onlarca görsele eşzamanlı HTTP isteği atıyor. | **ORTA RİSK** | [`lib/news/aggregate.ts:400-435`](../../lib/news/aggregate.ts#L400-L435) |
+| **News RSS Kaynak Tüketimi** 2026-10-16: `GET /api/news` önbellek ıskalamalarında 5 harici RSS ve onlarca görsele eşzamanlı HTTP isteği atıyordu. 2026-10-28: rota silindi (14.5). | **KAPATILDI** | [`lib/news/aggregate.ts:400-435`](../../lib/news/aggregate.ts#L400-L435) |
 | **WAF / Cloudflare Katmanı** | Cloudflare WAF yok; doğrudan Vercel üzerinde standart koruma ile çalışıyor. | **ORTA RİSK** | Alan adı / DNS mimarisi |
 | **Şema Tabanlı Girdi Doğrulama (Zod)** | Zod kurulu değil; doğrulama elle yazılmış regex desenleriyle yapılıyor. | **KISMEN YETERLİ** | [`package.json`](../../package.json), [`lib/api/validation.ts`](../../lib/api/validation.ts) |
 | **Otomasyonlu Güvenlik Denetimi & Bağımlılıklar** | Dependabot, Snyk veya CI `npm audit` adımı yok; 3 kritik, 14 yüksek 23 zafiyet mevcut. | **YÜKSEK RİSK** | [`package.json`](../../package.json), [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) |

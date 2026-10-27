@@ -79,7 +79,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 
 ## 3. Architecture (stack, structure, data flow, directory map)
 
-Last verified: 2026-10-02 (home page path: 2026-10-12; stack versions: 2026-10-26)
+Last verified: 2026-10-02 (home page path: 2026-10-12; stack versions: 2026-10-26; `app/api/` row: 2026-10-28)
 
 ### Stack
 
@@ -129,7 +129,7 @@ Paths below were confirmed by file search or `Test-Path` on 2026-10-06.
 | Path | Role |
 |---|---|
 | `app/[locale]/` | Pages: home, season, season year, round, drivers, teams, grid, circuits, news, news id, anthology, glossary, disclaimer, privacy, terms, dmca |
-| `app/api/` | 15 route handlers: five crons (`sync-news`, `sync-f1`, `sync-radio`, `notify-sessions`, `sync-media`), `f1-season`, `live-timing`, `news`, `media`, `push/register`, season, circuit, driver career, team career |
+| `app/api/` | 14 route handlers: five crons (`sync-news`, `sync-f1`, `sync-radio`, `notify-sessions`, `sync-media`), `f1-season`, `live-timing`, `media`, `push/register`, season, season last-result, circuit, driver career, team career. `/api/news` (live RSS scrape) was removed on 2026-10-28 (master-plan 14.5); news is read only from `news_stories` → `news_cache` → `public/news-fallback.json` |
 | `app/sitemap.ts`, `app/robots.ts` | Crawl surface |
 | `components/` | UI. 89 modules: layout, home, season, news, profile, anthology, glossary, legal, media |
 | `lib/` | `data/`, `f1/`, `news/`, `api/`, `security/csp.ts`, `seo.ts`, `cronAuth.ts`, `rateLimit.ts`, `supabase.ts`, `f1Calendar.ts`, `f1Ingest.ts` |
@@ -253,7 +253,7 @@ Daily Vercel runs and the hourly GitHub runs both hit `sync-news` and `sync-f1`.
 
 ## 5. Security, secrets and cost exposure (env handling, .gitignore coverage, auth, abuse and quota risks)
 
-Last verified: 2026-10-02 (abuse and quota, `live-timing` bullet: 2026-10-11, after the fix)
+Last verified: 2026-10-02 (abuse and quota, `live-timing` bullet: 2026-10-11, after the fix; public-route list: 2026-10-28, `/api/news` removed)
 
 ### Env handling
 
@@ -287,7 +287,7 @@ Cron writes use the service role on the server [VERIFIED: `lib/supabase.ts` comm
 
 ### Abuse and quota
 
-- Public JSON routes call `rateLimit` or `applyRateLimit`: news, season, careers, circuits, live-timing (30/min), push register (10/min) [VERIFIED: grep and the two route files read]. If Upstash env is absent, the limit is per server instance only [VERIFIED: `lib/rateLimit.ts`]. The master plan still lists “Upstash env on Vercel” as debt [VERIFIED: `docs/plans/master-plan.md`]. Local `.env.local` has the Upstash names. Production presence was not confirmed in this pass, and the 2026-09-28 log already said it could not be confirmed [VERIFIED: log]. [UNVERIFIED] for the current eight project.
+- Public JSON routes call `rateLimit` or `applyRateLimit`: season, careers, circuits, live-timing (30/min), push register (10/min) [VERIFIED: grep and the two route files read]. If Upstash env is absent, the limit is per server instance only [VERIFIED: `lib/rateLimit.ts`]. The master plan still lists “Upstash env on Vercel” as debt [VERIFIED: `docs/plans/master-plan.md`]. Local `.env.local` has the Upstash names. Production presence was not confirmed in this pass, and the 2026-09-28 log already said it could not be confirmed [VERIFIED: log]. [UNVERIFIED] for the current eight project.
 - Cron routes have a trigger lock. With Upstash it is a distributed SET NX. Without it, the lock is in-memory [VERIFIED: `lib/cronAuth.ts`]. A leaked cron secret can still start a 300s function on every instance if the distributed lock is absent [INFERRED: from that fallback].
 - `f1-season` cannot be turned into an open proxy: the only user input is `path`, matched to a whitelist, appended to a fixed Jolpica host [VERIFIED: route].
 - `live-timing` can still spend OpenF1 quota on a cache miss. The code treats a fan-out as the failure mode it already fixed once [VERIFIED: route comments and `logs/2026-09-28.md`]. Failure paths are bounded since 2026-10-11: the live-session lock is a cached 200 `restricted` state (edge `s-maxage=60`, 60 s memo, at most one upstream check per minute per instance), any other failure with nothing cached is memoised 15 s (502 + `Retry-After: 15`, no upstream call), and the client tracker slows to 60 s while restricted and backs off 24/48/96/120 s on failures (`lib/home/livePoll.ts`) [VERIFIED: `tests/live-timing-route.test.ts` 14 tests, `tests/live-poll.test.ts`]. Not yet observed in a real locked session (next: R18, 2026-10-25).

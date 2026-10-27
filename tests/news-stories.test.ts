@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { clusterArticles } from '@/lib/news/cluster';
 import { copiesSource, parseRewriteItem, parseBatch } from '@/lib/news/rewrite';
 import { draftStories, fingerprintOf } from '@/lib/news/stories';
@@ -101,5 +101,76 @@ describe('draftStories', () => {
   it('drops articles older than 7 days', () => {
     const stale = raw('The Race', 'Old news', 'Ancient history', 24 * 8);
     expect(draftStories([stale], [], NOW)).toHaveLength(0);
+  });
+});
+
+// 14.5: the read chain is news_stories → news_cache → public/news-fallback.json.
+// The live /api/news scrape is gone; no step may call the site over HTTP.
+describe('getLatestNews read chain', () => {
+  afterEach(() => {
+    vi.doUnmock('@/lib/supabase');
+    vi.doUnmock('@/lib/data/fs');
+    vi.doUnmock('@/lib/data/siteUrl');
+    vi.resetModules();
+  });
+
+  async function loadNews(tables: Record<string, unknown[]>, fallback: unknown[] | null) {
+    vi.resetModules();
+    const fetchSiteJson = vi.fn(async () => null);
+    const readPublicJson = vi.fn(async () => fallback);
+    const query = (table: string) => {
+      const res = Promise.resolve({ data: tables[table] ?? [], error: null });
+      const chain = { select: () => chain, order: () => chain, limit: () => res };
+      return chain;
+    };
+    vi.doMock('@/lib/supabase', () => ({ getSupabaseClient: () => ({ from: query }) }));
+    vi.doMock('@/lib/data/fs', () => ({ readPublicJson }));
+    vi.doMock('@/lib/data/siteUrl', () => ({ fetchSiteJson, getSiteUrl: () => 'http://test.local' }));
+    const mod = await import('@/lib/data/news');
+    return { getLatestNews: mod.getLatestNews, fetchSiteJson, readPublicJson };
+  }
+
+  const fallbackItem = {
+    id: 'fb-1',
+    title: 'Static headline',
+    summary: 'Static summary',
+    url: 'https://example.com/a',
+    sourceName: 'Example',
+    image: 'https://example.com/a.jpg',
+    publishedAt: '2026-10-01T10:00:00Z',
+  };
+
+  it('falls back to the static file when both tables are empty, without an HTTP call', async () => {
+    const { getLatestNews, fetchSiteJson, readPublicJson } = await loadNews({}, [fallbackItem]);
+    const items = await getLatestNews(5);
+    expect(items.map((i) => i.id)).toEqual(['fb-1']);
+    expect(readPublicJson).toHaveBeenCalledWith('news-fallback.json');
+    expect(fetchSiteJson).not.toHaveBeenCalled();
+  });
+
+  it('returns [] when the tables and the static file are empty', async () => {
+    const { getLatestNews, fetchSiteJson } = await loadNews({}, null);
+    expect(await getLatestNews(5)).toEqual([]);
+    expect(fetchSiteJson).not.toHaveBeenCalled();
+  });
+
+  it('serves news_cache rows before the static file', async () => {
+    const row = {
+      id: 'db-row',
+      url: 'https://example.com/b',
+      title: 'Cache headline',
+      summary: 'Cache summary',
+      description: null,
+      source: 'Example',
+      tags: null,
+      image_url: 'https://example.com/b.jpg',
+      published_at: '2026-10-02T10:00:00Z',
+      title_tr: null,
+      description_tr: null,
+    };
+    const { getLatestNews, readPublicJson } = await loadNews({ news_cache: [row] }, [fallbackItem]);
+    const items = await getLatestNews(5);
+    expect(items.map((i) => i.title)).toEqual(['Cache headline']);
+    expect(readPublicJson).not.toHaveBeenCalled();
   });
 });

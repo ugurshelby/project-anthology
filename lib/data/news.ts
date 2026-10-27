@@ -1,16 +1,15 @@
 /**
- * News read layer — Supabase `news_cache` SELECT, with /api/news fallback.
+ * News read layer — Supabase SELECTs only, never a live RSS scrape.
  *
- * Primary path: an indexed SELECT on news_cache (fed by the sync-news cron),
- * so first paint is fast and the slow RSS round trips off the user path.
- * Fallback: /api/news (live RSS aggregate) → static public/news-fallback.json.
+ * Chain: `news_stories` (merged stories) → `news_cache` (raw rows), both fed by
+ * the sync-news cron, so the slow RSS round trips stay off the user path →
+ * static public/news-fallback.json.
  */
 
 import { getSupabaseClient } from '@/lib/supabase';
 import type { NewsCacheRow, NewsStoryRow } from '@/types/database';
 import { readPublicJson } from '@/lib/data/fs';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
-import { fetchSiteJson } from '@/lib/data/siteUrl';
 import { stableId, canonicalize } from '@/lib/news/aggregate';
 import { hasRealImage } from '@/lib/news/categories';
 import type { NewsItem } from '@/lib/data/types';
@@ -19,8 +18,8 @@ export type { NewsItem } from '@/lib/data/types';
 export { hasRealImage };
 export { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
 
-/** Shape returned by the live /api/news route. */
-interface ApiNewsItem {
+/** Shape of the hand-authored public/news-fallback.json items. */
+interface StaticNewsItem {
   id: string;
   title: string;
   summary: string;
@@ -47,10 +46,9 @@ function newsFromCache(row: NewsCacheRow): NewsItem {
   const publishedAt = row.published_at ?? '';
   const publishedTs = publishedAt ? Date.parse(publishedAt) : 0;
   return {
-    // Must match the id the live /api/news aggregate() produces for the same
-    // article (stableId of the canonical URL) — news_cache.id is just Supabase's
-    // own row key and never matches, which is why /news/[id] 404s: the list page
-    // renders live-aggregate ids, the detail page looked up DB-row ids.
+    // Must match the id the RSS pipeline gives the same article (stableId of
+    // the canonical URL) — news_cache.id is just Supabase's own row key and
+    // never matches, so list links and /news/[id] lookups would disagree.
     id: stableId(canonicalize(row.url)),
     title: row.title ?? '',
     summary: row.summary ?? row.description ?? '',
@@ -92,7 +90,7 @@ function newsFromStory(row: NewsStoryRow): NewsItem {
   };
 }
 
-function newsFromApiItem(item: ApiNewsItem): NewsItem {
+function newsFromStaticItem(item: StaticNewsItem): NewsItem {
   const publishedTs =
     typeof item.publishedTs === 'number' && Number.isFinite(item.publishedTs)
       ? item.publishedTs
@@ -121,7 +119,7 @@ function sortNews(items: NewsItem[]): NewsItem[] {
  * background hero is never rendered with the favicon placeholder. Falls back to
  * the newest item if none have images, and null if there's no news at all.
  *
- * Reuses getLatestNews so the DB → /api/news → static fallback chain is shared.
+ * Reuses getLatestNews so the DB → static fallback chain is shared.
  */
 export async function getFeaturedNews(): Promise<NewsItem | null> {
   const items = await getLatestNews(20);
@@ -133,7 +131,7 @@ export async function getFeaturedNews(): Promise<NewsItem | null> {
  * News items mentioning an entity (driver surname or team name), for profile
  * pages (Faz 3). MVP: filter the already-fetched latest-news set in memory
  * (case-insensitive substring on title/summary), so no extra DB round trip and
- * the same DB → API → static fallback chain is reused. Only meaningful for the
+ * the same DB → static fallback chain is reused. Only meaningful for the
  * current season; callers gate on that.
  */
 export async function getNewsForEntity(
@@ -156,7 +154,7 @@ export async function getNewsForEntity(
 
 /**
  * Single news item by id, for the /news/[id] detail page. Reuses the same
- * DB → API → static fallback chain as getLatestNews (no separate by-id query
+ * DB → static fallback chain as getLatestNews (no separate by-id query
  * exists upstream — news_cache/RSS aggregation isn't keyed for single-row
  * lookups), so this pulls a generous batch and filters in memory.
  */
@@ -178,7 +176,7 @@ export async function getNewsById(id: string): Promise<NewsItem | null> {
 }
 
 /**
- * Latest news. DB (news_cache) → /api/news → static fallback.
+ * Latest news. DB (news_stories → news_cache) → static fallback.
  */
 export async function getLatestNews(
   limit = 20,
@@ -227,25 +225,17 @@ export async function getLatestNews(
       if (withImages.length > 0) return sortNews(withImages).slice(0, limit);
     }
     if (result.error) {
-      logFallback('supabase news_cache', '/api/news', result.error.message);
+      logFallback('supabase news_cache', 'public/news-fallback.json', result.error.message);
     } else {
-      logFallback('supabase news_cache (empty)', '/api/news');
+      logFallback('supabase news_cache (empty)', 'public/news-fallback.json');
     }
   } catch (err) {
-    logFallback('supabase news_cache', '/api/news', (err as Error).message);
+    logFallback('supabase news_cache', 'public/news-fallback.json', (err as Error).message);
   }
 
-  // 2) live /api/news (aggregate() already dropped no-image/unreachable-image items)
-  const apiItems = await fetchSiteJson<ApiNewsItem[]>('/api/news');
-  if (apiItems?.length) {
-    const withImages = apiItems.map(newsFromApiItem).filter(hasRealImage);
-    if (withImages.length > 0) return sortNews(withImages).slice(0, limit);
-  }
-
-  // 3) static fallback — hand-authored/stale, still enforce the same rule
-  logFallback('/api/news', 'public/news-fallback.json');
-  const fallback = await readPublicJson<ApiNewsItem[]>('news-fallback.json');
+  // 2) static fallback — hand-authored/stale, still enforce the same rule
+  const fallback = await readPublicJson<StaticNewsItem[]>('news-fallback.json');
   if (!fallback?.length) return [];
-  const fallbackWithImages = fallback.map(newsFromApiItem).filter(hasRealImage);
+  const fallbackWithImages = fallback.map(newsFromStaticItem).filter(hasRealImage);
   return sortNews(fallbackWithImages).slice(0, limit);
 }

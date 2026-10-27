@@ -151,7 +151,6 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 |---|---|
 | `GET /api/f1-season?path=…` | **SSRF-sertleştirilmiş** Jolpica proxy & Snapshot Fallback. İstek path'i (season/round/type) önce `f1_snapshots` tablosunda aranır; varsa doğrudan veritabanından dönülür (upstream bağımlılığı ve gecikme azalır). Bulunamazsa Jolpica'ya gidilir; Jolpica hata/timeout verirse stale snapshot fallback yapılır (`x-data-source` header: `snapshot`, `jolpica`, `snapshot-stale`). `applyRateLimit` ile IP tespit edilemese dahi fallback havuzu üzerinden oran sınırlaması uygulanır. |
 | `GET /api/season/[year]` | Tam sezon bundle'ı (`getSeasonData`). `F1_SEASON_MIN..CURRENT_SEASON` aralığı dışı 400. |
-| `GET /api/news` | Canlı RSS aggregate (news_cache boşsa fallback). Upstash rate-limit (30 req/60 s), IP `x-real-ip`'ten (spoof-dirençli). |
 
 ---
 
@@ -170,7 +169,7 @@ Tümü `app/api/` altında, `runtime = 'nodejs'`.
 - **Batch Querying (`fetchAllRoundResults`):** Sezonun tamamlanan rauntları N adet tekil veritabanı sorgusu yerine tek bir `.in('round', finishedRounds)` batch sorgusu ile tek round-trip'te çekilir. Eksik/stale kalanlar için tekil fallback zinciri işletilir.
 - **getOnThisDay Bellek Koruması (OOM Guard):** Tüm zamanların `results` kayıtlarının `data` sütununu belleğe çekmek yerine doğrudan PostgreSQL JSON operatörü (`data->MRData->RaceTable->Races->0->>date LIKE %-MM-DD`) ve `.limit(80)` uygulanarak serverless OOM riski engellenmiştir.
 - **Tarihsel veri her zaman DB'den** servis edilir; Jolpica tarihsel için asla kullanılmaz.
-- Diğer okuyucular: [`lib/data/news.ts`](../../lib/data/news.ts) (news_cache → /api/news → static fallback), [`lib/data/stories.ts`](../../lib/data/stories.ts) (published-only), [`lib/data/radio.ts`](../../lib/data/radio.ts), [`lib/data/circuits.ts`](../../lib/data/circuits.ts).
+- Diğer okuyucular: [`lib/data/news.ts`](../../lib/data/news.ts) (news_stories → news_cache → static fallback; canlı `/api/news` taraması 2026-10-28'de kaldırıldı, 14.5), [`lib/data/stories.ts`](../../lib/data/stories.ts) (published-only), [`lib/data/radio.ts`](../../lib/data/radio.ts), [`lib/data/circuits.ts`](../../lib/data/circuits.ts).
 
 ---
 

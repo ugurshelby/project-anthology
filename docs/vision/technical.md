@@ -84,7 +84,6 @@ Jolpica · F1DB · OpenF1 · RSS · Open-Meteo · Groq/Gemini · MyMemory
 | `/api/push/register` | Expo push token kayıt (rate-limit 10/dk) |
 | `/api/f1-season` | Canlı Jolpica proxy |
 | `/api/live-timing` | OpenF1 `session_key=latest` canlı pozisyon/interval proxy'si — home hero `LiveRaceTracker` tarafından 12sn'de bir poll edilir. Edge cache (`s-maxage=5`) + in-memory stampede guard + 8sn sert zaman aşımı (OpenF1 yavaşlarsa stale cache'e düşer) — 100+ eşzamanlı izleyici tek upstream çağrısını paylaşır. **Canlı seans kilidi (2026-10-11 ölçümü ve düzeltmesi):** OpenF1 canlı seans süresince kimliksiz tüm isteklere 401 verir; rota bunu 200 `{live:true, restricted:true}` olarak 60 sn önbellekli döner, tracker "canlı veri seans boyunca kilitli" yazar ve dakikada bir sorar; diğer hatalar 15 sn hafızada tutulur. `OPENF1_USERNAME`/`OPENF1_PASSWORD` verilirse adaptör token alır (abonelik kararı master-plan 1.7). |
-| `/api/news` | Haber API |
 | `/api/season/[year]`, `/api/season/[year]/last-result` | Sezon snapshot API |
 | `/api/circuits/[id]`, `/api/drivers/[driverId]/career`, `/api/teams/[constructorId]/career` | Detay API'leri |
 
