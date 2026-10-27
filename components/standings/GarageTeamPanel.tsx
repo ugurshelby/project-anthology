@@ -415,21 +415,15 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
       <div className="relative z-10 flex flex-col lg:flex-row">
         <Link
           href={`/teams/${unit.constructorId}?season=${season}`}
-          className="relative flex flex-col gap-3 border-b border-hairline p-4 lg:w-[38%] lg:border-b-0 lg:p-5"
+          className="group relative flex flex-col gap-3 overflow-hidden border-b border-hairline p-4 lg:w-[38%] lg:border-b-0 lg:p-5"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10">
-                <MediaAssetView
-                  type="team"
-                  entityKey={unit.constructorId}
-                  alt={unit.constructorName}
-                  name={unit.constructorName}
-                  teamColor={color}
-                  className="h-full w-full object-contain"
-                  showAttribution={false}
-                />
-              </span>
+              <span
+                aria-hidden
+                className="h-6 w-1 shrink-0 rounded-full"
+                style={{ backgroundColor: color }}
+              />
               <span
                 lang="en"
                 className="font-condensed truncate text-xl font-700 uppercase leading-none text-text-hi sm:text-2xl"
@@ -443,16 +437,19 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
             </span>
           </div>
 
-          {/* Standardized 16:9 car slot with >=10% breathing room padding and team-specific framing */}
-          <div className="relative hidden w-full aspect-[16/9] max-h-24 p-2.5 sm:flex sm:items-center sm:justify-center sm:max-h-28 lg:mt-auto lg:max-h-32">
-            <div
-              className="h-full w-full"
-              style={{ filter: 'contrast(1.05) saturate(0.9)' }}
-            >
+          {/* Owner rule (apex-component-rules.md §4): 16:9 slot, car contained with >=10% breathing room on a dark team-tinted panel; hidden on phones */}
+          <div
+            aria-hidden
+            className="relative hidden aspect-[16/9] w-full overflow-hidden rounded-[var(--radius-card)] p-[10%] sm:block lg:mt-auto"
+            style={{
+              background: `radial-gradient(ellipse 80% 90% at 50% 55%, color-mix(in srgb, ${color} 22%, transparent), transparent 75%), #0d0d0d`,
+            }}
+          >
+            <div className="relative h-full w-full" style={{ filter: 'contrast(1.05) saturate(0.9)' }}>
               <MediaAssetView
                 type="car"
                 entityKey={`${unit.constructorId}:${season}`}
-                alt={`${unit.constructorName} ${season} car`}
+                alt=""
                 name={`${unit.constructorName} ${season}`}
                 teamColor={livery.curated ? livery.secondary : color}
                 teamAccent={livery.curated ? livery.accent : undefined}
