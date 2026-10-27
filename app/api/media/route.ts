@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { jsonApiError, logApiError } from '@/lib/api/errors';
-import { isMediaEntityType, parseKeyList } from '@/lib/media/keys';
 import { getMediaBatch, type MediaResult } from '@/lib/media/read';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { mediaQuery } from '@/lib/validation/api';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -31,10 +31,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const type = req.nextUrl.searchParams.get('type');
-  const keys = parseKeyList(req.nextUrl.searchParams.get('keys'));
-  if (!isMediaEntityType(type)) return jsonApiError('Invalid type', 400);
-  if (!keys) return jsonApiError('Invalid keys', 400);
+  const parsed = mediaQuery.safeParse({
+    type: req.nextUrl.searchParams.get('type'),
+    keys: req.nextUrl.searchParams.get('keys'),
+  });
+  if (!parsed.success) {
+    const badType = parsed.error.issues.some((issue) => issue.path[0] === 'type');
+    return jsonApiError(badType ? 'Invalid type' : 'Invalid keys', 400);
+  }
+  const { type, keys } = parsed.data;
 
   try {
     const map = await getMediaBatch(type, keys);

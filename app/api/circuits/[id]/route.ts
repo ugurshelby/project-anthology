@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCircuitDetail } from '@/lib/data/circuits';
 import { applyRateLimit } from '@/lib/rateLimit';
-import { isErgastSlug } from '@/lib/api/validation';
 import { jsonApiError, logApiError } from '@/lib/api/errors';
+import { circuitIdParam } from '@/lib/validation/api';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,11 +26,11 @@ export async function GET(
     );
   }
 
-  const { id } = await params;
-
-  if (!isErgastSlug(id)) {
+  const parsed = circuitIdParam.safeParse((await params).id);
+  if (!parsed.success) {
     return jsonApiError('Invalid circuit id', 400);
   }
+  const id = parsed.data;
 
   try {
     const circuit = await getCircuitDetail(id);

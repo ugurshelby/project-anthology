@@ -1,24 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Expo } from 'expo-server-sdk';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { PushSubscriptionInsert } from '@/types/database';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { pushRegisterBody } from '@/lib/validation/api';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 10;
-const MAX_PREFERENCE_KEYS = 20;
-
-/** Keep only boolean-valued keys, bounded in count — reject arbitrary/oversized payloads. */
-function sanitizePreferences(input: unknown): Record<string, boolean> {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
-  const entries = Object.entries(input as Record<string, unknown>)
-    .filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')
-    .slice(0, MAX_PREFERENCE_KEYS);
-  return Object.fromEntries(entries);
-}
 
 export async function POST(req: NextRequest) {
   const { success, retryAfter } = await applyRateLimit(req.headers, {
@@ -33,23 +23,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { token: string; preferences: Record<string, boolean> };
+  let json: unknown;
   try {
-    body = await req.json();
+    json = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
-  const { token, preferences } = body;
 
-  if (!token || typeof token !== 'string' || !Expo.isExpoPushToken(token)) {
+  // Preferences never fail the schema (they are sanitized), so any failure is the token.
+  const parsed = pushRegisterBody.safeParse(json);
+  if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
   }
-
-  const safePrefs = sanitizePreferences(preferences);
+  const { token, preferences } = parsed.data;
 
   const row: PushSubscriptionInsert = {
     token,
-    preferences: safePrefs,
+    preferences,
     updated_at: new Date().toISOString(),
   };
 

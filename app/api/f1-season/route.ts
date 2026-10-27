@@ -3,6 +3,7 @@ import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import type { SnapshotType } from '@/types/database';
+import { f1SeasonQuery, hasUnknownKeys, searchParamsToObject } from '@/lib/validation/api';
 
 /**
  * SSRF-hardened Ergast/Jolpica proxy (App Router port of the legacy proxy).
@@ -30,19 +31,7 @@ export const dynamic = 'force-dynamic';
 const ERGAST_BASE = 'https://api.jolpi.ca/ergast/f1';
 const FETCH_TIMEOUT_MS = 8000;
 
-/**
- * Allowed `path` shapes (Jolpica F1 endpoints we actually use):
- *   {year}
- *   {year}/driverStandings
- *   {year}/constructorStandings
- *   {year}/{round}/results
- *   {year}/{round}/qualifying
- *   {year}/{round}/sprint
- *   {year}/{round}/pitstops
- * Trailing `.json` is optional. Anything else is rejected.
- */
-const PATH_WHITELIST =
-  /^\d{4}(?:\/(?:driverStandings|constructorStandings)|\/\d{1,2}\/(?:results|qualifying|sprint|pitstops))?(?:\.json)?$/;
+// Allowed `path` shapes: F1_SEASON_PATH_WHITELIST in lib/validation/api.ts.
 
 // Map the path's segment keyword to a canonical SnapshotType.
 // Must stay in sync with SUFFIX_MAP in lib/f1Ingest.ts.
@@ -140,10 +129,9 @@ async function fetchSnapshot(parsed: ParsedPath): Promise<unknown | null> {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   // Only `path` is a valid query param — reject anything else to keep the cache key clean.
-  for (const key of req.nextUrl.searchParams.keys()) {
-    if (key !== 'path') {
-      return NextResponse.json({ error: 'Invalid request parameters' }, { status: 400 });
-    }
+  const query = f1SeasonQuery.safeParse(searchParamsToObject(req.nextUrl.searchParams));
+  if (!query.success && hasUnknownKeys(query.error)) {
+    return NextResponse.json({ error: 'Invalid request parameters' }, { status: 400 });
   }
 
   // Throttle the upstream proxy so it can't be used as a free scraping relay.
@@ -161,16 +149,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const raw = req.nextUrl.searchParams.get('path') ?? '';
-  // Only one param allowed; reject anything unexpected to keep the cache clean.
-  const path = raw.trim().replace(/^\/+/, '');
-
-  if (!path || !PATH_WHITELIST.test(path)) {
+  if (!query.success) {
     return NextResponse.json(
       { error: 'Invalid or disallowed path parameter' },
       { status: 400 },
     );
   }
+  const { path } = query.data;
 
   const season = extractSeason(path);
   const cacheControl = cacheControlFor(season);
