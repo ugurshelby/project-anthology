@@ -435,7 +435,7 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - İmza: `export const pushRegisterBody: z.ZodType<{ token: string; preferences: Record<string, boolean> }>` vb.; `export type PushRegisterBody = z.infer<typeof pushRegisterBody>`.
 - Doğrulama: `npx vitest run tests/validation-api.test.ts` + mevcut rota testleri (`npx vitest related --run app/api/push/register/route.ts app/api/f1-season/route.ts app/api/media/route.ts "app/api/circuits/[id]/route.ts"`) yeşil; `npx tsc --noEmit` 0; `npm run lint` 0; `npm run build` `wip/` üzerinde yeşil.
 
-### [ ] 14.4 LLM harcama tavanları (Denial of Wallet)
+### [x] 14.4 LLM harcama tavanları (Denial of Wallet)
 - Run: Opus 5.5 / medium — sahip şartı; küçük, net kapsam
 - Owner: Opus 5.5 · Depends on: — · Dalga 4 (sahip konsol tavanları: 16.8)
 - Opus 5.5 dosyaları: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-limits.test.ts`

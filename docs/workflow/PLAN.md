@@ -223,7 +223,7 @@ Acceptance: master-plan 14.5 verify; `wip/` CI and preview green before `main`.
 Run (phase): Opus 5.5 / medium — owner-mandated model (Faz 14), small scope.
 Depends on: J's `npm install` committed. Then 19.2 and 9.2 follow in this file order (same `lib/news/rewrite.ts`).
 Steps:
-- [ ] 14.4 — master-plan "14.4". First step.
+- [x] 14.4 — master-plan "14.4". First step.
 Acceptance: master-plan 14.4 verify.
 
 ### Session S2 — Telegraph order and source label

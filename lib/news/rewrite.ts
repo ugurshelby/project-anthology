@@ -22,7 +22,23 @@ export interface Rewrite {
   summaryTr: string;
 }
 
-const REQUEST_TIMEOUT_MS = 25_000;
+// ── Spend limits (OWASP LLM10) ─────────────────────────────────────────────
+// Every bound on how much one rewriteBatch call can ask of a provider lives here;
+// tests/news-rewrite-limits.test.ts pins them. Stories per request and per run are
+// capped by the caller (lib/news/stories.ts).
+
+/** Abort a provider request after this long. */
+export const REQUEST_TIMEOUT_MS = 25_000;
+/** HTTP requests per Groq model per batch: the first try plus one retry after a short 429. */
+export const GROQ_MAX_ATTEMPTS = 2;
+/** Longest Groq `retry-after` (seconds) worth waiting for; longer means the daily quota is spent. */
+export const GROQ_MAX_RETRY_AFTER_S = 30;
+/** Extra wait on top of Groq's `retry-after`. */
+export const GROQ_RETRY_PAD_MS = 250;
+/** No new provider request starts when fewer than this many ms remain before the deadline. */
+export const DEADLINE_MARGIN_MS = 3_000;
+/** Longest accepted model output per field (characters); longer output is rejected. */
+export const REWRITE_MAX_CHARS = { titleEn: 140, summaryEn: 700, titleTr: 160, summaryTr: 800 } as const;
 
 function buildPrompt(stories: RewriteSource[][]): string {
   const blocks = stories
@@ -96,7 +112,7 @@ function groqProvider(model: string): Provider {
     id: `groq:${model}`,
     enabled: () => Boolean(process.env.GROQ_API_KEY?.trim()),
     call: async (prompt) => {
-      for (let attempt = 0; attempt < 2; attempt++) {
+      for (let attempt = 0; attempt < GROQ_MAX_ATTEMPTS; attempt++) {
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY!.trim()}` },
@@ -112,8 +128,13 @@ function groqProvider(model: string): Provider {
         if (res.status === 429) {
           // Per-minute token limit resets within seconds → wait once and retry; a long wait means the daily cap.
           const retryAfter = Number(res.headers.get('retry-after'));
-          if (attempt === 0 && Number.isFinite(retryAfter) && retryAfter > 0 && retryAfter <= 30) {
-            await new Promise((r) => setTimeout(r, retryAfter * 1000 + 250));
+          if (
+            attempt < GROQ_MAX_ATTEMPTS - 1 &&
+            Number.isFinite(retryAfter) &&
+            retryAfter > 0 &&
+            retryAfter <= GROQ_MAX_RETRY_AFTER_S
+          ) {
+            await new Promise((r) => setTimeout(r, retryAfter * 1000 + GROQ_RETRY_PAD_MS));
             continue;
           }
           throw new QuotaError(model);
@@ -170,10 +191,10 @@ export function parseRewriteItem(j: Record<string, unknown> | undefined, sources
     typeof j[k] === 'string' && (j[k] as string).trim().length > 0 && (j[k] as string).length <= max
       ? (j[k] as string).trim()
       : null;
-  const titleEn = str('title_en', 140);
-  const summaryEn = str('summary_en', 700);
-  const titleTr = str('title_tr', 160);
-  const summaryTr = str('summary_tr', 800);
+  const titleEn = str('title_en', REWRITE_MAX_CHARS.titleEn);
+  const summaryEn = str('summary_en', REWRITE_MAX_CHARS.summaryEn);
+  const titleTr = str('title_tr', REWRITE_MAX_CHARS.titleTr);
+  const summaryTr = str('summary_tr', REWRITE_MAX_CHARS.summaryTr);
   if (!titleEn || !summaryEn || !titleTr || !summaryTr) return null;
   if (copiesSource(`${titleEn}. ${summaryEn}`, sources)) return null;
   return { titleEn, summaryEn, titleTr, summaryTr };
@@ -215,7 +236,7 @@ export async function rewriteBatch(
   const results: Array<Rewrite | 'split' | null> = stories.map(() => null);
   for (const provider of PROVIDERS) {
     if (skip.has(provider.id) || !provider.enabled()) continue;
-    if (Date.now() + 3_000 >= deadlineMs) break; // out of time budget — leave the rest for the next run
+    if (Date.now() + DEADLINE_MARGIN_MS >= deadlineMs) break; // out of time budget — leave the rest for the next run
     const todo = results.map((r, i) => (r === null ? i : -1)).filter((i) => i >= 0);
     if (todo.length === 0) break;
     try {
