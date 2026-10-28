@@ -4,6 +4,8 @@ import {
   detectTeamTag,
   estimateReadMinutes,
   formatWireTime,
+  sortWireByTime,
+  formatWireStamp,
 } from '@/lib/news/categories';
 
 describe('classifyNewsCategory', () => {
@@ -55,5 +57,24 @@ describe('formatWireTime', () => {
   it('formats UTC clock', () => {
     const ts = Date.UTC(2026, 8, 1, 14, 22, 0);
     expect(formatWireTime(ts)).toBe('14:22 UTC');
+  });
+});
+
+describe('sortWireByTime (19.3)', () => {
+  it('orders mixed publish times newest first and leaves the input untouched', () => {
+    const input = [
+      { id: 'a', publishedTs: 1_000 },
+      { id: 'b', publishedTs: 3_000 },
+      { id: 'c', publishedTs: 2_000 },
+    ];
+    const sorted = sortWireByTime(input);
+    expect(sorted.map((i) => i.id)).toEqual(['b', 'c', 'a']);
+    expect(input.map((i) => i.id)).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('formatWireStamp', () => {
+  it('prefixes the UTC day and month', () => {
+    expect(formatWireStamp(Date.UTC(2026, 9, 27, 22, 9))).toBe('27.10 22:09 UTC');
   });
 });

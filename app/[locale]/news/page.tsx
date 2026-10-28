@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getLatestNews } from '@/lib/data/news';
 import { PageShell } from '@/components/layout/BentoGrid';
-import { hasRealImage } from '@/lib/news/categories';
+import { hasRealImage, sortWireByTime } from '@/lib/news/categories';
 import { NewsLeadBlock } from '@/components/news/NewsLeadBlock';
 import { NewsEditorialFeed } from '@/components/news/NewsEditorialFeed';
 import { SITE_NAME, localizedAlternates } from '@/lib/seo';
@@ -59,7 +59,7 @@ export default async function NewsPage({ params }: PageProps) {
   // Balanced editorial pool: remaining stories for the filterable card grid
   const cardPool = remaining;
   // Wire telemetry pool: specifically imageless briefs
-  const wirePool = withoutImages.filter((item) => !usedIds.has(item.id));
+  const wirePool = sortWireByTime(withoutImages.filter((item) => !usedIds.has(item.id)));
 
   return (
     <PageShell>

@@ -46,7 +46,7 @@ Run (queue): Sonnet / medium unless a step says otherwise.
 
 - [x] **S1 8.2** — master-plan "8.2". First step. Then 8.3. Browser checks at 375 and 1440 px logged (LCP `img` attributes, `currentSrc`). Stop: `next/image` rejects `loader` with `fetchPriority`/`loading`, or no srcset for the custom loader → `OPEN.md` `To: Opus`.
 - [x] **S2 8.3** (2026-10-28, Opus; `VariantImage` client wrapper) — master-plan "8.3".
-- [ ] **S3 19.3** — master-plan "19.3" (`NewsWireFeed.tsx`, `news/page.tsx` `wirePool`, `lib/news/categories.ts`).
+- [x] **S3 19.3** (2026-10-28, Opus; home telegraph part of 20.3 done with it) — master-plan "19.3" (`NewsWireFeed.tsx`, `news/page.tsx` `wirePool`, `lib/news/categories.ts`).
 - [ ] **S4 20.2** — master-plan "20.2" (needs 8.3 on `main`; 18.5 helpers).
 - [ ] **S5 20.3** — master-plan "20.3" (needs 19.3 on `main`; `sortWireByTime`).
 - [ ] **S6 1.8** — master-plan "1.8". Owner sets repo secret `QSTASH_TOKEN` first.

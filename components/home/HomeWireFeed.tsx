@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import type { NewsItem } from '@/lib/data/types';
 import { localizedNewsTitle } from '@/lib/news/i18n';
-import { detectTeamTag, formatWireTime, hasRealImage } from '@/lib/news/categories';
+import { detectTeamTag, formatWireTime, hasRealImage, sortWireByTime } from '@/lib/news/categories';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
 import { hasPublisherSizes, publisherImageLoader } from '@/lib/news/imageVariants';
@@ -72,7 +72,7 @@ function WireThumbnail({
 export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: number }) {
   const locale = useLocale();
   const tNav = useTranslations('nav');
-  const feed = items.slice(0, HOME_NEWS_COUNT);
+  const feed = sortWireByTime(items).slice(0, HOME_NEWS_COUNT);
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -141,11 +141,11 @@ export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: nu
                             className="h-1 w-1 rounded-full"
                             style={{ backgroundColor: teamColor }}
                           />
-                          {team}
+                          {item.sourceName.toUpperCase()}
                         </span>
                       ) : (
                         <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium text-text-mid">
-                          {item.sourceName.toUpperCase().slice(0, 12)}
+                          {item.sourceName.toUpperCase()}
                         </span>
                       )}
                     </div>

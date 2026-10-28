@@ -71,6 +71,11 @@ export function detectTeamTag(title: string, summary = ''): string | null {
   return null;
 }
 
+/** Telegraph order: newest first by publish time. Returns a sorted copy; the input is not changed. */
+export function sortWireByTime<T extends { publishedTs: number }>(items: T[]): T[] {
+  return [...items].sort((a, b) => b.publishedTs - a.publishedTs);
+}
+
 /** Rough editorial read time from summary (+ title weight). Min 2, max 8. */
 export function estimateReadMinutes(summary: string, title = ''): number {
   const words = `${title} ${summary}`.trim().split(/\s+/).filter(Boolean).length;
@@ -86,6 +91,15 @@ export function formatWireTime(publishedTs: number): string {
   const hh = String(d.getUTCHours()).padStart(2, '0');
   const mm = String(d.getUTCMinutes()).padStart(2, '0');
   return `${hh}:${mm} UTC`;
+}
+
+/** Wire stamp with the UTC day, "28.10 12:47 UTC": rows from different days stay readable in time order. */
+export function formatWireStamp(publishedTs: number): string {
+  if (!publishedTs) return formatWireTime(publishedTs);
+  const d = new Date(publishedTs);
+  const dd = String(d.getUTCDate()).padStart(2, '0');
+  const mo = String(d.getUTCMonth() + 1).padStart(2, '0');
+  return `${dd}.${mo} ${formatWireTime(publishedTs)}`;
 }
 
 /** True when the cover URL is usable (not empty / not the site placeholder). */

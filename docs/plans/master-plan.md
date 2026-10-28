@@ -610,7 +610,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
   2. Olgu koruması (saf fonksiyon, dışa verilir): yeniden yazılmış başlıktaki her sayı ve her özel ad kaynak başlık + özette geçmiyorsa yeniden yazım reddedilir, sıradaki sağlayıcıya geçilir; hepsi reddederse öğe mevcut başarısızlık yolundan geçer (yeniden yazılmadan atlanır).
 - Doğrulama: uydurma sayı ("by 120 points", kaynakta 102) reddedilir; kaynaktaki ad ve sayılarla kurulmuş başlık geçer; test, ad/sayı kontrolünün özne-nesne ters çevirmeyi yakalamadığını belgeler (istem kuralı bunun içindir); `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0. Canlı: ilk `sync-news` sonrası 20 yeni Türkçe başlık log'a yazılır, sahip okur.
 
-### [ ] 19.3 Telgraf akışı sırası ve kaynak etiketi
+### [x] 19.3 Telgraf akışı sırası ve kaynak etiketi
+- Kapanış 2026-10-28 (Opus): `sortWireByTime` + `wirePool`; köşeli etiket `sourceName`, "Kaynak:" satırı kalktı. Ek: satır damgası gün içerir (`formatWireStamp`, "28.10 12:47 UTC"; yalnız saatle farklı günler karışık görünüyordu), başlık "24S" iddiasını bıraktı ("Telgraf // Ajans Akışı"; akış birkaç günü kapsıyor). `NewsList.tsx` silinmedi: `NewsEditorialFeed` `NewsCard`'ı oradan alıyor. Yerel `/tr/news`: 11 satır 28.10 12:47 → 25.10 21:48 azalan.
 - Run: Sonnet / medium — iki dosya ve saf yardımcı
 - Dosyalar (`DECISIONS.md` 2026-10-27 "18.2 and 19.3"; plan ilk hâlinde yanlış bileşeni gösteriyordu): `app/[locale]/news/page.tsx` (`wirePool`), `components/news/NewsWireFeed.tsx`, `lib/news/categories.ts`, `tests/news-categories.test.ts`; kullanılmayan `components/news/NewsList.tsx` (`grep` ile içe aktaran yoksa) silinir.
 - Değişiklik: `lib/news/categories.ts`'e saf `sortWireByTime<T extends { publishedTs: number }>(items: T[]): T[]` (azalan, kopya döner); `wirePool` bununla sıralanır. `NewsWireFeed` köşeli etiketi `item.sourceName` (bugün `detectTeamTag` metindeki takım adını yazıyor: "[FERRARI]"); ayrı "Source: …" satırı tekrar olduğu için kalkar. `detectTeamTag` başka yerde kullanılıyorsa kalır. Ana sayfa telgrafı (`components/home/HomeWireFeed.tsx`) 20.3'te Antigravity'de.
@@ -634,6 +635,7 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Doğrulama: `/tr/season`, `/tr/machinery`, `/tr/drivers/max_verstappen` → "%19", "%93,75", "%29,3", "3.665,5"; İngilizce sayfalarda "19%", "3,665.5".
 
 ### [ ] 20.3 Metin ve işaret düzeltmeleri
+- Durum 2026-10-28: ana sayfa telgrafı maddesi bitti (Opus, 19.3 ile): `HomeWireFeed` `sortWireByTime`, etiket kaynak adı (takım rengi vurgusu kalır); yerel `/tr` 12:57, 11:33, 10:17 azalan. Diğer maddeler açık.
 - Ana sayfa telgrafı `components/home/HomeWireFeed.tsx`: 19.3 ile aynı kural (yayın zamanına göre azalan, köşeli etiket kaynak adı; 19.3'ün `sortWireByTime` yardımcısı kullanılır).
 - `SeasonTitleFightHero.tsx`: "PUAN FARKI" iki kez görünüyor → bir kez.
 - Ana sayfa `ChampionshipPulse.tsx`: P2 ve sonrası "+102 PUAN" liderden geride olmayı anlatıyor → "−102" ya da "102 geride"; tek biçim.

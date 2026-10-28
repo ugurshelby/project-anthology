@@ -4,7 +4,7 @@ import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import type { NewsItem } from '@/lib/data/types';
 import { localizedNewsTitle } from '@/lib/news/i18n';
-import { detectTeamTag, formatWireTime } from '@/lib/news/categories';
+import { formatWireStamp } from '@/lib/news/categories';
 
 /**
  * Brutalist / telemetry wire — imageless or agency briefs as single-line
@@ -20,7 +20,7 @@ export function NewsWireFeed({
   const locale = useLocale();
   if (items.length === 0) return null;
 
-  const defaultHeading = locale === 'tr' ? 'Telgraf // 24S Telemetri Akışı' : 'The Wire // 24H Dispatch';
+  const defaultHeading = locale === 'tr' ? 'Telgraf // Ajans Akışı' : 'The Wire // Dispatch';
   const displayHeading = heading ?? defaultHeading;
 
   return (
@@ -35,7 +35,6 @@ export function NewsWireFeed({
         <ul className="divide-y divide-hairline">
           {items.map((item) => {
             const title = localizedNewsTitle(item, locale);
-            const team = detectTeamTag(item.title, item.summary);
             return (
               <li key={item.id}>
                 <Link
@@ -43,16 +42,13 @@ export function NewsWireFeed({
                   className="group flex flex-col gap-1.5 px-4 py-3.5 transition-colors hover:bg-white/[0.03] md:flex-row md:items-baseline md:gap-3 md:px-5"
                 >
                   <span className="data-tabular shrink-0 text-[12px] text-text-low font-mono">
-                    [{formatWireTime(item.publishedTs)}]
+                    [{formatWireStamp(item.publishedTs)}]
                   </span>
                   <span className="data-tabular shrink-0 text-[12px] text-accent/90 font-mono font-medium">
-                    [{team ?? item.sourceName.toUpperCase().slice(0, 12)}]
+                    [{item.sourceName.toUpperCase()}]
                   </span>
                   <span className="min-w-0 flex-1 text-sm leading-snug text-text-hi group-hover:text-white break-words">
                     &ldquo;{title}&rdquo;
-                  </span>
-                  <span className="data-tabular shrink-0 text-[12px] text-text-low font-mono">
-                    {locale === 'tr' ? 'Kaynak' : 'Source'}: {item.sourceName}
                   </span>
                 </Link>
               </li>
