@@ -324,7 +324,7 @@
         "also": "Also on this day:"
       },
       "schedule": {
-        "heading": "Weekend schedule",
+        "heading": "Key sessions",
         "yourTime": "Your time · {zone}",
         "trackTime": "Track {time}",
         "done": "Done"
@@ -357,7 +357,7 @@
     },
     "season": {
       "pointsGap": "Points gap",
-      "ptsGap": "PTS GAP",
+      "ptsGap": "PTS",
       "ptsLead": "PTS LEAD",
       "driversChampionship": "Drivers · Championship",
       "constructorsTelemetry": "Constructors · Telemetry",
@@ -376,6 +376,7 @@
       "raceCalendar": "Race calendar",
       "fullWeekend": "Full weekend →",
       "scheduleAvailable": "Weekend schedule available",
+      "firstSession": "First session {when} UTC",
       "openRound": "Open round →",
       "roundShort": "R{round}",
       "prev": "Previous season",
@@ -484,7 +485,7 @@
         "cornersOnly": "{corners} corners",
         "drsZones": "{count, plural, one {# DRS zone} other {# DRS zones}}",
         "elevationDelta": "Elevation change",
-        "metres": "metres",
+        "metres": "m",
         "range": "{low} m → {high} m",
         "fullThrottle": "Full throttle",
         "throttleValue": "{value}%",

@@ -324,7 +324,7 @@
         "also": "Aynı günde:"
       },
       "schedule": {
-        "heading": "Hafta sonu programı",
+        "heading": "Öne çıkan seanslar",
         "yourTime": "Senin saatin · {zone}",
         "trackTime": "Pist {time}",
         "done": "Bitti"
@@ -357,7 +357,7 @@
     },
     "season": {
       "pointsGap": "Puan farkı",
-      "ptsGap": "PUAN FARKI",
+      "ptsGap": "PUAN",
       "ptsLead": "PUAN",
       "driversChampionship": "Sürücüler · Şampiyona",
       "constructorsTelemetry": "Takımlar · Telemetri",
@@ -376,6 +376,7 @@
       "raceCalendar": "Yarış takvimi",
       "fullWeekend": "Tüm hafta sonu →",
       "scheduleAvailable": "Hafta sonu programı mevcut",
+      "firstSession": "İlk seans {when} UTC",
       "openRound": "Yarışı aç →",
       "roundShort": "{round}. Y",
       "prev": "Önceki sezon",
@@ -484,7 +485,7 @@
         "cornersOnly": "{corners} viraj",
         "drsZones": "{count} DRS bölgesi",
         "elevationDelta": "İrtifa farkı",
-        "metres": "metre",
+        "metres": "m",
         "range": "{low} m → {high} m",
         "fullThrottle": "Tam gaz oranı",
         "throttleValue": "%{value}",

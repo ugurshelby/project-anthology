@@ -637,7 +637,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - 18.5 yardımcılarıyla: `SeasonHighlightTiles.tsx` ("19%"), Araçlar galibiyet oranı ("93.75%"), sürücü sayfası oranları ("%29.3") ve puan ("3665.5").
 - Doğrulama: `/tr/season`, `/tr/machinery`, `/tr/drivers/max_verstappen` → "%19", "%93,75", "%29,3", "3.665,5"; İngilizce sayfalarda "19%", "3,665.5".
 
-### [ ] 20.3 Metin ve işaret düzeltmeleri
+### [x] 20.3 Metin ve işaret düzeltmeleri
+- Kapanış 2026-10-28 (Opus): "PUAN FARKI" bir kez (alt satır birim "PUAN"); nabız kartında P2+ "−123 PUAN"; yaklaşan yarış kartı "İlk seans 30 Eki Cum 18:30 UTC" (`SeasonRaceSummary.firstSessionMs`, test); irtifa "±41 metre" → "41 m"; ana sayfa programı sahip kuralı §2.3 gereği öne çıkan seanslarla kalır, başlık "Öne çıkan seanslar" / "Key sessions". Yerel ölçüm `/tr/season`, `/tr` (HTML).
 - Durum 2026-10-28: ana sayfa telgrafı maddesi bitti (Opus, 19.3 ile): `HomeWireFeed` `sortWireByTime`, etiket kaynak adı (takım rengi vurgusu kalır); yerel `/tr` 12:57, 11:33, 10:17 azalan. Diğer maddeler açık.
 - Ana sayfa telgrafı `components/home/HomeWireFeed.tsx`: 19.3 ile aynı kural (yayın zamanına göre azalan, köşeli etiket kaynak adı; 19.3'ün `sortWireByTime` yardımcısı kullanılır).
 - `SeasonTitleFightHero.tsx`: "PUAN FARKI" iki kez görünüyor → bir kez.

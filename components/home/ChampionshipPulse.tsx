@@ -140,7 +140,7 @@ export function ChampionshipPulse({
                   </span>
                 </div>
                 <span className="shrink-0 rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums text-text-mid">
-                  +{delta} {t('pts')}
+                  −{delta} {t('pts')}
                 </span>
               </div>
 

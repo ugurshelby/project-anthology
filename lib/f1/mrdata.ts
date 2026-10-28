@@ -1,5 +1,5 @@
 import type { MrData } from '@/lib/data/f1';
-import type { CalendarRace } from '@/lib/f1Calendar';
+import { sessionStartMs, type CalendarRace } from '@/lib/f1Calendar';
 import { resolveTeamUiColor } from '@/config/team-colors';
 
 export function getRacesFromCalendar(data: MrData | null): CalendarRace[] {
@@ -834,6 +834,8 @@ export interface SeasonRaceSummary {
   circuitId: string;
   country: string;
   date: string;
+  /** Earliest scheduled session (FP1, sprint, qualifying or race), UTC ms; null when the calendar has no times. */
+  firstSessionMs: number | null;
   done: boolean;
   winnerCode: string | null;
   winnerName: string | null;
@@ -847,6 +849,17 @@ export interface SeasonHighlights {
   dnfRatePercent: number;
   dnfCount: number;
   starterCount: number;
+}
+
+/** Earliest known session start of a race weekend, UTC ms. */
+function firstSessionMs(race: CalendarRace): number | null {
+  const starts = [
+    sessionStartMs(race.FirstPractice),
+    sessionStartMs(race.Sprint),
+    sessionStartMs(race.Qualifying),
+    raceStartMs(race),
+  ].filter((ms): ms is number => ms !== null && Number.isFinite(ms));
+  return starts.length > 0 ? Math.min(...starts) : null;
 }
 
 /** Per-round recap map for the season race strip and micro-summary panel. */
@@ -871,6 +884,7 @@ export function buildSeasonRaceSummaries(
       circuitId: race.Circuit?.circuitId ?? '',
       country: race.Circuit?.Location?.country ?? '—',
       date: race.date ?? '',
+      firstSessionMs: firstSessionMs(race),
       done: isDone(race),
       winnerCode: winner?.driverCode ?? null,
       winnerName: winner?.driverName ?? null,

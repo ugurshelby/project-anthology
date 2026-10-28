@@ -48,7 +48,7 @@ export function CircuitElevationProfile({ circuitId }: CircuitElevationProfilePr
           <span className="label-caps block text-[10px] text-text-low font-mono">{t('elevationDelta')}</span>
           <div className="mt-1 flex items-baseline gap-1.5">
             <span className="font-condensed text-2xl font-700 text-text-hi md:text-3xl">
-              ±{profile.elevationDeltaM}
+              {profile.elevationDeltaM}
             </span>
             <span className="font-mono text-xs text-text-mid">{t('metres')}</span>
           </div>

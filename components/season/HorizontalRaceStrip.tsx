@@ -4,7 +4,7 @@ import { displayUpper } from '@/lib/i18n/caps';
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { countryName, raceName } from '@/lib/i18n/format';
+import { countryName, formatDate, raceName } from '@/lib/i18n/format';
 import { Link } from '@/i18n/routing';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
 import { CountryFlag } from '@/components/ui/CountryFlag';
@@ -136,7 +136,21 @@ function RaceMicroSummary({
               ))}
             </div>
           ) : (
-            <span className="data-tabular text-text-low">{t('scheduleAvailable')}</span>
+            <span className="data-tabular text-text-low">
+              {race.firstSessionMs !== null
+                ? t('firstSession', {
+                    when: formatDate(race.firstSessionMs, locale, {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hourCycle: 'h23',
+                      timeZone: 'UTC',
+                    }),
+                  })
+                : t('scheduleAvailable')}
+            </span>
           )}
           {race.fastestLapDriver ? (
             <span className="label-caps text-text-low">
