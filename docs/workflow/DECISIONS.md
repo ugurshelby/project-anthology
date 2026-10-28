@@ -208,3 +208,10 @@ Architect appends; newest last. One entry per decision.
 - Browser (local dev, 2026-10-28): 20.6 car slot `object-fit: contain`, 10 % padding (29.4 px of 294 px); header subtitle 11 px; footer data credit present; no console errors. 1.11 badge not verified (no `apexProvisional` row in `f1_snapshots`), moved to the R19 live check.
 - Note: `631675b..ff9b422` carry invalid `messages/*.json` (fixed in `7354c9c`); history is not rewritten.
 
+## 2026-10-28 H1 OPEN answers (18.1, 18.3, 20.5)
+- 18.1: not a defect. The season page shows the top 3 as podium cards and the rest in the table; H1 counted only the table. 2026: 3 + 20 = 23 = snapshot rows; 1989: 3 + 26 = 29 = snapshot rows (the plan's "30" was wrong). DNF line on `/tr/season/1989` measured locally on current code and live data: "232 yarış dışı · 621 start". Closed.
+- 18.3: not a defect. The plan's 6/17 was written before R18 finished; after R18, 5 upcoming + 18 done = 23 is correct. Closed.
+- 20.5: option (a). A visually hidden skip link (`sr-only` until focus) is exempt from the < 24 px target count; criterion stays 0 for visible targets. Contrast on translucent and photo backgrounds is measured by the 8.12 Lighthouse `color-contrast` audit, not by hand. Closed.
+- Gap closed by the operator: `GarageTeamPanel` passes `sizes` to both `MediaAssetView` calls (driver bays `(min-width: 1024px) 31vw, 50vw`, car slot `(min-width: 1024px) 30vw, 80vw`), the 20.6 note that waited for 8.2; before, every grid image used the `100vw` default.
+- Affects: master-plan 18.1–18.5, 19.1, 20.1, 20.4, 20.5, 13.3 ticked; `OPEN.md` three entries removed.
+

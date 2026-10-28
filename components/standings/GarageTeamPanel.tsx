@@ -132,6 +132,7 @@ function DriverBay({
           driverNumber={number}
           teamColor={color}
           objectPosition={objectPosition}
+          sizes="(min-width: 1024px) 31vw, 50vw"
           className="h-full w-full object-cover"
           showAttribution={false}
         />
@@ -456,6 +457,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
                 season={season}
                 objectPosition={getCarObjectPosition(unit.constructorId)}
                 objectFit="contain"
+                sizes="(min-width: 1024px) 30vw, 80vw"
                 className="h-full w-full object-contain"
                 showAttribution={false}
               />

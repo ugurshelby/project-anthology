@@ -385,7 +385,8 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
   - `tests/circuit-telemetry-data.test.ts` (uydurma veri yasağı): `data/circuits/telemetry/*.json` her dosya için `isCircuitTelemetry`; `source` alanları dolu, `provider === 'OpenF1'`, `2023 ≤ year ≤ CURRENT_SEASON`; saklı örneklerden `lapMetrics`/`sectorBoundaries`/`slowPoints` yeniden hesaplanır ve saklı değerlere eşit; son `tMs` ile `lapDurationMs` farkı ≤ 1.500; `CIRCUIT_FACTS[id].lengthKm` varsa `lapLengthM` ±%3 içinde; `tMs` ve `dM` azalmaz; `0 ≤ kmh ≤ 400`, `0 ≤ gear ≤ 8`, `0 ≤ throttle ≤ 100`; `0 < boundariesM[0] < boundariesM[1] < lapLengthM`; `TELEMETRY_LOADERS` anahtarları dosya adlarıyla birebir. Dosya yoksa tek test: harita boş.
 - Doğrulama: `npx vitest run tests/telemetry-derive.test.ts tests/circuit-telemetry-data.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/telemetry lib/data/circuitTelemetry.ts scripts/build-circuit-telemetry.ts data/circuits/telemetry` 0; `npx tsx scripts/build-circuit-telemetry.ts --dry-run` env'siz çıkış 0 ve güncel takvimdeki her pist için bir satır (eşleşme ya da neden).
 
-### [~] 13.3 Telemetri verisini üret ve commit et
+### [x] 13.3 Telemetri verisini üret ve commit et
+- Kapanış 2026-10-28: kapılar `6f6a8fc`, veri `a9a36e5` (23 pist, 308 KB, atlanan yok; suzuka 2026 → 2025); tam suite 1004/1004; CI `wip/` → `main`.
 - Durum 2026-10-28: kapılar + test `6f6a8fc`, veri `a9a36e5` (23 pist, 308 KB, atlanan yok; suzuka 2026 −%7,0 → 2025). Yerel doğrulama yeşil. Açık: `wip/` CI + Vercel preview, sonra `main` push (sahip onayı).
 - Run: Opus 5.5 / high (betik değişikliği) → `/effort medium` (koşu ve ölçüm) — sahip şartı, Builder
 - Owner: Opus 5.5 (Builder) · Depends on: 13.2 · Dalga 4 (oturum M, 13.2'den sonra `/effort medium`)
@@ -546,7 +547,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Run (faz): Sonnet / high — veri doğruluğu, rota durum kodları, çok dosya
 - Owner: Sonnet · Depends on: kod dondurmanın bitmesi (2026-10-26 12:00 TR) · Dalga 3 (oturum R)
 
-### [~] 18.1 Sıralama kesmesi, DNF oranı, soyadı
+### [x] 18.1 Sıralama kesmesi, DNF oranı, soyadı
+- Kapanış 2026-10-28 (`DECISIONS.md` "H1 OPEN answers"): sıralama kürsü (3) + tablo, 2026 = 3 + 20 = 23 (snapshot 23 satır), 1989 = 3 + 26 = 29 (snapshot 29 satır; plandaki 30 yanlıştı); `/tr/season/1989` "232 yarış dışı · 621 start" (yerel `next dev`, güncel kod ve canlı veri).
 - Dosyalar: `lib/f1/mrdata.ts`, `components/season/DriverPodiumStandings.tsx`, `components/season/SeasonHighlightTiles.tsx`, `messages/tr.json`, `messages/en.json` (yalnızca `retirements` anahtarı), yeni `tests/mrdata-standings.test.ts`
 - Değişiklik:
   1. `getDriverStandings(data, limit?: number)` ve `getConstructorStandings(data, limit?: number)`: varsayılan sınır kalkar (`limit` yoksa tüm satırlar). Ana sayfa çağrıları (`app/[locale]/(home)/page.tsx` 6 ve 3) aynen kalır. Bugün 2026'da 23. sürücü (Pérez) ve 1989'da 30 sürücünün 8'i kesiliyor.
@@ -555,11 +557,13 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Test: 23 satırlık fixture → 23 satır; `limit: 6` → 6; durum fixture'ı (`Finished`, `+1 Lap`, `+2 Laps`, `Lapped`, `Engine`, `Collision`, `Disqualified`) → DNF 3, starter 7; `familyName` "de Cesaris".
 - Doğrulama: `npx vitest run tests/mrdata-standings.test.ts tests/mrdata-round.test.ts tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1/mrdata.ts components/season` 0; preview'da `/tr/season` 23 sürücü, `/tr/season/1989` 30 sürücü ve yarış dışı sayısı ≥ 200.
 
-### [~] 18.2 Var olmayan sayfalar 404 dönsün
+### [x] 18.2 Var olmayan sayfalar 404 dönsün
+- Kapanış 2026-10-28: canlı H1 (`logs/2026-10-28.md`): dört sahte adreste `noindex` ve "bulunamadı", tur 17'de `noindex` yok.
 - Kapsam değişti (`DECISIONS.md` 2026-10-27 "18.2 and 19.3"): Next 16 `loading.tsx` varken `notFound()` 200 + `noindex` akıtır (belgelenen davranış); durum kodu hedefi bırakıldı. Bölüm 1 bitti (`b3402fe`: takvimde olmayan tur `notFound()`, sayfa ve `generateMetadata`). Bölüm 2 yapılmaz (iskeletler kalır).
 - Doğrulama (canlı): `/tr/season/2026/round/30`, `/tr/drivers/olmayan`, `/tr/circuits/olmayan`, `/tr/news/olmayan` HTML'inde `noindex` var ve başlık "bulunamadı"; `/tr/season/2026/round/17` `noindex` içermez.
 
-### [~] 18.3 Pistler sayıları ve 2026 DRS
+### [x] 18.3 Pistler sayıları ve 2026 DRS
+- Kapanış 2026-10-28: canlı H1 + yerel: Tümü 23, Yaklaşan 5, Tamamlanan 18 (R18 bitti, 5 + 18 = 23 tutarlı; plandaki 6/17 R18 öncesi sayıydı), "23 Grand Prix · 20 Ülke", americas sayfasında DRS yok.
 - Run: Sonnet / medium — kapsamı net küçük düzeltme
 - Dosyalar: `components/circuit/CircuitsDirectory.tsx`, `app/[locale]/circuits/page.tsx`, `app/[locale]/circuits/[id]/page.tsx`, `components/circuit/NextCircuitHero.tsx`, `lib/f1Calendar.ts`, `messages/tr.json`, `messages/en.json` (`ui.circuit.totalCalendar`), ilgili test
 - Değişiklik:
@@ -568,13 +572,15 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
   3. `lib/f1Calendar.ts`: `export const DRS_LAST_SEASON = 2025;` (2026 kurallarında DRS yok; OpenF1 2026 `drs: null`, `DECISIONS.md` 13.1). Pist sayfası ve `NextCircuitHero` DRS bilgisini yalnızca gösterilen sezon ≤ `DRS_LAST_SEASON` ise gösterir.
 - Doğrulama: `npx vitest related --run components/circuit/CircuitsDirectory.tsx lib/f1Calendar.ts` ve `npx vitest run tests/i18n-messages.test.ts` yeşil; `npx tsc --noEmit` 0; preview'da `/tr/circuits` sekme sayıları tutarlı, `/tr/circuits/americas` DRS satırı yok.
 
-### [~] 18.4 Sitemap: arşiv sayfaları
+### [x] 18.4 Sitemap: arşiv sayfaları
+- Kapanış 2026-10-28: canlı `sitemap.xml` 1399 `<loc>` (> 300).
 - Run: Sonnet / medium — tek dosya, veri kaynakları mevcut
 - Dosyalar: `app/sitemap.ts`, sitemap testi (yoksa yeni `tests/sitemap.test.ts`)
 - Değişiklik: bugün 109 adres. Eklenecekler: `/season/{yıl}` (`F1_SEASON_MIN` → `CURRENT_SEASON`, her biri `withI18n`), `/machinery`, son 14 günün haber detayları (`news_stories`, mevcut okuyucu üzerinden). Tüm zamanların sürücü/takım sayfaları yalnızca `lib/data` zaten bir kimlik listesi veriyorsa eklenir; yeni veri kaynağı gerekiyorsa `OPEN.md` `To: Opus`.
 - Doğrulama: test sezon adresi sayısı = `CURRENT_SEASON − F1_SEASON_MIN + 1` (dil başına) ve `/machinery` var; `npx tsc --noEmit` 0; preview'da `curl -s <preview>/sitemap.xml | grep -c "<loc>"` > 300.
 
-### [~] 18.5 Yerel sayı biçimi yardımcıları
+### [x] 18.5 Yerel sayı biçimi yardımcıları
+- Kapanış 2026-10-28: CI `main`'de yeşil (2026-10-28).
 - Run: Sonnet / medium — küçük yardımcı ve test
 - Dosyalar: `lib/i18n/format.ts`, `tests/format.test.ts`
 - Değişiklik: `export function formatNumber(value: number, locale: string | null | undefined, maxFractionDigits = 1): string` ve `export function formatPercent(value: number, locale: string | null | undefined, maxFractionDigits = 1): string` (`value` 0–100; `Intl.NumberFormat(intlTag(locale), { style: 'percent' })` ile `value / 100`). Bileşenlere uygulama 20.2'de.
@@ -587,7 +593,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Run (faz): Sonnet / high — haber hattı, LLM çıktısı, kenar durumlar
 - Owner: Sonnet · Depends on: kod dondurmanın bitmesi · Dalga 3 (19.1, 19.3; oturum S); 19.2 Dalga 5
 
-### [~] 19.1 "On This Day" geçmiş yazılarını haber akışından çıkar
+### [x] 19.1 "On This Day" geçmiş yazılarını haber akışından çıkar
+- Kapanış 2026-10-28: canlı SQL: "On This Day" kaynaklı son satır 2026-10-23 23:11Z, sonrasında 0 (son yazım 10-28 10:11Z).
 - Durum 2026-10-26: kod + test commit `f14623f` (vitest 5/5, tsc 0, eslint 0); açık: push + deploy sonrası ilk `sync-news` ve SQL sayımı.
 - Dosyalar: `lib/news/aggregate.ts`, `tests/aggregate.test.ts`
 - Değişiklik: kaynak başlığı `/^On This Day\b/i` ile başlayan RSS öğeleri haber olarak alınmaz (RaceFans "On This Day: …" kısa yazıları; ölçülen: 155 kayıttan 3'ü, ör. `ca1by8` 2016 ABD GP'si 2026 haberi gibi listeleniyor). Mevcut 3 satır silinmez (veri değişikliği sahip onayı ister); akış penceresinden kendiliğinden düşerler.
@@ -616,7 +623,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Kurallar: `docs/design/apex-component-rules.md` bağlayıcı; resmî logo yok; her sayfa tarayıcıda 375 ve 1440 px'te kontrol.
 - Doğrulama (faz): Antigravity log'a yazar, `[~]` işaretler. Claude Code: `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest run tests/i18n-messages.test.ts` ve `npx vitest related --run <değişen dosyalar>` yeşil; değişen her sayfa tarayıcıda iki genişlikte, konsol hatası yok.
 
-### [~] 20.1 Türkçe sayfada İngilizce metin kalmasın
+### [x] 20.1 Türkçe sayfada İngilizce metin kalmasın
+- Kapanış 2026-10-28: canlı `/tr/grid`, `/tr/anthology` HTML'inde hedef kelimeler 0.
 - `components/standings/GarageTeamPanel.tsx` (288, 304, 309, 316: "AHEAD", "PTS", "H2H … PTS") → `messages`; `components/media/placeholders/TeamPlaceholder.tsx:124` "FORMULA 1 CONSTRUCTOR" → `messages`; antoloji kategori etiketleri (`data/stories/content.ts` değerleri İngilizce kalır; görünen ad `messages` eşlemesinden: MODERN ERA, MIRACLE, TRAGEDY, MYTH, COMBAT, DYNASTY…).
 - Doğrulama: `/tr/grid` ve `/tr/anthology` metninde `AHEAD|PTS|CONSTRUCTOR|MIRACLE|TRAGEDY|MYTH|COMBAT|DYNASTY` yok.
 
@@ -632,11 +640,13 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Pist sayfası "±41 metre" → "41 m irtifa farkı".
 - Ana sayfa hafta sonu programı FP2/FP3'ü gizliyor (`components/home/WeekendHero.tsx:53` filtresi): tüm seanslar gösterilir; sığmıyorsa filtre kalır ve başlık "Öne çıkan seanslar" olur.
 
-### [~] 20.4 Büyük harf ve İngilizce özel adlar
+### [x] 20.4 Büyük harf ve İngilizce özel adlar
+- Kapanış 2026-10-28: canlı `/tr/circuits/americas` başlık `lang="en"`, sayfada noktalı İ yok.
 - `lang="tr"` altında CSS `uppercase` İngilizce adlarda noktalı İ üretiyor: "CİRCUİT OF THE AMERİCAS", "SHANGHAİ INTERNATİONAL CİRCUİT", "MİRACLE". Pist resmî adlarını ve İngilizce kalan etiketleri çizen öğelere `lang="en"` (sürücü başlığında zaten var: `DriverProfileHero.tsx:302`). Türkçe haber başlıklarına dokunulmaz (Türkçe yazımda "NORRİS" kabul).
 - Doğrulama: `/tr/circuits` ve `/tr/circuits/americas` ekranında "CIRCUIT OF THE AMERICAS" noktasız.
 
-### [~] 20.5 Kontrast ve küçük metin
+### [x] 20.5 Kontrast ve küçük metin
+- Kapanış 2026-10-28 (`DECISIONS.md` "H1 OPEN answers"): 375 px 12 sayfada 11 px altı metin 0, taşma yok; tek < 24 px hedef görünmez "İçeriğe geç" bağlantısı (ölçümden muaf). Kontrast ölçümü 8.12 Lighthouse `color-contrast` denetimine devredildi.
 - Durum 2026-10-28: `ff9b422` (ARŞİV 11 px yerelde ölçüldü). Açık: 375 px iframe ölçümü (11 px altı 0, < 24 px hedef 0) ve üç kontrast oranı (Haiku kuyruğu H1).
 - Ana sayfa hero'da fotoğraf üstündeki kırmızı "2026 · 18. YARIŞ" satırı (hava durumu çipi gibi zemin alır); pist kartlarında "BİTTİ" rozeti; ana sayfa son kazanan kartında soyadının fotoğrafa girip kesilmesi.
 - Başlık logosu alt yazısı "ARŞİV" (`components/layout/HeaderNav.tsx:110`, `text-[9px]`) → 11 px (sahip kararı 2026-10-28).
