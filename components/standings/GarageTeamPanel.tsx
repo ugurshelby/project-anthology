@@ -6,6 +6,7 @@ import { paletteFor } from '@/lib/history/palette';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import { getDriverObjectPosition, shouldFlipDriver } from '@/lib/data/driverPositions';
 import type { DriverGridRow } from '@/lib/data/entities';
+import type { MediaResult } from '@/lib/media/read';
 
 import type { TeamHeadToHead } from '@/lib/f1/headToHead';
 import type { TeamPointsShare } from '@/lib/f1/mrdata';
@@ -23,6 +24,9 @@ export interface GarageUnit {
   pointsElsewhere?: Record<string, TeamPointsShare[]>;
   /** Drivers outside the two seats shown whose points count in the team total. */
   formerScorers?: Array<{ driverId: string; name: string; points: number }>;
+  /** Media read on the server (per driverId, and the car), so the photos are in the HTML instead of a client fetch. */
+  driverMedia?: Record<string, MediaResult>;
+  carMedia?: MediaResult;
 }
 
 export {
@@ -69,12 +73,17 @@ function DriverBay({
   color,
   divided,
   elsewhere,
+  media,
+  priority = false,
 }: {
   row: DriverGridRow;
   season: number;
   color: string;
   divided?: boolean;
   elsewhere?: TeamPointsShare[];
+  media?: MediaResult;
+  /** First panel on the page: its portraits are the LCP candidates. */
+  priority?: boolean;
 }) {
   const t = useTranslations('ui.common');
   const number = row.carNumber ?? row.position;
@@ -135,6 +144,8 @@ function DriverBay({
           sizes="(min-width: 1024px) 31vw, 50vw"
           className="h-full w-full object-cover"
           showAttribution={false}
+          initialResult={media}
+          priority={priority}
         />
       </div>
 
@@ -390,7 +401,7 @@ function TeammateHeadToHead({
 /**
  * One constructor = one paddock garage panel (team identity + both seats).
  */
-export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: number }) {
+export function GarageTeamPanel({ unit, season, priority = false }: { unit: GarageUnit; season: number; priority?: boolean }) {
   const t = useTranslations('ui.common');
   const color = resolveTeamUiColor(undefined, unit.constructorName, season);
   const livery = paletteFor(unit.constructorName, season);
@@ -460,6 +471,7 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
                 sizes="(min-width: 1024px) 30vw, 80vw"
                 className="h-full w-full object-contain"
                 showAttribution={false}
+                initialResult={unit.carMedia}
               />
             </div>
           </div>
@@ -485,9 +497,9 @@ export function GarageTeamPanel({ unit, season }: { unit: GarageUnit; season: nu
 
         <div className="flex flex-col lg:min-h-0 lg:flex-1">
           <div className="grid grid-cols-2 flex-1">
-            {d1 ? <DriverBay row={d1} season={season} color={color} elsewhere={unit.pointsElsewhere?.[d1.driverId]} /> : <EmptySeat />}
+            {d1 ? <DriverBay row={d1} season={season} color={color} elsewhere={unit.pointsElsewhere?.[d1.driverId]} media={unit.driverMedia?.[d1.driverId]} priority={priority} /> : <EmptySeat />}
             {d2 ? (
-              <DriverBay row={d2} season={season} color={color} divided elsewhere={unit.pointsElsewhere?.[d2.driverId]} />
+              <DriverBay row={d2} season={season} color={color} divided elsewhere={unit.pointsElsewhere?.[d2.driverId]} media={unit.driverMedia?.[d2.driverId]} priority={priority} />
             ) : (
               <EmptySeat divided />
             )}

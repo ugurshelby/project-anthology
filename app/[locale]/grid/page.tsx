@@ -13,6 +13,7 @@ import { CURRENT_SEASON, F1_SEASON_MIN } from '@/lib/f1Calendar';
 import { SeasonRail } from '@/components/history/SeasonRail';
 import { seasonRailYears } from '@/lib/history/seasons';
 import { enginesFor } from '@/lib/history/enrich';
+import { getMediaBatch } from '@/lib/media/read';
 
 /** Cached per URL, rebuilt at most every 10 minutes (caching design, DECISIONS 2026-10-28). */
 export const revalidate = 600;
@@ -85,6 +86,21 @@ export default async function GridPage({ params }: { params: Promise<{ locale: s
       formerScorers,
     };
   });
+
+  // Photos read here, not by each panel after hydration: the first panel's portraits are the page's LCP.
+  const [driverMedia, carMedia] = await Promise.all([
+    getMediaBatch('driver', units.flatMap((u) => u.drivers.map((d) => d.driverId))),
+    getMediaBatch('car', units.map((u) => `${u.constructorId}:${season}`)),
+  ]);
+  for (const unit of units) {
+    unit.driverMedia = Object.fromEntries(
+      unit.drivers.flatMap((d) => {
+        const media = driverMedia.get(d.driverId);
+        return media ? [[d.driverId, media]] : [];
+      }),
+    );
+    unit.carMedia = carMedia.get(`${unit.constructorId}:${season}`);
+  }
 
   return (
     <PageShell>

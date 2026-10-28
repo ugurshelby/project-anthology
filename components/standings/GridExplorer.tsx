@@ -23,8 +23,8 @@ export function GridExplorer({ season, units }: { season: number; units: GarageU
         <p className="body-md text-center text-text-mid">{t('unavailable')}</p>
       ) : (
         <div className="flex flex-col gap-4 md:gap-5">
-          {units.map((unit) => (
-            <GarageTeamPanel key={unit.constructorId} unit={unit} season={season} />
+          {units.map((unit, i) => (
+            <GarageTeamPanel key={unit.constructorId} unit={unit} season={season} priority={i === 0} />
           ))}
         </div>
       )}
