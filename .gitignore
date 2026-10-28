@@ -64,3 +64,8 @@ _remap-*.mjs
 /scratch/
 /screenshots/
 /.vscode/
+
+# Generated caches and test runner output
+__pycache__/
+*.pyc
+/test-results/
