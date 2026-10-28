@@ -1,8 +1,9 @@
 'use client';
 
-import Image, { type ImageLoader, type ImageProps } from 'next/image';
+import Image, { type ImageProps } from 'next/image';
 import { useState } from 'react';
 import { ApexFallback, type ApexFallbackKind } from '@/components/media/ApexFallback';
+import { variantLoader } from '@/components/media/variantLoader';
 import { hasPublisherSizes, publisherImageLoader } from '@/lib/news/imageVariants';
 
 type Props = Omit<ImageProps, 'src' | 'alt'> & {
@@ -17,12 +18,6 @@ type Props = Omit<ImageProps, 'src' | 'alt'> & {
    */
   variants?: ReadonlyArray<{ w: number; src: string }>;
 };
-
-/** Smallest variant at least `width` wide (else the largest): a fixed-size loader. */
-function variantLoader(variants: ReadonlyArray<{ w: number; src: string }>): ImageLoader {
-  const sorted = [...variants].sort((a, b) => a.w - b.w);
-  return ({ width }) => (sorted.find((v) => v.w >= width) ?? sorted[sorted.length - 1]).src;
-}
 
 /**
  * next/image with APEX fallback — missing/null src or load error shows the
@@ -44,6 +39,7 @@ export function ApexImage({
   fallbackLabel,
   className = '',
   variants,
+  priority,
   ...rest
 }: Props) {
   const [failed, setFailed] = useState(false);
@@ -66,6 +62,7 @@ export function ApexImage({
   return (
     <Image
       {...imageProps}
+      {...(priority ? { fetchPriority: 'high' as const, loading: 'eager' as const } : {})}
       src={src as string}
       alt={alt}
       loader={loader}

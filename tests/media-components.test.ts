@@ -1,6 +1,11 @@
-import { describe, it, expect } from 'vitest';
+// @vitest-environment jsdom
+import { describe, it, expect, afterEach } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { ApexImage } from '@/components/media/ApexImage';
+import { variantLoader } from '@/components/media/variantLoader';
 import { CircuitPlaceholder } from '@/components/media/placeholders/CircuitPlaceholder';
 import { TeamPlaceholder } from '@/components/media/placeholders/TeamPlaceholder';
 import { CarPlaceholder } from '@/components/media/placeholders/CarPlaceholder';
@@ -336,5 +341,120 @@ describe('MachineryVisual', () => {
     // two-tone: the 2023 Red Bull livery body and accent
     expect(none.toLowerCase()).toContain('#2b4da6');
     expect(none.toLowerCase()).toContain('#f7c300');
+  });
+});
+
+const variantImage = (): MediaResult => ({
+  status: 'image',
+  type: 'circuit',
+  key: 'monza',
+  image: {
+    src: 'https://cdn.test/monza/1600.webp',
+    srcSet: '',
+    width: 1600,
+    height: 900,
+    variants: [320, 960, 1600].map((w) => ({ w, h: Math.round(w * 0.5625), src: `https://cdn.test/monza/${w}.webp` })),
+    blurDataURL: null,
+    dominantColor: '#101010',
+  },
+  attribution: { text: 'A / Wikimedia Commons, CC BY 4.0', author: 'A', license: 'CC BY 4.0', licenseUrl: null, sourceUrl: null, trademark: false },
+});
+
+describe('variantLoader', () => {
+  it('picks the smallest variant at least as wide as requested, else the largest', () => {
+    const load = variantLoader([
+      { w: 1600, src: 'c' },
+      { w: 320, src: 'a' },
+      { w: 960, src: 'b' },
+    ]);
+    expect(load({ src: 'x', width: 300 })).toBe('a');
+    expect(load({ src: 'x', width: 640 })).toBe('b');
+    expect(load({ src: 'x', width: 4000 })).toBe('c');
+  });
+});
+
+describe('MediaAssetView image output (8.2)', () => {
+  const view = (extra: Record<string, unknown> = {}) =>
+    renderIntl(
+      React.createElement(MediaAssetView, {
+        type: 'circuit',
+        entityKey: 'monza',
+        initialResult: variantImage(),
+        alt: 'Monza',
+        ...extra,
+      }),
+    );
+
+  it('emits a srcset with at least two distinct variant URLs for a multi-variant result', () => {
+    const srcset = /srcSet="([^"]+)"/i.exec(view())?.[1] ?? '';
+    const urls = new Set(srcset.split(',').map((p) => p.trim().split(' ')[0]));
+    expect(urls.size).toBeGreaterThanOrEqual(2);
+    expect(srcset).toContain('/monza/960.webp');
+  });
+
+  it('priority sets fetchpriority=high and eager loading; without it the image is lazy', () => {
+    const hi = view({ priority: true });
+    expect(hi).toMatch(/fetchPriority="high"/i);
+    expect(hi).toContain('loading="eager"');
+    const lo = view();
+    expect(lo).toContain('loading="lazy"');
+    expect(lo).not.toMatch(/fetchPriority="high"/i);
+  });
+
+  it('defaults sizes to 100vw', () => {
+    expect(view()).toContain('sizes="100vw"');
+  });
+});
+
+describe('image load errors (8.2, K4)', () => {
+  let root: Root | null = null;
+  let host: HTMLElement | null = null;
+  afterEach(() => {
+    act(() => root?.unmount());
+    host?.remove();
+    root = null;
+    host = null;
+  });
+  const mount = (el: React.ReactElement) => {
+    (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    root = createRoot(host);
+    act(() => root!.render(el));
+    return host;
+  };
+
+  it('MediaAssetView swaps to the type placeholder on img error and opens no new img', () => {
+    const el = mount(
+      React.createElement(
+        Provider,
+        { locale: 'en', messages: en, timeZone: 'UTC' },
+        React.createElement(MediaAssetView, { type: 'circuit', entityKey: 'monza', initialResult: variantImage(), alt: 'Monza', name: 'Monza' }),
+      ),
+    );
+    const img = el.querySelector('img');
+    expect(img).not.toBeNull();
+    act(() => {
+      img!.dispatchEvent(new Event('error'));
+    });
+    expect(el.querySelector('img')).toBeNull();
+    expect(el.querySelector('svg')).not.toBeNull();
+  });
+
+  it('ApexImage renders ApexFallback on img error', () => {
+    const el = mount(React.createElement(ApexImage, { src: 'https://cdn.test/x.webp', alt: 'x', width: 10, height: 10 }));
+    const img = el.querySelector('img');
+    expect(img).not.toBeNull();
+    act(() => {
+      img!.dispatchEvent(new Event('error'));
+    });
+    expect(el.querySelector('img')).toBeNull();
+  });
+
+  it('ApexImage priority sets fetchpriority=high and eager loading', () => {
+    const el = mount(React.createElement(ApexImage, { src: 'https://cdn.test/x.webp', alt: 'x', width: 10, height: 10, priority: true }));
+    const img = el.querySelector('img');
+    expect(img?.getAttribute('fetchpriority')).toBe('high');
+    expect(img?.getAttribute('loading')).toBe('eager');
   });
 });

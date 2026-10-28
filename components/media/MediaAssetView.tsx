@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { MediaEntityType } from '@/lib/media/types';
 import type { MediaResult } from '@/lib/media/read';
 import { loadMedia, peekMedia } from '@/lib/media/client';
+import { variantLoader } from './variantLoader';
 import { CircuitPlaceholder } from './placeholders/CircuitPlaceholder';
 import { TeamPlaceholder } from './placeholders/TeamPlaceholder';
 import { CarPlaceholder } from './placeholders/CarPlaceholder';
@@ -60,7 +61,7 @@ export function MediaAssetView({
   driverNumber,
   driverCode,
   season,
-  sizes = '(max-width: 768px) 100vw, 50vw',
+  sizes = '100vw',
   priority = false,
   className = '',
   aspectRatio,
@@ -151,6 +152,7 @@ export function MediaAssetView({
   }
 
   const { image, attribution } = result;
+  const multiVariant = image.variants.length > 1;
 
   return (
     <div
@@ -166,8 +168,10 @@ export function MediaAssetView({
         alt={alt}
         width={image.width}
         height={image.height}
-        unoptimized={true}
-        priority={priority}
+        loader={multiVariant ? variantLoader(image.variants) : undefined}
+        unoptimized={!multiVariant}
+        fetchPriority={priority ? 'high' : undefined}
+        loading={priority ? 'eager' : 'lazy'}
         sizes={sizes}
         placeholder={image.blurDataURL ? 'blur' : 'empty'}
         blurDataURL={image.blurDataURL ?? undefined}

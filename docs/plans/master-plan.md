@@ -175,7 +175,7 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
   3. `lib/media/sync.ts`: `export const DISCOVERY_VERSION = 2`; `discovered_seasons` durumu `{ seasons: number[]; version?: number }`; kayıtlı `version` farklıysa `done` boş sayılır (eski sezonlar koşu başına 2'şer yeniden keşfedilir, alias'ları yenilenir), sürüm yazılır. Yeni sütun, migration, env yok.
 - Doğrulama: test: "Carlos Sainz" → `carlos-sainz-jr`; "Andrea Kimi Antonelli" → `kimi-antonelli`; "Max Verstappen" `jos-verstappen` vermez; "Mick Schumacher" `michael-schumacher` vermez; `teamAliases('sauber', 'Sauber', null, TEAM_ALIASES.sauber)` `kick-sauber` içerir; sürüm değişince eski sezonlar yeniden keşfedilir, aynı sürümde keşfedilmez. `npx vitest run tests/media-aliases.test.ts tests/media-sync.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint <değişenler>` 0. Canlı (deploy + ≥ 5 `sync-media` koşusu): `/api/media?type=driver&keys=carlos-sainz-jr,kimi-antonelli`, `type=team&keys=kick-sauber`, `type=car&keys=kick-sauber:2024,kick-sauber:2025`, `type=circuit&keys=melbourne,paul-ricard,sirius` → her anahtar `"status":"image"`; K1 evren farkı sorgusu (`medya-kapisi-olcum.md`) yalnızca `hit` dolu (kaynak boşluğu) satır döndürür.
 
-### [ ] 8.2 `MediaAssetView` ve `ApexImage`: srcset, LCP önceliği, hata testleri
+### [x] 8.2 `MediaAssetView` ve `ApexImage`: srcset, LCP önceliği, hata testleri
 - Run: Sonnet / medium — iki paylaşılan bileşen, bilinen davranış testleri
 - Owner: Sonnet · Depends on: 14.2 `main`'de (Next 16.4) · Dalga 4 (oturum U, ilk adım)
 - Dosyalar: yeni `components/media/variantLoader.ts`, `components/media/ApexImage.tsx`, `components/media/MediaAssetView.tsx`, `tests/media-components.test.ts`
