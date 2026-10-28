@@ -310,7 +310,8 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Çıktı: seçilen her iş için bu dosyada tam tarifli adım (dosyalar, env adı, doğrulama); 9.2'nin env adı ve uç noktası.
 - Doğrulama: karar girdisinde her aday için maliyet/kazanç/risk satırı; kredi sonrası toplam tahmin satırı.
 
-### [ ] 9.2 LLM zinciri: Vertex → Gemini (ücretsiz katman) → Groq
+### [~] 9.2 LLM zinciri: Vertex → Gemini (ücretsiz katman) → Groq
+- Durum 2026-10-28 (Opus): kod bitti. Sıra `vertex:gemini-2.5-flash` → Gemini ücretsiz → Groq; Vertex express mode `aiplatform.googleapis.com/v1/publishers/google/models/<model>:generateContent`, anahtar `x-goog-api-key` başlığında (URL'de değil); `VERTEX_DAILY_CALL_CAP = 16`, `claimVertexCall` Upstash `INCR apex:llm:vertex:<UTC gün>` + 172800 sn; Redis yok/hata ya da tavan aşımı → Vertex atlanır; `sync-news` yanıtında `vertex: { calls, dayCount, promptTokens, outputTokens }`. `tests/news-rewrite-order.test.ts` 5 test. Model `gemini-2.5-flash` (resmî express mode örneğindeki; `VERTEX_NEWS_MODELS` ile değişir). Açık: sahip `VERTEX_API_KEY`'i Vercel'e (Production) ekler → ilk `sync-news` yanıtında `vertex.calls` > 0 ve sağlayıcı log'u.
 - Run: Sonnet / high — sağlayıcı zinciri, maliyet ve örtüşme korumaları
 - Owner: Sonnet · Depends on: 14.4 ve 19.2 (aynı dosya, sıralı), 9.0 madde 3–4 (bütçe ve kota), sahip `VERTEX_API_KEY`'i Vercel'e girdi · Dalga 5
 - Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-order.test.ts`, `.env.example`

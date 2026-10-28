@@ -29,6 +29,8 @@ export interface StoryRunStats {
   pending: number;
   splits: number;
   aiConfigured: boolean;
+  /** Vertex requests, today's counter and tokens of this run (9.2; read by the 9.7 cost check). */
+  vertex: { calls: number; dayCount: number | null; promptTokens: number; outputTokens: number };
 }
 
 export function fingerprintOf(urls: string[]): string {
@@ -127,6 +129,7 @@ export async function buildStoryRows(
     pending: 0,
     splits: 0,
     aiConfigured,
+    vertex: { calls: 0, dayCount: null, promptTokens: 0, outputTokens: 0 },
   };
 
   // Phase 1 — a row per story (fallback text = best source), best image, and the list of rewrite jobs.
@@ -181,7 +184,11 @@ export async function buildStoryRows(
       if (wait > 0) await new Promise((r) => setTimeout(r, wait));
       lastCall = Date.now();
       const batch = jobs.slice(i, i + BATCH_SIZE);
-      const { results } = await rewriteBatch(batch.map((j) => sourcesOf(j.draft)), exhausted, opts.deadlineMs);
+      const { results, vertex } = await rewriteBatch(batch.map((j) => sourcesOf(j.draft)), exhausted, opts.deadlineMs);
+      stats.vertex.calls += vertex.calls;
+      stats.vertex.promptTokens += vertex.promptTokens;
+      stats.vertex.outputTokens += vertex.outputTokens;
+      if (vertex.dayCount !== null) stats.vertex.dayCount = vertex.dayCount;
       results.forEach((out, k) => {
         const { draft, row } = batch[k];
         if (out && out !== 'split') {

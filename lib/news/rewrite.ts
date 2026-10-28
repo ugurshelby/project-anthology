@@ -1,13 +1,16 @@
 /**
  * AI rewrite of a story cluster into one original EN + TR brief.
  *
- * Free-tier providers only, tried in order: Groq (GROQ_API_KEY) → Gemini
- * (GEMINI_API_KEY). Called ONLY from the sync-news cron — never per page view.
+ * Providers, tried in order: Vertex AI (VERTEX_API_KEY, paid from the GCP credit,
+ * capped per UTC day in Upstash Redis) → Gemini free tier (GEMINI_API_KEY) → Groq
+ * (GROQ_API_KEY). A provider without its key is skipped, so without VERTEX_API_KEY the
+ * chain is the free one. Called ONLY from the sync-news cron — never per page view.
  * Every accepted brief passes the copy guard and the headline fact guard (lib/news/factGuard.ts).
  * Returns null when no provider is configured/available or the output fails
  * validation; callers then keep the best source's own title/summary.
  */
 
+import { Redis } from '@upstash/redis';
 import { headlineFactsInSources } from '@/lib/news/factGuard';
 import { NEWS_VOICE } from '@/lib/news/voice';
 
@@ -41,6 +44,13 @@ export const GROQ_RETRY_PAD_MS = 250;
 export const DEADLINE_MARGIN_MS = 3_000;
 /** Longest accepted model output per field (characters); longer output is rejected. */
 export const REWRITE_MAX_CHARS = { titleEn: 140, summaryEn: 700, titleTr: 160, summaryTr: 800 } as const;
+/**
+ * Vertex AI requests per UTC day across all runs. The GCP project is shared with other apps, so the
+ * spend guard lives here (DECISIONS 2026-10-27; 9.4 2026-10-28: 2 x the measured peak of ~8-10/day).
+ */
+export const VERTEX_DAILY_CALL_CAP = 16;
+/** Redis key TTL for the daily counter: two days, so yesterday's count is still readable. */
+const VERTEX_COUNTER_TTL_S = 172_800;
 
 function buildPrompt(stories: RewriteSource[][]): string {
   const blocks = stories
@@ -71,6 +81,39 @@ function buildPrompt(stories: RewriteSource[][]): string {
 /** Thrown when a provider says its free quota is spent (HTTP 429) — skip it for the rest of the run. */
 class QuotaError extends Error {}
 
+/** Vertex usage of one rewriteBatch call (the 9.7 cost check reads it from the sync-news response). */
+export interface VertexUsage {
+  calls: number;
+  /** Today's counter after the last claim; null when no claim was made. */
+  dayCount: number | null;
+  promptTokens: number;
+  outputTokens: number;
+}
+
+function emptyVertexUsage(): VertexUsage {
+  return { calls: 0, dayCount: null, promptTokens: 0, outputTokens: 0 };
+}
+
+/**
+ * Counts one Vertex request for today (`apex:llm:vertex:<UTC YYYY-MM-DD>`). Not allowed when the
+ * count passes VERTEX_DAILY_CALL_CAP, or when Redis is missing or fails: on the paid side the
+ * guard fails closed and the free tiers take over.
+ */
+export async function claimVertexCall(now = new Date()): Promise<{ allowed: boolean; dayCount: number | null }> {
+  const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (!url || !token) return { allowed: false, dayCount: null };
+  try {
+    const redis = new Redis({ url, token });
+    const key = `apex:llm:vertex:${now.toISOString().slice(0, 10)}`;
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, VERTEX_COUNTER_TTL_S);
+    return { allowed: count <= VERTEX_DAILY_CALL_CAP, dayCount: count };
+  } catch {
+    return { allowed: false, dayCount: null };
+  }
+}
+
 const GEMINI_MODELS = (process.env.GEMINI_NEWS_MODELS?.trim() || 'gemini-3.5-flash-lite,gemini-3.8-flash')
   .split(',')
   .map((m) => m.trim())
@@ -79,7 +122,49 @@ const GEMINI_MODELS = (process.env.GEMINI_NEWS_MODELS?.trim() || 'gemini-3.5-fla
 interface Provider {
   id: string;
   enabled: () => boolean;
-  call: (prompt: string) => Promise<string | null>;
+  call: (prompt: string, usage: VertexUsage) => Promise<string | null>;
+}
+
+// Vertex AI express mode (API key, global endpoint), read 2026-10-28 from Google's express mode
+// samples: POST https://aiplatform.googleapis.com/v1/publishers/google/models/<model>:generateContent,
+// same body as the Gemini API. The key goes in a header, never in the URL.
+const VERTEX_MODELS = (process.env.VERTEX_NEWS_MODELS?.trim() || 'gemini-2.5-flash')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+
+function vertexProvider(model: string): Provider {
+  return {
+    id: `vertex:${model}`,
+    enabled: () => Boolean(process.env.VERTEX_API_KEY?.trim()),
+    call: async (prompt, usage) => {
+      const claim = await claimVertexCall();
+      usage.dayCount = claim.dayCount;
+      if (!claim.allowed) throw new QuotaError(model); // over the daily cap or no counter: skip for the run
+      usage.calls += 1;
+      const res = await fetch(
+        `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.VERTEX_API_KEY!.trim() },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
+          }),
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        },
+      );
+      if (res.status === 429) throw new QuotaError(model);
+      if (!res.ok) return null;
+      const json = (await res.json()) as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
+      };
+      usage.promptTokens += json.usageMetadata?.promptTokenCount ?? 0;
+      usage.outputTokens += json.usageMetadata?.candidatesTokenCount ?? 0;
+      return json.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+    },
+  };
 }
 
 function geminiProvider(model: string): Provider {
@@ -156,8 +241,15 @@ function groqProvider(model: string): Provider {
   };
 }
 
-/** Provider order: Groq first (120B -> 20B), Gemini as backup. Every model has its OWN free quota, so the chain multiplies capacity. */
-const PROVIDERS: Provider[] = [...GROQ_MODELS.map(groqProvider), ...GEMINI_MODELS.map(geminiProvider)];
+/**
+ * Provider order (owner decision 2026-10-26, master-plan 9.2): Vertex (paid, capped) -> Gemini free
+ * tier -> Groq. Every free model has its OWN quota, so the chain multiplies capacity.
+ */
+const PROVIDERS: Provider[] = [
+  ...VERTEX_MODELS.map(vertexProvider),
+  ...GEMINI_MODELS.map(geminiProvider),
+  ...GROQ_MODELS.map(groqProvider),
+];
 
 export function enabledProviderCount(): number {
   return PROVIDERS.filter((p) => p.enabled()).length;
@@ -231,6 +323,7 @@ export interface BatchResult {
   results: Array<Rewrite | 'split' | null>;
   /** Providers that reported "quota spent" during this call (they stay skipped for the run). */
   exhausted: string[];
+  vertex: VertexUsage;
 }
 
 /**
@@ -244,13 +337,14 @@ export async function rewriteBatch(
   deadlineMs = Number.POSITIVE_INFINITY,
 ): Promise<BatchResult> {
   const results: Array<Rewrite | 'split' | null> = stories.map(() => null);
+  const vertex = emptyVertexUsage();
   for (const provider of PROVIDERS) {
     if (skip.has(provider.id) || !provider.enabled()) continue;
     if (Date.now() + DEADLINE_MARGIN_MS >= deadlineMs) break; // out of time budget — leave the rest for the next run
     const todo = results.map((r, i) => (r === null ? i : -1)).filter((i) => i >= 0);
     if (todo.length === 0) break;
     try {
-      const raw = await provider.call(buildPrompt(todo.map((i) => stories[i])));
+      const raw = await provider.call(buildPrompt(todo.map((i) => stories[i])), vertex);
       if (!raw) continue;
       parseBatch(raw, todo.map((i) => stories[i])).forEach((r, k) => {
         if (r) results[todo[k]] = r;
@@ -259,5 +353,5 @@ export async function rewriteBatch(
       if (err instanceof QuotaError) skip.add(provider.id);
     }
   }
-  return { results, exhausted: [...skip] };
+  return { results, exhausted: [...skip], vertex };
 }

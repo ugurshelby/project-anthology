@@ -87,6 +87,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       splits: stats.splits,
       translatedFallback: stats.translatedFallback,
       aiConfigured: stats.aiConfigured,
+      vertex: stats.vertex,
       deleted,
       errors,
       durationMs: Date.now() - startedAt,
