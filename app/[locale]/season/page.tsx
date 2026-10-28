@@ -13,6 +13,7 @@ import { SeasonProgressionChart } from '@/components/season/SeasonProgressionCha
 import { BentoCard } from '@/components/bento/BentoCard';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
 import { localizedAlternates } from '@/lib/seo';
+import { FilmGrain } from '@/components/layout/FilmGrain';
 
 /** Cached per URL, rebuilt at most every 5 minutes (caching design, DECISIONS 2026-10-28). */
 export const revalidate = 300;
@@ -63,7 +64,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ locale:
   return (
     <PageShell>
       <div className="relative w-full max-w-full min-w-0">
-        <span aria-hidden className="film-grain pointer-events-none fixed inset-0 z-0" />
+        <FilmGrain className="fixed inset-0 z-0 h-full w-full" />
 
         <div className="relative z-10 flex w-full max-w-full min-w-0 flex-col">
           <SeasonTitleFightHero

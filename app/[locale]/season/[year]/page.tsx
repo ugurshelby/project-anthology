@@ -26,6 +26,7 @@ import { SeasonChampions } from '@/components/history/SeasonChampions';
 import { seasonRailYears } from '@/lib/history/seasons';
 import { getMachineryCarsForSeason } from '@/data/machinery/cars';
 import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
+import { FilmGrain } from '@/components/layout/FilmGrain';
 
 /** Cached per URL, rebuilt at most every 5 minutes (caching design, DECISIONS 2026-10-28). */
 export const revalidate = 300;
@@ -98,7 +99,7 @@ export default async function HistoricalSeasonPage({ params }: PageProps) {
   return (
     <PageShell>
       <div className="relative w-full max-w-full min-w-0">
-        <span aria-hidden className="film-grain pointer-events-none fixed inset-0 z-0" />
+        <FilmGrain className="fixed inset-0 z-0 h-full w-full" />
 
         <div className="relative z-10 flex w-full max-w-full min-w-0 flex-col">
           <SeasonRail years={railYears} selected={year} hrefTemplate="/season/{year}" className="mb-4 md:mb-6" />

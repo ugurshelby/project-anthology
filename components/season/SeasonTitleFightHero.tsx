@@ -3,6 +3,7 @@ import { resolveTeamUiColor } from '@/config/team-colors';
 import { getDriverLore } from '@/data/drivers';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
 import { YearScrubber } from '@/components/season/YearScrubber';
+import { FilmGrain } from '@/components/layout/FilmGrain';
 
 /**
  * Championship title-fight hero — split face-off portraits, telemetry gap bar,
@@ -36,7 +37,7 @@ export function SeasonTitleFightHero({
 
   return (
     <section className="relative -mx-5 mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-white/[0.08] bg-surface/30 backdrop-blur-sm md:-mx-8 lg:-mx-16">
-      <span aria-hidden className="film-grain pointer-events-none absolute inset-0" />
+      <FilmGrain className="absolute inset-0 h-full w-full" />
 
       <div className="relative z-10 flex items-center justify-between px-5 pt-4 md:px-8 md:pt-5 lg:px-10">
         <span className="label-caps text-text-mid">{t('championship')}</span>
