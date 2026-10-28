@@ -5,6 +5,8 @@ import { getTopographyProfile } from '@/data/circuits/topography';
 
 interface CircuitElevationProfileProps {
   circuitId: string;
+  /** Measured values from the circuit's telemetry file (13.4); when given they replace the estimates. */
+  measured?: { fullThrottlePct: number; gearShiftSteps: number } | null;
 }
 
 /**
@@ -12,8 +14,9 @@ interface CircuitElevationProfileProps {
  * official data (the source line says so). Circuits without a record render nothing:
  * no invented fallback numbers. Lap length, corners and DRS are in the facts strip and map.
  */
-export function CircuitElevationProfile({ circuitId }: CircuitElevationProfileProps) {
+export function CircuitElevationProfile({ circuitId, measured = null }: CircuitElevationProfileProps) {
   const t = useTranslations('ui.circuit.elevation');
+  const tm = useTranslations('ui.circuit.telemetry');
   const locale = useLocale();
   const profile = getTopographyProfile(circuitId);
   if (!profile) return null;
@@ -62,15 +65,15 @@ export function CircuitElevationProfile({ circuitId }: CircuitElevationProfilePr
           <span className="label-caps block text-[10px] text-text-low font-mono">{t('fullThrottle')}</span>
           <div className="mt-1 flex items-baseline gap-1.5">
             <span className="font-condensed text-2xl font-700 text-text-hi md:text-3xl">
-              {t('throttleValue', { value: profile.throttlePercent })}
+              {t('throttleValue', { value: measured ? measured.fullThrottlePct : profile.throttlePercent })}
             </span>
-            <span className="font-mono text-xs text-text-mid">{t('perLap')}</span>
+            <span className="font-mono text-xs text-text-mid">{measured ? tm('measured') : t('perLap')}</span>
           </div>
           {/* Visual Mini Progress */}
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.08]">
             <div
               className="h-full bg-text-hi/70 transition-all duration-300"
-              style={{ width: `${profile.throttlePercent}%` }}
+              style={{ width: `${measured ? measured.fullThrottlePct : profile.throttlePercent}%` }}
             />
           </div>
         </div>
@@ -80,9 +83,9 @@ export function CircuitElevationProfile({ circuitId }: CircuitElevationProfilePr
           <span className="label-caps block text-[10px] text-text-low font-mono">{t('gearShifts')}</span>
           <div className="mt-1 flex items-baseline gap-1.5">
             <span className="font-condensed text-2xl font-700 text-text-hi md:text-3xl">
-              ~{profile.gearShifts}
+              {measured ? tm('gearShiftsValue', { n: measured.gearShiftSteps }) : `~${profile.gearShifts}`}
             </span>
-            <span className="font-mono text-xs text-text-mid">{t('shiftsPerLap')}</span>
+            <span className="font-mono text-xs text-text-mid">{measured ? tm('measured') : t('shiftsPerLap')}</span>
           </div>
           <span className="mt-1 block text-[11px] text-text-low font-mono">{t('gearboxLoad')}</span>
         </div>

@@ -28,7 +28,7 @@ No file in the repo states a business owner, a company, or a revenue model. Thos
 
 ## 2. Current state summary (what works, what is broken, what is half-built; measured, not described)
 
-Last verified: 2026-10-08 (CI line: 2026-10-26)
+Last verified: 2026-10-08 (CI line: 2026-10-26; circuit telemetry row: 2026-10-28)
 
 The web app is a working Next.js product, not a skeleton and not an idea with little code. `components/` contains 95+ `.ts`/`.tsx` files and `app/[locale]/` contains 22 `page.tsx` files [VERIFIED: file search].
 
@@ -50,7 +50,7 @@ The web app is a working Next.js product, not a skeleton and not an idea with li
 | Database reachability from this machine | The build logged successful Supabase reads of `news_stories`, `stories`, `radio_moments`, and `f1_snapshots` for season 2026 [VERIFIED: build log] |
 | Machinery | `/machinery` index and `/machinery/[id]` dossier routes; each car shows its licensed archive photo (`iconic:<id>`, server `getMediaBatch`) or, only when none exists, a minimal two-tone livery silhouette (`MachineryVisual` → `CarPlaceholder` → `F1CarSilhouette`) [VERIFIED: 2026-10-08] |
 | Tech Glossary 2.0 | `RegulationErasPanel` (1994–2026) and `TyreThermalWindows` (C1–C5) live in `/tech-glossary` [VERIFIED: 2026-10-06] |
-| Circuits & Telemetry | Topography elevation profiles and curated lore cards live in `/circuits/[id]` [VERIFIED: 2026-10-06] |
+| Circuits & Telemetry | Topography elevation profiles and curated lore cards live in `/circuits/[id]` [VERIFIED: 2026-10-06]. Since 2026-10-28 (13.4) every current-calendar circuit also shows its measured pole lap from `data/circuits/telemetry/<id>.json` (OpenF1, CC BY-NC-SA 4.0, built by `scripts/build-circuit-telemetry.ts`, read by `getCircuitTelemetry`): `TelemetryTrace` (sector-coloured outline, focusable slow-point pins), `SpeedProfile` (speed by distance, gear/throttle/brake strips), `TelemetryStats` (stored figures + source line); the elevation card shows measured throttle and gear values when the file exists [VERIFIED: 2026-10-28, local `/tr/circuits/monza`] |
 | Season & Grid Dynamics | `SeasonProgressionChart`, `GridDeltaBadge`, and `TeammateHeadToHead` live in season and grid [VERIFIED: 2026-10-06] |
 
 ### Season history (added 2026-10-02)

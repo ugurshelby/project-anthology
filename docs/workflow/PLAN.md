@@ -58,6 +58,7 @@ Run (queue): Sonnet / medium unless a step says otherwise.
 - [~] **S12 8.11b** (code done 2026-10-28, Opus; live check after deploy) — master-plan "8.11b".
 - [ ] **S13 8.12** — master-plan "8.12" (needs 8.2, 8.3, 8.5 on `main`).
 - [ ] **S14 8.13** — master-plan "8.13" measurement (PASS verdict in the Opus queue).
+- [x] **S15b 13.4** (2026-10-28, Opus; 15.2 still waits for the owner's 15.1 run)
 - [ ] **S15 15.2** — master-plan "15.2" (only after the owner ran 15.1), then **13.4** (needs 13.3 on `main`).
 - Dated: **9.3** by 2026-12-14; **9.7** 2026-12-12 → 14 (with the owner in Claude in Chrome). **9.5** only if 9.4 chooses it.
 - On the owner's pick: **8.8(b)** (`/effort low`).

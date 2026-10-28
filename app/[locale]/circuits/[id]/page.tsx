@@ -19,6 +19,10 @@ import { hasElevationProfile } from '@/data/circuits/topography';
 import { hasCircuitLore } from '@/data/circuits/lore';
 import { circuitIconSrc } from '@/lib/assets/f1-icons';
 import { getMedia } from '@/lib/media/read';
+import { getCircuitTelemetry } from '@/lib/data/circuitTelemetry';
+import { TelemetryTrace } from '@/components/circuit/TelemetryTrace';
+import { SpeedProfile } from '@/components/circuit/SpeedProfile';
+import { TelemetryStats } from '@/components/circuit/TelemetryStats';
 
 const CircuitElevationProfile = nextDynamic(
   () => import('@/components/circuit/CircuitElevationProfile').then((m) => m.CircuitElevationProfile),
@@ -68,11 +72,12 @@ export default async function CircuitDetailPage({ params }: PageProps) {
   const { id, locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'ui.circuit' });
-  const [circuit, results, weather, circuitMedia] = await Promise.all([
+  const [circuit, results, weather, circuitMedia, telemetry] = await Promise.all([
     getCircuitDetail(id),
     getCurrentSeasonResults(),
     getCircuitWeather(id),
     getMedia('circuit', id),
+    getCircuitTelemetry(id),
   ]);
   if (!circuit) notFound();
 
@@ -103,7 +108,7 @@ export default async function CircuitDetailPage({ params }: PageProps) {
           <BentoGrid>
             <BentoCard span={facts ? 7 : 12} className="relative flex min-h-80 flex-col overflow-hidden">
               <div className="flex items-center justify-between gap-3">
-                <span className="label-caps text-text-mid">{t('blueprint')}</span>
+                <span className="label-caps text-text-mid">{telemetry ? t('telemetry.traceTitle') : t('blueprint')}</span>
                 {drsZones != null ? (
                   <span className="rounded-full border border-hairline px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.1em] text-text-mid">
                     {t('elevation.drsZones', { count: drsZones })}
@@ -111,13 +116,20 @@ export default async function CircuitDetailPage({ params }: PageProps) {
                 ) : null}
               </div>
               <div className="relative my-auto h-64 w-full py-4 md:h-80">
-                {svgTrackSrc ? (
+                {telemetry ? (
+                  <TelemetryTrace
+                    points={telemetry.samples.map(([, dM, , , , , x, y]) => ({ x, y, dM }))}
+                    boundariesM={telemetry.sectors.boundariesM}
+                    pins={telemetry.slowPoints}
+                    label={t('mapAlt', { name: circuit.circuitName })}
+                  />
+                ) : svgTrackSrc ? (
                   <TrackTrace src={svgTrackSrc} label={t('mapAlt', { name: circuit.circuitName })} />
                 ) : (
                   <span className="label-caps text-text-low">{t('noMap')}</span>
                 )}
               </div>
-              {svgTrackSrc ? <span className="font-mono text-[10px] text-text-low">{t('mapSource')}</span> : null}
+              {!telemetry && svgTrackSrc ? <span className="font-mono text-[11px] text-text-low">{t('mapSource')}</span> : null}
             </BentoCard>
 
             {facts ? (
@@ -126,10 +138,25 @@ export default async function CircuitDetailPage({ params }: PageProps) {
               </BentoCard>
             ) : null}
 
+            {/* Measured pole lap (13.4): speed profile and figures, only when a telemetry file exists. */}
+            {telemetry ? (
+              <>
+                <BentoCard span={7} deferred>
+                  <SpeedProfile telemetry={telemetry} />
+                </BentoCard>
+                <BentoCard span={5} deferred>
+                  <TelemetryStats telemetry={telemetry} />
+                </BentoCard>
+              </>
+            ) : null}
+
             {/* Topography and demands (curated circuits only; editorial estimates, labelled) */}
             {hasElevationProfile(id) ? (
               <div className="col-span-1 md:col-span-8 lg:col-span-12 bento-deferred">
-                <CircuitElevationProfile circuitId={id} />
+                <CircuitElevationProfile
+                  circuitId={id}
+                  measured={telemetry ? { fullThrottlePct: telemetry.metrics.fullThrottlePct, gearShiftSteps: telemetry.metrics.gearShiftSteps } : null}
+                />
               </div>
             ) : null}
 
