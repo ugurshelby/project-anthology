@@ -1,0 +1,32 @@
+name: qstash-sync
+
+# Applies the QStash schedules from lib/cron/qstashSchedules.ts (fixed apex-* ids,
+# retries and cron from code), then removes the MCP-made scd_ duplicates of the same
+# routes. Manual only. Needs repo secret QSTASH_TOKEN; repo variables SITE_URL and
+# QSTASH_URL are optional (empty values fall back to the script defaults).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run qstash:sync -- --prune
+        env:
+          QSTASH_TOKEN: ${{ secrets.QSTASH_TOKEN }}
+          # Region API origin from Upstash console -> QStash -> Details; empty uses the script default.
+          QSTASH_URL: ${{ vars.QSTASH_URL }}
+          SITE_URL: ${{ vars.SITE_URL }}

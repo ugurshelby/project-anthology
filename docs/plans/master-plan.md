@@ -78,7 +78,8 @@
 - Değişiklik: her dosyada `on:` altındaki `schedule:` anahtarını ve altındaki `- cron:` satırını sil; `workflow_dispatch:` kalır. Başka satıra dokunma. (QStash 4 rotayı da tetikliyor, 2026-10-20.)
 - Doğrulama: `grep -n "schedule:" .github/workflows/sync-*.yml .github/workflows/notify-sessions.yml` → çıktı yok; `grep -c "workflow_dispatch" ` aynı 4 dosyada her biri ≥ 1; her dosya için `npx --yes js-yaml <dosya> >/dev/null` çıkış 0.
 
-### [ ] 1.8 QStash zamanlamalarını koda eşitle (retries ve notify `*/5`)
+### [~] 1.8 QStash zamanlamalarını koda eşitle (retries ve notify `*/5`)
+- Durum 2026-10-28 (Opus): kod bitti — `lib/cron/qstashPrune.ts` + 3 test, `scripts/qstash-sync.ts --prune` (kısmi uygulamada silmez), `.github/workflows/qstash-sync.yml` (yalnız elle), `apex-reference.md` zamanlayıcı bölümü; `--dry-run` 384 normal / 480 en kötü mesaj/gün. Açık: sahip repo secret `QSTASH_TOKEN` (isteğe bağlı repo değişkeni `QSTASH_URL`: EU bölge kökeni) → `gh workflow run qstash-sync.yml` → `qstash_list_schedules` (eu) dört `apex-*`, `scd_` yok.
 - Run: Sonnet / medium — betik bayrağı + workflow, ölçülü doğrulama
 - Owner: Sonnet (+ owner tek seferlik secret) · Depends on: 14.2 `main`'de (`node_modules` değişimi bitmiş) · Dalga 5 (K'nın `apex-reference.md` değişikliğinden sonra)
 - Neden: MCP yalnızca `retries: 3` ile zamanlama açabiliyor; kod 0/1 diyor ve bütçe testi (`tests/qstash-schedules.test.ts`, en kötü durum ≤ %60 kota) buna göre. Bugünkü canlı en kötü durum 960/1000 mesaj/gün.

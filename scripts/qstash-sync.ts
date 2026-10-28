@@ -7,6 +7,8 @@
  *   npm run qstash:sync -- --skip apex-notify-sessions   leave one out (e.g. until the mobile app exists)
  *   npm run qstash:sync -- --list               show what QStash currently has (ids, cron, next run)
  *   npm run qstash:sync -- --remove <id>        delete one schedule
+ *   npm run qstash:sync -- --prune              create/update all, then (only if every apply succeeded) delete
+ *                                               live duplicates of managed routes that are not apex-* ids
  *
  * Env (shell or .env.local; values are never printed):
  *   QSTASH_TOKEN      Upstash console -> QStash -> "Details" (required except --dry-run)
@@ -27,6 +29,7 @@ import {
   totalWorstCaseMessagesPerDay,
   type QStashSchedule,
 } from '../lib/cron/qstashSchedules';
+import { schedulesToPrune } from '../lib/cron/qstashPrune';
 
 function flag(name: string): boolean {
   return process.argv.includes(`--${name}`);
@@ -68,8 +71,8 @@ async function main(): Promise<void> {
   }
   const schedules = QSTASH_SCHEDULES.filter((s) => !skip.has(s.id));
 
-  const siteUrl = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? PROD_SITE_URL).replace(/\/+$/, '');
-  const qstashUrl = (process.env.QSTASH_URL ?? 'https://qstash.upstash.io').replace(/\/+$/, '');
+  const siteUrl = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || PROD_SITE_URL).replace(/\/+$/, '');
+  const qstashUrl = (process.env.QSTASH_URL || 'https://qstash.upstash.io').replace(/\/+$/, '');
 
   if (dryRun) {
     printPlan(schedules, siteUrl);
@@ -119,8 +122,22 @@ async function main(): Promise<void> {
     console.log(`  ok ${s.id}: ${body.slice(0, 120)}`);
   }
   if (failed > 0) {
+    // Never prune after a partial apply: the old schedules are the only ones still firing.
     process.exitCode = 1;
     return;
+  }
+
+  if (flag('prune')) {
+    const res = await fetch(`${qstashUrl}/v2/schedules`, { headers });
+    if (!res.ok) throw new Error(`list before prune failed: HTTP ${res.status}`);
+    const live = (await res.json()) as Array<{ scheduleId: string; destination: string }>;
+    const stale = schedulesToPrune(live, QSTASH_SCHEDULES, siteUrl);
+    for (const id of stale) {
+      const del = await fetch(`${qstashUrl}/v2/schedules/${encodeURIComponent(id)}`, { method: 'DELETE', headers });
+      if (!del.ok) throw new Error(`prune ${id} failed: HTTP ${del.status}`);
+      console.log(`  pruned ${id}`);
+    }
+    console.log(`Pruned ${stale.length} duplicate schedule(s).`);
   }
   console.log('Done. Verify with: npm run qstash:sync -- --list');
 }
