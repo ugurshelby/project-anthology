@@ -173,7 +173,7 @@ export function MobileNav() {
               type="button"
               aria-expanded={moreOpen}
               aria-haspopup="menu"
-              aria-label={moreOpen ? 'Close menu' : 'More'}
+              aria-label={moreOpen ? t('closeMenu') : t('more')}
               onClick={() => setMoreOpen((o) => !o)}
               className="touch-target flex h-11 w-11 items-center justify-center rounded-full text-text-hi transition-all duration-200 active:scale-95"
               style={{

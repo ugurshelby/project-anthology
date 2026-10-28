@@ -7,7 +7,9 @@
     "machinery": "Machinery",
     "news": "News",
     "anthology": "Anthology",
-    "glossary": "Glossary"
+    "glossary": "Glossary",
+    "more": "More",
+    "closeMenu": "Close menu"
   },
   "home": {
     "championshipPulse": "Championship Pulse",
@@ -419,6 +421,7 @@
       "upcoming": "UPCOMING"
     },
     "circuit": {
+      "filterLabel": "Circuit filter",
       "listEyebrow": "Track Maps",
       "listTitle": "Circuits",
       "listSubtitle": "The legendary racing temples of the Formula 1 calendar; an architectural telemetry archive spanning from narrow street glamour to high-speed apex sanctuaries.",

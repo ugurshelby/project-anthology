@@ -47,7 +47,7 @@ export function CircuitsDirectory({
         {/* Status Filter Segmented Control */}
         <div
           role="tablist"
-          aria-label="Circuit Filter"
+          aria-label={t('filterLabel')}
           className="inline-flex items-center rounded-xl border border-white/[0.08] bg-surface/80 p-1 backdrop-blur-md"
         >
           <button

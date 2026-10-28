@@ -7,7 +7,9 @@
     "machinery": "Araçlar",
     "news": "Haberler",
     "anthology": "Antoloji",
-    "glossary": "Sözlük"
+    "glossary": "Sözlük",
+    "more": "Daha fazla",
+    "closeMenu": "Menüyü kapat"
   },
   "home": {
     "championshipPulse": "Şampiyona Nabzı",
@@ -305,7 +307,7 @@
       "live": {
         "live": "Canlı",
         "session": "Seans",
-        "lightsOut": "Lights out",
+        "lightsOut": "Işıklar söndü",
         "raceClock": "Yarış saati",
         "lockedBody": "Canlı sıralama veri kaynağı seans boyunca kısıtlıdır; resmî sonuç ve puan durumu bayraktan kısa süre sonra yarış sayfasında yayınlanır.",
         "finishedTitle": "Bayrak düştü",
@@ -419,6 +421,7 @@
       "upcoming": "YAKLAŞAN"
     },
     "circuit": {
+      "filterLabel": "Pist filtresi",
       "listEyebrow": "Pist Haritaları",
       "listTitle": "Pistler",
       "listSubtitle": "1950'den günümüze Formula 1 takviminin efsanevi yarış mabetleri; cadde pistlerinin dar glamurundan yüksek hızlı apeks tapınaklarına uzanan mimari telemetri arşivi.",
