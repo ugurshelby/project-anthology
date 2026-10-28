@@ -72,7 +72,7 @@ Run (queue): Haiku / low. Every check has an exact expected result; a mismatch i
 
 ### H1 — Live checks after the 2026-10-28 push
 Depends on: `main` deployed on Vercel; `*.vercel.app` reachable.
-- [ ] 1.3 — master-plan "1.3" (read-only SQL).
+- [x] 1.3 — master-plan "1.3" (read-only SQL). Matched 2026-10-28, log "Haiku H1".
 - [ ] Live lines of 18.1, 18.2 (noindex criterion), 18.3, 18.4, 19.1 (first `sync-news` SQL count), 8.1 (`/api/media`), 8.5 (driver width count after 3 `sync-media` runs), 14.5 (`/api/news` gone: 404), 20.1 and 20.4 (text greps on `/tr/grid`, `/tr/anthology`, `/tr/circuits`), 20.5 (375 px iframe measurement, `logs/2026-10-23.md` method).
 Acceptance: results in the day's log; boxes ticked where the expected result matched, others stay `[~]` with what is open.
 
