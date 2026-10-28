@@ -38,7 +38,7 @@ Separate switches, not levels:
 ## Rules for plan writers
 
 1. Every phase heading carries `Run: <model> / <effort> — <reason, max 10 words>`. A step repeats the line only when it differs from its phase.
-2. A phase is one session and one model. Never mix models inside a phase; effort may change between steps (`/effort`). Group steps so this holds.
+2. A phase is one session and one model. Never mix models inside a phase; effort may change between steps (`/effort`). Group steps so this holds. Since 2026-10-28 (owner) there are three standing sessions, one per model (Opus, Sonnet, Haiku), each working its queue in `PLAN.md` in order; never two sessions on the same model at once.
 3. Unlisted task: `Sonnet / medium`. Choose the lowest level whose row fits; justify anything higher in the reason.
 4. Owner-mandated model wins (for example Faz 13 and 14 name Opus 5.5 for execution; such a session is a Builder session, see `DECISIONS.md` 2026-10-20 "Faz 13/14 execution"). The effort is still chosen from the table, using the row of the task (e.g. security code = high), not the Architect row.
 5. Non-Claude agents: write `Run: <agent> (own model)`; effort does not apply. Owner steps: write `Run: owner`.

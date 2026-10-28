@@ -185,3 +185,26 @@ Architect appends; newest last. One entry per decision.
 - Decision (owner): the custom domain is bought together with the real contact and legal mail addresses (Faz 16, 16.1), not now. Observed 2026-10-27 ~01:40 TR: every `*.vercel.app` host fails TLS from the owner's home network (`SEC_E_INVALID_TOKEN`; `vercel.com`, `github.com` fine); the site opens on mobile data. Live checks from this machine wait until the network reaches `*.vercel.app` (or run over the phone hotspot).
 - Decision (Architect, owner asked to pull Antigravity work forward when independent): 1.11 is unblocked (1.10 on `main`) and goes first, because R19 Quali (2026-10-31) is the first weekend that shows provisional rows without a label. Then 20.1, 20.4, 20.6, 20.5 (files outside Session U). 20.2's driver and machinery parts wait for U (8.2, 8.3 touch `DriverProfileHero.tsx`, `MachineryCard.tsx`); 20.3 waits for 19.3 (`sortWireByTime`); 8.11 after 20.1 and 20.6 as planned.
 - Affects: master-plan 9.0 (done), 9.2, 16.1, Faz 20 order; `PLAN.md` Dalga 4 sessions J, K, L, S2, R2, V.
+
+## 2026-10-28 Owner decisions: grid car image padding (20.6), header subtitle size (20.5)
+- Decision (owner): 20.6 follows `docs/design/apex-component-rules.md` §4 ("Araç slotları … en az %10 nefes payı"), not the plan's first wording (`object-cover`, fill the card). The car image is not cropped: `object-contain` inside a 3:2 or 16:9 slot with at least 10% padding; the grey letterbox strips go, the slot background is a dark panel or the team colour. The plan text was the Architect's error; the binding rule wins.
+- Decision (owner): the header logo subtitle ("ARŞİV", `components/layout/HeaderNav.tsx:110`, `text-[9px]`) grows to 11 px, in line with 20.5's 11 px floor. Part of 20.5.
+- Affects: master-plan 20.5, 20.6; Session V.
+
+## 2026-10-28 13.3 Suzuka (answer to Session M OPEN entry)
+- Decision: option (a). The build script applies two plausibility gates to every built lap: integrated length within ±3 % of `CIRCUIT_FACTS`, and `brakingPct` ≤ 35 (the 22 passing 2026 laps measured 9.4–28.8 %; Suzuka 2026 at 42.1 % and −7.0 % length comes from a low `speed` channel and a stuck `brake` channel on that lap). A lap that fails tries the same circuit's pole lap one, then two seasons back; if none passes, the circuit is skipped and logged. Gates are named exported constants with a test.
+- Rejected: (b) skip Suzuka by hand (does not catch the next bad lap); (c) widen the tolerance (invented accuracy).
+- Affects: master-plan 13.3; `OPEN.md` entry removed.
+
+## 2026-10-28 Three standing sessions instead of parallel waves
+- Decision (owner): no more 5–6 parallel sessions. Three standing sessions, one per model: Opus, Sonnet, Haiku. Each works its own queue in order; effort changes per step with `/effort`, the model never changes inside a session. No two sessions on the same model at once. The three queues may run at the same time; a step whose files are dirty from another queue's uncommitted work waits.
+- Queues (master-plan "Çalışma kuyrukları", `PLAN.md`): Opus = Architect, operator (audit, commit, push with owner approval) and the owner-mandated Faz 13/14 Builder steps; Sonnet = Builder, including the UI and copy items written for Antigravity (owner ran V on Sonnet / medium on 2026-10-27 and keeps that); Haiku = fully specified steps and read-only live checks with exact expected results (a mismatch goes to `OPEN.md` `To: Opus`, no judgment call).
+- Replaces: "Paralel Dalgalar" (waves 1–6) and the per-letter sessions in `PLAN.md`. Done session history stays in git and earlier `PLAN.md` versions.
+- Affects: master-plan "Çalışma kuyrukları", Run lines of Faz 20, 1.11, 8.10, 8.11, 13.4, 15.2; `PLAN.md` rewritten; `model-effort.md` rule 2; `AGENTS.md` "Two-session workflow".
+
+## 2026-10-28 Dalga 4 audit (operator)
+- On local `main` (16 commits over `a269c3f`): J 14.3, K 14.5, L 14.4, M 13.2 (+13.3 stopped), T 8.1/8.5/8.7/8.8(a), V 1.11, 20.1, 20.4, 20.6, 20.5. Author `ugurshelby` on all, no attribution lines. Gates on the tip: `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest run` 83 files / 901 tests passed.
+- U (8.2, 8.3) and S2 (19.3) did not start: their session stopped on the dirty tree (V's uncommitted work) and asked; they move to the Sonnet queue head.
+- Browser (local dev, 2026-10-28): 20.6 car slot `object-fit: contain`, 10 % padding (29.4 px of 294 px); header subtitle 11 px; footer data credit present; no console errors. 1.11 badge not verified (no `apexProvisional` row in `f1_snapshots`), moved to the R19 live check.
+- Note: `631675b..ff9b422` carry invalid `messages/*.json` (fixed in `7354c9c`); history is not rewritten.
+

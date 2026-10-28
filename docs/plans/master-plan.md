@@ -95,7 +95,8 @@
 - Run: Opus / xhigh — mimari + kaynak/kullanım koşulu riski
 - Sonuç (2026-10-20, `DECISIONS.md` "1.9 Free live-data alternative"): seans sırasında ücretsiz ve koşullara uygun bir canlı sıralama kaynağı yok. F1 live timing reddedildi (F1 arşivi 2026-10-15'te F1 TV kimliğine kapattı, ölçüldü: `static/2026/Index.json` 401; SignalR kalıcı bağlantı = Vercel dışı çalışma zamanı; yeniden kullanım koşulu yok). Dürüst kilitli mod kalır; kazanım bayraktan sonra: OpenF1 ücretsiz katmanı kilit kalkınca (~30 dk) Sıralama ve Sprint geçici sonuçları (1.10), arayüzde "geçici" etiketi ve veri kaynağı atfı (1.11). R18 gözlemi `PLAN.md` Session F'de.
 
-### [ ] 1.10 OpenF1'den geçici Sıralama ve Sprint sonuçları
+### [~] 1.10 OpenF1'den geçici Sıralama ve Sprint sonuçları
+- Durum 2026-10-28: kod `main`'de (`e5a2397`). Açık: R19 Sıralama (2026-10-31) sonrası canlı okuma (Haiku kuyruğu H2).
 - Run: Sonnet / high — veri doğruluğu, çok dosyalı cron adımı, kenar durumlar
 - Owner: Sonnet · Depends on: kod dondurmanın bitmesi (2026-10-26) · Dalga 3 (oturum Q)
 - Dosyalar: `lib/f1/sources/openf1.ts`, `lib/f1/provisional.ts`, `lib/f1/provisionalSync.ts`, `app/api/cron/sync-f1/route.ts`, `tests/provisional-openf1.test.ts`, `tests/provisional-sync.test.ts`, `docs/reference/apex-reference.md` (sync-f1 yanıt şekli geçiyorsa)
@@ -114,8 +115,9 @@
 - Test: `provisional-openf1.test.ts` — `formatLapTime`; Q1/Q2/Q3 eşlemesi (`[86.1, null, null]` yalnızca Q1); DSQ ve `position: null` sonda; sprint `SprintResults` anahtarı; üç builder'da `apexProvisional === true`. `provisional-sync.test.ts` — `jolpica` satırı varken OpenF1 mock'u hiç çağrılmaz; seans sürerken `session-running`; `OpenF1RestrictedError` → `locked`; yazımda `upsertF1Snapshot(…, 'qualifying', …, 'openf1')`; takvimde `Sprint` yoksa `no-session`.
 - Doğrulama: `npx vitest run tests/provisional-openf1.test.ts tests/provisional-sync.test.ts tests/sync-f1-idempotent.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/f1 app/api/cron/sync-f1` 0; `npm run build` `wip/` üzerinde yeşil. Canlı ilk gözlem R19 Sıralama (2026-10-31 21:00Z): sonraki `sync-f1` yanıtında `provisionalSessions.qualifying.status` ve `f1_snapshots` satırı (read-only), log'a. Sonradan okunan gecikme (`DECISIONS.md` 2026-10-26 karar 1): OpenF1 R19 quali `date_end` → `source='openf1'` `qualifying` `fetched_at` → ilk `source='jolpica'` yazımı, dakika olarak log'a. Beklenen OpenF1 gecikmesi ~30 dk (R18 yarışı 32,3 dk).
 
-### [ ] 1.11 Geçici veri etiketi ve veri kaynağı atfı
-- Run: Antigravity (own model) — arayüz ve metin; Claude Code doğrular, commit eder
+### [~] 1.11 Geçici veri etiketi ve veri kaynağı atfı
+- Durum 2026-10-28: kod `631675b` + `7354c9c`; altbilgi atfı yerelde görüldü (OpenF1 CC BY-NC-SA 4.0). Rozet doğrulanmadı: veritabanında `apexProvisional` satırı yok; R19 Sıralama sonrası canlıda (Haiku kuyruğu H2).
+- Run: Sonnet / medium — arayüz ve metin (sahip kararı 2026-10-28: UI işleri Sonnet kuyruğunda)
 - Owner: Antigravity · Depends on: 1.10 `main`'de · Dalga 4 (J/K/L/M dosyalarıyla çakışmaz)
 - Dosyalar: `components/season/ResultsTable.tsx` (ve sonuç/sıralama/sprint tablosunu çizen bileşen), `components/layout/SiteFooter.tsx`, `messages/tr.json`, `messages/en.json`
 - Değişiklik: snapshot `MRData.apexProvisional === true` ise tablo başlığının yanında "Geçici sonuç · OpenF1" / "Provisional · OpenF1" etiketi ve tek cümle açıklama ("Resmî sonuç yayımlanınca güncellenir"). Altbilgiye veri kaynağı satırı: Jolpica F1 ve OpenF1 bağlantıları, "CC BY-NC-SA 4.0". `docs/design/apex-component-rules.md` bağlayıcı.
@@ -237,14 +239,14 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Doğrulama: test: "Verstappen eyes…" → `driver`; "Ferrari confirms…" → `team`; "Mexico City GP preview" → takvimdeki pist; eşleşme yok → `null`; aynı başlıkta iki ad → önce geçen; görsel etiketi olmayan yeni kaynak fixture'ı → `fallbackMedia` dolu (K6 haber); depolanmış URL 404 → üye görseli ya da `null` (K4). `npx vitest run tests/news-fallback-image.test.ts tests/news-stories.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0; `wip/` build yeşil.
 
 ### [ ] 8.10 Haber: yedek görselin çizimi
-- Run: Antigravity (own model) — haber kartı görünümü ve metni; Claude Code doğrular, commit eder
+- Run: Sonnet / medium — arayüz ve metin (sahip kararı 2026-10-28: eski Antigravity işi, Sonnet kuyruğu)
 - Owner: Antigravity · Depends on: 8.9, 8.2, 19.3 ve 20.x `main`'de · Dalga 5
 - Dosyalar: `components/news/NewsList.tsx`, `components/news/NewsLeadBlock.tsx`, `components/news/NewsEditorialFeed.tsx`, `app/[locale]/news/[id]/page.tsx`, `components/media/ApexImage.tsx` (yalnızca `fallback` prop'u), `messages/en.json`, `messages/tr.json`
 - Değişiklik: görseli olmayan öğede `fallbackMedia` varsa `MediaAssetView` (`initialResult={fallbackMedia.result}`) + görünür "Arşiv görseli / Archive image" etiketi + atıf (`MediaCredit`); yoksa bugünkü metin kartı. `ApexImage` yeni `fallback?: ReactNode`: yükleme hatasında `ApexFallback` yerine bunu çizer; haber bileşenleri `fallbackMedia` görünümünü ya da `null` geçer (haberde `ApexFallback` görünmez).
 - Doğrulama: Faz 20 doğrulaması; tarayıcı 375 ve 1440 px `/tr/news`, `/en/news`, bir RaceFans haber detayı: kırık 0, `ApexFallback` 0, RaceFans öğeleri arşiv görseli + atıf.
 
 ### [ ] 8.11 Takım işareti (sahip kararı 2026-10-27)
-- Run: Antigravity (own model) — tasarım; Claude Code doğrular, commit eder
+- Run: Sonnet / medium — arayüz ve metin (sahip kararı 2026-10-28: eski Antigravity işi, Sonnet kuyruğu)
 - Owner: Antigravity · Depends on: 20.1 ve 20.6 ile aynı ajan, onlardan sonra · Dalga 5
 - Dosyalar: `components/media/placeholders/TeamPlaceholder.tsx` (tüm takımlar için tasarım işaretine döner), `components/standings/GarageTeamPanel.tsx`, `components/history/TeamSeasonHero.tsx`, `app/[locale]/teams/[constructorId]/page.tsx`
 - Değişiklik: sahip kararı (2026-10-27, `DECISIONS.md`): resmî ve Commons takım logoları arayüzden kalkar. Arayüzde `MediaAssetView type="team"` ve `getMedia('team', …)` kalmaz; 11 takım aynı özgün kelime işaretini gösterir (takım rengi, `TeamPlaceholder` dili; resmî logo taklidi yok). İşaret yer tutucu değil tasarım öğesidir: `aria-label` "<takım> takım işareti" / "<team> team mark" (`messages`), "typography badge" değil. Takım satırları ve Storage dosyaları bu adımda değişmez (8.11b).
@@ -384,14 +386,15 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Doğrulama: `npx vitest run tests/telemetry-derive.test.ts tests/circuit-telemetry-data.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/telemetry lib/data/circuitTelemetry.ts scripts/build-circuit-telemetry.ts data/circuits/telemetry` 0; `npx tsx scripts/build-circuit-telemetry.ts --dry-run` env'siz çıkış 0 ve güncel takvimdeki her pist için bir satır (eşleşme ya da neden).
 
 ### [ ] 13.3 Telemetri verisini üret ve commit et
-- Run: Opus 5.5 / medium — sahip şartı (Builder, 13.2 ile aynı oturum); betiği koşturmak, sonucu ölçmek
+- Run: Opus 5.5 / high (betik değişikliği) → `/effort medium` (koşu ve ölçüm) — sahip şartı, Builder
 - Owner: Opus 5.5 (Builder) · Depends on: 13.2 · Dalga 4 (oturum M, 13.2'den sonra `/effort medium`)
 - Dosyalar: `data/circuits/telemetry/*.json`, `data/circuits/telemetry/index.ts` (betik üretir), günün log'u
 - Değişiklik: bir seans penceresi dışında (`docs/reference/yaris-hafta-sonu-dogrulama.md` takvimi; OpenF1 seans sırasında tüm API'yi kilitler) `npx tsx scripts/build-circuit-telemetry.ts` (~8–12 dk). 401 ile durursa pencere dışında yeniden. Atlanan pistler nedenleriyle log'a.
 - Doğrulama: `npx vitest run tests/circuit-telemetry-data.test.ts` yeşil (her dosya için); `du -sh data/circuits/telemetry` ≤ 600 KB; `npx tsc --noEmit` 0; log'da özet tablo (pist, yıl, sürücü, tur süresi, uzunluk farkı %) ve atlananlar; `wip/` CI + Vercel preview yeşil, sonra `main`.
+- Ek (`DECISIONS.md` 2026-10-28 "13.3 Suzuka"; OPEN seçenek a): betik her pist için turu kurduktan sonra iki makullük kapısı uygular: entegre uzunluk `CIRCUIT_FACTS` uzunluğunun ±%3'ü içinde ve `brakingPct` ≤ 35. Geçmezse aynı pistte bir önceki yılın pole turunu dener (en çok iki yıl geri: 2026 → 2025 → 2024); hiçbiri geçmezse pist atlanır ve log'a nedeniyle yazılır (veri uydurulmaz, tolerans genişletilmez). Kapı sabitleri adlandırılmış `export const` (`TELEMETRY_LENGTH_TOLERANCE = 0.03`, `TELEMETRY_MAX_BRAKING_PCT = 35`); test: uzunluk ya da fren kapısını geçmeyen tur reddedilir ve eski yıl seçilir. Veri testi (`tests/circuit-telemetry-data.test.ts`) katı kalır.
 
 ### [ ] 13.4 Pist sayfası telemetri arayüzü
-- Run: Antigravity (own model) — arayüz ve metin; Claude Code (Opus 5.5 / medium) doğrular, commit eder
+- Run: Sonnet / medium — arayüz ve metin (sahip kararı 2026-10-28: eski Antigravity işi, Sonnet kuyruğu)
 - Owner: Antigravity · Depends on: 13.3 `main`'de, 1.11 bitmiş (`messages/*.json` ortak) · Dalga 5
 - Dosyalar: yeni `components/circuit/TelemetryTrace.tsx`, yeni `components/circuit/SpeedProfile.tsx`, yeni `components/circuit/TelemetryStats.tsx`, `components/circuit/CircuitElevationProfile.tsx`, `app/[locale]/circuits/[id]/page.tsx`, `messages/tr.json`, `messages/en.json`
 - Değişiklik:
@@ -431,7 +434,8 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
   - `eslint-config-next` için audit'in önerdiği 14.2.35 düşürmesi **uygulanmaz**.
 - Doğrulama: yerel `npx tsc --noEmit` 0, `npm run lint` 0; `npm audit --omit=dev --audit-level=high` çıkış 0; `gh api repos/ugurshelby/project-anthology/vulnerability-alerts -i` → `204`; `gh workflow run security-audit.yml` sonrası koşu yeşil; `wip/deps-2026-10` push'u → CI (`gh run list --branch wip/deps-2026-10`) ve Vercel preview build yeşil; sonra `main`'e fast-forward (sahip onayıyla push), `wip/` dalı yerelde ve `origin`'de silinir. Kalan dev-only bulgular log'a sayıyla yazılır.
 
-### [ ] 14.3 Zod ile şema doğrulama
+### [x] 14.3 Zod ile şema doğrulama
+- Kapanış 2026-10-28: `055c09d` (zod ^4) + `fd04be9` (dört rota, `lib/validation/api.ts`, `tests/validation-api.test.ts`); tam suite 901/901, tsc 0, lint 0; CI `wip/` → `main`.
 - Run: Opus 5.5 / high — sahip şartı; çok dosyalı doğrulama refaktörü
 - Owner: Opus 5.5 · Depends on: 14.1 (aynı rotalar), 14.2 (`package.json`) · Dalga 4
 - Dosyalar: `package.json`, `package-lock.json`, yeni `lib/validation/api.ts`, `app/api/push/register/route.ts`, `app/api/f1-season/route.ts`, `app/api/media/route.ts`, `app/api/circuits/[id]/route.ts`, yeni `tests/validation-api.test.ts`
@@ -446,7 +450,8 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Değişiklik: dosyadaki deneme/token/parti sınırlarını adlandırılmış `export const` sabitlere çıkar (yeni sınır koyma, mevcut değerleri koru); test bu sabitlerin üst sınırlarını ve bir koşudaki en fazla sağlayıcı çağrısını sabitler (OWASP LLM10).
 - Doğrulama: `npx vitest run tests/news-rewrite-limits.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0.
 
-### [ ] 14.5 `/api/news` canlı taramasını kaldır
+### [x] 14.5 `/api/news` canlı taramasını kaldır
+- Kapanış 2026-10-28: `0bf5f7b`; zincir `news_stories` → `news_cache` → statik dosya. Açık not (Teknik borç): `public/news-fallback.json` yok (son adım `[]`), `aggregate()` çağıransız.
 - Run: Opus 5.5 / high — sahip şartı; rota ve geri düşüş zinciri
 - Owner: Opus 5.5 · Depends on: 14.1 (`app/api/news/route.ts`) · Dalga 4
 - Dosyalar: `app/api/news/route.ts` (silinir), `lib/data/news.ts`, `tests/news-stories.test.ts`, `tests/api-cron-guard.test.ts` (yalnızca `/api/news` referansı varsa), `docs/reference/apex-reference.md` (rota listesi)
@@ -465,7 +470,7 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Doğrulama: `npx vitest run tests/audit-screenshots.test.ts` yeşil; `npx tsx scripts/audit-screenshots.ts --dry-run` env'siz çalışır ve 48 hedef listeler; `npx tsc --noEmit` 0. Gerçek koşu **sahip** tarafından (betik anahtar ister; ajanlar gerçek env yüklemez).
 
 ### [ ] 15.2 Rapor bulgularını arayüze uygula
-- Run: Antigravity (own model) — UI uygulaması
+- Run: Sonnet / medium — arayüz ve metin (sahip kararı 2026-10-28: eski Antigravity işi, Sonnet kuyruğu)
 - Owner: Antigravity · Depends on: 15.1 + sahibin gerçek koşusu · Dalga 5
 - Kurallar: `docs/design/apex-component-rules.md` bağlayıcı. Her sayfa sonrası tarayıcıda kontrol; commit Claude Code'da.
 
@@ -605,12 +610,12 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 
 ## Faz 20 — Arayüz, Türkçe ve okunabilirlik
 
-- Run (faz): Antigravity (own model) — UI metni ve görünüm; Claude Code doğrular, commit eder
+- Run (faz): Sonnet / medium — UI metni ve görünüm (sahip kararı 2026-10-28: Antigravity işleri Sonnet kuyruğunda)
 - Owner: Antigravity · Sıra (sahip kararı 2026-10-27, bağımsızlar öne): 1.11 → 20.1 → 20.4 → 20.6 → 20.5 (Session U dosyaları hariç) → 20.2 (sürücü ve Araçlar kısmı Session U `main`'de olunca) → 20.3 (19.3 `main`'de olunca) → 8.11 · Dalga 4
 - Kurallar: `docs/design/apex-component-rules.md` bağlayıcı; resmî logo yok; her sayfa tarayıcıda 375 ve 1440 px'te kontrol.
 - Doğrulama (faz): Antigravity log'a yazar, `[~]` işaretler. Claude Code: `npx tsc --noEmit` 0, `npm run lint` 0, `npx vitest run tests/i18n-messages.test.ts` ve `npx vitest related --run <değişen dosyalar>` yeşil; değişen her sayfa tarayıcıda iki genişlikte, konsol hatası yok.
 
-### [ ] 20.1 Türkçe sayfada İngilizce metin kalmasın
+### [~] 20.1 Türkçe sayfada İngilizce metin kalmasın
 - `components/standings/GarageTeamPanel.tsx` (288, 304, 309, 316: "AHEAD", "PTS", "H2H … PTS") → `messages`; `components/media/placeholders/TeamPlaceholder.tsx:124` "FORMULA 1 CONSTRUCTOR" → `messages`; antoloji kategori etiketleri (`data/stories/content.ts` değerleri İngilizce kalır; görünen ad `messages` eşlemesinden: MODERN ERA, MIRACLE, TRAGEDY, MYTH, COMBAT, DYNASTY…).
 - Doğrulama: `/tr/grid` ve `/tr/anthology` metninde `AHEAD|PTS|CONSTRUCTOR|MIRACLE|TRAGEDY|MYTH|COMBAT|DYNASTY` yok.
 
@@ -626,62 +631,35 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Pist sayfası "±41 metre" → "41 m irtifa farkı".
 - Ana sayfa hafta sonu programı FP2/FP3'ü gizliyor (`components/home/WeekendHero.tsx:53` filtresi): tüm seanslar gösterilir; sığmıyorsa filtre kalır ve başlık "Öne çıkan seanslar" olur.
 
-### [ ] 20.4 Büyük harf ve İngilizce özel adlar
+### [~] 20.4 Büyük harf ve İngilizce özel adlar
 - `lang="tr"` altında CSS `uppercase` İngilizce adlarda noktalı İ üretiyor: "CİRCUİT OF THE AMERİCAS", "SHANGHAİ INTERNATİONAL CİRCUİT", "MİRACLE". Pist resmî adlarını ve İngilizce kalan etiketleri çizen öğelere `lang="en"` (sürücü başlığında zaten var: `DriverProfileHero.tsx:302`). Türkçe haber başlıklarına dokunulmaz (Türkçe yazımda "NORRİS" kabul).
 - Doğrulama: `/tr/circuits` ve `/tr/circuits/americas` ekranında "CIRCUIT OF THE AMERICAS" noktasız.
 
-### [ ] 20.5 Kontrast ve küçük metin
+### [~] 20.5 Kontrast ve küçük metin
+- Durum 2026-10-28: `ff9b422` (ARŞİV 11 px yerelde ölçüldü). Açık: 375 px iframe ölçümü (11 px altı 0, < 24 px hedef 0) ve üç kontrast oranı (Haiku kuyruğu H1).
 - Ana sayfa hero'da fotoğraf üstündeki kırmızı "2026 · 18. YARIŞ" satırı (hava durumu çipi gibi zemin alır); pist kartlarında "BİTTİ" rozeti; ana sayfa son kazanan kartında soyadının fotoğrafa girip kesilmesi.
+- Başlık logosu alt yazısı "ARŞİV" (`components/layout/HeaderNav.tsx:110`, `text-[9px]`) → 11 px (sahip kararı 2026-10-28).
 - Mobil (375 px): 11 px altı metin bugün `/tr/grid` 116, sürücü sayfası 57, yarış sayfası 49, Araçlar 39 öğe → en az 11 px; `/tr/season` 23 dokunma hedefi < 24 px → ≥ 24 px.
 - Doğrulama: aynı iframe ölçümü (`logs/2026-10-23.md` yöntemi) 11 px altı metin 0, < 24 px hedef 0; üç öğede WCAG AA kontrast (4.5:1) ölçülür.
 
-### [ ] 20.6 Grid takım kartı
-- Araç görseli gri şeritli küçük kutuda (letterbox) → kartı dolduran kırpma (`object-cover`, odak araç); logo yerindeki boş daireler → kaldırılır ya da takım rengi işareti (resmî logo yok). Görseli olmayan takımlar (bugün Ferrari, McLaren, RB, Cadillac yer tutucu) 8.11'e girer (sahip sorusu 1), burada değil. 8.2 `main`'deyse araç `MediaAssetView`'ına yuvanın gerçek genişliğiyle `sizes` verilir (ölçülen: bugün her ekranda `1600.webp`).
+### [x] 20.6 Grid takım kartı
+- Kapanış 2026-10-28: `7f18555`; yerelde ölçüldü: `object-fit: contain`, yuva 294×165 px, iç boşluk 29,4 px (%10), konsol hatası yok. Görseli olmayan takımlar 8.11'de.
+- Araç görseli gri şeritli küçük kutuda (letterbox) → kırpılmaz (sahip kararı 2026-10-28, `apex-component-rules.md` §4): `object-contain`, 3:2 ya da 16:9 yuva, en az %10 nefes payı, gri şeritler yerine koyu panel ya da takım rengi zemin; logo yerindeki boş daireler → kaldırılır ya da takım rengi işareti (resmî logo yok). Görseli olmayan takımlar (bugün Ferrari, McLaren, RB, Cadillac yer tutucu) 8.11'e girer (sahip sorusu 1), burada değil. 8.2 `main`'deyse araç `MediaAssetView`'ına yuvanın gerçek genişliğiyle `sizes` verilir (ölçülen: bugün her ekranda `1600.webp`).
 
 ---
 
-## Paralel Dalgalar
+## Çalışma kuyrukları (sahip kararı 2026-10-28)
 
-Aynı dalgadaki oturumların dosya listeleri çakışmaz (köprü dosyalarında — `PLAN.md`, bu dosya, `DECISIONS.md`, `OPEN.md` — yalnızca kendi maddesini birebir metin değişimiyle işaretler/ekler). Her oturum için ilk adım kalın.
+Üç kalıcı oturum: **Opus**, **Sonnet**, **Haiku**. Her biri kendi kuyruğunu yukarıdan aşağı, **sırayla** yapar; efor adım başına `/effort` ile değişir, model değişmez. Aynı modelde paralel oturum açılmaz. Üç kuyruk aynı anda çalışabilir; bir adımın dosyaları başka kuyruğun commit'lenmemiş işinde kirliyse o adım bekler (`git status`). Sıra ve ayrıntı `docs/workflow/PLAN.md`'de; adım içeriği bu dosyada aynı numarada.
 
-| Dalga | Zaman | Oturum (model / effort) | İlk adım | Dosya alanı |
-|---|---|---|---|---|
-| **1** | şimdi → 2026-10-22 | A: Sonnet / medium | **1.0** | `docs/reference/yaris-hafta-sonu-dogrulama.md` |
-| | | B: Opus 5.5 / high (Builder) | **14.1** | 8 rota + `lib/rateLimit.ts` + 2 test; push 10-22 18:00 TR'ye kadar |
-| | | C: Sonnet / medium | **15.1** | `scripts/audit-screenshots.ts`, 1 test |
-| | | D: Haiku / low | **0.1** | `logs/` (5 eski dosya) |
-| | | E: Antigravity | **7.2** | `data/history/liveries.ts`, `team-dna.ts` |
-| | | N: Opus / xhigh (Architect) | **1.9** ✓ | bu dosyada 1.9/1.10/1.11, `DECISIONS.md`, `PLAN.md` Session F |
-| **2** | 2026-10-23 → 25 (kod dondurma) | F: Sonnet / high | **1.1** (sonra 1.4, 1.3, 1.7, 1.9 gözlemi) | `logs/2026-10-2{3,4,5}.md`, rehber §4 |
-| | | G: Opus 5.5 / xhigh (Architect) | **13.1** ✓ | bu dosyada Faz 13, `DECISIONS.md`, `PLAN.md` |
-| **3** | 2026-10-26 → | H: Opus 5.5 / high (Builder; tek kod oturumu) | **14.2** | `package*.json`, `ci.yml`, `security-audit.yml`, `docs/procedures.md`, kırılan testler |
-| | | Claude in Chrome + owner | **9.0** | GCP konsolu (repo dosyası yok), günün log'u |
-| | | Opus / xhigh (Architect) | **9.4** (9.0'dan sonra) | bu dosyada Faz 9, `DECISIONS.md` |
-| | | I: Haiku / low | **1.6** | 4 workflow `.yml` (sync-*, notify-sessions) |
-| | | O: Opus / xhigh (Architect, ölçer) | **8.0** ✓ | bu dosyada Faz 8, `DECISIONS.md`, günün log'u |
-| | | Q: Sonnet / high | **1.10** | `lib/f1/provisional*.ts`, `lib/f1/sources/openf1.ts`, `sync-f1/route.ts`, 2 test |
-| | | R: Sonnet / high | **18.1** (sonra 18.2–18.5) | `lib/f1/mrdata.ts`, `components/season/*`, `components/circuit/*`, `app/[locale]/{season,drivers,circuits,news}/**`, `app/sitemap.ts`, `lib/i18n/format.ts`, `lib/f1Calendar.ts` (yalnızca `DRS_LAST_SEASON`), `messages/*.json` (yalnızca 18.x anahtarları), testler |
-| | | S: Sonnet / high | **19.1** (sonra 19.3) | `lib/news/aggregate.ts`, `components/news/NewsList.tsx`, 2 test |
-| **4** | 14.2 `main`'de | J: Opus 5.5 / high | **14.3** | `package*.json`, `lib/validation/`, 4 rota |
-| | | Sonnet / medium + owner | **9.5** (9.4 seçerse) | ölçüm, log; VM konsolda |
-| | | K: Opus 5.5 / high | **14.5** | `lib/data/news.ts`, `app/api/news/`, 2 test, `apex-reference.md` |
-| | | L: Opus 5.5 / medium | **14.4** | `lib/news/rewrite.ts`, 1 test |
-| | | M: Opus 5.5 / high → medium (Builder) | **13.2** (sonra 13.3) | `lib/telemetry/`, `lib/data/circuitTelemetry.ts`, `scripts/build-circuit-telemetry.ts`, `data/circuits/telemetry/`, 2 test |
-| | | Antigravity | **1.11** (1.10 `main`'de) | `ResultsTable.tsx`, `SiteFooter.tsx`, `messages/*.json` |
-| | | Antigravity (1.11'den sonra; aynı ajan) | **20.1** (sonra 20.2–20.6; 20.2 için 18.5 `main`'de) | `components/standings/GarageTeamPanel.tsx`, `components/home/*`, `components/season/*`, `components/circuit/*`, `components/anthology/*`, `messages/*.json` |
-| | | T: Sonnet / high (8.7, 8.8 `/effort medium`) | **8.1** (sonra 8.5, 8.7, 8.8) | `lib/media/{aliases,universe,sync,repo,process,score}.ts`, `data/media/curated.ts`, `tests/media-{aliases,sync,process,resolve-stages}.test.ts`, `docs/reference/media-sistemi.md` |
-| | | U: Sonnet / medium | **8.2** (sonra 8.3) | `components/media/{ApexImage.tsx,MediaAssetView.tsx,variantLoader.ts}`, `components/profile/DriverProfileHero.tsx`, `components/machinery/MachineryCard.tsx`, `app/[locale]/machinery/page.tsx`, `tests/media-components.test.ts` |
-| **5** | Dalga 4 sonrası | P: Sonnet / medium | **1.8** | `scripts/qstash-sync.ts`, `lib/cron/qstashPrune.ts`, `qstash-sync.yml`, 1 test, `apex-reference.md` |
-| | | Sonnet / high | **19.2** (14.4 `main`'de), ardından aynı dosyada **9.2** (9.0 bütçe ve kota kurulu, sahip `VERTEX_API_KEY`'i Vercel'de) | `lib/news/rewrite.ts`, 1 test, `.env.example` |
-| | | Antigravity | **15.2** (sahip 15.1'i koştuysa) | sayfa bileşenleri |
-| | | Antigravity (15.2'den sonra; aynı ajan) | **13.4** (13.3 `main`'de) | `components/circuit/*Telemetry*`, `SpeedProfile.tsx`, `CircuitElevationProfile.tsx`, pist sayfası, `messages/*.json` |
-| | | Haiku / low | **8.4** (8.2 ve 20.1 `main`'de) | `components/anthology/StoryCard.tsx`, `app/[locale]/anthology/page.tsx` |
-| | | Sonnet / high | **8.9** (14.5, 19.1 `main`'de; sahip sorusu 2) | `lib/news/fallbackImage.ts`, `lib/data/{types,news}.ts`, `lib/news/stories.ts`, 2 test |
-| | | Antigravity (20.x'ten sonra; aynı ajan) | **8.10** (8.9 `main`'de), **8.11** (sahip kararı 2026-10-27) | `components/news/{NewsList,NewsLeadBlock,NewsEditorialFeed}.tsx`, `app/[locale]/news/[id]/page.tsx`, `ApexImage.tsx` (`fallback`), `TeamPlaceholder.tsx`, `GarageTeamPanel.tsx`, `TeamSeasonHero.tsx`, takım sayfası, `messages/*.json` |
-| | | Sonnet / medium | **8.11b** (8.11 ve T `main`'de), **8.12** (8.2, 8.3, 8.5 `main`'de), en son **8.13** | `lib/media/{universe,sync,read}.ts`, `tests/media-{sync,read}.test.ts`, `media-sistemi.md`, `.github/workflows/lighthouse.yml`, günün log'u |
-| **6** | sahip "proje hazır" der | owner → Haiku / Sonnet / Antigravity | **16.1** | Faz 16 maddeleri |
+| Kuyruk | Sıra (bağımlılık) |
+|---|---|
+| Opus (Architect + operatör; Faz 13/14 Builder) | **13.3** (high → medium) → operatör denetimi her Sonnet/Haiku adımından sonra → **9.4** (xhigh, 2026-11-03'e kadar) → 8.13 PASS kararı (medium, 8.13 ölçümünden sonra) → CDN/ISR önbellek tasarımı (xhigh, 8.12'den sonra); migration çıkarsa denetimi (xhigh) |
+| Sonnet (Builder; eski Antigravity UI işleri dahil) | **8.2** → 8.3 → 19.3 → 20.2 (8.3 `main`'de) → 20.3 (19.3 `main`'de) → 1.8 → 19.2 (high) → 9.2 (high; sahip `VERTEX_API_KEY`'i Vercel'de) → 8.9 (high) → 8.10 → 8.11 → 8.11b → 8.12 → 8.13 ölçümü → 15.2 (sahip 15.1'i koştuysa) → 13.4 (13.3 `main`'de); tarihli: 9.3 (2026-12-14'e kadar), 9.7 (2026-12-12 → 14); 8.8(b) sahip seçince (low) |
+| Haiku (tarifli ve read-only işler) | **H1** canlı kontroller (1.3, 18.1–18.4, 19.1, 8.1, 8.5, 14.5, 20.1, 20.4, 20.5 ölçümü; `*.vercel.app` erişilebilir ağdan) → **H2** R19 hafta sonu (2026-10-30 → 11-01): 1.10 ve 1.11 canlı → 8.4 (8.2 `main`'de) → haftalık log saklama (0.1 kuralı) |
+| Sahip | 8.8(b) seçim, 15.1 betiğini koşma, `VERTEX_API_KEY` Vercel'e, Faz 16 tetiği |
 
-Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu bittikten sonra koşar. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`; GCP kredisi 2026-12-18'de biter: 9.0 Dalga 3'te başladı, 9.7 kapanışı 2026-12-12 → 14 sabit tarihli; 9.3 Kasım başında hatırlatılır.
+Not: GCP kredisi 2026-12-18'de biter; 9.7 kapanışı 2026-12-12 → 14 sabit tarihli; 9.3 Kasım başında hatırlatılır. 1.8 için sahibin tek elle işi repo secret `QSTASH_TOKEN`.
 
 ---
 
@@ -695,4 +673,7 @@ Not: Dalga 4'te J `npm install zod` yapar; K/L/M yerel testlerini J'nin kurulumu
 | Yasal adresler, logo | `.example` yer tutucu, geçici logo | 16.1, 16.2 |
 | C-7 yerel `next start` SSL uyarısı | Yalnızca yerel; canlıyı etkilemez | izlenir |
 | Sayfalar CDN'de önbelleğe alınmıyor | 2026-10-26: 16/16 sayfa `Cache-Control: private, no-cache, no-store`, art arda istekte `X-Vercel-Cache: MISS`, her yanıtta `Set-Cookie: NEXT_LOCALE` (`revalidate = 900` diyen `/tr/anthology` dahil); TTFB 0,38–0,86 s | Opus tasarım oturumu (önbellek/ISR, maliyet), 8.12 ölçümünden sonra |
+| `public/news-fallback.json` yok | 14.5 sonrası zincirin son adımı `[]` döner (davranış değişmedi) | Sonnet kuyruğunda 8.9 ile değerlendirilir |
+| `aggregate()` çağıransız | `lib/news/aggregate.ts`; `sync-news` `fetchRawNews` kullanıyor | 19.2 sırasında silinir ya da bağlanır |
+| Ara commit'lerde geçersiz JSON | `631675b..ff9b422` arası `messages/*.json` geçersiz, `7354c9c` düzeltti; bisect bu aralıkta i18n testinde kırılır | bilgi |
 | `any` / `eslint-disable` | 0 | korunur |
