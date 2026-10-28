@@ -227,3 +227,8 @@ Architect appends; newest last. One entry per decision.
 - 4. After credit: Vertex (≤ $5, else removed) + uptime check ($0) → ≤ $5/month, within the owner's $5–10.
 - Affects: master-plan 9.4, 9.5 closed; 9.2 cap 16 and token logging; 9.3 list rewritten.
 
+## 2026-10-28 Retrospective audit (Opus operator, owner: "tüm inisiyatif sende")
+- Production: Vercel runtime errors over 7 days = 1 group (notify-sessions, Jolpica retries, 2026-10-21); QStash 4 schedules last state SUCCESS, DLQ empty; data fresh (news, snapshots, media; 0 pending media). Supabase advisors: INFO only (deny-all RLS on `notified_sessions`, `push_subscriptions` is intended; unused `idx_news_cache_tags`, `news_cache` empty).
+- Fixed: notify-sessions falls back to the stored calendar snapshot when Jolpica fails; JSON-LD escapes `<` (four sinks, one fed from the `stories` table); `/api/f1-season` reads with the anon client, not the service role; `/api/season/[year]` routes accept digits only; `sync-f1` rejects an unknown `scope`; Cadillac line-up fill-in pinned to 2026 (it was tied to `CURRENT_SEASON` and would have invented 2027 rows); TR "Işıklar söndü"; menu and circuit filter aria-labels through messages.
+- Kept on purpose: CSP `frame-ancestors https://*.vercel.app` (owner's 2026-06-13 portfolio preview embed; the site has no state-changing UI to clickjack). `'unsafe-inline'`/`'unsafe-eval'` in `script-src` stays until a nonce-based CSP design (Teknik borç). Text-size classes below 11 px render at ≥ 11 px (measured 0 visible elements < 11 px on `/tr`, `/tr/drivers/norris` at 375 px).
+- Not done (listed in Teknik borç): `server-only` guard on server modules (needs the package and a vitest alias), 104 inline `isTr ?` pairs to `messages`, 51 unused lib exports.

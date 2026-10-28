@@ -692,4 +692,8 @@ Not: GCP kredisi 2026-12-18'de biter; 9.7 kapanışı 2026-12-12 → 14 sabit ta
 | `public/news-fallback.json` yok | 14.5 sonrası zincirin son adımı `[]` döner (davranış değişmedi) | Sonnet kuyruğunda 8.9 ile değerlendirilir |
 | `aggregate()` çağıransız | `lib/news/aggregate.ts`; `sync-news` `fetchRawNews` kullanıyor | 19.2 sırasında silinir ya da bağlanır |
 | Ara commit'lerde geçersiz JSON | `631675b..ff9b422` arası `messages/*.json` geçersiz, `7354c9c` düzeltti; bisect bu aralıkta i18n testinde kırılır | bilgi |
+| CSP `script-src 'unsafe-inline' 'unsafe-eval'` | XSS'e karşı CSP koruması zayıf; bugün güvenilmeyen HTML girdisi yok (2026-10-28 denetimi) | nonce tabanlı CSP tasarımı (Opus kuyruğu, önbellek tasarımıyla birlikte: nonce sayfaları dinamik yapar) |
+| `server-only` koruması yok | `getSupabaseAdmin` bir istemci dosyasından içe aktarılırsa yapısal engel yok | `server-only` paketi + vitest takma adı (Sonnet, küçük) |
+| Satır içi `isTr ?` çiftleri | 104 satır, 14 dosya (`machinery/[id]` 44) | `messages`'a taşınır (Sonnet, Faz 20 sonrası) |
+| Kullanılmayan dışa aktarımlar | `lib/news`, `lib/f1`, `lib/media`'da 51 sembol | 19.2 / 8.11b sırasında temizlik |
 | `any` / `eslint-disable` | 0 | korunur |
