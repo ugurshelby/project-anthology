@@ -80,6 +80,9 @@ export function TeamSeasonHero({
               name={`${name} ${year}`}
               objectFit="contain"
               className="h-full w-full object-contain object-right"
+              // The hero car is the page's LCP element (Lighthouse 2026-10-28): load it first.
+              priority
+              sizes="(min-width: 1024px) 60vw, 100vw"
               showAttribution={false}
             />
             {/* Dark vignette scrim to blend car seamlessly into canvas */}

@@ -266,7 +266,7 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Doğrulama: test: `getMediaBatch('team', ['mercedes'])` Supabase istemcisini çağırmadan `placeholder`; bellek deposunda vadesi gelmiş takım satırı işlenmez; keşif `team` üretmez, `car` üretir. `npx vitest run tests/media-sync.test.ts tests/media-read.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0. Canlı: deploy sonrası `/api/media?type=team&keys=mercedes` → `"status":"placeholder"`; sonraki `sync-media` raporunda takım öğesi 0.
 
 ### [~] 8.12 Lighthouse laboratuvar ölçümü (K2 süre)
-- Durum 2026-10-28 (Opus): `.github/workflows/lighthouse.yml` (yalnız elle; `@lhci/cli@0.15.1`, mobil öykünme, 3 koşu, 16 yol `capture-screenshots.ts` PAGES'ten, `upload-artifact@v7`). Açık: `main`'e push sonrası `gh workflow run lighthouse.yml` + medyan tablo log'a.
+- Durum 2026-10-28 (Opus): workflow kuruldu ve koşuldu (run 40728056408; sayfa sayfa, aralarda 20 sn). **K2 FAIL:** ölçülen 11 sayfada medyan LCP 3,25–5,72 sn (eşik 2,5), CLS her yerde 0; 5 sayfa (`/tr/anthology`, hikâye, `/tr/machinery`, araç detayı, sözlük) Vercel 403 (aynı runner IP'sinden ~30 yüklemeden sonra platform bot koruması). LCP öğesi çoğunlukla metin → darboğaz görsel değil, önbelleğe alınmayan sayfa + JS (Teknik borç "CDN'de önbellek yok"). Ferrari hero aracı LCP'ydi ve önceliksizdi (keşif 0) → `priority` + `sizes` verildi. Açık: önbellek/ISR tasarımı (Opus O4) sonrası yeniden ölçüm; 403 için workflow iki parçaya bölünebilir ya da firewall'da runner istisnası (sahip kararı).
 - Run: Sonnet / medium — elle tetiklenen yeni workflow ve ölçüm
 - Owner: Sonnet · Depends on: 8.2, 8.3, 8.5 `main`'de; H (14.2) ve I (1.6) workflow dosyalarına dokunmaz · Dalga 5
 - Dosyalar: yeni `.github/workflows/lighthouse.yml`
