@@ -385,7 +385,8 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
   - `tests/circuit-telemetry-data.test.ts` (uydurma veri yasağı): `data/circuits/telemetry/*.json` her dosya için `isCircuitTelemetry`; `source` alanları dolu, `provider === 'OpenF1'`, `2023 ≤ year ≤ CURRENT_SEASON`; saklı örneklerden `lapMetrics`/`sectorBoundaries`/`slowPoints` yeniden hesaplanır ve saklı değerlere eşit; son `tMs` ile `lapDurationMs` farkı ≤ 1.500; `CIRCUIT_FACTS[id].lengthKm` varsa `lapLengthM` ±%3 içinde; `tMs` ve `dM` azalmaz; `0 ≤ kmh ≤ 400`, `0 ≤ gear ≤ 8`, `0 ≤ throttle ≤ 100`; `0 < boundariesM[0] < boundariesM[1] < lapLengthM`; `TELEMETRY_LOADERS` anahtarları dosya adlarıyla birebir. Dosya yoksa tek test: harita boş.
 - Doğrulama: `npx vitest run tests/telemetry-derive.test.ts tests/circuit-telemetry-data.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/telemetry lib/data/circuitTelemetry.ts scripts/build-circuit-telemetry.ts data/circuits/telemetry` 0; `npx tsx scripts/build-circuit-telemetry.ts --dry-run` env'siz çıkış 0 ve güncel takvimdeki her pist için bir satır (eşleşme ya da neden).
 
-### [ ] 13.3 Telemetri verisini üret ve commit et
+### [~] 13.3 Telemetri verisini üret ve commit et
+- Durum 2026-10-28: kapılar + test `6f6a8fc`, veri `a9a36e5` (23 pist, 308 KB, atlanan yok; suzuka 2026 −%7,0 → 2025). Yerel doğrulama yeşil. Açık: `wip/` CI + Vercel preview, sonra `main` push (sahip onayı).
 - Run: Opus 5.5 / high (betik değişikliği) → `/effort medium` (koşu ve ölçüm) — sahip şartı, Builder
 - Owner: Opus 5.5 (Builder) · Depends on: 13.2 · Dalga 4 (oturum M, 13.2'den sonra `/effort medium`)
 - Dosyalar: `data/circuits/telemetry/*.json`, `data/circuits/telemetry/index.ts` (betik üretir), günün log'u

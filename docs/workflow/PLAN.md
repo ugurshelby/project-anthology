@@ -20,7 +20,7 @@ Shared rules for every queue:
 Run: Opus 5.5 / high for the script change, then `/effort medium` for the run — owner-mandated model (Faz 13).
 Depends on: 13.2 on `main` (done). Run outside any F1 session window (R19 FP1 starts 2026-10-30).
 Steps:
-- [ ] 13.3 — master-plan "13.3" including the 2026-10-28 addition (length ±3 % and `brakingPct` ≤ 35 gates, fall back one then two seasons, else skip and log).
+- [~] 13.3 — done locally 2026-10-28 (`6f6a8fc` gates, `a9a36e5` data; log "13.3 track telemetry run with gates"); open: `wip/` CI + preview, push with owner approval. Master-plan "13.3" including the 2026-10-28 addition (length ±3 % and `brakingPct` ≤ 35 gates, fall back one then two seasons, else skip and log).
 Acceptance: master-plan 13.3 verify; the day's log has the summary table and every fallback or skip with its reason.
 Stop conditions: more than a third of circuits skipped, or OpenF1 terms or shape changed → `OPEN.md` `To: Opus` (answer it in the same session as Architect, in `DECISIONS.md`).
 
