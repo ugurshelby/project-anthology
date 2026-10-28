@@ -12,6 +12,12 @@ import { readPublicJson } from '@/lib/data/fs';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
 import { stableId, canonicalize } from '@/lib/news/aggregate';
 import { hasRealImage } from '@/lib/news/categories';
+import { pickNewsEntity, type NewsEntity } from '@/lib/news/fallbackImage';
+import { fetchSeasonSnapshotTyped } from '@/lib/data/f1';
+import { CURRENT_SEASON, type CalendarRace } from '@/lib/f1Calendar';
+import { getConstructorStandings, getDriverStandings } from '@/lib/f1/mrdata';
+import { getMediaBatch } from '@/lib/media/read';
+import type { MediaEntityType } from '@/lib/media/types';
 import type { NewsItem } from '@/lib/data/types';
 
 export type { NewsItem } from '@/lib/data/types';
@@ -167,12 +173,75 @@ export async function getNewsById(id: string): Promise<NewsItem | null> {
       supabase.from('news_stories').select('*').eq('id', id).maybeSingle<NewsStoryRow>(),
     );
     logSupabaseCall('news_stories', `select id=${id}`, durationMs);
-    if (!result.error && result.data) return newsFromStory(result.data);
+    if (!result.error && result.data) return (await withFallbackMedia([newsFromStory(result.data)]))[0];
   } catch (err) {
     logFallback('supabase news_stories (by id)', 'latest-news chain', (err as Error).message);
   }
   const items = await getLatestNews(100);
   return items.find((item) => item.id === id) ?? null;
+}
+
+/**
+ * Names to match imageless headlines against: current-season drivers (surname and full name),
+ * teams and calendar circuits (locality and race name), all from the stored snapshots.
+ */
+async function currentNewsEntities(): Promise<NewsEntity[]> {
+  const [drivers, teams, calendar] = await Promise.all([
+    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_drivers'),
+    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'standings_constructors'),
+    fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar'),
+  ]);
+  const out: NewsEntity[] = [];
+  for (const d of getDriverStandings(drivers)) {
+    out.push({ type: 'driver', key: d.driverId, names: [d.familyName, d.driverName].filter(Boolean) });
+  }
+  for (const t of getConstructorStandings(teams)) {
+    out.push({ type: 'team', key: t.constructorId, names: [t.constructorName] });
+  }
+  const races = (calendar?.MRData as { RaceTable?: { Races?: CalendarRace[] } } | undefined)?.RaceTable?.Races ?? [];
+  for (const race of races) {
+    const id = race.Circuit?.circuitId;
+    if (!id) continue;
+    out.push({
+      type: 'circuit',
+      key: id,
+      names: [race.Circuit?.Location?.locality, race.raceName].filter((n): n is string => Boolean(n)),
+    });
+  }
+  return out;
+}
+
+/**
+ * Adds `fallbackMedia` to items without a real cover: the entity their headline is about, when
+ * the archive holds a licensed image for it. One media query per type; never throws.
+ */
+export async function withFallbackMedia(items: NewsItem[]): Promise<NewsItem[]> {
+  const imageless = items.filter((item) => !hasRealImage(item));
+  if (imageless.length === 0) return items;
+  try {
+    const entities = await currentNewsEntities();
+    const picks = new Map<string, { type: MediaEntityType; key: string }>();
+    for (const item of imageless) {
+      const hit = pickNewsEntity(item.title, item.summary, entities);
+      if (!hit) continue;
+      // A team is shown by its season car, never its logo (owner decision 2026-10-27, 8.11b).
+      picks.set(item.id, hit.type === 'team' ? { type: 'car', key: `${hit.key}:${CURRENT_SEASON}` } : hit);
+    }
+    const byType = new Map<MediaEntityType, string[]>();
+    for (const p of picks.values()) byType.set(p.type, [...new Set([...(byType.get(p.type) ?? []), p.key])]);
+    const results = new Map<string, Awaited<ReturnType<typeof getMediaBatch>>>();
+    await Promise.all(
+      [...byType].map(async ([type, keys]) => results.set(type, await getMediaBatch(type, keys))),
+    );
+    return items.map((item) => {
+      const pick = picks.get(item.id);
+      const result = pick ? results.get(pick.type)?.get(pick.key) : undefined;
+      return pick && result?.status === 'image' ? { ...item, fallbackMedia: { ...pick, result } } : item;
+    });
+  } catch (err) {
+    logFallback('news fallback media', 'no archive image', (err as Error).message);
+    return items;
+  }
 }
 
 /**
@@ -197,7 +266,7 @@ export async function getLatestNews(
     if (!result.error && result.data?.length) {
       const all = (result.data as NewsStoryRow[]).map(newsFromStory);
       const items = opts.includeImageless ? all : all.filter(hasRealImage);
-      if (items.length > 0) return items.slice(0, limit);
+      if (items.length > 0) return withFallbackMedia(items.slice(0, limit));
     }
   } catch (err) {
     logFallback('supabase news_stories', 'news_cache', (err as Error).message);

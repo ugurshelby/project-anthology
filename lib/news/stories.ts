@@ -19,6 +19,10 @@ export const NEWS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 const BATCH_SIZE = 4; // stories per AI request (free quotas count requests)
 const PACE_MS = 15_000; // gap between AI requests (Groq free tier ~8K tokens/min)
 const IMAGE_CONCURRENCY = 8;
+/** Stored covers of stories younger than this are probed again every run (publishers pull or swap images). */
+export const IMAGE_RECHECK_WINDOW_MS = 48 * 60 * 60 * 1000;
+/** At most this many stored covers are re-probed per run. */
+export const IMAGE_RECHECK_MAX_PER_RUN = 60;
 const FALLBACK_TR_PER_RUN = 8; // MyMemory anonymous quota is tiny — titles only
 
 export interface StoryRunStats {
@@ -161,14 +165,24 @@ export async function buildStoryRows(
   }
 
   // Image probes run with bounded concurrency (sequential probing made a run take minutes).
-  const needImage = rows.map((row, i) => ({ row, d: drafts[i] })).filter((x) => !x.row.image_url);
+  // A story without a cover gets the best reachable member image. A recent story whose stored
+  // cover no longer answers (404, pulled by the publisher) falls back to another member's image,
+  // else to none, so pages never show a broken cover (8.9, K4).
+  const now = Date.now();
+  const imageTasks = rows
+    .map((row, i) => ({ row, d: drafts[i] }))
+    .filter((x) => !x.row.image_url || now - x.d.publishedTs <= IMAGE_RECHECK_WINDOW_MS);
+  const recheck = imageTasks.filter((x) => x.row.image_url).slice(0, IMAGE_RECHECK_MAX_PER_RUN);
+  const tasks = [...imageTasks.filter((x) => !x.row.image_url), ...recheck];
   let nextImg = 0;
   await Promise.all(
-    Array.from({ length: Math.min(IMAGE_CONCURRENCY, needImage.length) }, async () => {
-      while (nextImg < needImage.length) {
-        const { row, d } = needImage[nextImg++];
-        const img = await bestImage(d.members);
-        if (img) row.image_url = img;
+    Array.from({ length: Math.min(IMAGE_CONCURRENCY, tasks.length) }, async () => {
+      while (nextImg < tasks.length) {
+        const { row, d } = tasks[nextImg++];
+        const stored = row.image_url;
+        if (stored && (await probeImage(stored)) !== null) continue;
+        const img = await bestImage(stored ? d.members.filter((m) => m.image !== stored) : d.members);
+        row.image_url = img ?? null;
       }
     }),
   );
