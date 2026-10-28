@@ -76,7 +76,7 @@ export default async function AnthologyPage({ params }: PageProps) {
           <>
             {lead ? (
               <div className="col-span-4 md:col-span-8 lg:col-span-8">
-                <StoryCard story={lead} wide />
+                <StoryCard story={lead} wide priority />
               </div>
             ) : null}
             {rest.slice(0, 1).map((s) => (

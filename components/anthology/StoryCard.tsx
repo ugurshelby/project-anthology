@@ -5,7 +5,7 @@ import { truncateToWord } from '@/lib/text/truncateToWord';
 import { ApexImage } from '@/components/media/ApexImage';
 
 /** Anthology hub story card — hero image, condensed title, category/year mono. */
-export function StoryCard({ story, wide = false }: { story: Story; wide?: boolean }) {
+export function StoryCard({ story, wide = false, priority = false }: { story: Story; wide?: boolean; priority?: boolean }) {
   const locale = useLocale();
   const tCat = useTranslations('anthology.categories');
   const categoryKey = story.category.replace(/\s+(\w)/g, (_, c: string) => c.toUpperCase()).replace(/^\w/, (c) => c.toLowerCase());
@@ -27,7 +27,8 @@ export function StoryCard({ story, wide = false }: { story: Story; wide?: boolea
         alt=""
         fill
         kind="media"
-        sizes={wide ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
+        priority={priority}
+        sizes={wide ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 45vw'}
         className="object-cover opacity-80 transition-all duration-500 ease-out group-hover:scale-105 group-hover:opacity-95"
       />
       {/* Top subtle vignette */}
