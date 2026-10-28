@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { keyToPathSegment } from '@/lib/media/keys';
-import type { Candidate, MediaEntity, MediaEntityType, MediaVariant, ProcessedImage } from '@/lib/media/types';
+import { TEAM_LOGOS_ENABLED, type Candidate, type MediaEntity, type MediaEntityType, type MediaVariant, type ProcessedImage } from '@/lib/media/types';
 import type { Json, MediaAssetRow } from '@/types/database';
 
 export const MEDIA_BUCKET = 'media';
@@ -139,14 +139,15 @@ export function createSupabaseRepo(): MediaRepo {
     },
 
     async claimDue(limit, now) {
-      const { data, error } = await db
+      let query = db
         .from('media_assets')
         .select(
           'entity_type, entity_key, season, display_name, wikipedia_url, extra, status, review, rejected_files, source_file, attempts, variants, content_sha256',
         )
-        .lte('next_check_at', now)
-        .order('next_check_at', { ascending: true })
-        .limit(limit);
+        .lte('next_check_at', now);
+      // Team logos are not sourced (8.11b): their rows must not take the oldest due slots.
+      if (!TEAM_LOGOS_ENABLED) query = query.neq('entity_type', 'team');
+      const { data, error } = await query.order('next_check_at', { ascending: true }).limit(limit);
       if (error) throw new Error(`media_assets claimDue: ${error.message}`);
       return (data ?? []) as DueRow[];
     },
@@ -345,6 +346,7 @@ export function createMemoryRepo(outDir?: string): MediaRepo & { records: Map<st
     async claimDue(limit, now) {
       return Array.from(records.values())
         .filter((r) => r.nextCheckAt <= now)
+        .filter((r) => TEAM_LOGOS_ENABLED || r.entity.type !== 'team')
         .slice(0, limit)
         .map((r) => ({
           entity_type: r.entity.type,

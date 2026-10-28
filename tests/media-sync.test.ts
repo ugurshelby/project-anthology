@@ -270,7 +270,8 @@ describe('runMediaSync', () => {
 });
 
 describe('variant ladder (8.5)', () => {
-  const team = (key: string): MediaEntity => ({ type: 'team', key, season: 2025, displayName: key, wikipediaUrl: `https://en.wikipedia.org/wiki/${key}` });
+  // A circuit stands in for "another type": team rows are no longer processed (8.11b).
+  const circuit = (key: string): MediaEntity => ({ type: 'circuit', key, season: 2025, displayName: key, wikipediaUrl: `https://en.wikipedia.org/wiki/${key}` });
 
   it('needsLargerVariants compares the stored widest variant with what the source supports now', () => {
     expect(needsLargerVariants([{ w: 640 }], 1400, 'driver')).toBe(true);
@@ -307,7 +308,7 @@ describe('variant ladder (8.5)', () => {
 
   it('requeues only resolved rows of a type whose ladder changed, once; with no ladder recorded only drivers (the old ladder)', async () => {
     resolveEntity.mockResolvedValue({ best: candidate(), inspected: 1, notes: [] });
-    discoverSeason.mockResolvedValue([driver('norris'), driver('piastri'), team('ferrari')]);
+    discoverSeason.mockResolvedValue([driver('norris'), driver('piastri'), circuit('monza')]);
     const repo = createMemoryRepo();
     const first = await run(repo);
     expect(first).toMatchObject({ resolved: 3, requeued: 0 }); // nothing resolved yet at requeue time
@@ -319,15 +320,15 @@ describe('variant ladder (8.5)', () => {
     later();
     repo.state.delete('variant_ladder'); // as on the first run after the 1280 px step shipped
     const migrated = await run(repo);
-    expect(migrated).toMatchObject({ requeued: 2, due: 2 }); // the two drivers; the team row keeps its schedule
+    expect(migrated).toMatchObject({ requeued: 2, due: 2 }); // the two drivers; the circuit row keeps its schedule
 
     later();
     expect(await run(repo)).toMatchObject({ requeued: 0, due: 0 });
 
     later();
-    repo.state.set('variant_ladder', { ...(repo.state.get('variant_ladder') as object), team: [96, 192] });
+    repo.state.set('variant_ladder', { ...(repo.state.get('variant_ladder') as object), circuit: [480, 960] });
     expect(await run(repo)).toMatchObject({ requeued: 1, due: 1 });
-    expect(repo.state.get('variant_ladder')).toMatchObject({ team: [96, 192, 384] });
+    expect(repo.state.get('variant_ladder')).toMatchObject({ circuit: [480, 960, 1600] });
   });
 });
 
@@ -378,5 +379,17 @@ describe('uploadWithRetry (Storage gateway errors are transient)', () => {
     const b = bucket([{ message: 'The object exceeded the maximum allowed size', status: 413 }]);
     await expect(uploadWithRetry(b, 'p.webp', body, noSleep)).rejects.toThrow(/maximum allowed size \(HTTP 413\)/);
     expect(b.calls).toHaveLength(1);
+  });
+});
+
+describe('team logos are neither sourced nor served (8.11b)', () => {
+  it('never claims a due team row, so it costs no Wikimedia request', async () => {
+    discoverSeason.mockResolvedValue([driver('norris')]);
+    const repo = createMemoryRepo();
+    await repo.saveMissing({ type: 'team', key: 'ferrari', season: 2025 }, 'seed', new Date(0).toISOString());
+    resolveEntity.mockClear();
+    const report = await run(repo);
+    expect(resolveEntity.mock.calls.some(([e]) => (e as MediaEntity).type === 'team')).toBe(false);
+    expect(report.items.some((i) => i.type === 'team')).toBe(false);
   });
 });

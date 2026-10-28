@@ -83,3 +83,13 @@ describe('getMediaBatch', () => {
     warn.mockRestore();
   });
 });
+
+describe('team logos are not served (8.11b)', () => {
+  it('answers team keys with placeholders without querying the database', async () => {
+    orFilter.mockClear();
+    const map = await getMediaBatch('team', ['mercedes', 'ferrari']);
+    expect(map.get('mercedes')?.status).toBe('placeholder');
+    expect(map.get('ferrari')?.status).toBe('placeholder');
+    expect(orFilter).not.toHaveBeenCalled();
+  });
+});

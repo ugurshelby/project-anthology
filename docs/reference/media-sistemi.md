@@ -1,6 +1,6 @@
 # Medya (görsel) sistemi: pilot, takım, araç, pist
 
-Last verified: 2026-10-28 (§5, §11, §14: 8.1 alias eşleşmesi, 8.5 pilot 1280 px)
+Last verified: 2026-10-28 (§5, §11, §14: 8.1 alias eşleşmesi, 8.5 pilot 1280 px; §1, §4, §7, §8: 8.11b takım logosu durdu)
 
 Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend'in (Antigravity) bu sisteme nasıl güvenli bağlanacağını** anlatır. Kod ve migration hazırdır; migration canlı veritabanına uygulandı ve kod/workflow 2026-10-06'da canlıya çıktı; ilk `sync-media` koşusuyla dolum başlar (bkz. Bölüm 13).
 
@@ -9,6 +9,8 @@ Bu doküman **backend tarafında kurulan görsel temin sistemini** ve **frontend
 ---
 
 ## 1. Kararlar ve kapsam
+
+> **2026-10-28 (8.11b, sahip kararı 2026-10-27):** takım logoları artık ne temin edilir ne sunulur. `TEAM_LOGOS_ENABLED = false` (`lib/media/types.ts`): keşif `team` varlığı üretmez (araç varlıkları aynen), `claimDue` `team` satırı almaz (Wikimedia isteği yok, kuyrukta yer tutmaz), `getMediaBatch('team', …)` sorgusuz yer tutucu döner (`/api/media?type=team` dahil). Arayüz kendi takım işaretini gösterir (`TeamPlaceholder`, 8.11). `LOGO_OVERRIDES` ve logo kapıları kodda kalır; geri dönüş tek bayrak. `media_assets` takım satırları ve Storage dosyaları silinmedi (sahip onaylı ayrı veri temizliği). Aşağıdaki §4, §7, §8'deki takım logosu anlatımı bu tarihten beri geçmiştir.
 
 | Konu | Karar |
 |---|---|

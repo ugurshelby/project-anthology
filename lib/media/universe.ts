@@ -2,7 +2,7 @@ import { fetchJolpica } from '@/lib/f1/sources/jolpica';
 import { carKey, iconicCarKey } from '@/lib/media/keys';
 import { circuitAliases, driverAliases, teamAliases } from '@/lib/media/aliases';
 import { wikipediaTitleFromUrl } from '@/lib/media/wikimedia';
-import type { MediaEntity } from '@/lib/media/types';
+import { TEAM_LOGOS_ENABLED, type MediaEntity } from '@/lib/media/types';
 import { CIRCUIT_ALIASES, EXTRA_CIRCUITS, ICONIC_CARS, LOGO_OVERRIDES, TEAM_ALIASES } from '@/data/media/curated';
 
 /**
@@ -60,7 +60,7 @@ export async function discoverSeason(season: number): Promise<MediaEntity[]> {
     if (!key) continue;
     const override = LOGO_OVERRIDES.find((o) => o.constructorId === key);
     const aliases = teamAliases(key, c.name, wikipediaTitleFromUrl(c.url), TEAM_ALIASES[key]);
-    out.push({
+    if (TEAM_LOGOS_ENABLED) out.push({
       type: 'team',
       key,
       season,

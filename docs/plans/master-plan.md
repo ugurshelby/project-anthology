@@ -257,7 +257,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: sahip kararı (2026-10-27, `DECISIONS.md`): resmî ve Commons takım logoları arayüzden kalkar. Arayüzde `MediaAssetView type="team"` ve `getMedia('team', …)` kalmaz; 11 takım aynı özgün kelime işaretini gösterir (takım rengi, `TeamPlaceholder` dili; resmî logo taklidi yok). İşaret yer tutucu değil tasarım öğesidir: `aria-label` "<takım> takım işareti" / "<team> team mark" (`messages`), "typography badge" değil. Takım satırları ve Storage dosyaları bu adımda değişmez (8.11b).
 - Doğrulama: `grep -rnE "type=\"team\"|getMedia(Batch)?\('team'" components app` boş; tarayıcı `/tr/grid`, `/tr/teams`, `/tr/teams/ferrari` 375 ve 1440 px: 11 takım aynı işaret dili, takım logosu `img` 0; K3 taramasında etiketler "takım işareti".
 
-### [ ] 8.11b Takım logosu temini ve sunumu durur
+### [~] 8.11b Takım logosu temini ve sunumu durur
+- Durum 2026-10-28 (Opus): kod bitti — `TEAM_LOGOS_ENABLED = false` (`lib/media/types.ts`), keşif `team` üretmez, `claimDue` `team` satırını sorguda dışlar (kuyruk başını tıkamasın diye sonradan elemek yerine), `getMediaBatch('team')` sorgusuz yer tutucu. Testler: `media-sync` (takım satırı işlenmez; merdiven testi pist satırına taşındı), `media-read` (sorgu yok). `media-sistemi.md` §1 notu. Açık (canlı): deploy sonrası `/api/media?type=team&keys=mercedes` → `placeholder`; sonraki `sync-media` raporunda takım öğesi 0.
 - Run: Sonnet / medium — üç dosyada tür dışlama, bilinen davranış testleri
 - Owner: Sonnet · Depends on: 8.11 ve oturum T (8.1, 8.5; aynı `lib/media/*`) `main`'de · Dalga 5
 - Dosyalar: `lib/media/universe.ts`, `lib/media/sync.ts`, `lib/media/read.ts`, `tests/media-sync.test.ts`, `tests/media-read.test.ts`, `docs/reference/media-sistemi.md` (§1, §4, §7, §8)

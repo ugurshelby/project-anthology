@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { isValidMediaKey } from '@/lib/media/keys';
 import { MEDIA_BUCKET } from '@/lib/media/repo';
-import type { MediaEntityType } from '@/lib/media/types';
+import { TEAM_LOGOS_ENABLED, type MediaEntityType } from '@/lib/media/types';
 import { getSupabaseClient } from '@/lib/supabase';
 
 /**
@@ -137,6 +137,8 @@ function keyVariants(key: string): string[] {
 export async function getMediaBatch(type: MediaEntityType, keys: string[]): Promise<Map<string, MediaResult>> {
   const out = new Map<string, MediaResult>();
   for (const k of keys) out.set(k, placeholderResult(type, k));
+  // Team logos are not served (owner decision 2026-10-27, 8.11b): placeholders, no query.
+  if (type === 'team' && !TEAM_LOGOS_ENABLED) return out;
   // Keys end up inside a PostgREST filter expression: anything outside the strict key alphabet
   // (commas, parentheses, quotes…) is never sent to the database, it just stays a placeholder.
   const safeKeys = keys.filter(isValidMediaKey);
