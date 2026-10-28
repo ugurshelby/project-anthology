@@ -265,7 +265,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: `discoverSeason` `team` varlığı üretmez (araç varlığı ve `teamAliases`'tan türeyen araç alias'ları aynen kalır); `runMediaSync` vadesi gelen `entity_type = 'team'` satırlarını işlemez (Wikimedia isteği yok); `getMediaBatch('team', …)` sorgu yapmadan her anahtar için `placeholderResult` döner (böylece `/api/media?type=team` da). `LOGO_OVERRIDES` ve logo kapıları kodda kalır (geri dönüş tek değişiklik). `media_assets` takım satırları ve Storage dosyaları silinmez; temizlik ayrı veri değişikliğidir, sahip onayı ister.
 - Doğrulama: test: `getMediaBatch('team', ['mercedes'])` Supabase istemcisini çağırmadan `placeholder`; bellek deposunda vadesi gelmiş takım satırı işlenmez; keşif `team` üretmez, `car` üretir. `npx vitest run tests/media-sync.test.ts tests/media-read.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0. Canlı: deploy sonrası `/api/media?type=team&keys=mercedes` → `"status":"placeholder"`; sonraki `sync-media` raporunda takım öğesi 0.
 
-### [ ] 8.12 Lighthouse laboratuvar ölçümü (K2 süre)
+### [~] 8.12 Lighthouse laboratuvar ölçümü (K2 süre)
+- Durum 2026-10-28 (Opus): `.github/workflows/lighthouse.yml` (yalnız elle; `@lhci/cli@0.15.1`, mobil öykünme, 3 koşu, 16 yol `capture-screenshots.ts` PAGES'ten, `upload-artifact@v7`). Açık: `main`'e push sonrası `gh workflow run lighthouse.yml` + medyan tablo log'a.
 - Run: Sonnet / medium — elle tetiklenen yeni workflow ve ölçüm
 - Owner: Sonnet · Depends on: 8.2, 8.3, 8.5 `main`'de; H (14.2) ve I (1.6) workflow dosyalarına dokunmaz · Dalga 5
 - Dosyalar: yeni `.github/workflows/lighthouse.yml`

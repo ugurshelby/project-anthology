@@ -1,0 +1,45 @@
+name: lighthouse
+
+# Lab measurement for the media gate K2 (master-plan 8.12): Lighthouse CI's default
+# mobile emulation with simulated throttling, 3 runs per page, against the deployed
+# site. Pages are the paths in scripts/capture-screenshots.ts (PAGES); the host comes
+# from the repo variable SITE_URL. Manual only, no secrets; the reports are uploaded
+# as a workflow artifact (read medians with `gh run download` + jq).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Collect
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          set -euo pipefail
+          base="${SITE_URL:-https://project-anthology-eight.vercel.app}"
+          base="${base%/}"
+          args=()
+          for path in $(grep -oE "path: '/[^']*'" scripts/capture-screenshots.ts | sed -E "s/path: '([^']*)'/\1/"); do
+            args+=("--url=${base}${path}")
+          done
+          echo "Pages: ${#args[@]}"
+          npx --yes @lhci/cli@0.15.1 collect --numberOfRuns=3 "${args[@]}"
+          npx --yes @lhci/cli@0.15.1 upload --target=filesystem --outputDir=./lhci-reports
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-reports
+          path: lhci-reports
+          retention-days: 14
