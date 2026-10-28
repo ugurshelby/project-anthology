@@ -78,6 +78,49 @@ interface NotifyDb {
   from(table: 'notified_sessions'): {
     insert(row: NotifiedSessionInsert): Promise<{ error: DbError }>;
   };
+  from(table: 'f1_snapshots'): {
+    select(columns: 'data'): {
+      eq(column: 'season', value: number): {
+        eq(column: 'type', value: 'calendar'): {
+          is(column: 'round', value: null): {
+            order(column: 'fetched_at', opts: { ascending: false }): {
+              limit(n: 1): {
+                maybeSingle(): Promise<{ data: { data: Json } | null; error: DbError }>;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}
+
+/**
+ * Season calendar: live Jolpica first (current times), else the last stored
+ * `f1_snapshots` calendar, so a Jolpica outage inside the 30-minute window does
+ * not cost the notification (production 2026-10-21: "Jolpica exhausted retries").
+ */
+async function loadCalendarRaces(
+  db: NotifyDb,
+): Promise<{ races: CalendarRace[]; source: 'jolpica' | 'snapshot' }> {
+  const racesOf = (data: unknown): CalendarRace[] =>
+    (data as { MRData?: { RaceTable?: { Races?: CalendarRace[] } } })?.MRData?.RaceTable?.Races ?? [];
+  try {
+    return { races: racesOf(await fetchCalendar(CURRENT_SEASON)), source: 'jolpica' };
+  } catch (err) {
+    const { data, error } = await db
+      .from('f1_snapshots')
+      .select('data')
+      .eq('season', CURRENT_SEASON)
+      .eq('type', 'calendar')
+      .is('round', null)
+      .order('fetched_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error || !data) throw err;
+    console.error('[cron notify-sessions] Jolpica calendar failed, using stored snapshot:', err);
+    return { races: racesOf(data.data), source: 'snapshot' };
+  }
 }
 
 function findUpcomingSessions(races: CalendarRace[], now: number): UpcomingSession[] {
@@ -116,17 +159,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   try {
     const now = Date.now();
-    const calendarData = await fetchCalendar(CURRENT_SEASON);
-    const races = (
-      (calendarData.MRData as { RaceTable?: { Races?: CalendarRace[] } })?.RaceTable?.Races ?? []
-    );
+    const db = getSupabaseAdmin() as unknown as NotifyDb;
+    const { races, source: calendarSource } = await loadCalendarRaces(db);
 
     const upcoming = findUpcomingSessions(races, now);
     if (upcoming.length === 0) {
-      return NextResponse.json({ notified: 0, reason: 'no sessions in window' });
+      return NextResponse.json({ notified: 0, reason: 'no sessions in window', calendarSource });
     }
-
-    const db = getSupabaseAdmin() as unknown as NotifyDb;
 
     // Load subscribers BEFORE claiming any session: if this read fails nothing
     // is claimed, so the next run (still inside the ±5 min window) retries.
@@ -191,6 +230,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         deduped,
         notified: notifiedCount,
         failed,
+        calendarSource,
         durationMs: Date.now() - startedAt,
       },
       // A failed claim makes the run visible as failed (GitHub/QStash logs).

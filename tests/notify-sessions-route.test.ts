@@ -11,6 +11,7 @@ const mockFetchCalendar = vi.fn();
 const mockSend = vi.fn();
 const mockInsert = vi.fn();
 const mockSubsRead = vi.fn();
+const mockSnapshotRead = vi.fn();
 
 vi.mock('@/lib/cronAuth', () => ({
   isCronAuthorized: () => true,
@@ -27,10 +28,20 @@ vi.mock('@/lib/push/sendExpoPush', () => ({
 
 vi.mock('@/lib/supabase', () => ({
   getSupabaseAdmin: () => ({
-    from: (table: string) =>
-      table === 'push_subscriptions'
-        ? { select: () => ({ not: () => mockSubsRead() }) }
-        : { insert: (row: unknown) => mockInsert(row) },
+    from: (table: string) => {
+      if (table === 'push_subscriptions') return { select: () => ({ not: () => mockSubsRead() }) };
+      if (table === 'f1_snapshots') {
+        const chain = {
+          eq: () => chain,
+          is: () => chain,
+          order: () => chain,
+          limit: () => chain,
+          maybeSingle: () => mockSnapshotRead(),
+        };
+        return { select: () => chain };
+      }
+      return { insert: (row: unknown) => mockInsert(row) };
+    },
   }),
 }));
 
@@ -139,8 +150,24 @@ describe('/api/cron/notify-sessions', () => {
   it('does nothing outside the notify window', async () => {
     mockFetchCalendar.mockResolvedValue({ MRData: { RaceTable: { Races: [] } } });
     const res = await GET(request());
-    expect(await res.json()).toEqual({ notified: 0, reason: 'no sessions in window' });
+    expect(await res.json()).toEqual({ notified: 0, reason: 'no sessions in window', calendarSource: 'jolpica' });
     expect(mockSubsRead).not.toHaveBeenCalled();
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('falls back to the stored calendar snapshot when Jolpica fails', async () => {
+    mockFetchCalendar.mockRejectedValue(new Error('Jolpica exhausted retries for 2026.json'));
+    mockSnapshotRead.mockResolvedValue({ data: { data: calendarWithRaceIn30Min() }, error: null });
+    const res = await GET(request());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ claimed: 1, notified: 1, calendarSource: 'snapshot' });
+  });
+
+  it('reports 500 when both Jolpica and the stored snapshot are unavailable', async () => {
+    mockFetchCalendar.mockRejectedValue(new Error('Jolpica exhausted retries'));
+    mockSnapshotRead.mockResolvedValue({ data: null, error: null });
+    const res = await GET(request());
+    expect(res.status).toBe(500);
     expect(mockInsert).not.toHaveBeenCalled();
   });
 });
