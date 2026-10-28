@@ -85,4 +85,4 @@ Acceptance: results in the day's log; boxes ticked where the expected result mat
 - [x] 8.4 (2026-10-29, Opus) — master-plan "8.4".
 
 ### H4 — Log retention (weekly)
-- [ ] Delete logs older than 15 days (master-plan 0.1 rule), only files under `logs/`.
+- [ ] Delete logs older than 15 days (master-plan 0.1 rule), only files under `logs/`. Last run 2026-10-29 (Opus): 10-11, 10-13 removed; next due 2026-11-05.
