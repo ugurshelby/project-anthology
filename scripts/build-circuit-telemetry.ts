@@ -12,6 +12,11 @@
  * Qualifying at the circuit (2023 or later): Jolpica gives the pole car and
  * time, OpenF1 gives the lap whose duration matches it within 1.5 ms.
  *
+ * Plausibility gates (DECISIONS 2026-10-28 "13.3 Suzuka"): the built lap's
+ * integrated length must be within ±3 % of CIRCUIT_FACTS and brakingPct ≤ 35.
+ * A lap that fails tries the same circuit's pole lap one, then two seasons
+ * back; if none passes, the circuit is skipped with the reasons in the table.
+ *
  * OpenF1 locks its whole API during live F1 sessions (401): run outside a
  * session window. On a 401 the script keeps what it wrote and exits 2.
  */
@@ -30,7 +35,12 @@ import {
   type RawCarSample,
   type RawLocation,
 } from '../lib/telemetry/derive';
-import { matchSessionByStart, pickPoleLap } from '../lib/telemetry/select';
+import {
+  firstPlausibleLap,
+  matchSessionByStart,
+  pickPoleLap,
+  TELEMETRY_FALLBACK_SEASONS,
+} from '../lib/telemetry/select';
 import type { CircuitTelemetry, SafetyCarHistory } from '../lib/telemetry/types';
 
 const JOLPICA = 'https://api.jolpi.ca/ergast/f1';
@@ -181,17 +191,29 @@ interface Row {
 
 class Skip extends Error {}
 
-function findMatch(circuitId: string, years: Map<number, YearData>, now: number): Match | null {
+function matchYear(circuitId: string, y: number, years: Map<number, YearData>, now: number): Match | null {
+  const data = years.get(y);
+  const race = data?.races.find((r) => r.Circuit.circuitId === circuitId);
+  if (!data || !race?.Qualifying) return null;
+  const qStart = startMs(race.Qualifying.date, race.Qualifying.time);
+  if (!(qStart + QUALI_DONE_MS < now)) return null;
+  const session = matchSessionByStart(data.quali, qStart);
+  return session ? { year: y, race, session } : null;
+}
+
+/** Newest matched season first, then the matched seasons up to TELEMETRY_FALLBACK_SEASONS before it. */
+function findCandidates(circuitId: string, years: Map<number, YearData>, now: number): Match[] {
   for (let y = CURRENT_SEASON; y >= FIRST_YEAR; y--) {
-    const data = years.get(y);
-    const race = data?.races.find((r) => r.Circuit.circuitId === circuitId);
-    if (!data || !race?.Qualifying) continue;
-    const qStart = startMs(race.Qualifying.date, race.Qualifying.time);
-    if (!(qStart + QUALI_DONE_MS < now)) continue;
-    const session = matchSessionByStart(data.quali, qStart);
-    if (session) return { year: y, race, session };
+    const newest = matchYear(circuitId, y, years, now);
+    if (!newest) continue;
+    const out = [newest];
+    for (let back = 1; back <= TELEMETRY_FALLBACK_SEASONS && y - back >= FIRST_YEAR; back++) {
+      const older = matchYear(circuitId, y - back, years, now);
+      if (older) out.push(older);
+    }
+    return out;
   }
-  return null;
+  return [];
 }
 
 async function poleOf(match: Match): Promise<{ result: JolpicaQualiResult; lapTime: string; poleMs: number }> {
@@ -226,7 +248,8 @@ async function safetyCarHistory(circuitId: string, years: Map<number, YearData>,
   return { years: counted, races: counted.length, withSafetyCar, withVsc };
 }
 
-async function buildCircuit(circuitId: string, match: Match, years: Map<number, YearData>, now: number): Promise<CircuitTelemetry> {
+/** The lap without its safety-car history, which is the same for every candidate season. */
+async function buildCircuit(circuitId: string, match: Match): Promise<CircuitTelemetry> {
   const { result, lapTime, poleMs } = await poleOf(match);
   const carNumber = Number(result.number);
 
@@ -252,7 +275,6 @@ async function buildCircuit(circuitId: string, match: Match, years: Map<number, 
   const s1Ms = Math.round(lap.duration_sector_1 * 1000);
   const s2Ms = Math.round(lap.duration_sector_2 * 1000);
   const s3Ms = Math.round(lap.duration_sector_3 * 1000);
-  const safetyCar = await safetyCarHistory(circuitId, years, now);
 
   return {
     version: 1,
@@ -279,7 +301,7 @@ async function buildCircuit(circuitId: string, match: Match, years: Map<number, 
     speedTraps: { i1Kmh: lap.i1_speed, i2Kmh: lap.i2_speed, stKmh: lap.st_speed },
     metrics: lapMetrics(samples),
     slowPoints: slowPoints(samples),
-    safetyCar,
+    safetyCar: null,
     samples,
   };
 }
@@ -362,7 +384,8 @@ async function main(): Promise<number> {
   if (!dryRun) mkdirSync(OUT_DIR, { recursive: true });
 
   for (const circuitId of circuitIds) {
-    const match = findMatch(circuitId, years, now);
+    const candidates = findCandidates(circuitId, years, now);
+    const match = candidates[0];
     if (!match) {
       rows.push(emptyRow(circuitId, `skipped: no completed Qualifying with an OpenF1 session since ${FIRST_YEAR}`));
       continue;
@@ -380,7 +403,13 @@ async function main(): Promise<number> {
         continue;
       }
 
-      const data = await buildCircuit(circuitId, match, years, now);
+      const gated = await firstPlausibleLap(candidates, (m) => buildCircuit(circuitId, m), CIRCUIT_FACTS[circuitId]?.lengthKm);
+      const rejections = gated.rejected.map((r) => `${r.candidate.year} ${r.reason}`).join('; ');
+      if (!gated.chosen) {
+        rows.push({ ...emptyRow(circuitId, `skipped: gates failed (${rejections})`), year: String(match.year) });
+        continue;
+      }
+      const data = { ...gated.chosen.lap, safetyCar: await safetyCarHistory(circuitId, years, now) };
       writeFileSync(join(OUT_DIR, `${circuitId}.json`), JSON.stringify(data) + '\n');
       written++;
       rows.push({
@@ -391,7 +420,7 @@ async function main(): Promise<number> {
         samples: String(data.samples.length),
         lengthM: String(data.metrics.lapLengthM),
         diffPct: lengthDiff(circuitId, data.metrics.lapLengthM),
-        status: 'written',
+        status: rejections ? `written (fallback: ${rejections})` : 'written',
       });
     } catch (err) {
       if (err instanceof OpenF1LockedError) {

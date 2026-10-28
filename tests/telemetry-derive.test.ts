@@ -10,7 +10,14 @@ import {
   type RawCarSample,
   type RawLocation,
 } from '@/lib/telemetry/derive';
-import { matchSessionByStart, pickPoleLap } from '@/lib/telemetry/select';
+import {
+  firstPlausibleLap,
+  implausibleLap,
+  matchSessionByStart,
+  pickPoleLap,
+  TELEMETRY_LENGTH_TOLERANCE,
+  TELEMETRY_MAX_BRAKING_PCT,
+} from '@/lib/telemetry/select';
 import type { TelemetrySample } from '@/lib/telemetry/types';
 
 /**
@@ -209,5 +216,57 @@ describe('pickPoleLap', () => {
   it('skips pit-out laps, other cars and null durations, and takes the closest', () => {
     const laps = [lap(1, 81.786, true), lap(2, 81.786, false, 44), lap(3, null), lap(4, 81.787), lap(5, 81.7865)];
     expect(pickPoleLap(laps, 10, 81786)?.lap).toBe(5);
+  });
+});
+
+describe('plausibility gates', () => {
+  const m = (lapLengthM: number, brakingPct: number) => ({ metrics: { lapLengthM, brakingPct } });
+
+  it('keeps the named gate constants', () => {
+    expect(TELEMETRY_LENGTH_TOLERANCE).toBe(0.03);
+    expect(TELEMETRY_MAX_BRAKING_PCT).toBe(35);
+  });
+
+  it('passes on the boundaries and rejects beyond them', () => {
+    expect(implausibleLap(m(5150, 35).metrics, 5)).toBeNull();
+    expect(implausibleLap(m(4850, 10).metrics, 5)).toBeNull();
+    expect(implausibleLap(m(5151, 10).metrics, 5)).toMatch(/^length \+3\.0% vs facts$/);
+    expect(implausibleLap(m(4649, 10).metrics, 5)).toMatch(/^length -7\.0% vs facts$/);
+    expect(implausibleLap(m(5000, 35.1).metrics, 5)).toBe('brakingPct 35.1 > 35');
+  });
+
+  it('applies only the braking gate without a facts length', () => {
+    expect(implausibleLap(m(9000, 20).metrics, undefined)).toBeNull();
+    expect(implausibleLap(m(9000, 42.1).metrics, undefined)).not.toBeNull();
+  });
+
+  it('rejects a lap failing length or braking and picks the older season', async () => {
+    // 2026 fails length (-7.0 %), 2025 fails braking, 2024 passes.
+    const laps: Record<number, ReturnType<typeof m>> = { 2026: m(5400, 20), 2025: m(5800, 42.1), 2024: m(5810, 18) };
+    const out = await firstPlausibleLap([2026, 2025, 2024], async (y) => laps[y], 5.807);
+    expect(out.chosen?.candidate).toBe(2024);
+    expect(out.chosen?.lap).toBe(laps[2024]);
+    expect(out.rejected).toEqual([
+      { candidate: 2026, reason: 'length -7.0% vs facts' },
+      { candidate: 2025, reason: 'brakingPct 42.1 > 35' },
+    ]);
+  });
+
+  it('stops at the first passing season and returns null when none passes', async () => {
+    const built: number[] = [];
+    const first = await firstPlausibleLap(
+      [2026, 2025],
+      async (y) => {
+        built.push(y);
+        return m(5807, 20);
+      },
+      5.807,
+    );
+    expect(first.chosen?.candidate).toBe(2026);
+    expect(built).toEqual([2026]);
+
+    const none = await firstPlausibleLap([2026, 2025], async () => m(5807, 50), 5.807);
+    expect(none.chosen).toBeNull();
+    expect(none.rejected).toHaveLength(2);
   });
 });
