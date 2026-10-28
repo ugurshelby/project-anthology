@@ -36,8 +36,13 @@ import { GlossaryLinkedText } from '@/components/glossary/GlossaryLinkedText';
 
 // Same dynamic posture as /season: current-season rounds must pass the
 // staleness→live read path on every request; historical rounds are DB-stable.
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every 5 minutes (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 300;
+
+/** No build-time prerender: each URL is rendered on its first request, then served from the cache. */
+export function generateStaticParams() {
+  return [];
+}
 
 const MAX_ROUNDS = 35;
 

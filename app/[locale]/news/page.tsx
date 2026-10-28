@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 import { getLatestNews } from '@/lib/data/news';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { hasRealImage, sortWireByTime } from '@/lib/news/categories';
@@ -32,11 +33,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// DB-backed (news_stories, filled by the sync-news cron) — no live RSS on the request path.
+// DB-backed (news_stories, filled by the sync-news cron) — no live RSS on the request path. Cached, rebuilt at
+// most every 5 minutes and right after each sync-news run (caching design, DECISIONS 2026-10-28).
 export const revalidate = 300;
 
 export default async function NewsPage({ params }: PageProps) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const isTr = locale === 'tr';
   const news = await getLatestNews(80, { includeImageless: true });
 

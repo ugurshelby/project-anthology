@@ -3,7 +3,8 @@ import { getTranslations } from 'next-intl/server';
 import GridPage from '@/app/[locale]/grid/page';
 import { localizedAlternates } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every 10 minutes (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 600;
 
 export async function generateMetadata({
   params,
@@ -19,13 +20,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function DriversIndexPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ season?: string }>;
-}) {
+export default async function DriversIndexPage({ params }: { params: Promise<{ locale: string; year?: string }> }) {
   // The grid is always grouped by team (owner rule, apex-component-rules.md §4).
-  return GridPage({ params, searchParams });
+  return GridPage({ params });
 }

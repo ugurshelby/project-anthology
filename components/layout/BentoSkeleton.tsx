@@ -1,3 +1,7 @@
+'use client';
+
+// Client component: translations come from the layout's NextIntlClientProvider. As a server component it
+// resolved the locale through headers(), which made every route that renders it dynamic (caching design 2026-10-28).
 import { useTranslations } from 'next-intl';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 
@@ -11,7 +15,7 @@ const SPAN: Record<Span, string> = {
 };
 
 /**
- * Generic loading skeleton for force-dynamic bento pages — shown by Next.js
+ * Generic loading skeleton for bento pages — shown by Next.js
  * while the route's async data (Supabase/Jolpica fetches) resolves.
  *
  * At least one viewport tall: a shorter skeleton lets the footer appear on

@@ -39,8 +39,13 @@ interface PageProps {
   params: Promise<{ id: string; locale: string }>;
 }
 
-/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every hour (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 3600;
+
+/** No build-time prerender: each URL is rendered on its first request, then served from the cache. */
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;

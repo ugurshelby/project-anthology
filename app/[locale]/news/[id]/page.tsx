@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { NewsCover } from '@/components/news/NewsCover';
@@ -14,8 +14,13 @@ interface PageProps {
   params: Promise<{ id: string; locale: string }>;
 }
 
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every hour (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 3600;
+
+/** No build-time prerender: each URL is rendered on its first request, then served from the cache. */
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
@@ -40,6 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { id, locale } = await params;
+  setRequestLocale(locale);
   const item = await getNewsById(id);
   if (!item) notFound();
 

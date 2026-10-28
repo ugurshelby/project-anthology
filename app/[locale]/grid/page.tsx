@@ -14,7 +14,8 @@ import { SeasonRail } from '@/components/history/SeasonRail';
 import { seasonRailYears } from '@/lib/history/seasons';
 import { enginesFor } from '@/lib/history/enrich';
 
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every 10 minutes (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 600;
 
 export async function generateMetadata({
   params,
@@ -34,17 +35,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function GridPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ season?: string }>;
-}) {
-  const { locale } = await params;
+/**
+ * `year` is set only on the `season/[year]` variant routes; the proxy rewrites `?season=` there so this page never
+ * reads searchParams and stays cacheable (master-plan "Teknik borç", caching design 2026-10-28).
+ */
+export default async function GridPage({ params }: { params: Promise<{ locale: string; year?: string }> }) {
+  const { locale, year } = await params;
   setRequestLocale(locale);
-  const resolvedSearchParams = await searchParams;
-  const raw = Number(resolvedSearchParams.season);
+  const raw = Number(year);
   const requested = Number.isInteger(raw) && raw >= F1_SEASON_MIN && raw <= CURRENT_SEASON ? raw : CURRENT_SEASON;
   const [{ season, groups, flat }, { rows: teamRows }, headToHead, teamPoints] = await Promise.all([
     getDriversByTeam(requested),

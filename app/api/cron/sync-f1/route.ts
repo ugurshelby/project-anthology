@@ -22,6 +22,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateSitePages } from '@/lib/cache/revalidate';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
 import { CURRENT_SEASON, isRaceWeekend, getLiveOrNextRace, type CalendarRace } from '@/lib/f1Calendar';
 import { getCircuitFacts } from '@/data/circuits/facts';
@@ -469,6 +470,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const qualifying = await syncProvisionalSessionFromOpenF1({ kind: 'qualifying', races, now, stats });
     const sprint = await syncProvisionalSessionFromOpenF1({ kind: 'sprint', races, now, stats });
 
+    // Cached pages show the new rows on their next request instead of after their revalidate window.
+    const wrote =
+      stats.upserted > 0 ||
+      provisional.status === 'written' ||
+      qualifying.status === 'written' ||
+      sprint.status === 'written';
+    const revalidated = wrote ? revalidateSitePages('sync-f1') : false;
+
     return NextResponse.json({
       source: 'jolpica',
       scope,
@@ -478,6 +487,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       settled: settledSkips,
       provisional,
       provisionalSessions: { qualifying, sprint },
+      revalidated,
       errors: stats.errors,
       durationMs: Date.now() - startedAt,
     });

@@ -14,6 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateSitePages } from '@/lib/cache/revalidate';
 import { fetchRawNews } from '@/lib/news/aggregate';
 import { buildStoryRows, NEWS_RETENTION_MS } from '@/lib/news/stories';
 import { isCronAuthorized, isCronTriggerAllowed } from '@/lib/cronAuth';
@@ -79,6 +80,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (c.error) errors.push(`news_cache retention: ${c.error.message}`);
     else deleted += c.count ?? 0;
 
+    // The news pages and the home wire are cached; show the new stories on their next request.
+    const revalidated = stories > 0 || deleted > 0 ? revalidateSitePages('sync-news') : false;
+
     return NextResponse.json({
       stories,
       merged: stats.merged,
@@ -89,6 +93,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       aiConfigured: stats.aiConfigured,
       vertex: stats.vertex,
       deleted,
+      revalidated,
       errors,
       durationMs: Date.now() - startedAt,
     });

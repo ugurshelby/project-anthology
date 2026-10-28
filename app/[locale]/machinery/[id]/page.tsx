@@ -5,7 +5,7 @@ import { Link } from '@/i18n/routing';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TechnicalDossier } from '@/components/profile/TechnicalDossier';
-import { getMachineryCar, getAllMachineryCars } from '@/data/machinery/cars';
+import { getMachineryCar } from '@/data/machinery/cars';
 import { MachineryVisual } from '@/components/machinery/MachineryVisual';
 import { getMedia } from '@/lib/media/read';
 import { localizedAlternates, vehicleJsonLd } from '@/lib/seo';
@@ -16,11 +16,12 @@ interface PageProps {
   params: Promise<{ id: string; locale: string }>;
 }
 
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every hour (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 3600;
 
-export async function generateStaticParams() {
-  const cars = getAllMachineryCars();
-  return cars.map((c) => ({ id: c.id }));
+/** No build-time prerender: each URL is rendered on its first request, then served from the cache. */
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

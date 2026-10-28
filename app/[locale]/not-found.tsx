@@ -1,3 +1,7 @@
+'use client';
+
+// Client component: translations come from the layout's NextIntlClientProvider. As a server component it
+// resolved the locale through headers(), which made every route that renders it dynamic (caching design 2026-10-28).
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 

@@ -37,6 +37,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+/** Car photos come from the media table: cached, rebuilt at most every hour (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 3600;
+
 export default async function MachineryPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);

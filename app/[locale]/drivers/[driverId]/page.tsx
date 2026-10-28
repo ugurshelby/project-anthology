@@ -42,12 +42,18 @@ const RelatedNewsList = nextDynamic(
   () => import('@/components/news/RelatedNewsList').then((m) => m.RelatedNewsList)
 );
 
-/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
-export const dynamic = 'force-dynamic';
+/**
+ * Cached per URL, rebuilt at most every 10 minutes (caching design, DECISIONS 2026-10-28). `?season=` reaches this
+ * page as the `year` param of the `season/[year]` variant route (proxy rewrite), never as searchParams.
+ */
+export const revalidate = 600;
+
+export function generateStaticParams() {
+  return [];
+}
 
 type PageProps = {
-  params: Promise<{ driverId: string; locale: string }>;
-  searchParams: Promise<{ season?: string }>;
+  params: Promise<{ driverId: string; locale: string; year?: string }>;
 };
 
 function parseSeason(raw: string | undefined): number | undefined {
@@ -116,9 +122,9 @@ function extractDriverRounds(
   return list;
 }
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const { driverId, locale } = await params;
-  const view = await getDriverView(driverId, parseSeason((await searchParams).season), locale);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { driverId, locale, year } = await params;
+  const view = await getDriverView(driverId, parseSeason(year), locale);
   const tp = await getTranslations({ locale, namespace: 'ui.pages.driver' });
   if (!view) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('driver') };
 
@@ -143,10 +149,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   };
 }
 
-export default async function DriverProfilePage({ params, searchParams }: PageProps) {
-  const { driverId, locale } = await params;
+export default async function DriverProfilePage({ params }: PageProps) {
+  const { driverId, locale, year } = await params;
   setRequestLocale(locale);
-  const view = await getDriverView(driverId, parseSeason((await searchParams).season), locale);
+  const view = await getDriverView(driverId, parseSeason(year), locale);
   if (!view) notFound();
 
   const t = await getTranslations({ locale, namespace: 'history' });

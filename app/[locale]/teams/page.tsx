@@ -3,7 +3,8 @@ import { getTranslations } from 'next-intl/server';
 import GridPage from '@/app/[locale]/grid/page';
 import { localizedAlternates } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every 10 minutes (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 600;
 
 export async function generateMetadata({
   params,
@@ -19,12 +20,6 @@ export async function generateMetadata({
   };
 }
 
-export default async function TeamsIndexPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ season?: string }>;
-}) {
-  return GridPage({ params, searchParams });
+export default async function TeamsIndexPage({ params }: { params: Promise<{ locale: string; year?: string }> }) {
+  return GridPage({ params });
 }

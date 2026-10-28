@@ -26,12 +26,18 @@ import { TeamDnaSection } from '@/components/history/TeamDnaSection';
 import { getMachineryCarsForTeam } from '@/data/machinery/cars';
 import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
 
-/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
-export const dynamic = 'force-dynamic';
+/**
+ * Cached per URL, rebuilt at most every 10 minutes (caching design, DECISIONS 2026-10-28). `?season=` reaches this
+ * page as the `year` param of the `season/[year]` variant route (proxy rewrite), never as searchParams.
+ */
+export const revalidate = 600;
+
+export function generateStaticParams() {
+  return [];
+}
 
 type PageProps = {
-  params: Promise<{ constructorId: string; locale: string }>;
-  searchParams: Promise<{ season?: string }>;
+  params: Promise<{ constructorId: string; locale: string; year?: string }>;
 };
 
 function parseSeason(raw: string | undefined): number | undefined {
@@ -40,9 +46,9 @@ function parseSeason(raw: string | undefined): number | undefined {
   return Number.isInteger(parsed) ? parsed : undefined;
 }
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const { constructorId, locale } = await params;
-  const view = await getTeamView(constructorId, parseSeason((await searchParams).season));
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { constructorId, locale, year } = await params;
+  const view = await getTeamView(constructorId, parseSeason(year));
   const tp = await getTranslations({ locale, namespace: 'ui.pages.team' });
   if (!view) return { title: (await getTranslations({ locale, namespace: 'system.entityNotFound' }))('team') };
 
@@ -64,10 +70,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   };
 }
 
-export default async function TeamProfilePage({ params, searchParams }: PageProps) {
-  const { constructorId, locale } = await params;
+export default async function TeamProfilePage({ params }: PageProps) {
+  const { constructorId, locale, year } = await params;
   setRequestLocale(locale);
-  const view = await getTeamView(constructorId, parseSeason((await searchParams).season));
+  const view = await getTeamView(constructorId, parseSeason(year));
   if (!view) notFound();
 
   const t = await getTranslations({ locale, namespace: 'history' });

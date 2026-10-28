@@ -14,8 +14,8 @@ import { BentoCard } from '@/components/bento/BentoCard';
 import { LatestRaceCard } from '@/components/home/LatestRaceCard';
 import { localizedAlternates } from '@/lib/seo';
 
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every 5 minutes (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,

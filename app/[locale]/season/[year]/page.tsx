@@ -27,8 +27,13 @@ import { seasonRailYears } from '@/lib/history/seasons';
 import { getMachineryCarsForSeason } from '@/data/machinery/cars';
 import { MachineryCrossLink } from '@/components/machinery/MachineryCrossLink';
 
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every 5 minutes (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 300;
+
+/** No build-time prerender: each URL is rendered on its first request, then served from the cache. */
+export function generateStaticParams() {
+  return [];
+}
 
 interface PageProps {
   params: Promise<{ year: string; locale: string }>;

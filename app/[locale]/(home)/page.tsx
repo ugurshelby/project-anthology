@@ -15,7 +15,6 @@ import {
 } from '@/lib/f1/mrdata';
 import {
   CURRENT_SEASON,
-  F1_SEASON_MIN,
   isRaceDone,
   getLastFinishedRace,
   getLiveOrNextRace,
@@ -51,9 +50,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { formatDate, raceName, circuitName } from '@/lib/i18n/format';
 import { localizedAlternates } from '@/lib/seo';
 
-export const revalidate = 0;
-/** Vercel @vercel/next + Next 16 segment SSG packaging bug — force server render. */
-export const dynamic = 'force-dynamic';
+/** Cached per URL, rebuilt at most every minute (caching design, DECISIONS 2026-10-28). */
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -257,18 +255,11 @@ async function HomeArchiveBlock() {
   );
 }
 
-export default async function HomePage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ season?: string }>;
-}) {
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const raw = Number(resolvedSearchParams?.season);
-  const season = Number.isInteger(raw) && raw >= F1_SEASON_MIN && raw <= CURRENT_SEASON ? raw : CURRENT_SEASON;
+  // Always the current season: no page linked `/?season=`, and reading searchParams would make the page uncacheable.
+  const season = CURRENT_SEASON;
 
   return (
     <PageShell className="!pt-0 lg:!pt-0">
