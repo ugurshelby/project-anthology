@@ -4,11 +4,12 @@ name: lighthouse
 # mobile emulation with simulated throttling, 3 runs per page, against the deployed
 # site. Pages are the paths in scripts/capture-screenshots.ts (PAGES); the host comes
 # from the repo variable SITE_URL. Manual only, no secrets; the reports are uploaded
-# as a workflow artifact (read medians with `gh run download` + jq).
+# as workflow artifacts, one per shard (read medians with `gh run download` + jq).
 #
-# Each page runs on its own with a pause in between: one runner IP loading 48 pages back
-# to back met a 403 from the platform's bot protection on the first run (2026-10-28).
-# A page that still fails is listed in the job summary and the others are kept.
+# One runner IP loading 48 pages back to back met a 403 from the platform's bot
+# protection (2026-10-28: 5 of 16 pages after ~30 loads). The pages are split over four
+# shards, each on its own runner (12 loads), each page still followed by a pause. A page
+# that still fails is listed in the job summary and the others are kept.
 
 on:
   workflow_dispatch:
@@ -19,7 +20,11 @@ permissions:
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v7
 
@@ -30,26 +35,31 @@ jobs:
       - name: Collect
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+          SHARD: ${{ matrix.shard }}
         run: |
           set -uo pipefail
           base="${SITE_URL:-https://project-anthology-eight.vercel.app}"
           base="${base%/}"
           failed=()
+          i=0
           for path in $(grep -oE "path: '/[^']*'" scripts/capture-screenshots.ts | sed -E "s/path: '([^']*)'/\1/"); do
-            if ! npx --yes @lhci/cli@0.15.1 collect --additive --numberOfRuns=3 --url="${base}${path}"; then
-              failed+=("${path}")
+            if [ $((i % 4)) -eq "$SHARD" ]; then
+              if ! npx --yes @lhci/cli@0.15.1 collect --additive --numberOfRuns=3 --url="${base}${path}"; then
+                failed+=("${path}")
+              fi
+              sleep 20
             fi
-            sleep 20
+            i=$((i + 1))
           done
           npx --yes @lhci/cli@0.15.1 upload --target=filesystem --outputDir=./lhci-reports || true
           if [ "${#failed[@]}" -gt 0 ]; then
-            echo "Failed pages: ${failed[*]}" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "Shard ${SHARD} failed pages: ${failed[*]}" | tee -a "$GITHUB_STEP_SUMMARY"
           fi
 
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: lighthouse-reports
+          name: lighthouse-reports-${{ matrix.shard }}
           path: lhci-reports
           retention-days: 14
           if-no-files-found: warn
