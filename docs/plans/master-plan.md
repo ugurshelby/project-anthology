@@ -63,7 +63,8 @@
   4. §4 sonuç tablosuna R18 sütunu ekle; `Last verified: 2026-10-2x` satırını güncelle.
 - Doğrulama: `grep -n "R18" docs/reference/yaris-hafta-sonu-dogrulama.md` ≥ 4 satır; `grep -c "R17 için zaman çizelgesi"` = 0.
 
-### [~] 1.3 R18 snapshot yeniden yazmama (settle sonrası)
+### [x] 1.3 R18 snapshot yeniden yazmama (settle sonrası)
+- Kapanış 2026-10-29 (Opus, salt-okur SQL): R18 `results` 10-26 22:30:07Z, `pitstops` 22:30:09Z (< 23:00Z); `standings_drivers` 23:00:08Z, `standings_constructors` 23:00:08Z (< 23:30Z); hepsi `jolpica`. PASS; md5'ler `logs/2026-10-29.md`.
 - Run: Sonnet / low — read-only SQL, tek ölçüm
 - Owner: Sonnet · Depends on: 2026-10-27 00:00Z sonrası, R19 hafta sonundan (2026-10-30) önce · Dalga 3 (oturum R'nin ilk adımı)
 - Ölçüt (`DECISIONS.md` 2026-10-26 karar 2): settle eşiğine (due + 24 sa) kadar her tikte yeniden yazım tasarım gereği. Geçer: R18 `results` ve `pitstops` `fetched_at` < 2026-10-26 23:00Z; `standings_drivers` ve `standings_constructors` (`round` NULL, `StandingsTable.round` 18) `fetched_at` < 2026-10-26 23:30Z; hepsi `source='jolpica'`. `md5(data::text)` 00:37Z değerlerinin yanına yazılır (`logs/2026-10-26.md`); fark başarısızlık değildir.
@@ -165,7 +166,8 @@ Sahip tanımı (2026-10-20): tüm görseller eksiksiz ve hızlı yüklenir, plac
 
 Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım logoları: cevaplandı 2026-10-27, resmî ve Commons logoları kalkar, 11 takım tek tasarım işareti → 8.11, 8.11b; (2) haber fotoğrafları: 197/223 yayıncı fotoğrafı lisans kaydı olmadan → 8.9 kapsamı; (3) Lusail, Madring, Las Vegas: 8.8 aday listesinden dosya ya da pist çizimi; (4) hikâye: 57 `unverified` → 16.6 erkene alınır mı.
 
-### [~] 8.1 Arşiv kimlik eşleşmesi (F1DB ↔ Jolpica)
+### [x] 8.1 Arşiv kimlik eşleşmesi (F1DB ↔ Jolpica)
+- Kapanış 2026-10-29 (Opus): canlı `/api/media` `carlos-sainz-jr`, `kimi-antonelli`, `melbourne`, `paul-ricard`, `sirius` → `image`; takım anahtarları 8.11b gereği `placeholder`. K1 evren farkı (takım hariç) yalnızca `hit` dolu 6 satır: jeddah, las-vegas/vegas, losail/lusail, madring `missing` (kaynak boşluğu, 8.8).
 - Durum 2026-10-28: kod + test bitti (7b1bdb7). Açık: push, ≥ 5 `sync-media` koşusu, canlı `/api/media` kontrolleri.
 - Run: Sonnet / high — eşleşme kenar durumları, yanlış alias riski
 - Owner: Sonnet · Depends on: 14.2 `main`'de · Dalga 4 (oturum T, ilk adım)
@@ -194,14 +196,16 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: `DriverProfileHero` medya dalı: `next/image` `loader={variantLoader(mediaResult.image.variants)}` (varyant > 1 ise, `unoptimized` yalnızca tek varyantta), `priority` yerine `fetchPriority="high"` + `loading="eager"`, `sizes="(max-width: 768px) 155vw, 80vw"` (ölçülen kutu: 375 px'te 582 css, ölçek 1,55; 1440 px'te 1131 css). `ApexImage` dalı değişmez (8.2 kapsar). `MachineryCard` `priority?: boolean` alır, `MachineryVisual`'a geçirir; `machinery/page.tsx` ilk karta (`index === 0`) `priority` verir.
 - Doğrulama: `npx tsc --noEmit` 0; `npx eslint <3 dosya>` 0; `npx vitest related --run <3 dosya>` yeşil. Tarayıcı 375 ve 1440 px: `/tr/drivers/alonso`, `/tr/drivers/norris` LCP `img` `fetchpriority=high`, `currentSrc` satırın en büyük varyantı; `/tr/machinery` LCP `img` `loading` ≠ `lazy`.
 
-### [ ] 8.4 Antoloji ilk kartı
+### [x] 8.4 Antoloji ilk kartı
+- Kapanış 2026-10-29 (Opus): `f700706`; ilk kart `priority` (`fetchpriority=high`, `loading=eager`), dar kart `45vw`. Lighthouse `/tr/anthology` medyan LCP 3,34 sn (LCP öğesi ilk kartın görseli).
 - Run: Haiku / low — tam tarifli iki prop
 - Owner: Haiku · Depends on: 8.2 ve 20.1 `main`'de (aynı klasör) · Dalga 5
 - Dosyalar: `components/anthology/StoryCard.tsx`, `app/[locale]/anthology/page.tsx`
 - Değişiklik: `StoryCard` `priority?: boolean` alır, `ApexImage`'a `priority={priority}` geçirir; dar kart `sizes` `'(max-width: 768px) 100vw, 33vw'` → `'(max-width: 768px) 100vw, 45vw'` (ölçülen: 1440 px'te 635 css). Sayfa: `<StoryCard story={lead} wide priority />`.
 - Doğrulama: `npx tsc --noEmit` 0; `npx eslint` 2 dosya 0; tarayıcı `/tr/anthology` 375 px LCP `img` `loading` ≠ `lazy`, `fetchpriority=high`.
 
-### [~] 8.5 Pilot görseli 1280 px ve ara genişlik
+### [x] 8.5 Pilot görseli 1280 px ve ara genişlik
+- Kapanış 2026-10-29 (Opus): çözülmüş pilot genişlikleri 1280: 39, kalan 20 satır kaynak genişliğinde (433–1200; büyütme yok). Önce 640: 55, 320: 5.
 - Durum 2026-10-28: kod + test bitti (be7704b; `needsLargerVariants` hedefi `plannedWidths`'in verdiği en geniş genişlik, 700 px kaynakta sonsuz yeniden kuyruk olmasın diye; kayıtlı merdiven yoksa 1280 öncesi merdiven varsayılır). Açık: `wip/` build, canlı genişlik sayımı.
 - Run: Sonnet / high — medya hattı, Storage yazımı, yeniden işleme
 - Owner: Sonnet · Depends on: 8.1 (aynı `sync.ts`) · Dalga 4 (oturum T)
@@ -230,7 +234,7 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Doğrulama: (b) test: `curatedFiles` verilen takvim pisti önce curated aşamasını dener; `npx vitest run tests/media-resolve-stages.test.ts` yeşil; deploy + bir `sync-media` sonra seçilen pistler `status = 'resolved'`, `source_file` seçilen dosya; `/tr/circuits` yer tutucu sayısı = "çizim kalsın" denen pist sayısı.
 
 ### [x] 8.9 Haber: lisanslı yedek görsel ve yeniden yoklama (sunucu)
-- Kapanış 2026-10-28 (Opus): `lib/news/fallbackImage.ts` `pickNewsEntity` (sözcük sınırı, aksan katlı, başlık önce, pilot > takım > pist); `lib/data/news.ts` `withFallbackMedia` (güncel sezon pilot/takım snapshot'ları + takvim; tür başına tek `getMediaBatch`; `getLatestNews` ve `getNewsById`); `lib/news/stories.ts` son 48 saatin kapakları koşu başına en çok 60 yeniden yoklanır, ölü kapak → başka üye görseli ya da `null`. Sapma (sahip kararı 2026-10-27, 8.11b): takım eşleşmesi logo değil o sezonun araç fotoğrafı (`car`, `<constructorId>:<sezon>`). Kapsam: yalnızca görseli olmayan öğeler (sahip sorusu 2 cevapsız, plan varsayılanı). `tests/news-fallback-image.test.ts` 7 test.
+- Kapanış 2026-10-28 (Opus): `lib/news/fallbackImage.ts` `pickNewsEntity` (sözcük sınırı, aksan katlı, başlık önce, pilot > takım > pist); `lib/data/news.ts` `withFallbackMedia` (güncel sezon pilot/takım snapshot'ları + takvim; tür başına tek `getMediaBatch`; `getLatestNews` ve `getNewsById`); `lib/news/stories.ts` son 48 saatin kapakları koşu başına en çok 60 yeniden yoklanır, ölü kapak → başka üye görseli ya da `null`. Sapma (sahip kararı 2026-10-27, 8.11b): takım eşleşmesi logo değil o sezonun araç fotoğrafı (`car`, `<constructorId>:<sezon>`). Kapsam: yalnızca görseli olmayan öğeler (sahip kararı 2026-10-29: "fotoğrafı olan haberde arşiv görseli saçma"; sahip sorusu 2 kapandı). `tests/news-fallback-image.test.ts` 7 test.
 - Run: Sonnet / high — haber hattı, okuma katmanı, kenar durumlar
 - Owner: Sonnet · Depends on: 14.5 (`lib/data/news.ts`, `tests/news-stories.test.ts`) ve 19.1 `main`'de; kapsam için sahip sorusu 2 · Dalga 5
 - Dosyalar: yeni `lib/news/fallbackImage.ts`, `lib/data/types.ts`, `lib/data/news.ts`, `lib/news/stories.ts`, yeni `tests/news-fallback-image.test.ts`, `tests/news-stories.test.ts`
@@ -257,7 +261,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: sahip kararı (2026-10-27, `DECISIONS.md`): resmî ve Commons takım logoları arayüzden kalkar. Arayüzde `MediaAssetView type="team"` ve `getMedia('team', …)` kalmaz; 11 takım aynı özgün kelime işaretini gösterir (takım rengi, `TeamPlaceholder` dili; resmî logo taklidi yok). İşaret yer tutucu değil tasarım öğesidir: `aria-label` "<takım> takım işareti" / "<team> team mark" (`messages`), "typography badge" değil. Takım satırları ve Storage dosyaları bu adımda değişmez (8.11b).
 - Doğrulama: `grep -rnE "type=\"team\"|getMedia(Batch)?\('team'" components app` boş; tarayıcı `/tr/grid`, `/tr/teams`, `/tr/teams/ferrari` 375 ve 1440 px: 11 takım aynı işaret dili, takım logosu `img` 0; K3 taramasında etiketler "takım işareti".
 
-### [~] 8.11b Takım logosu temini ve sunumu durur
+### [x] 8.11b Takım logosu temini ve sunumu durur
+- Kapanış 2026-10-29 (Opus): canlı `/api/media?type=team&keys=kick-sauber,mercedes` → ikisi `placeholder`; deploy (10-28 ~16:20Z) sonrası `sync-media` pist satırlarını işledi (17:41Z), takım satırı en son 11:42Z (dokunulmadı).
 - Durum 2026-10-28 (Opus): kod bitti — `TEAM_LOGOS_ENABLED = false` (`lib/media/types.ts`), keşif `team` üretmez, `claimDue` `team` satırını sorguda dışlar (kuyruk başını tıkamasın diye sonradan elemek yerine), `getMediaBatch('team')` sorgusuz yer tutucu. Testler: `media-sync` (takım satırı işlenmez; merdiven testi pist satırına taşındı), `media-read` (sorgu yok). `media-sistemi.md` §1 notu. Açık (canlı): deploy sonrası `/api/media?type=team&keys=mercedes` → `placeholder`; sonraki `sync-media` raporunda takım öğesi 0.
 - Run: Sonnet / medium — üç dosyada tür dışlama, bilinen davranış testleri
 - Owner: Sonnet · Depends on: 8.11 ve oturum T (8.1, 8.5; aynı `lib/media/*`) `main`'de · Dalga 5
@@ -266,6 +271,7 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Doğrulama: test: `getMediaBatch('team', ['mercedes'])` Supabase istemcisini çağırmadan `placeholder`; bellek deposunda vadesi gelmiş takım satırı işlenmez; keşif `team` üretmez, `car` üretir. `npx vitest run tests/media-sync.test.ts tests/media-read.test.ts` yeşil; `npx tsc --noEmit` 0; eslint 0. Canlı: deploy sonrası `/api/media?type=team&keys=mercedes` → `"status":"placeholder"`; sonraki `sync-media` raporunda takım öğesi 0.
 
 ### [~] 8.12 Lighthouse laboratuvar ölçümü (K2 süre)
+- Durum 2026-10-29 (Opus): 403 çözüldü: sayfalar dört runner parçasına bölündü (`09823fc`), run 40766646828'de 16/16 sayfa ölçüldü. Önbellek sonrası TTFB 2–25 ms (önce 380–860 ms); medyan LCP 3,02–5,94 sn, CLS ≤ 0,018 → **K2 hâlâ FAIL**. LCP öğesi artık çoğunlukla görsel: grid/pilot/takım sayfalarında görsel istemcide `/api/media` ile geç keşfediliyordu (yükleme gecikmesi 5–7 sn) → sunucuda okunuyor, ilk panel öncelikli (`f4666ec`); sezon sayfalarında tam ekran `film-grain` katmanı LCP sayılıyordu → `::before`'a taşındı. Kalan: simüle 4× CPU'da hidrasyon JS'i (render gecikmesi 0,3–2,5 sn) ve mobilde 60–150 KB görseller. 8.13 bu düzeltmelerle yeniden ölçer.
 - Durum 2026-10-28 (Opus): workflow kuruldu ve koşuldu (run 40728056408; sayfa sayfa, aralarda 20 sn). **K2 FAIL:** ölçülen 11 sayfada medyan LCP 3,25–5,72 sn (eşik 2,5), CLS her yerde 0; 5 sayfa (`/tr/anthology`, hikâye, `/tr/machinery`, araç detayı, sözlük) Vercel 403 (aynı runner IP'sinden ~30 yüklemeden sonra platform bot koruması). LCP öğesi çoğunlukla metin → darboğaz görsel değil, önbelleğe alınmayan sayfa + JS (Teknik borç "CDN'de önbellek yok"). Ferrari hero aracı LCP'ydi ve önceliksizdi (keşif 0) → `priority` + `sizes` verildi. Açık: önbellek/ISR tasarımı (Opus O4) sonrası yeniden ölçüm; 403 için workflow iki parçaya bölünebilir ya da firewall'da runner istisnası (sahip kararı).
 - Run: Sonnet / medium — elle tetiklenen yeni workflow ve ölçüm
 - Owner: Sonnet · Depends on: 8.2, 8.3, 8.5 `main`'de; H (14.2) ve I (1.6) workflow dosyalarına dokunmaz · Dalga 5
@@ -700,11 +706,11 @@ Not: GCP kredisi 2026-12-18'de biter; 9.7 kapanışı 2026-12-12 → 14 sabit ta
 | Yasal adresler, logo | `.example` yer tutucu, geçici logo | 16.1, 16.2 |
 | C-7 yerel `next start` SSL uyarısı | Yalnızca yerel; canlıyı etkilemez | izlenir |
 | Sayfalar CDN'de önbelleğe alınmıyor | 2026-10-26: 16/16 sayfa `Cache-Control: private, no-cache, no-store`, art arda istekte `X-Vercel-Cache: MISS`, her yanıtta `Set-Cookie: NEXT_LOCALE` (`revalidate = 900` diyen `/tr/anthology` dahil); TTFB 0,38–0,86 s | **Kapandı 2026-10-28 (Opus O4):** her sayfa ISR + sync sonrası yeniden doğrulama, `?season=` proxy ile `season/[year]` varyantına (`DECISIONS.md` "Page caching design"); K2 8.13'te yeniden ölçülür |
-| `public/news-fallback.json` yok | 14.5 sonrası zincirin son adımı `[]` döner (davranış değişmedi) | Sonnet kuyruğunda 8.9 ile değerlendirilir |
-| `aggregate()` çağıransız | `lib/news/aggregate.ts`; `sync-news` `fetchRawNews` kullanıyor | 19.2 sırasında silinir ya da bağlanır |
+| `public/news-fallback.json` yok | **Kapandı 2026-10-29:** statik dosya adımı kaldırıldı; iki tablo boşsa liste boş, sayfa boş durumunu gösterir (eski manşet güncel gibi okunurdu) | `e1a4017` |
+| `aggregate()` çağıransız | **Kapandı 2026-10-29:** `aggregate()`, bellek önbelleği ve `verifyImages` silindi | `e1a4017` |
 | Ara commit'lerde geçersiz JSON | `631675b..ff9b422` arası `messages/*.json` geçersiz, `7354c9c` düzeltti; bisect bu aralıkta i18n testinde kırılır | bilgi |
 | CSP `script-src 'unsafe-inline' 'unsafe-eval'` | XSS'e karşı CSP koruması zayıf; bugün güvenilmeyen HTML girdisi yok (2026-10-28 denetimi) | nonce reddedildi (sayfaları yeniden dinamik yapar, 2026-10-28 önbellek tasarımı); ileride hash tabanlı CSP |
-| `server-only` koruması yok | `getSupabaseAdmin` bir istemci dosyasından içe aktarılırsa yapısal engel yok | `server-only` paketi + vitest takma adı (Sonnet, küçük) |
-| Satır içi `isTr ?` çiftleri | 104 satır, 14 dosya (`machinery/[id]` 44) | `messages`'a taşınır (Sonnet, Faz 20 sonrası) |
-| Kullanılmayan dışa aktarımlar | `lib/news`, `lib/f1`, `lib/media`'da 51 sembol | 19.2 / 8.11b sırasında temizlik |
+| `server-only` koruması yok | **Kapandı 2026-10-29:** paket kullanılmadı (tsx ile koşan seed betikleri `lib/supabase`'i içe aktarıyor, paket orada hata fırlatır); yerine `tests/client-server-boundary.test.ts`: hiçbir `'use client'` dosyası sunucu modülü içe aktaramaz | `b7aab65` |
+| Satır içi `isTr ?` çiftleri | 2026-10-29: 104 → 38; araç detayı, araç listesi/kartı/çapraz bağlantı, haber detayı, ana sayfa antoloji kartı `messages`'ta (`ui.machinery.*`, `ui.news.article`, `ui.home.anthologyCard`). Kalan 38'in çoğu veri alanı seçimi (`car.eraTr : car.era`) ve URL; 11 arayüz metni (antoloji/haber sayfa başlıkları, sözlük) | kalan 11 metin küçük iş (Sonnet) |
+| Kullanılmayan dışa aktarımlar | **Kapandı 2026-10-29:** hiçbir yerde kullanılmayan 11 bileşen dosyası, `lib/circuits-public.ts` ve 17 lib fonksiyon/tipi silindi; kalan dışa aktarımlar dosya içinde kullanılan tipler (imza tipi olarak kalır) | `4cbc266` |
 | `any` / `eslint-disable` | 0 | korunur |

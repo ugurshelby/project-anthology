@@ -241,3 +241,9 @@ Architect appends; newest last. One entry per decision.
 - Cost: an ISR regeneration is one function invocation, as every page view was before; views between regenerations cost none. On-demand revalidation only marks pages stale.
 - CSP: a nonce-based CSP needs a per-request render and would undo this; rejected. `'unsafe-inline'` stays; a hash-based policy is the later option (Teknik borç row updated).
 - Affects: master-plan "Teknik borç" (cache row closed, CSP row), O4; 8.13 re-measures K2 on the cached pages.
+
+## 2026-10-29 Owner answers and operator choices (Opus, owner: "insiyatif sende")
+- 8.9 scope (owner): archive photos only on news items without a publisher photo; "fotoğrafı olan haberde arşiv görseli saçma". Current behaviour kept; owner question 2 closed.
+- Lighthouse 403 (owner left it to the operator): no firewall exception (it would open a bypass for any GitHub runner IP). The 16 pages run in four matrix shards, one runner each (12 loads per IP); run 40766646828 measured 16/16 with no 403.
+- `server-only`: not adopted. The seed scripts (`seed-stories`, `verify-seed-coverage`) import `lib/supabase` under tsx, where the package's default export throws. A unit test now fails when any `'use client'` module imports a server module (`tests/client-server-boundary.test.ts`). The service-role key is a non-public env var, so Next never inlines it into a client bundle either way.
+- Static news fallback file: dropped instead of created. A hand-written file of old headlines would be shown as current news when both tables are empty; an empty list shows the pages' empty state.

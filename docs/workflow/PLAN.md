@@ -20,7 +20,7 @@ Shared rules for every queue:
 Run: Opus 5.5 / high for the script change, then `/effort medium` for the run — owner-mandated model (Faz 13).
 Depends on: 13.2 on `main` (done). Run outside any F1 session window (R19 FP1 starts 2026-10-30).
 Steps:
-- [~] 13.3 — done locally 2026-10-28 (`6f6a8fc` gates, `a9a36e5` data; log "13.3 track telemetry run with gates"); open: `wip/` CI + preview, push with owner approval. Master-plan "13.3" including the 2026-10-28 addition (length ±3 % and `brakingPct` ≤ 35 gates, fall back one then two seasons, else skip and log).
+- [x] 13.3 — done 2026-10-28 (`6f6a8fc` gates, `a9a36e5` data; on `main`, 13.4 built on it). Master-plan "13.3" including the 2026-10-28 addition (length ±3 % and `brakingPct` ≤ 35 gates, fall back one then two seasons, else skip and log).
 Acceptance: master-plan 13.3 verify; the day's log has the summary table and every fallback or skip with its reason.
 Stop conditions: more than a third of circuits skipped, or OpenF1 terms or shape changed → `OPEN.md` `To: Opus` (answer it in the same session as Architect, in `DECISIONS.md`).
 
@@ -28,11 +28,11 @@ Stop conditions: more than a third of circuits skipped, or OpenF1 terms or shape
 Run: Opus / medium — audit, commit, push.
 After each finished Sonnet or Haiku step: commits, scope, gates (`npx tsc --noEmit`, `npm run lint`, `npx vitest run`), i18n balance, no attribution, browser check for UI steps; answer `OPEN.md`; tick or reopen boxes; push with the owner's approval.
 
-### O3 — 9.4 GCP service selection (Architect) — done 2026-10-28
+### O3 — 9.4 GCP service selection (Architect) — done 2026-10-28 (`DECISIONS.md` "9.4")
 Run: Opus / xhigh — cost, scope and security decision; no code.
 Depends on: 9.0 done. Target: by 2026-11-03 (credit ends 2026-12-18; 9.3 reminder early November).
 Steps:
-- [ ] 9.4 — master-plan "9.4".
+- [x] 9.4 — master-plan "9.4".
 
 ### O4 — 8.13 PASS verdict, then CDN/ISR caching design (caching done 2026-10-28)
 Run: Opus / medium for the 8.13 verdict; Opus / xhigh for caching (cost and architecture).
@@ -56,7 +56,7 @@ Run (queue): Sonnet / medium unless a step says otherwise.
 - [x] **S10 8.10** (2026-10-28, Opus) — master-plan "8.10" (needs 8.9 on `main`).
 - [x] **S11 8.11** (2026-10-28, Opus) — master-plan "8.11" (one designed team mark; owner reviews).
 - [~] **S12 8.11b** (code done 2026-10-28, Opus; live check after deploy) — master-plan "8.11b".
-- [ ] **S13 8.12** — master-plan "8.12" (needs 8.2, 8.3, 8.5 on `main`).
+- [~] **S13 8.12** (2026-10-29, Opus: four runner shards, 16/16 pages measured, K2 still FAIL; grid and season LCP fixes in) — master-plan "8.12".
 - [ ] **S14 8.13** — master-plan "8.13" measurement (PASS verdict in the Opus queue).
 - [x] **S15b 13.4** (2026-10-28, Opus; 15.2 still waits for the owner's 15.1 run)
 - [ ] **S15 15.2** — master-plan "15.2" (only after the owner ran 15.1), then **13.4** (needs 13.3 on `main`).
@@ -82,7 +82,7 @@ Acceptance: results in the day's log; boxes ticked where the expected result mat
 - [ ] When the provisional row exists: `/tr/season/2026/round/19` shows "Geçici sonuç · OpenF1" (1.11); when the Jolpica row replaces it, the label is gone.
 
 ### H3 — 8.4 Anthology first card
-- [ ] 8.4 — master-plan "8.4" (needs 8.2 on `main`).
+- [x] 8.4 (2026-10-29, Opus) — master-plan "8.4".
 
 ### H4 — Log retention (weekly)
 - [ ] Delete logs older than 15 days (master-plan 0.1 rule), only files under `logs/`.
