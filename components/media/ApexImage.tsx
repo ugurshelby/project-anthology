@@ -1,7 +1,7 @@
 'use client';
 
 import Image, { type ImageProps } from 'next/image';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ApexFallback, type ApexFallbackKind } from '@/components/media/ApexFallback';
 import { variantLoader } from '@/components/media/variantLoader';
 import { hasPublisherSizes, publisherImageLoader } from '@/lib/news/imageVariants';
@@ -17,6 +17,11 @@ type Props = Omit<ImageProps, 'src' | 'alt'> & {
    * downloading the largest file.
    */
   variants?: ReadonlyArray<{ w: number; src: string }>;
+  /**
+   * Drawn instead of the APEX wireframe when the image is missing or fails to load
+   * (news: the archive image, or nothing). Leave undefined for the wireframe.
+   */
+  fallback?: ReactNode;
 };
 
 /**
@@ -40,6 +45,7 @@ export function ApexImage({
   className = '',
   variants,
   priority,
+  fallback,
   ...rest
 }: Props) {
   const [failed, setFailed] = useState(false);
@@ -47,6 +53,7 @@ export function ApexImage({
   const usable = Boolean(src) && !failed;
 
   if (!usable) {
+    if (fallback !== undefined) return <>{fallback}</>;
     return <ApexFallback kind={kind} label={fallbackLabel} className={className} />;
   }
 

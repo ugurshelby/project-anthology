@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/routing';
-import { ApexImage } from '@/components/media/ApexImage';
+import { NewsCover } from '@/components/news/NewsCover';
+import { hasNewsCover } from '@/lib/news/categories';
 import { getNewsById } from '@/lib/data/news';
 import { localizedNewsTitle, localizedNewsSummary, newsDateLabel } from '@/lib/news/i18n';
 import { estimateReadMinutes } from '@/lib/news/categories';
@@ -45,7 +46,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const title = localizedNewsTitle(item, locale);
   const summary = localizedNewsSummary(item, locale);
   const readMins = estimateReadMinutes(summary, title);
-  const hasImage = Boolean(item.image && item.image !== '/placeholder.svg' && item.image.trim() !== '');
+  const hasImage = hasNewsCover(item);
   const isTr = locale === 'tr';
 
   const sourceLinks =
@@ -57,17 +58,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <main id="main-content" className="flex-1">
-      {/* Cover hero: ONLY rendered if a real image exists. Never a placeholder. */}
+      {/* Cover hero: the publisher photo or the licensed archive image (8.10). Never a placeholder. */}
       {hasImage ? (
         <section className="relative flex min-h-[45vh] flex-col justify-end overflow-hidden md:min-h-[50vh]">
-          <ApexImage
-            src={item.image}
-            alt=""
-            kind="media"
-            fill
-            priority
+          <NewsCover
+            item={item}
             sizes="100vw"
             className="pointer-events-none object-cover object-center"
+            priority
           />
           <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-bg/15" />
           <div className="relative z-10 flex flex-col gap-2.5 px-5 pb-8 pt-16 md:px-8 md:pb-10 lg:px-16 lg:pb-12 max-w-5xl">

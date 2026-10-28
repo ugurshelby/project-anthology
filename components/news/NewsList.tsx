@@ -1,9 +1,10 @@
 import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
-import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { localizedNewsTitle, localizedNewsSummary, newsDateLabel } from '@/lib/news/i18n';
-import { hasRealImage, estimateReadMinutes } from '@/lib/news/categories';
+import { estimateReadMinutes } from '@/lib/news/categories';
+import { NewsCover } from '@/components/news/NewsCover';
+import { hasNewsCover } from '@/lib/news/categories';
 
 /**
  * A single wire item — cover image when available, else a clean editorial row without placeholder noise.
@@ -11,7 +12,7 @@ import { hasRealImage, estimateReadMinutes } from '@/lib/news/categories';
  */
 export function WireItem({ item }: { item: NewsItem }) {
   const locale = useLocale();
-  const hasImage = hasRealImage(item);
+  const hasImage = hasNewsCover(item);
   const title = localizedNewsTitle(item, locale);
 
   return (
@@ -21,14 +22,12 @@ export function WireItem({ item }: { item: NewsItem }) {
     >
       {hasImage ? (
         <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-[var(--radius-chip)] md:h-16 md:w-24 bg-surface">
-          <ApexImage
-            src={item.image}
-            alt=""
-            fill
-            kind="media"
+          <NewsCover
+            item={item}
             sizes="(max-width: 768px) 400px, 96px"
-            loading="lazy"
             className="object-cover transition-transform duration-200 group-hover:scale-105"
+            showLabel={false}
+            showCredit={false}
           />
         </div>
       ) : (
@@ -83,7 +82,7 @@ export function NewsList({ items, heading }: { items: NewsItem[]; heading?: stri
 /** @deprecated Prefer NewsLeadBlock on /news — kept for any residual callers. */
 export function NewsHero({ item }: { item: NewsItem }) {
   const locale = useLocale();
-  const hasImage = hasRealImage(item);
+  const hasImage = hasNewsCover(item);
   const title = localizedNewsTitle(item, locale);
 
   return (
@@ -95,13 +94,9 @@ export function NewsHero({ item }: { item: NewsItem }) {
     >
       {hasImage ? (
         <>
-          <ApexImage
-            src={item.image}
-            alt=""
-            fill
-            kind="media"
+          <NewsCover
+            item={item}
             sizes="(max-width: 768px) 100vw, 768px"
-            loading="lazy"
             className="object-cover opacity-50 transition-opacity group-hover:opacity-60"
           />
           <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent" />
@@ -120,7 +115,7 @@ export function NewsHero({ item }: { item: NewsItem }) {
 /** Grid card for the /news listing — desktop 3-col grid item, mobile full-width stack. */
 export function NewsCard({ item }: { item: NewsItem }) {
   const locale = useLocale();
-  const hasImage = hasRealImage(item);
+  const hasImage = hasNewsCover(item);
   const title = localizedNewsTitle(item, locale);
   const summary = localizedNewsSummary(item, locale);
   const readMins = estimateReadMinutes(summary, title);
@@ -131,13 +126,9 @@ export function NewsCard({ item }: { item: NewsItem }) {
         href={`/news/${item.id}`}
         className="group relative flex min-h-[260px] flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline bg-surface p-5 transition-all duration-200 hover:border-white/20"
       >
-        <ApexImage
-          src={item.image}
-          alt=""
-          fill
-          kind="media"
+        <NewsCover
+          item={item}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          loading="lazy"
           className="object-cover opacity-60 transition-all duration-300 group-hover:scale-[1.02] group-hover:opacity-75"
         />
         <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-transparent" />

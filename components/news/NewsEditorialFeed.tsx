@@ -3,17 +3,17 @@
 import { useMemo, useState } from 'react';
 import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
-import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { localizedNewsTitle, newsDateLabel } from '@/lib/news/i18n';
 import {
   classifyNewsCategory,
-  hasRealImage,
   type NewsCategory,
 } from '@/lib/news/categories';
 import { NewsFilterBar } from '@/components/news/NewsFilterBar';
 import { NewsCard } from '@/components/news/NewsList';
 import { NewsWireFeed } from '@/components/news/NewsWireFeed';
+import { NewsCover } from '@/components/news/NewsCover';
+import { hasNewsCover } from '@/lib/news/categories';
 
 const INITIAL_COUNT = 12;
 const LOAD_STEP = 12;
@@ -26,7 +26,7 @@ function matchesFilter(item: NewsItem, filter: NewsCategory): boolean {
 
 function CompactNewsRow({ item }: { item: NewsItem }) {
   const locale = useLocale();
-  const hasImage = hasRealImage(item);
+  const hasImage = hasNewsCover(item);
   const title = localizedNewsTitle(item, locale);
 
   return (
@@ -36,14 +36,12 @@ function CompactNewsRow({ item }: { item: NewsItem }) {
     >
       {hasImage ? (
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[var(--radius-chip)] bg-surface">
-          <ApexImage
-            src={item.image}
-            alt=""
-            fill
-            kind="media"
+          <NewsCover
+            item={item}
             sizes="64px"
-            loading="lazy"
             className="object-cover transition-transform duration-200 group-hover:scale-105"
+            showLabel={false}
+            showCredit={false}
           />
         </div>
       ) : (

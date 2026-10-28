@@ -604,6 +604,7 @@
       }
     },
     "news": {
+      "archiveImage": "Archive image",
       "minRead": "MIN READ",
       "opensInTab": "Opens in new tab"
     },

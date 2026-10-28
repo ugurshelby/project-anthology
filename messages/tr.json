@@ -604,6 +604,7 @@
       }
     },
     "news": {
+      "archiveImage": "Arşiv görseli",
       "minRead": "DK OKUMA",
       "opensInTab": "Yeni sekmede açılır"
     },

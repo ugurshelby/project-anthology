@@ -106,3 +106,8 @@ export function formatWireStamp(publishedTs: number): string {
 export function hasRealImage(item: { image: string }): boolean {
   return Boolean(item.image) && item.image !== '/placeholder.svg';
 }
+
+/** True when the item has a cover to show: the publisher photo or a licensed archive image (8.9). */
+export function hasNewsCover(item: { image: string; fallbackMedia?: unknown }): boolean {
+  return hasRealImage(item) || Boolean(item.fallbackMedia);
+}

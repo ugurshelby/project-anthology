@@ -1,14 +1,14 @@
 import { Link } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
-import { ApexImage } from '@/components/media/ApexImage';
 import type { NewsItem } from '@/lib/data/types';
 import { localizedNewsTitle, localizedNewsSummary, newsDateLabel } from '@/lib/news/i18n';
 import { estimateReadMinutes } from '@/lib/news/categories';
-import { hasRealImage } from '@/lib/news/categories';
+import { NewsCover } from '@/components/news/NewsCover';
+import { hasNewsCover } from '@/lib/news/categories';
 
 function SecondaryStory({ item }: { item: NewsItem }) {
   const locale = useLocale();
-  const hasImage = hasRealImage(item);
+  const hasImage = hasNewsCover(item);
   const title = localizedNewsTitle(item, locale);
   const summary = localizedNewsSummary(item, locale);
 
@@ -21,13 +21,9 @@ function SecondaryStory({ item }: { item: NewsItem }) {
     >
       {hasImage ? (
         <>
-          <ApexImage
-            src={item.image}
-            alt=""
-            fill
-            kind="media"
+          <NewsCover
+            item={item}
             sizes="(max-width: 1024px) 92vw, 33vw"
-            loading="lazy"
             className="object-cover opacity-55 transition-opacity duration-200 group-hover:opacity-70"
           />
           <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-transparent" />
@@ -76,7 +72,7 @@ export function NewsLeadBlock({
   const leadTitle = localizedNewsTitle(lead, locale);
   const leadSummary = localizedNewsSummary(lead, locale);
   const readMins = estimateReadMinutes(leadSummary, leadTitle);
-  const leadHasImage = hasRealImage(lead);
+  const leadHasImage = hasNewsCover(lead);
   const side = secondary.slice(0, 2);
   const leadSourcesCount = lead.sources?.length || lead.sourceLinks?.length || 1;
 
@@ -92,14 +88,11 @@ export function NewsLeadBlock({
       >
         {leadHasImage ? (
           <>
-            <ApexImage
-              src={lead.image}
-              alt=""
-              fill
-              priority
-              kind="media"
+            <NewsCover
+              item={lead}
               sizes="(max-width: 1024px) 100vw, 66vw"
               className="object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-75"
+              priority
             />
             <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-transparent" />
           </>
