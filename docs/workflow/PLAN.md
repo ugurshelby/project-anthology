@@ -50,7 +50,7 @@ Run (queue): Sonnet / medium unless a step says otherwise.
 - [x] **S4 20.2** (2026-10-28, Opus) — master-plan "20.2" (needs 8.3 on `main`; 18.5 helpers).
 - [x] **S5 20.3** (2026-10-28, Opus) — master-plan "20.3" (needs 19.3 on `main`; `sortWireByTime`).
 - [~] **S6 1.8** (code done 2026-10-28, Opus; run waits for the owner's `QSTASH_TOKEN` secret) — master-plan "1.8". Owner sets repo secret `QSTASH_TOKEN` first.
-- [ ] **S7 19.2** — master-plan "19.2". `/effort high`.
+- [~] **S7 19.2** (code done 2026-10-28, Opus; live: 20 new TR headlines after the first sync-news, owner reads) — master-plan "19.2". `/effort high`.
 - [ ] **S8 9.2** — master-plan "9.2" (vertex → gemini → groq, daily Vertex cap). `/effort high`. Needs the owner's `VERTEX_API_KEY` in Vercel.
 - [ ] **S9 8.9** — master-plan "8.9". `/effort high`. Also decide with the Opus session what replaces the missing `public/news-fallback.json` (master-plan "Teknik borç").
 - [ ] **S10 8.10** — master-plan "8.10" (needs 8.9 on `main`).

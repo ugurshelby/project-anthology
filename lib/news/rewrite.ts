@@ -1,12 +1,14 @@
 /**
  * AI rewrite of a story cluster into one original EN + TR brief.
  *
- * Free-tier providers only, tried in order: Gemini (GEMINI_API_KEY) → Groq
- * (GROQ_API_KEY). Called ONLY from the sync-news cron — never per page view.
+ * Free-tier providers only, tried in order: Groq (GROQ_API_KEY) → Gemini
+ * (GEMINI_API_KEY). Called ONLY from the sync-news cron — never per page view.
+ * Every accepted brief passes the copy guard and the headline fact guard (lib/news/factGuard.ts).
  * Returns null when no provider is configured/available or the output fails
  * validation; callers then keep the best source's own title/summary.
  */
 
+import { headlineFactsInSources } from '@/lib/news/factGuard';
 import { NEWS_VOICE } from '@/lib/news/voice';
 
 export interface RewriteSource {
@@ -50,6 +52,12 @@ function buildPrompt(stories: RewriteSource[][]): string {
     .join('\n\n');
   return [
     NEWS_VOICE,
+    '',
+    'Accuracy and language rules (they override style):',
+    '- Keep who did what to whom exactly as the sources say; never swap subject and object, never change a number, never add a name the sources do not mention.',
+    '- "the sport" means Formula 1: write "Formula 1" / "F1", never "Sport".',
+    '- Both headlines use sentence case (only the first word and proper names capitalised), never Title Case.',
+    `- Turkish: attach suffixes to foreign names with an apostrophe and vowel harmony as pronounced ("Austin'de", "Perez'in"); translate every English word into Turkish (or explain it briefly). Established F1 terms (pole, pit stop, DRS, FP1) may stay; "qualifying" is "sıralama turları", never "nitelik".`,
     '',
     `There are ${stories.length} independent stories below. Write one brief per story.`,
     'same_story only applies to stories with several sources; for a story with a single source always return true.',
@@ -197,6 +205,8 @@ export function parseRewriteItem(j: Record<string, unknown> | undefined, sources
   const summaryTr = str('summary_tr', REWRITE_MAX_CHARS.summaryTr);
   if (!titleEn || !summaryEn || !titleTr || !summaryTr) return null;
   if (copiesSource(`${titleEn}. ${summaryEn}`, sources)) return null;
+  // Fact guard (19.2): a number or F1 name in either headline that the sources lack → reject, next provider tries.
+  if (!headlineFactsInSources(titleEn, sources) || !headlineFactsInSources(titleTr, sources)) return null;
   return { titleEn, summaryEn, titleTr, summaryTr };
 }
 

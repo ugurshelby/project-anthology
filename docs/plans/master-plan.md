@@ -604,7 +604,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - Değişiklik: kaynak başlığı `/^On This Day\b/i` ile başlayan RSS öğeleri haber olarak alınmaz (RaceFans "On This Day: …" kısa yazıları; ölçülen: 155 kayıttan 3'ü, ör. `ca1by8` 2016 ABD GP'si 2026 haberi gibi listeleniyor). Mevcut 3 satır silinmez (veri değişikliği sahip onayı ister); akış penceresinden kendiliğinden düşerler.
 - Doğrulama: test "On This Day: Hamilton wins…" başlıklı öğe elenir, normal başlık kalır; `npx vitest run tests/aggregate.test.ts` yeşil; `npx tsc --noEmit` 0; ilk `sync-news` sonrası read-only SQL `select count(*) from news_stories where sources::text ilike '%On This Day%' and cached_at > '<deploy zamanı>'` = 0.
 
-### [ ] 19.2 Yeniden yazım kalitesi ve olgu koruması
+### [~] 19.2 Yeniden yazım kalitesi ve olgu koruması
+- Durum 2026-10-28 (Opus): kod bitti. İstem kuralları (özne/nesne ve sayı korunur, "the sport" = F1, iki başlık cümle düzeninde, Türkçe ek ve çeviri; "qualifying" = "sıralama turları", ölçülen "niteliklerde" hatası). Olgu koruması `lib/news/factGuard.ts` (`headlineFactsInSources`): iki başlıktaki her sayı ve sitenin bildiği her F1 adı (`DRIVER_GRID_POSITIONS` anahtarları + `TEAM_COLORS` takma adları) kaynakta olmalı, yoksa sıradaki sağlayıcı. Genel büyük harf kontrolü yok (Türkçe çevrilmiş yer adları ve Title Case yanlış red verirdi). `tests/news-rewrite-guard.test.ts` 7 test (özne-nesne sınırı belgeli). Açık (canlı): ilk `sync-news` sonrası 20 yeni Türkçe başlık log'a, sahip okur.
 - Depends on: 14.4 `main`'de (aynı dosya); 9.2'den **önce** (aynı dosya, sıralı)
 - Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-guard.test.ts`
 - Ölçülen hatalar: kaynak "Antonelli eyes title…" → İngilizce yeniden yazım "Russell leads Mercedes by 102 points…" (olgu ters çevrilmiş, `6k42s3`); "the sport" → "Sport,"; "resurfacing" çevrilmemiş; "Austin'da"; başlıklarda karışık Title Case.
