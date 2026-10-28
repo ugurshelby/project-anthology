@@ -329,7 +329,12 @@
         "trackTime": "Track {time}",
         "done": "Done"
       },
-      "resultsPending": "Official results on the way"
+      "resultsPending": "Official results on the way",
+      "anthologyCard": {
+        "anthology": "Anthology",
+        "longRead": "Long Read",
+        "readStory": "Read Story"
+      }
     },
     "common": {
       "pts": "PTS",
@@ -631,7 +636,17 @@
     "news": {
       "archiveImage": "Archive image",
       "minRead": "MIN READ",
-      "opensInTab": "Opens in new tab"
+      "opensInTab": "Opens in new tab",
+      "article": {
+        "allDispatches": "All Dispatches",
+        "minRead": "MIN READ",
+        "sources": "Sources",
+        "sourcesOriginalCoverage": "Sources & Original Coverage",
+        "outlet": "outlet",
+        "outlets": "outlets",
+        "opensInNewTab": "Opens in new tab",
+        "viewOriginalReporting": "View original reporting"
+      }
     },
     "profile": {
       "carNo": "CAR NO. {n}",
@@ -651,6 +666,70 @@
       "trademarkNote": "Unofficial fan project. Trademarks belong to their respective owners.",
       "photoLabel": "Photo:",
       "markLabel": "Mark:"
+    },
+    "machinery": {
+      "detail": {
+        "vehicleNotFound": "Vehicle Not Found",
+        "powerUnit": "POWER UNIT",
+        "configuration": "CONFIGURATION",
+        "displacement": "DISPLACEMENT",
+        "maxPower": "MAX POWER",
+        "maxRpm": "MAX RPM",
+        "aspiration": "ASPIRATION",
+        "dryWeight": "DRY WEIGHT",
+        "transmission": "TRANSMISSION",
+        "monocoque": "MONOCOQUE",
+        "brakeSystem": "BRAKE SYSTEM",
+        "machinery": "MACHINERY",
+        "chiefDesigner": "CHIEF DESIGNER:",
+        "keyFigures": "Key figures",
+        "season": "SEASON",
+        "weight": "WEIGHT",
+        "wins": "WINS",
+        "winRate": "WIN RATE",
+        "engineeringBreakthrough": "ENGINEERING BREAKTHROUGH",
+        "whyItBrokeTheSport": "Why It Broke The Sport",
+        "aerodynamicConcept": "AERODYNAMIC CONCEPT",
+        "legacyPedigree": "LEGACY & PEDIGREE",
+        "palmaresDominance": "PALMARES & DOMINANCE",
+        "racesEntered": "Races Entered",
+        "victories": "Victories",
+        "polePositions": "Pole Positions",
+        "podiumFinishes": "Podium Finishes",
+        "winPercentage": "Win Percentage",
+        "worldDriversTitle": "WORLD DRIVERS TITLE",
+        "constructorsTitle": "CONSTRUCTORS TITLE",
+        "engineArchitecture": "ENGINE ARCHITECTURE",
+        "chassisSpecification": "CHASSIS SPECIFICATION",
+        "thePilots": "THE PILOTS",
+        "champion": "CHAMPION",
+        "driver": "DRIVER",
+        "connectedTechGlossary": "CONNECTED TECH GLOSSARY",
+        "fullGlossary": "Full Glossary →",
+        "metaDescription": "{name} technical dossier, {engine} powertrain data, aerodynamic breakthroughs and {year} championship pedigree.",
+        "seasonArchive": "VIEW {year} SEASON ARCHIVE →"
+      },
+      "crossLink": {
+        "iconicMachineryArchive": "Iconic Machinery Archive",
+        "engineeringMasterpieces": "Engineering Masterpieces",
+        "viewFullCollection": "View Full Collection",
+        "w": "W",
+        "inspect": "Inspect"
+      },
+      "card": {
+        "races": "RACES",
+        "wins": "WINS",
+        "win": "WIN %",
+        "inspectDossier": "INSPECT DOSSIER"
+      },
+      "index": {
+        "machineryIconicF1Cars": "Machinery — Iconic F1 Cars",
+        "engineeringArchive1950Present": "ENGINEERING ARCHIVE · 1950–PRESENT",
+        "machineryIconicCars": "Machinery & Iconic Cars",
+        "imageStandard": "IMAGE STANDARD",
+        "licensedPhotoOtherwiseALiverySilhouette": "Licensed Photo, Otherwise a Livery Silhouette",
+        "iconicCars": "ICONIC CARS"
+      }
     }
   },
   "legal": {

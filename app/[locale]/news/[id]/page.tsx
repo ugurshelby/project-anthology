@@ -54,6 +54,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const readMins = estimateReadMinutes(summary, title);
   const hasImage = hasNewsCover(item);
   const isTr = locale === 'tr';
+  const tA = await getTranslations({ locale, namespace: 'ui.news.article' });
 
   const sourceLinks =
     item.sourceLinks && item.sourceLinks.length > 0
@@ -80,7 +81,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
               className="group/back inline-flex items-center gap-1.5 label-caps text-text-mid transition-colors hover:text-white mb-1 font-mono"
             >
               <span aria-hidden="true" className="transition-transform group-hover/back:-translate-x-0.5">←</span>
-              <span>{isTr ? 'Tüm Haberler' : 'All Dispatches'}</span>
+              <span>{tA('allDispatches')}</span>
             </Link>
             <div className="flex flex-wrap items-center gap-2">
               <span className="label-caps text-accent font-mono">
@@ -88,11 +89,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
               </span>
               <span className="text-white/20">·</span>
               <span className="data-tabular text-xs text-text-mid font-mono">
-                {readMins} {isTr ? 'DK OKUMA' : 'MIN READ'}
+                {readMins} {tA('minRead')}
               </span>
               {sourcesCount > 1 ? (
                 <span className="label-caps rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-mono text-text-mid">
-                  {sourcesCount} {isTr ? 'Kaynak' : 'Sources'}
+                  {sourcesCount} {tA('sources')}
                 </span>
               ) : null}
             </div>
@@ -110,7 +111,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                 className="group/back inline-flex items-center gap-1.5 label-caps text-text-mid transition-colors hover:text-white font-mono"
               >
                 <span aria-hidden="true" className="transition-transform group-hover/back:-translate-x-0.5">←</span>
-                <span>{isTr ? 'Tüm Haberler' : 'All Dispatches'}</span>
+                <span>{tA('allDispatches')}</span>
               </Link>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="label-caps text-accent font-mono">
@@ -118,11 +119,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
                 </span>
                 <span className="text-white/20">·</span>
                 <span className="data-tabular text-xs text-text-mid font-mono">
-                  {readMins} {isTr ? 'DK OKUMA' : 'MIN READ'}
+                  {readMins} {tA('minRead')}
                 </span>
                 {sourcesCount > 1 ? (
                   <span className="label-caps rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-mono text-text-mid">
-                    {sourcesCount} {isTr ? 'Kaynak' : 'Sources'}
+                    {sourcesCount} {tA('sources')}
                   </span>
                 ) : null}
               </div>
@@ -138,10 +139,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <section className="mt-4 flex flex-col gap-3 rounded-[var(--radius-lg)] border border-hairline bg-surface/40 p-5 md:p-6">
             <div className="flex items-center justify-between">
               <span className="label-caps text-text-mid font-mono">
-                {isTr ? 'Orijinal Kaynaklar ve Kapsam' : 'Sources & Original Coverage'}
+                {tA('sourcesOriginalCoverage')}
               </span>
               <span className="data-tabular text-xs text-text-low font-mono">
-                {sourceLinks.length} {sourceLinks.length === 1 ? (isTr ? 'makale' : 'outlet') : (isTr ? 'farklı makale' : 'outlets')}
+                {sourceLinks.length} {sourceLinks.length === 1 ? (tA('outlet')) : (tA('outlets'))}
               </span>
             </div>
 
@@ -152,7 +153,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${link.name}: ${link.title || title} (${isTr ? 'Yeni sekmede açılır' : 'Opens in new tab'})`}
+                  aria-label={`${link.name}: ${link.title || title} (${tA('opensInNewTab')})`}
                   className="group flex min-h-[48px] items-center justify-between gap-3 py-3.5 text-left transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded-[var(--radius-chip)] px-1"
                 >
                   <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
@@ -160,7 +161,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                       {link.name}
                     </span>
                     <span className="truncate text-sm text-text-hi group-hover:text-white">
-                      {link.title && link.title !== title ? link.title : (isTr ? 'Orijinal makaleyi görüntüle' : 'View original reporting')}
+                      {link.title && link.title !== title ? link.title : (tA('viewOriginalReporting'))}
                     </span>
                   </div>
                   <span className="shrink-0 text-text-low transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-text-hi font-mono">

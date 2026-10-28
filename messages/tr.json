@@ -329,7 +329,12 @@
         "trackTime": "Pist {time}",
         "done": "Bitti"
       },
-      "resultsPending": "Resmî sonuçlar yolda"
+      "resultsPending": "Resmî sonuçlar yolda",
+      "anthologyCard": {
+        "anthology": "Antoloji",
+        "longRead": "Derin Okuma",
+        "readStory": "Hikâyeyi Oku"
+      }
     },
     "common": {
       "pts": "PUAN",
@@ -631,7 +636,17 @@
     "news": {
       "archiveImage": "Arşiv görseli",
       "minRead": "DK OKUMA",
-      "opensInTab": "Yeni sekmede açılır"
+      "opensInTab": "Yeni sekmede açılır",
+      "article": {
+        "allDispatches": "Tüm Haberler",
+        "minRead": "DK OKUMA",
+        "sources": "Kaynak",
+        "sourcesOriginalCoverage": "Orijinal Kaynaklar ve Kapsam",
+        "outlet": "makale",
+        "outlets": "farklı makale",
+        "opensInNewTab": "Yeni sekmede açılır",
+        "viewOriginalReporting": "Orijinal makaleyi görüntüle"
+      }
     },
     "profile": {
       "carNo": "ARAÇ NO. {n}",
@@ -651,6 +666,70 @@
       "trademarkNote": "Resmî olmayan hayran projesi. Ticari markalar sahiplerine aittir.",
       "photoLabel": "Foto:",
       "markLabel": "Marka:"
+    },
+    "machinery": {
+      "detail": {
+        "vehicleNotFound": "Araç Bulunamadı",
+        "powerUnit": "GÜÇ ÜNİTESİ",
+        "configuration": "MİMARİ",
+        "displacement": "HACİM",
+        "maxPower": "GÜÇ ÇIKIŞI",
+        "maxRpm": "MAKSİMUM DEVİR",
+        "aspiration": "ASPİRASYON",
+        "dryWeight": "MİNİMUM AĞIRLIK",
+        "transmission": "ŞANZIMAN",
+        "monocoque": "MONOKOK",
+        "brakeSystem": "FREN SİSTEMİ",
+        "machinery": "TÜM ARAÇLAR",
+        "chiefDesigner": "BAŞ TASARIMCI:",
+        "keyFigures": "Temel veriler",
+        "season": "SEZON",
+        "weight": "AĞIRLIK",
+        "wins": "GALİBİYET",
+        "winRate": "KAZANMA ORANI",
+        "engineeringBreakthrough": "MÜHENDİSLİK ATILIMI",
+        "whyItBrokeTheSport": "Neden Sporu Değiştirdi?",
+        "aerodynamicConcept": "AERODİNAMİK PAKETİ",
+        "legacyPedigree": "MİRAS & TARİHİ ETKİ",
+        "palmaresDominance": "ŞAMPİYONLUK KARNESİ",
+        "racesEntered": "Yarış Sayısı",
+        "victories": "Galibiyet",
+        "polePositions": "Pole Pozisyonu",
+        "podiumFinishes": "Podyum Derecesi",
+        "winPercentage": "Kazanma Oranı",
+        "worldDriversTitle": "PİLOTLAR ŞAMPİYONU",
+        "constructorsTitle": "MARKALAR ŞAMPİYONU",
+        "engineArchitecture": "MOTOR & GÜÇ ÜNİTESİ",
+        "chassisSpecification": "ŞASİ & MEKANİK DİNAMİK",
+        "thePilots": "KOKPİTTEKİ PİLOTLAR",
+        "champion": "DÜNYA ŞAMPİYONU",
+        "driver": "PİLOT",
+        "connectedTechGlossary": "İLİŞKİLİ TEKNİK KAVRAMLAR",
+        "fullGlossary": "Sözlüğe Git →",
+        "metaDescription": "{name} teknik dosyası, {engine} motor verileri, aerodinamik inovasyonlar ve {year} sezonu mühendislik dosyası.",
+        "seasonArchive": "{year} SEZONU ARŞİVİNE GİT →"
+      },
+      "crossLink": {
+        "iconicMachineryArchive": "İkonik Araçlar Koleksiyonu",
+        "engineeringMasterpieces": "Mühendislik Başyapıtları",
+        "viewFullCollection": "Tüm Koleksiyonu Gör",
+        "w": "G",
+        "inspect": "İncele"
+      },
+      "card": {
+        "races": "YARIŞ",
+        "wins": "GALİBİYET",
+        "win": "ORAN",
+        "inspectDossier": "TEKNİK DOSYAYI İNCELE"
+      },
+      "index": {
+        "machineryIconicF1Cars": "İkonik Araçlar ve Şasiler",
+        "engineeringArchive1950Present": "MÜHENDİSLİK ARŞİVİ · 1950–GÜNÜMÜZ",
+        "machineryIconicCars": "İkonik Şasiler ve Araçlar",
+        "imageStandard": "GÖRSEL STANDARDI",
+        "licensedPhotoOtherwiseALiverySilhouette": "Lisanslı Fotoğraf, Yoksa Livery Silüeti",
+        "iconicCars": "İKONİK ARAÇ"
+      }
     }
   },
   "legal": {

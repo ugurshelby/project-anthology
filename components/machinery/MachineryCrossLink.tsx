@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import type { MachineryCar } from '@/data/machinery/cars';
 import { MachineryVisual } from '@/components/machinery/MachineryVisual';
@@ -18,6 +19,7 @@ export async function MachineryCrossLink({
 }: MachineryCrossLinkProps) {
   if (!cars || cars.length === 0) return null;
   const isTr = locale === 'tr';
+  const tX = await getTranslations({ locale, namespace: 'ui.machinery.crossLink' });
   const media = await getMediaBatch('car', cars.map((c) => `iconic:${c.id}`));
 
   return (
@@ -26,13 +28,13 @@ export async function MachineryCrossLink({
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-hairline/60 pb-3">
         <div>
           <span className="label-caps block text-accent font-mono text-[11px] tracking-wider">
-            {kicker ?? (isTr ? 'İkonik Araçlar Koleksiyonu' : 'Iconic Machinery Archive')}
+            {kicker ?? (tX('iconicMachineryArchive'))}
           </span>
           <h3
             className="mt-1 font-condensed text-xl font-700 uppercase tracking-tight text-text-hi md:text-2xl"
             style={{ fontFamily: 'var(--font-condensed)' }}
           >
-            {title ?? (isTr ? 'Mühendislik Başyapıtları' : 'Engineering Masterpieces')}
+            {title ?? (tX('engineeringMasterpieces'))}
           </h3>
         </div>
 
@@ -40,7 +42,7 @@ export async function MachineryCrossLink({
           href="/machinery"
           className="group inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-text-mid transition-colors hover:text-white"
         >
-          <span>{isTr ? 'Tüm Koleksiyonu Gör' : 'View Full Collection'}</span>
+          <span>{tX('viewFullCollection')}</span>
           <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
         </Link>
       </div>
@@ -107,10 +109,10 @@ export async function MachineryCrossLink({
 
               <div className="mt-4 flex items-center justify-between border-t border-hairline/60 pt-3 font-mono text-[11px]">
                 <span className="text-text-mid">
-                  {car.achievements.wins} {isTr ? 'G' : 'W'} · {car.achievements.titles.join('/')}
+                  {car.achievements.wins} {tX('w')} · {car.achievements.titles.join('/')}
                 </span>
                 <span className="flex items-center gap-1 font-semibold text-accent group-hover:underline">
-                  <span>{isTr ? 'İncele' : 'Inspect'}</span>
+                  <span>{tX('inspect')}</span>
                   <span aria-hidden="true">→</span>
                 </span>
               </div>

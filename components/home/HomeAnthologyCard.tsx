@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { Story } from '@/lib/data/stories';
 import { truncateToWord } from '@/lib/text/truncateToWord';
 import { ApexImage } from '@/components/media/ApexImage';
@@ -9,6 +9,7 @@ import { ApexImage } from '@/components/media/ApexImage';
 export function HomeAnthologyCard({ story }: { story: Story }) {
   const locale = useLocale();
   const isTr = locale === 'tr';
+  const tH = useTranslations('ui.home.anthologyCard');
   const title = isTr && story.titleTr ? story.titleTr : story.title;
   const subtitle = isTr && story.subtitleTr ? story.subtitleTr : story.subtitle;
 
@@ -43,10 +44,10 @@ export function HomeAnthologyCard({ story }: { story: Story }) {
       <div className="relative z-10 flex items-center justify-between p-4 sm:p-5">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white shadow-sm backdrop-blur-md">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          {isTr ? 'Antoloji' : 'Anthology'}{story.year ? ` · ${story.year}` : ''}
+          {tH('anthology')}{story.year ? ` · ${story.year}` : ''}
         </span>
         <span className="rounded-full border border-white/10 bg-white/[0.08] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-text-hi/80 backdrop-blur-sm">
-          {isTr ? 'Derin Okuma' : 'Long Read'}
+          {tH('longRead')}
         </span>
       </div>
 
@@ -66,7 +67,7 @@ export function HomeAnthologyCard({ story }: { story: Story }) {
         ) : null}
 
         <div className="mt-1 flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-wider text-accent transition-colors duration-150 group-hover:text-white">
-          <span>{isTr ? 'Hikâyeyi Oku' : 'Read Story'}</span>
+          <span>{tH('readStory')}</span>
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"

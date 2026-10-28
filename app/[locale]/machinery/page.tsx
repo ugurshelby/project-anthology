@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { getAllMachineryCars } from '@/data/machinery/cars';
 import { MachineryCard } from '@/components/machinery/MachineryCard';
@@ -13,8 +13,9 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const isTr = locale === 'tr';
+  const tI = await getTranslations({ locale, namespace: 'ui.machinery.index' });
 
-  const title = isTr ? 'İkonik Araçlar ve Şasiler' : 'Machinery — Iconic F1 Cars';
+  const title = tI('machineryIconicF1Cars');
   const description = isTr
     ? 'Formula 1 tarihine yön veren ikonik şasiler, motor şaheserleri ve aerodinamik atılımlar: MP4/4, FW14B, F2004, BGP 001, Lotus 72 ve RB19 teknik dosyaları.'
     : 'The definitive catalog of Formula 1 engineering masterpieces: MP4/4, FW14B, F2004, BGP 001, Lotus 72, and RB19 technical dossiers.';
@@ -44,6 +45,7 @@ export default async function MachineryPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   const isTr = locale === 'tr';
+  const tI = await getTranslations({ locale, namespace: 'ui.machinery.index' });
   const cars = getAllMachineryCars();
   const media = await getMediaBatch('car', cars.map((c) => `iconic:${c.id}`));
 
@@ -54,14 +56,14 @@ export default async function MachineryPage({ params }: PageProps) {
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
           <span className="label-caps font-mono text-xs tracking-widest text-accent">
-            {isTr ? 'MÜHENDİSLİK ARŞİVİ · 1950–GÜNÜMÜZ' : 'ENGINEERING ARCHIVE · 1950–PRESENT'}
+            {tI('engineeringArchive1950Present')}
           </span>
         </div>
         <h1
           className="font-condensed text-4xl font-700 uppercase tracking-tight text-text-hi sm:text-5xl md:text-6xl"
           style={{ fontFamily: 'var(--font-condensed)' }}
         >
-          {isTr ? 'İkonik Şasiler ve Araçlar' : 'Machinery & Iconic Cars'}
+          {tI('machineryIconicCars')}
         </h1>
         <p className="max-w-3xl text-base text-text-mid sm:text-lg">
           {isTr
@@ -87,13 +89,13 @@ export default async function MachineryPage({ params }: PageProps) {
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-2xl">
             <span className="label-caps font-mono text-[11px] text-text-low">
-              {isTr ? 'GÖRSEL STANDARDI' : 'IMAGE STANDARD'}
+              {tI('imageStandard')}
             </span>
             <h3
               className="mt-1 font-condensed text-2xl font-700 uppercase tracking-tight text-text-hi sm:text-3xl"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {isTr ? 'Lisanslı Fotoğraf, Yoksa Livery Silüeti' : 'Licensed Photo, Otherwise a Livery Silhouette'}
+              {tI('licensedPhotoOtherwiseALiverySilhouette')}
             </h3>
             <p className="mt-2 text-sm text-text-mid">
               {isTr
@@ -103,7 +105,7 @@ export default async function MachineryPage({ params }: PageProps) {
           </div>
           <div className="flex shrink-0 items-center gap-3 font-mono text-xs text-text-low">
             <span className="rounded border border-white/10 bg-white/[0.03] px-3 py-1.5">
-              {cars.length} {isTr ? 'İKONİK ARAÇ' : 'ICONIC CARS'}
+              {cars.length} {tI('iconicCars')}
             </span>
           </div>
         </div>

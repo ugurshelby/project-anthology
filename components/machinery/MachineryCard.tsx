@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { MachineryCar } from '@/data/machinery/cars';
 import type { MediaResult } from '@/lib/media/read';
 import { MachineryVisual } from './MachineryVisual';
@@ -18,6 +18,7 @@ interface MachineryCardProps {
 export function MachineryCard({ car, media, priority = false }: MachineryCardProps) {
   const locale = useLocale();
   const isTr = locale === 'tr';
+  const tC = useTranslations('ui.machinery.card');
 
   return (
     <article className="group relative flex flex-col justify-between overflow-hidden rounded-[16px] border border-hairline bg-surface p-5 transition-all duration-300 hover:border-white/25 hover:shadow-2xl">
@@ -74,15 +75,15 @@ export function MachineryCard({ car, media, priority = false }: MachineryCardPro
       <div className="mt-5 border-t border-hairline pt-4">
         <div className="grid grid-cols-3 gap-2 text-center font-mono text-xs">
           <div className="rounded-lg bg-white/[0.02] p-2 border border-white/5">
-            <span className="block text-[10px] text-text-low">{isTr ? 'YARIŞ' : 'RACES'}</span>
+            <span className="block text-[10px] text-text-low">{tC('races')}</span>
             <span className="font-bold text-text-hi">{car.achievements.races}</span>
           </div>
           <div className="rounded-lg bg-white/[0.02] p-2 border border-white/5">
-            <span className="block text-[10px] text-text-low">{isTr ? 'GALİBİYET' : 'WINS'}</span>
+            <span className="block text-[10px] text-text-low">{tC('wins')}</span>
             <span className="font-bold text-accent">{car.achievements.wins}</span>
           </div>
           <div className="rounded-lg bg-white/[0.02] p-2 border border-white/5">
-            <span className="block text-[10px] text-text-low">{isTr ? 'ORAN' : 'WIN %'}</span>
+            <span className="block text-[10px] text-text-low">{tC('win')}</span>
             <span className="font-bold text-emerald-400">{formatPercent(parseFloat(car.achievements.winRate), locale, 2)}</span>
           </div>
         </div>
@@ -91,7 +92,7 @@ export function MachineryCard({ car, media, priority = false }: MachineryCardPro
           href={`/machinery/${car.id}`}
           className="mt-4 flex items-center justify-between rounded-lg bg-white/[0.04] px-4 py-2.5 font-mono text-xs font-semibold text-text-hi transition-all hover:bg-accent hover:text-white"
         >
-          <span>{isTr ? 'TEKNİK DOSYAYI İNCELE' : 'INSPECT DOSSIER'}</span>
+          <span>{tC('inspectDossier')}</span>
           <span aria-hidden="true">→</span>
         </Link>
       </div>

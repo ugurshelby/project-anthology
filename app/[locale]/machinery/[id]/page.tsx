@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { PageShell, BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
@@ -27,16 +27,14 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
   const car = getMachineryCar(id);
-  const isTr = locale === 'tr';
+  const t = await getTranslations({ locale, namespace: 'ui.machinery.detail' });
 
   if (!car) {
-    return { title: isTr ? 'Araç Bulunamadı' : 'Vehicle Not Found' };
+    return { title: t('vehicleNotFound') };
   }
 
   const title = `${car.fullName} (${car.year}) — Machinery`;
-  const description = isTr
-    ? `${car.fullName} teknik dosyası, ${car.engine.spec} motor verileri, aerodinamik inovasyonlar ve ${car.year} sezonu mühendislik dosyası.`
-    : `${car.fullName} technical dossier, ${car.engine.spec} powertrain data, aerodynamic breakthroughs and ${car.year} championship pedigree.`;
+  const description = t('metaDescription', { name: car.fullName, engine: car.engine.spec, year: car.year });
 
   return {
     title,
@@ -63,22 +61,23 @@ export default async function MachineryDetailPage({ params }: PageProps) {
   if (!car) notFound();
 
   const isTr = locale === 'tr';
+  const t = await getTranslations({ locale, namespace: 'ui.machinery.detail' });
   const carMedia = await getMedia('car', `iconic:${car.id}`);
 
   const engineDossier = [
-    { label: isTr ? 'GÜÇ ÜNİTESİ' : 'POWER UNIT', value: car.engine.spec },
-    { label: isTr ? 'MİMARİ' : 'CONFIGURATION', value: car.engine.cylinders },
-    { label: isTr ? 'HACİM' : 'DISPLACEMENT', value: car.engine.displacement },
-    { label: isTr ? 'GÜÇ ÇIKIŞI' : 'MAX POWER', value: car.engine.power },
-    { label: isTr ? 'MAKSİMUM DEVİR' : 'MAX RPM', value: car.engine.rpm },
-    { label: isTr ? 'ASPİRASYON' : 'ASPIRATION', value: car.engine.aspiration },
+    { label: t('powerUnit'), value: car.engine.spec },
+    { label: t('configuration'), value: car.engine.cylinders },
+    { label: t('displacement'), value: car.engine.displacement },
+    { label: t('maxPower'), value: car.engine.power },
+    { label: t('maxRpm'), value: car.engine.rpm },
+    { label: t('aspiration'), value: car.engine.aspiration },
   ];
 
   const chassisDossier = [
-    { label: isTr ? 'MİNİMUM AĞIRLIK' : 'DRY WEIGHT', value: `${car.chassis.weightKg} kg` },
-    { label: isTr ? 'ŞANZIMAN' : 'TRANSMISSION', value: car.chassis.transmission },
-    { label: isTr ? 'MONOKOK' : 'MONOCOQUE', value: car.chassis.monocoque },
-    { label: isTr ? 'FREN SİSTEMİ' : 'BRAKE SYSTEM', value: car.chassis.brakes },
+    { label: t('dryWeight'), value: `${car.chassis.weightKg} kg` },
+    { label: t('transmission'), value: car.chassis.transmission },
+    { label: t('monocoque'), value: car.chassis.monocoque },
+    { label: t('brakeSystem'), value: car.chassis.brakes },
   ];
 
   const jsonLd = vehicleJsonLd({
@@ -98,7 +97,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
       {/* Back Navigation Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 font-mono text-xs text-text-mid">
         <Link href="/machinery" className="transition-colors hover:text-accent">
-          ← {isTr ? 'TÜM ARAÇLAR' : 'MACHINERY'}
+          ← {t('machinery')}
         </Link>
         <span>/</span>
         <span className="text-text-hi">{car.name}</span>
@@ -114,7 +113,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
             SEASON {car.year}
           </span>
           <span className="text-xs text-text-low font-mono">
-            {'//'} {isTr ? 'BAŞ TASARIMCI:' : 'CHIEF DESIGNER:'} {car.designer.join(', ')}
+            {'//'} {t('chiefDesigner')} {car.designer.join(', ')}
           </span>
         </div>
 
@@ -143,7 +142,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         </figure>
 
         <aside
-          aria-label={isTr ? 'Temel veriler' : 'Key figures'}
+          aria-label={t('keyFigures')}
           className="flex flex-col justify-between gap-6 rounded-[16px] border border-hairline bg-surface p-5 sm:p-6 lg:col-span-4"
         >
           <div>
@@ -157,10 +156,10 @@ export default async function MachineryDetailPage({ params }: PageProps) {
           </div>
           <dl className="divide-y divide-hairline font-mono text-xs">
             {[
-              { label: isTr ? 'SEZON' : 'SEASON', value: String(car.year) },
-              { label: isTr ? 'GÜÇ ÜNİTESİ' : 'POWER UNIT', value: car.engine.spec },
-              { label: isTr ? 'AĞIRLIK' : 'WEIGHT', value: `${car.chassis.weightKg} kg` },
-              { label: isTr ? 'GALİBİYET' : 'WINS', value: `${car.achievements.wins} / ${car.achievements.races}` },
+              { label: t('season'), value: String(car.year) },
+              { label: t('powerUnit'), value: car.engine.spec },
+              { label: t('weight'), value: `${car.chassis.weightKg} kg` },
+              { label: t('wins'), value: `${car.achievements.wins} / ${car.achievements.races}` },
             ].map((row) => (
               <div key={row.label} className="flex items-baseline justify-between gap-4 py-2.5">
                 <dt className="text-text-low">{row.label}</dt>
@@ -169,7 +168,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
             ))}
           </dl>
           <div className="flex items-baseline justify-between border-t border-hairline pt-4">
-            <span className="label-caps text-text-low">{isTr ? 'KAZANMA ORANI' : 'WIN RATE'}</span>
+            <span className="label-caps text-text-low">{t('winRate')}</span>
             <span className="hero-number text-4xl text-text-hi tabular-nums">{formatPercent(parseFloat(car.achievements.winRate), locale, 2)}</span>
           </div>
         </aside>
@@ -182,14 +181,14 @@ export default async function MachineryDetailPage({ params }: PageProps) {
             <div className="mb-2 flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               <span className="label-caps font-mono text-xs tracking-widest text-accent">
-                {isTr ? 'MÜHENDİSLİK ATILIMI' : 'ENGINEERING BREAKTHROUGH'}
+                {t('engineeringBreakthrough')}
               </span>
             </div>
             <h2
               className="font-condensed text-2xl font-700 uppercase tracking-tight text-text-hi sm:text-3xl"
               style={{ fontFamily: 'var(--font-condensed)' }}
             >
-              {isTr ? 'Neden Sporu Değiştirdi?' : 'Why It Broke The Sport'}
+              {t('whyItBrokeTheSport')}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-text-mid sm:text-base">
               {isTr ? car.technicalBreakthroughTr : car.technicalBreakthroughEn}
@@ -197,7 +196,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
 
             <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.02] p-4">
               <span className="label-caps mb-1 block text-[11px] text-text-hi">
-                {isTr ? 'AERODİNAMİK PAKETİ' : 'AERODYNAMIC CONCEPT'}
+                {t('aerodynamicConcept')}
               </span>
               <p className="text-xs leading-relaxed text-text-mid">
                 {isTr ? car.aerodynamicsTr : car.aerodynamicsEn}
@@ -207,7 +206,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
 
           <div className="mt-6 border-t border-hairline pt-4">
             <span className="label-caps mb-1 block text-[11px] text-text-low">
-              {isTr ? 'MİRAS & TARİHİ ETKİ' : 'LEGACY & PEDIGREE'}
+              {t('legacyPedigree')}
             </span>
             <p className="text-xs text-text-hi italic">
               &ldquo;{isTr ? car.legacyTr : car.legacyEn}&rdquo;
@@ -219,7 +218,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         <BentoCard span={4}>
           <div className="mb-3 flex items-center justify-between">
             <span className="label-caps text-text-mid">
-              {isTr ? 'ŞAMPİYONLUK KARNESİ' : 'PALMARES & DOMINANCE'}
+              {t('palmaresDominance')}
             </span>
             <span className="font-mono text-xs font-bold text-accent">
               {car.year}
@@ -228,23 +227,23 @@ export default async function MachineryDetailPage({ params }: PageProps) {
 
           <div className="space-y-3 font-mono text-xs">
             <div className="flex items-center justify-between border-b border-hairline pb-2">
-              <span className="text-text-mid">{isTr ? 'Yarış Sayısı' : 'Races Entered'}</span>
+              <span className="text-text-mid">{t('racesEntered')}</span>
               <span className="font-bold text-text-hi">{car.achievements.races}</span>
             </div>
             <div className="flex items-center justify-between border-b border-hairline pb-2">
-              <span className="text-text-mid">{isTr ? 'Galibiyet' : 'Victories'}</span>
+              <span className="text-text-mid">{t('victories')}</span>
               <span className="font-bold text-accent text-sm">{car.achievements.wins}</span>
             </div>
             <div className="flex items-center justify-between border-b border-hairline pb-2">
-              <span className="text-text-mid">{isTr ? 'Pole Pozisyonu' : 'Pole Positions'}</span>
+              <span className="text-text-mid">{t('polePositions')}</span>
               <span className="font-bold text-text-hi">{car.achievements.poles}</span>
             </div>
             <div className="flex items-center justify-between border-b border-hairline pb-2">
-              <span className="text-text-mid">{isTr ? 'Podyum Derecesi' : 'Podium Finishes'}</span>
+              <span className="text-text-mid">{t('podiumFinishes')}</span>
               <span className="font-bold text-text-hi">{car.achievements.podiums}</span>
             </div>
             <div className="flex items-center justify-between border-b border-hairline pb-2">
-              <span className="text-text-mid">{isTr ? 'Kazanma Oranı' : 'Win Percentage'}</span>
+              <span className="text-text-mid">{t('winPercentage')}</span>
               <span className="font-bold text-emerald-400 text-sm">{formatPercent(parseFloat(car.achievements.winRate), locale, 2)}</span>
             </div>
           </div>
@@ -256,7 +255,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
                 className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 font-mono text-xs font-bold text-amber-400"
               >
                 <span>🏆</span>
-                <span>{title === 'WDC' ? (isTr ? 'PİLOTLAR ŞAMPİYONU' : 'WORLD DRIVERS TITLE') : (isTr ? 'MARKALAR ŞAMPİYONU' : 'CONSTRUCTORS TITLE')}</span>
+                <span>{title === 'WDC' ? (t('worldDriversTitle')) : (t('constructorsTitle'))}</span>
               </span>
             ))}
           </div>
@@ -266,14 +265,14 @@ export default async function MachineryDetailPage({ params }: PageProps) {
             href={`/season/${car.year}`}
             className="mt-6 block text-center rounded-lg border border-white/10 bg-white/[0.04] py-2 font-mono text-xs font-semibold text-text-hi transition-colors hover:border-white/20 hover:bg-white/[0.08]"
           >
-            {isTr ? `${car.year} SEZONU ARŞİVİNE GİT →` : `VIEW ${car.year} SEASON ARCHIVE →`}
+            {t('seasonArchive', { year: car.year })}
           </Link>
         </BentoCard>
 
         {/* Engine & Powertrain Dossier */}
         <BentoCard span={6}>
           <span className="label-caps mb-3 block text-text-mid">
-            {isTr ? 'MOTOR & GÜÇ ÜNİTESİ' : 'ENGINE ARCHITECTURE'}
+            {t('engineArchitecture')}
           </span>
           <TechnicalDossier entries={engineDossier} />
         </BentoCard>
@@ -281,7 +280,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         {/* Chassis & Composite Dossier */}
         <BentoCard span={6}>
           <span className="label-caps mb-3 block text-text-mid">
-            {isTr ? 'ŞASİ & MEKANİK DİNAMİK' : 'CHASSIS SPECIFICATION'}
+            {t('chassisSpecification')}
           </span>
           <TechnicalDossier entries={chassisDossier} />
         </BentoCard>
@@ -289,7 +288,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         {/* Drivers / Pilots Panel */}
         <BentoCard span={6}>
           <span className="label-caps mb-3 block text-text-mid">
-            {isTr ? 'KOKPİTTEKİ PİLOTLAR' : 'THE PILOTS'}
+            {t('thePilots')}
           </span>
           <div className="divide-y divide-hairline">
             {car.drivers.map((driver) => (
@@ -309,11 +308,11 @@ export default async function MachineryDetailPage({ params }: PageProps) {
                 </div>
                 {driver.isChampion ? (
                   <span className="rounded bg-accent/20 px-2 py-0.5 font-mono text-[11px] font-bold text-accent">
-                    {isTr ? 'DÜNYA ŞAMPİYONU' : 'CHAMPION'}
+                    {t('champion')}
                   </span>
                 ) : (
                   <span className="font-mono text-xs text-text-low">
-                    {isTr ? 'PİLOT' : 'DRIVER'}
+                    {t('driver')}
                   </span>
                 )}
               </div>
@@ -325,10 +324,10 @@ export default async function MachineryDetailPage({ params }: PageProps) {
         <BentoCard span={6}>
           <div className="mb-3 flex items-center justify-between">
             <span className="label-caps text-text-mid">
-              {isTr ? 'İLİŞKİLİ TEKNİK KAVRAMLAR' : 'CONNECTED TECH GLOSSARY'}
+              {t('connectedTechGlossary')}
             </span>
             <Link href="/tech-glossary" className="font-mono text-xs text-accent hover:underline">
-              {isTr ? 'Sözlüğe Git →' : 'Full Glossary →'}
+              {t('fullGlossary')}
             </Link>
           </div>
           <div className="flex flex-wrap gap-2">
