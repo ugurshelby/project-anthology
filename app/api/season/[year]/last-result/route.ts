@@ -34,7 +34,8 @@ export async function GET(
   }
 
   const { year: yearStr } = await params;
-  const year = Number(yearStr);
+  // Digits only: "2024.5", "1e3" or "0x7e8" would pass Number() and open extra cache keys.
+  const year = /^\d{4}$/.test(yearStr) ? Number(yearStr) : NaN;
 
   if (!Number.isFinite(year) || year < F1_SEASON_MIN || year > CURRENT_SEASON) {
     return NextResponse.json({ error: 'Invalid season year' }, { status: 400 });

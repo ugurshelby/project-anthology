@@ -187,7 +187,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   try {
     const searchParams = req.nextUrl.searchParams;
-    const forcedScope = searchParams.get('scope') as 'live' | 'season' | null;
+    const scopeParam = searchParams.get('scope');
+    if (scopeParam !== null && scopeParam !== 'live' && scopeParam !== 'season') {
+      return NextResponse.json({ error: 'Invalid scope' }, { status: 400 });
+    }
+    const forcedScope: 'live' | 'season' | null = scopeParam;
 
     // 1) Fetch calendar to determine race-weekend status
     const calendarData = await fetchCalendar(CURRENT_SEASON);

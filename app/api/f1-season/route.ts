@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import { applyRateLimit } from '@/lib/rateLimit';
-import { getSupabaseAdmin } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import type { SnapshotType } from '@/types/database';
 import { f1SeasonQuery, hasUnknownKeys, searchParamsToObject } from '@/lib/validation/api';
 
@@ -106,7 +106,8 @@ const RATE_LIMIT_MAX_REQUESTS = 60;
 async function fetchSnapshot(parsed: ParsedPath): Promise<unknown | null> {
   if (!parsed.type) return null; // unrecognised type — skip DB
   try {
-    const db = getSupabaseAdmin();
+    // Public read: the anon client under RLS, never the service role.
+    const db = getSupabaseClient();
     const query = db.from('f1_snapshots')
       .select('data')
       .eq('season', parsed.season)

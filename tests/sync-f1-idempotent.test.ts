@@ -168,6 +168,16 @@ async function runSync(query = 'scope=season') {
   return { res, body: await res.json() };
 }
 
+describe('GET /api/cron/sync-f1 — scope parameter', () => {
+  it('rejects an unknown scope with 400 before any upstream fetch', async () => {
+    mockFetchCalendar.mockClear();
+    const { res, body } = await runSync('scope=everything');
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: 'Invalid scope' });
+    expect(mockFetchCalendar).not.toHaveBeenCalled();
+  });
+});
+
 describe('GET /api/cron/sync-f1 — settled snapshots are not re-fetched', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
