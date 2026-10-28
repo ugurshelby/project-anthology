@@ -699,11 +699,11 @@ Not: GCP kredisi 2026-12-18'de biter; 9.7 kapanışı 2026-12-12 → 14 sabit ta
 | `rewrite.ts` yorum/kod çelişkisi | Yorum "Gemini → Groq", kod Groq → Gemini | 9.2 |
 | Yasal adresler, logo | `.example` yer tutucu, geçici logo | 16.1, 16.2 |
 | C-7 yerel `next start` SSL uyarısı | Yalnızca yerel; canlıyı etkilemez | izlenir |
-| Sayfalar CDN'de önbelleğe alınmıyor | 2026-10-26: 16/16 sayfa `Cache-Control: private, no-cache, no-store`, art arda istekte `X-Vercel-Cache: MISS`, her yanıtta `Set-Cookie: NEXT_LOCALE` (`revalidate = 900` diyen `/tr/anthology` dahil); TTFB 0,38–0,86 s | Opus tasarım oturumu (önbellek/ISR, maliyet), 8.12 ölçümünden sonra |
+| Sayfalar CDN'de önbelleğe alınmıyor | 2026-10-26: 16/16 sayfa `Cache-Control: private, no-cache, no-store`, art arda istekte `X-Vercel-Cache: MISS`, her yanıtta `Set-Cookie: NEXT_LOCALE` (`revalidate = 900` diyen `/tr/anthology` dahil); TTFB 0,38–0,86 s | **Kapandı 2026-10-28 (Opus O4):** her sayfa ISR + sync sonrası yeniden doğrulama, `?season=` proxy ile `season/[year]` varyantına (`DECISIONS.md` "Page caching design"); K2 8.13'te yeniden ölçülür |
 | `public/news-fallback.json` yok | 14.5 sonrası zincirin son adımı `[]` döner (davranış değişmedi) | Sonnet kuyruğunda 8.9 ile değerlendirilir |
 | `aggregate()` çağıransız | `lib/news/aggregate.ts`; `sync-news` `fetchRawNews` kullanıyor | 19.2 sırasında silinir ya da bağlanır |
 | Ara commit'lerde geçersiz JSON | `631675b..ff9b422` arası `messages/*.json` geçersiz, `7354c9c` düzeltti; bisect bu aralıkta i18n testinde kırılır | bilgi |
-| CSP `script-src 'unsafe-inline' 'unsafe-eval'` | XSS'e karşı CSP koruması zayıf; bugün güvenilmeyen HTML girdisi yok (2026-10-28 denetimi) | nonce tabanlı CSP tasarımı (Opus kuyruğu, önbellek tasarımıyla birlikte: nonce sayfaları dinamik yapar) |
+| CSP `script-src 'unsafe-inline' 'unsafe-eval'` | XSS'e karşı CSP koruması zayıf; bugün güvenilmeyen HTML girdisi yok (2026-10-28 denetimi) | nonce reddedildi (sayfaları yeniden dinamik yapar, 2026-10-28 önbellek tasarımı); ileride hash tabanlı CSP |
 | `server-only` koruması yok | `getSupabaseAdmin` bir istemci dosyasından içe aktarılırsa yapısal engel yok | `server-only` paketi + vitest takma adı (Sonnet, küçük) |
 | Satır içi `isTr ?` çiftleri | 104 satır, 14 dosya (`machinery/[id]` 44) | `messages`'a taşınır (Sonnet, Faz 20 sonrası) |
 | Kullanılmayan dışa aktarımlar | `lib/news`, `lib/f1`, `lib/media`'da 51 sembol | 19.2 / 8.11b sırasında temizlik |

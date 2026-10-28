@@ -34,7 +34,7 @@ Depends on: 9.0 done. Target: by 2026-11-03 (credit ends 2026-12-18; 9.3 reminde
 Steps:
 - [ ] 9.4 — master-plan "9.4".
 
-### O4 — 8.13 PASS verdict, then CDN/ISR caching design
+### O4 — 8.13 PASS verdict, then CDN/ISR caching design (caching done 2026-10-28)
 Run: Opus / medium for the 8.13 verdict; Opus / xhigh for caching (cost and architecture).
 Depends on: Sonnet's 8.13 measurement; caching after 8.12 (master-plan "Teknik borç": pages are `private, no-store`).
 
