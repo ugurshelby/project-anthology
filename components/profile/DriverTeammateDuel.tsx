@@ -1,4 +1,5 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatNumber } from '@/lib/i18n/format';
 
 export interface DriverTeammateDuelProps {
   driverName: string;
@@ -37,6 +38,7 @@ export function DriverTeammateDuel({
   teamName,
 }: DriverTeammateDuelProps) {
   const td = useTranslations('history.driver');
+  const locale = useLocale();
 
   const totalPoints = driverPoints + teammatePoints;
   const driverPtsPct =
@@ -151,13 +153,13 @@ export function DriverTeammateDuel({
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between font-mono text-xs">
           <span className="font-700 text-text-hi">
-            {Number.isInteger(driverPoints) ? driverPoints : driverPoints.toFixed(1)}
+            {formatNumber(driverPoints, locale)}
           </span>
           <span className="label-caps text-[11px] tracking-wider text-text-low">
             {td('duelPtsShare', { pct: driverPtsPct })}
           </span>
           <span className="text-text-mid">
-            {Number.isInteger(teammatePoints) ? teammatePoints : teammatePoints.toFixed(1)}
+            {formatNumber(teammatePoints, locale)}
           </span>
         </div>
         <div className="flex h-1.5 overflow-hidden rounded-full bg-white/[0.06]">

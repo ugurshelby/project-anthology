@@ -1,4 +1,5 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatNumber } from '@/lib/i18n/format';
 
 /** "1:12.909 — Hamilton (2021)" → parts; null when the text has another shape. */
 export function parseLapRecord(text: string | undefined | null): { time: string; holder: string; year: string | null } | null {
@@ -24,11 +25,12 @@ export function CircuitFactsRibbon({
   lapRecord: string | null;
 }) {
   const t = useTranslations('ui.circuit');
+  const locale = useLocale();
   const record = parseLapRecord(lapRecord);
-  const distance = lengthKm != null && laps != null ? (lengthKm * laps).toFixed(3) : null;
+  const distance = lengthKm != null && laps != null ? formatNumber(lengthKm * laps, locale, 3) : null;
 
   const tiles: Array<{ id: string; label: string; value: string; sub?: string; record?: boolean }> = [];
-  if (lengthKm != null) tiles.push({ id: 'length', label: t('lapLength'), value: lengthKm.toFixed(3), sub: 'km' });
+  if (lengthKm != null) tiles.push({ id: 'length', label: t('lapLength'), value: formatNumber(lengthKm, locale, 3), sub: 'km' });
   if (corners != null) tiles.push({ id: 'corners', label: t('corners'), value: String(corners) });
   if (laps != null) tiles.push({ id: 'laps', label: t('laps'), value: String(laps) });
   if (distance) tiles.push({ id: 'distance', label: t('raceDistance'), value: distance, sub: t('distanceNote') });

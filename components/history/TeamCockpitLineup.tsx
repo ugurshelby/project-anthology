@@ -1,9 +1,10 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import type { TeamLineupView } from '@/lib/data/profiles';
 import { MediaAssetView } from '@/components/media/MediaAssetView';
 import type { MediaResult } from '@/lib/media/read';
 import { DRIVER_GRID_POSITIONS } from '@/components/standings/GarageTeamPanel';
+import { formatNumber, formatPercent } from '@/lib/i18n/format';
 
 export interface TeamCockpitLineupProps {
   lineup: TeamLineupView[];
@@ -30,6 +31,7 @@ export function TeamCockpitLineup({
   driverMediaMap,
 }: TeamCockpitLineupProps) {
   const t = useTranslations('history');
+  const locale = useLocale();
   if (lineup.length === 0) return null;
 
   return (
@@ -141,13 +143,13 @@ export function TeamCockpitLineup({
                   {/* Telemetry data strip */}
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs text-text-mid">
                     <span className="data-tabular font-semibold text-text-hi">
-                      {Number.isInteger(d.points) ? d.points : d.points.toFixed(1)} {t('stats.ptsShort')}
+                      {formatNumber(d.points, locale)} {t('stats.ptsShort')}
                     </span>
                     {pointShare != null ? (
                       <>
                         <span className="text-text-low">·</span>
                         <span className="text-text-mid text-[11px] font-mono">
-                          %{pointShare} pay
+                          {t('stats.pointShare', { pct: formatPercent(pointShare, locale, 0) })}
                         </span>
                       </>
                     ) : null}

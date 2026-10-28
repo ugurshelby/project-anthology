@@ -10,6 +10,7 @@ import { MachineryVisual } from '@/components/machinery/MachineryVisual';
 import { getMedia } from '@/lib/media/read';
 import { localizedAlternates, vehicleJsonLd } from '@/lib/seo';
 import { serializeJsonLd } from '@/components/seo/JsonLd';
+import { formatPercent } from '@/lib/i18n/format';
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -168,7 +169,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
           </dl>
           <div className="flex items-baseline justify-between border-t border-hairline pt-4">
             <span className="label-caps text-text-low">{isTr ? 'KAZANMA ORANI' : 'WIN RATE'}</span>
-            <span className="hero-number text-4xl text-text-hi tabular-nums">{car.achievements.winRate}</span>
+            <span className="hero-number text-4xl text-text-hi tabular-nums">{formatPercent(parseFloat(car.achievements.winRate), locale, 2)}</span>
           </div>
         </aside>
       </div>
@@ -243,7 +244,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
             </div>
             <div className="flex items-center justify-between border-b border-hairline pb-2">
               <span className="text-text-mid">{isTr ? 'Kazanma Oranı' : 'Win Percentage'}</span>
-              <span className="font-bold text-emerald-400 text-sm">{car.achievements.winRate}</span>
+              <span className="font-bold text-emerald-400 text-sm">{formatPercent(parseFloat(car.achievements.winRate), locale, 2)}</span>
             </div>
           </div>
 

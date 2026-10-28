@@ -1,10 +1,12 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import type { TeamLineupView } from '@/lib/data/profiles';
+import { formatNumber } from '@/lib/i18n/format';
 
 /** The drivers a team ran in a season, as large number tiles linking to each driver's season. */
 export function TeamLineup({ lineup, year, ui }: { lineup: TeamLineupView[]; year: number; ui: string }) {
   const t = useTranslations('history');
+  const locale = useLocale();
   if (lineup.length === 0) return null;
 
   return (
@@ -27,7 +29,7 @@ export function TeamLineup({ lineup, year, ui }: { lineup: TeamLineupView[]; yea
               <span className="data-tabular mt-1 block text-xs text-text-mid">
                 {d.position != null ? `P${d.position}` : null}
                 {d.position != null && (d.points > 0 || d.position != null) ? <span className="mx-1.5 text-text-low">·</span> : null}
-                {d.position != null || d.points > 0 ? `${Number.isInteger(d.points) ? d.points : d.points.toFixed(1)} ${t('stats.ptsShort')}` : null}
+                {d.position != null || d.points > 0 ? `${formatNumber(d.points, locale)} ${t('stats.ptsShort')}` : null}
                 {d.wins > 0 ? (
                   <>
                     <span className="mx-1.5 text-text-low">·</span>

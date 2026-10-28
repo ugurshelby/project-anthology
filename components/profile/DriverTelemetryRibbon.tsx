@@ -1,5 +1,6 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { Totals } from '@/lib/history/career';
+import { formatNumber, formatPercent } from '@/lib/i18n/format';
 
 export interface DriverTelemetryRibbonProps {
   career: Totals;
@@ -14,9 +15,10 @@ export interface DriverTelemetryRibbonProps {
 export function DriverTelemetryRibbon({ career, year }: DriverTelemetryRibbonProps) {
   const t = useTranslations('history.stats');
   const td = useTranslations('history.driver');
+  const locale = useLocale();
 
-  const rate = (n: number) => (career.starts > 0 && n > 0 ? t('rate', { pct: ((n / career.starts) * 100).toFixed(1) }) : null);
-  const points = Number.isInteger(career.points) ? career.points : career.points.toFixed(1);
+  const rate = (n: number) => (career.starts > 0 && n > 0 ? t('rate', { pct: formatPercent((n / career.starts) * 100, locale) }) : null);
+  const points = formatNumber(career.points, locale);
 
   const tiles = [
     {

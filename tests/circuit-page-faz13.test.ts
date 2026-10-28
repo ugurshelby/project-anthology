@@ -46,7 +46,7 @@ describe('CircuitFactsRibbon', () => {
   });
   it('shows no laps or distance before the race (nothing estimated)', () => {
     const html = render({ lengthKm: 3.337, corners: 19, laps: null, lapRecord: null }, 'tr');
-    expect(html).toContain('3.337');
+    expect(html).toContain('3,337');
     expect(html).not.toContain('Yarış mesafesi');
     expect(html).not.toContain('Tur Rekoru');
   });

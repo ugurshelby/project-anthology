@@ -1,4 +1,5 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatNumber } from '@/lib/i18n/format';
 
 export interface TeamTelemetryRibbonProps {
   titles: number[];
@@ -24,6 +25,7 @@ export function TeamTelemetryRibbon({
 }: TeamTelemetryRibbonProps) {
   const t = useTranslations('history.stats');
   const tt = useTranslations('history.team');
+  const locale = useLocale();
 
   const tiles = [
     {
@@ -40,7 +42,7 @@ export function TeamTelemetryRibbon({
       id: 'seasons',
       label: t('seasons'),
       value: allTimeSeasons,
-      sub: allTimeSeasons > 0 && allTimeWins > 0 ? t('winsPerSeason', { n: (allTimeWins / allTimeSeasons).toFixed(1) }) : t('inF1'),
+      sub: allTimeSeasons > 0 && allTimeWins > 0 ? t('winsPerSeason', { n: formatNumber(allTimeWins / allTimeSeasons, locale) }) : t('inF1'),
       accent: false,
     },
   ];

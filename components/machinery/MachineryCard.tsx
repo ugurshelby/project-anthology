@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import type { MachineryCar } from '@/data/machinery/cars';
 import type { MediaResult } from '@/lib/media/read';
 import { MachineryVisual } from './MachineryVisual';
+import { formatPercent } from '@/lib/i18n/format';
 
 interface MachineryCardProps {
   car: MachineryCar;
@@ -82,7 +83,7 @@ export function MachineryCard({ car, media, priority = false }: MachineryCardPro
           </div>
           <div className="rounded-lg bg-white/[0.02] p-2 border border-white/5">
             <span className="block text-[10px] text-text-low">{isTr ? 'ORAN' : 'WIN %'}</span>
-            <span className="font-bold text-emerald-400">{car.achievements.winRate}</span>
+            <span className="font-bold text-emerald-400">{formatPercent(parseFloat(car.achievements.winRate), locale, 2)}</span>
           </div>
         </div>
 

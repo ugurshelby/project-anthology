@@ -632,7 +632,8 @@ Kaynak: 2026-10-23 Claude in Chrome incelemesi (`logs/2026-10-23.md`, ölçümle
 - `components/standings/GarageTeamPanel.tsx` (288, 304, 309, 316: "AHEAD", "PTS", "H2H … PTS") → `messages`; `components/media/placeholders/TeamPlaceholder.tsx:124` "FORMULA 1 CONSTRUCTOR" → `messages`; antoloji kategori etiketleri (`data/stories/content.ts` değerleri İngilizce kalır; görünen ad `messages` eşlemesinden: MODERN ERA, MIRACLE, TRAGEDY, MYTH, COMBAT, DYNASTY…).
 - Doğrulama: `/tr/grid` ve `/tr/anthology` metninde `AHEAD|PTS|CONSTRUCTOR|MIRACLE|TRAGEDY|MYTH|COMBAT|DYNASTY` yok.
 
-### [ ] 20.2 Sayı ve yüzde biçimi
+### [x] 20.2 Sayı ve yüzde biçimi
+- Kapanış 2026-10-28 (Opus): `formatNumber`/`formatPercent` sezon DNF karosu, Araçlar galibiyet oranı (liste + detay), sürücü kariyer oranları ve puan, takım dizilişi puan ve pay, takım şeridi, `StatTiles`, pist uzunluğu ve yarış mesafesi. Ek: takım kokpitindeki sabit Türkçe "%{n} pay" İngilizce sayfada da görünüyordu → `history.stats.pointShare`. Yerel ölçüm: TR "%20", "%93,75", "%29,3 oran", "3.680,5", "%59 pay"; EN "20%", "93.75%", "29.3% rate", "3,680.5"; temiz sekmede konsol hatası yok. Test: pist şeridi TR "3,337".
 - 18.5 yardımcılarıyla: `SeasonHighlightTiles.tsx` ("19%"), Araçlar galibiyet oranı ("93.75%"), sürücü sayfası oranları ("%29.3") ve puan ("3665.5").
 - Doğrulama: `/tr/season`, `/tr/machinery`, `/tr/drivers/max_verstappen` → "%19", "%93,75", "%29,3", "3.665,5"; İngilizce sayfalarda "19%", "3,665.5".
 
