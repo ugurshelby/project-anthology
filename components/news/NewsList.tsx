@@ -79,39 +79,6 @@ export function NewsList({ items, heading }: { items: NewsItem[]; heading?: stri
   );
 }
 
-/** @deprecated Prefer NewsLeadBlock on /news — kept for any residual callers. */
-export function NewsHero({ item }: { item: NewsItem }) {
-  const locale = useLocale();
-  const hasImage = hasNewsCover(item);
-  const title = localizedNewsTitle(item, locale);
-
-  return (
-    <Link
-      href={`/news/${item.id}`}
-      className={`group relative flex min-h-64 flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-hairline p-6 md:p-8 transition-colors ${
-        hasImage ? 'bg-surface' : 'bg-surface-raised border-l-4 border-l-accent'
-      }`}
-    >
-      {hasImage ? (
-        <>
-          <NewsCover
-            item={item}
-            sizes="(max-width: 768px) 100vw, 768px"
-            className="object-cover opacity-50 transition-opacity group-hover:opacity-60"
-          />
-          <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent" />
-        </>
-      ) : null}
-      <div className="relative z-10 flex flex-col gap-2">
-        <span className="data-tabular text-xs uppercase tracking-wider text-text-mid font-mono">
-          {newsDateLabel(item, locale)} · {item.sourceName}
-        </span>
-        <h2 className="headline-lg line-clamp-3 text-text-hi break-words">{title}</h2>
-      </div>
-    </Link>
-  );
-}
-
 /** Grid card for the /news listing — desktop 3-col grid item, mobile full-width stack. */
 export function NewsCard({ item }: { item: NewsItem }) {
   const locale = useLocale();

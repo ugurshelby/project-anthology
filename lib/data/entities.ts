@@ -10,8 +10,6 @@ import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata'
  */
 const CADILLAC_LAUNCH_GAP_SEASON = 2026;
 
-export const PROFILE_MIN_SEASON = CURRENT_SEASON;
-
 export function profileSeasons(): number[] {
   return [CURRENT_SEASON];
 }
@@ -27,22 +25,6 @@ export interface DriverProfile {
   points: string;
   wins: number;
   podiums: number;
-}
-
-export interface TeamProfile {
-  season: number;
-  constructorId: string;
-  constructorName: string;
-  position: string;
-  points: string;
-  wins: string;
-  drivers: Array<{
-    driverId: string;
-    driverName: string;
-    driverCode: string;
-    position: string;
-    points: string;
-  }>;
 }
 
 function matchDriver(rows: DriverStandingRow[], driverId: string): DriverStandingRow | undefined {
@@ -103,58 +85,6 @@ export async function getDriverProfile(
   };
 }
 
-/** Team profile for one season, including that season's driver lineup. */
-export async function getTeamProfile(
-  constructorId: string,
-  season: number,
-): Promise<TeamProfile | null> {
-  const data = await getSeasonData(season);
-  const row = matchConstructor(data.constructors, constructorId);
-  if (!row) return null;
-
-  const drivers = data.standings
-    .filter((d) => d.constructorId === row.constructorId)
-    .map((d) => ({
-      driverId: d.driverId,
-      driverName: d.driverName,
-      driverCode: d.driverCode,
-      position: d.position,
-      points: d.points,
-    }));
-
-  if ((season === CADILLAC_LAUNCH_GAP_SEASON) && (row.constructorId === 'cadillac' || row.constructorName.toLowerCase().includes('cadillac'))) {
-    const ids = new Set(drivers.map((d) => d.driverId));
-    if (!ids.has('bottas') && !ids.has('valtteri-bottas')) {
-      drivers.push({
-        driverId: 'bottas',
-        driverName: 'Valtteri Bottas',
-        driverCode: 'BOT',
-        position: '22',
-        points: '0',
-      });
-    }
-    if (!ids.has('perez') && !ids.has('sergio-perez')) {
-      drivers.push({
-        driverId: 'perez',
-        driverName: 'Sergio Pérez',
-        driverCode: 'PER',
-        position: '23',
-        points: '0',
-      });
-    }
-  }
-
-  return {
-    season,
-    constructorId: row.constructorId,
-    constructorName: row.constructorName,
-    position: row.position,
-    points: row.points,
-    wins: row.wins,
-    drivers,
-  };
-}
-
 /**
  * Seasons (within the profile range) in which a driver appears in the
  * standings. Bounded fan-out over the archive range. Newest first.
@@ -166,19 +96,6 @@ export async function getDriverSeasons(driverId: string): Promise<number[]> {
     years.map(async (y) => {
       const data = await getSeasonData(y);
       return matchDriver(data.standings, id) ? y : null;
-    }),
-  );
-  return checks.filter((y): y is number => y !== null);
-}
-
-/** Seasons in which a constructor appears in the standings. Newest first. */
-export async function getTeamSeasons(constructorId: string): Promise<number[]> {
-  const id = constructorId.toLowerCase();
-  const years = profileSeasons();
-  const checks = await Promise.all(
-    years.map(async (y) => {
-      const data = await getSeasonData(y);
-      return matchConstructor(data.constructors, id) ? y : null;
     }),
   );
   return checks.filter((y): y is number => y !== null);

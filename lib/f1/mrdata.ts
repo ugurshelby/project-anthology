@@ -222,34 +222,6 @@ export function getQualifyingPole(data: MrData | null): PoleInfo | null {
   };
 }
 
-export interface CountdownParts {
-  days: number;
-  hours: number;
-  mins: number;
-  secs: number;
-  expired: boolean;
-}
-
-export function getCountdownParts(targetMs: number, nowMs: number): CountdownParts {
-  const diff = targetMs - nowMs;
-  if (!Number.isFinite(diff) || diff <= 0) {
-    return { days: 0, hours: 0, mins: 0, secs: 0, expired: true };
-  }
-  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-  const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-  const mins = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-  const secs = Math.floor((diff % (60 * 1000)) / 1000);
-  return { days, hours, mins, secs, expired: false };
-}
-
-export function formatRaceCountdown(targetMs: number, nowMs: number): string {
-  const { days, hours, mins, expired } = getCountdownParts(targetMs, nowMs);
-  if (expired) return 'Race underway or finished';
-  if (days > 0) return `${days}d ${hours}h ${mins}m`;
-  if (hours > 0) return `${hours}h ${mins}m`;
-  return `${mins}m`;
-}
-
 /**
  * Current epoch ms. Lives here (a plain lib module, not a component) so callers
  * can read the request-time clock without the react-hooks/purity rule flagging
@@ -272,24 +244,6 @@ export function findRaceByCircuitId(
 ): CalendarRace | null {
   const id = circuitId.trim().toLowerCase();
   return races.find((r) => (r.Circuit?.circuitId ?? '').toLowerCase() === id) ?? null;
-}
-
-/**
- * The race immediately after the given round (by round number). Used by the
- * homepage hero's "race after next" panel. Returns null when there is no
- * later round on the calendar (e.g. `next` is the season finale).
- */
-export function getRaceAfter(
-  races: CalendarRace[],
-  round: number | string | null | undefined,
-): CalendarRace | null {
-  const r = Number(round);
-  if (!Number.isFinite(r)) return null;
-  return (
-    races
-      .filter((race) => Number(race.round) > r)
-      .sort((a, b) => Number(a.round ?? 0) - Number(b.round ?? 0))[0] ?? null
-  );
 }
 
 export interface RaceWinner {

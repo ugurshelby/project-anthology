@@ -119,8 +119,3 @@ export function scheduleSnapshotRefresh(target: RefreshTarget, now: number = Dat
     void job();
   }
 }
-
-/** Test helper: forget cooldowns. */
-export function resetRefreshCooldownsForTests(): void {
-  lastScheduledAt.clear();
-}

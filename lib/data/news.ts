@@ -87,20 +87,6 @@ function sortNews(items: NewsItem[]): NewsItem[] {
 }
 
 /**
- * The single featured story for hero placements (homepage + /news).
- * Picks the most recent headline that actually has an image, so the cinematic
- * background hero is never rendered with the favicon placeholder. Falls back to
- * the newest item if none have images, and null if there's no news at all.
- *
- * Reuses getLatestNews so the DB → static fallback chain is shared.
- */
-export async function getFeaturedNews(): Promise<NewsItem | null> {
-  const items = await getLatestNews(20);
-  if (items.length === 0) return null;
-  return items.find(hasRealImage) ?? items[0];
-}
-
-/**
  * News items mentioning an entity (driver surname or team name), for profile
  * pages (Faz 3). MVP: filter the already-fetched latest-news set in memory
  * (case-insensitive substring on title/summary), so no extra DB round trip and

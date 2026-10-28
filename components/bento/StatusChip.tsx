@@ -45,12 +45,3 @@ function StatusIcon({ status }: { status: Status }) {
     </svg>
   );
 }
-
-/** Result chip (P1, DNF, +5s…) — mono, neutral stroke. */
-export function ResultChip({ value }: { value: string }) {
-  return (
-    <span className="data-tabular inline-flex items-center rounded-[var(--radius-chip)] border border-hairline px-2 py-0.5 text-text">
-      {value}
-    </span>
-  );
-}

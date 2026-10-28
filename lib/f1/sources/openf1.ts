@@ -222,11 +222,6 @@ export async function fetchMeeting(meetingKey: number): Promise<OpenF1Meeting | 
   return results[0] ?? null;
 }
 
-/** Race sessions for the current year (convenience). */
-export async function fetchCurrentYearRaceSessions(): Promise<OpenF1Session[]> {
-  return fetchRaceSessions(new Date().getUTCFullYear());
-}
-
 // ── Live timing (session_key=latest) ────────────────────────────────────────
 // Used by /api/live-timing for the in-progress-session tracker. OpenF1 treats
 // "latest" as the most recently started session regardless of whether it has

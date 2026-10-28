@@ -134,19 +134,6 @@ export function raceStartMs(race: CalendarRace): number | null {
   return Number.isFinite(t) ? t : null;
 }
 
-export interface F1Context {
-  /** Season treated as "current" right now. */
-  currentSeason: number;
-  /** Inclusive backfill lower bound. */
-  seasonMin: number;
-  /** True if we are within a race weekend window (when a calendar is provided). */
-  isRaceWeekend: boolean;
-  /** The next upcoming (not-yet-done) race, if a calendar is provided. */
-  nextRace: CalendarRace | null;
-  /** The most recent finished race, if a calendar is provided. */
-  lastFinishedRace: CalendarRace | null;
-}
-
 /** @deprecated Ergast `time` is race start, not end — prefer `raceStartMs` + buffers in syncSchedule. */
 function raceEnd(race: CalendarRace): number {
   const start = raceStartMs(race);
@@ -251,22 +238,4 @@ export function getLastFinishedRace(
     .filter((r) => isRaceDone(r, now))
     .sort((a, b) => Number(b.round ?? 0) - Number(a.round ?? 0));
   return done[0] ?? null;
-}
-
-/**
- * Resolve the temporal context. Pass the current season's calendar races (from
- * the data layer) to enrich race-weekend / next-race fields; omit them for a
- * clock-only context.
- */
-export function getF1Context(
-  currentSeasonRaces?: CalendarRace[] | null,
-  now: Date = new Date(),
-): F1Context {
-  return {
-    currentSeason: CURRENT_SEASON,
-    seasonMin: F1_SEASON_MIN,
-    isRaceWeekend: isRaceWeekend(currentSeasonRaces, now),
-    nextRace: getNextRace(currentSeasonRaces, now),
-    lastFinishedRace: getLastFinishedRace(currentSeasonRaces, now),
-  };
 }

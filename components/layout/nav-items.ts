@@ -79,9 +79,6 @@ export function desktopNavSlots(pages: NavItem[] = NAV_PAGES_BY_RANK): {
   return { left: [...leftFromCentre].reverse(), right: rightFromCentre };
 }
 
-/** Flat form — still used wherever a single list is needed (e.g. sitemaps, tests). */
-export const NAV_ITEMS: NavItem[] = NAV_PAGES_BY_RANK;
-
 /** Pages that fit in the mobile dock next to Home (the "+" button takes the last slot). */
 export const MOBILE_DOCK_PAGE_COUNT = 3;
 

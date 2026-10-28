@@ -121,22 +121,6 @@ export async function getStoryBySlug(slug: string): Promise<Story | null> {
   return idx >= 0 ? staticStoryToStory(slug, idx) : null;
 }
 
-/** All published slugs — for generateStaticParams. */
-export async function getStorySlugs(): Promise<string[]> {
-  try {
-    const supabase = getSupabaseClient();
-    const { result } = await timed(async () =>
-      supabase.from('stories').select('slug').eq('published', true),
-    );
-    if (!result.error && result.data && result.data.length > 0) {
-      return (result.data as Array<{ slug: string }>).map((r) => r.slug);
-    }
-  } catch {
-    // Fallback to static
-  }
-  return storyContent.map((s) => s.slug);
-}
-
 export interface StorySitemapEntry {
   slug: string;
   updatedAt: string;

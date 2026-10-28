@@ -14,7 +14,6 @@
 const MYMEMORY_BASE = 'https://api.mymemory.translated.net/get';
 const REQUEST_TIMEOUT_MS = 8_000;
 const MAX_RETRIES = 2;
-const TRANSLATE_CONCURRENCY = 3;
 /** MyMemory's own per-request character ceiling. */
 const MAX_CHARS = 500;
 
@@ -61,41 +60,4 @@ export async function translateToTurkish(text: string): Promise<string | null> {
     }
   }
   return null;
-}
-
-/** Bounded-concurrency map — never more than `limit` translate calls in flight. */
-async function mapBounded<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let next = 0;
-  async function worker() {
-    while (next < items.length) {
-      const i = next++;
-      results[i] = await fn(items[i]);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
-}
-
-export interface TranslatableItem {
-  title: string;
-  summary: string;
-}
-
-export interface TranslatedPair {
-  titleTr: string | null;
-  summaryTr: string | null;
-}
-
-/**
- * Translate title+summary for a batch of items. Bounded concurrency keeps
- * this well under MyMemory's rate limits regardless of batch size.
- */
-export async function translateItems<T extends TranslatableItem>(
-  items: T[],
-): Promise<TranslatedPair[]> {
-  return mapBounded(items, TRANSLATE_CONCURRENCY, async (item) => ({
-    titleTr: await translateToTurkish(item.title),
-    summaryTr: item.summary ? await translateToTurkish(item.summary) : null,
-  }));
 }

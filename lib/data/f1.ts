@@ -341,11 +341,6 @@ export async function fetchRoundSnapshot(
   return null;
 }
 
-/** Convenience: current-season calendar races (used by getF1Context callers). */
-export async function fetchCurrentCalendar(): Promise<MrData | null> {
-  return fetchSeasonSnapshotTyped(CURRENT_SEASON, 'calendar');
-}
-
 export interface OnThisDayEntry {
   season: number;
   raceName: string;
