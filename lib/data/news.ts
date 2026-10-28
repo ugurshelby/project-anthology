@@ -2,13 +2,13 @@
  * News read layer — Supabase SELECTs only, never a live RSS scrape.
  *
  * Chain: `news_stories` (merged stories) → `news_cache` (raw rows), both fed by
- * the sync-news cron, so the slow RSS round trips stay off the user path →
- * static public/news-fallback.json.
+ * the sync-news cron, so the slow RSS round trips stay off the user path. When
+ * both are empty or unreachable the list is empty and the pages show their empty
+ * state (no hand-authored fallback file: stale headlines read as current).
  */
 
 import { getSupabaseClient } from '@/lib/supabase';
 import type { NewsCacheRow, NewsStoryRow } from '@/types/database';
-import { readPublicJson } from '@/lib/data/fs';
 import { logFallback, logSupabaseCall, timed } from '@/lib/data/logger';
 import { stableId, canonicalize } from '@/lib/news/aggregate';
 import { hasRealImage } from '@/lib/news/categories';
@@ -23,20 +23,6 @@ import type { NewsItem } from '@/lib/data/types';
 export type { NewsItem } from '@/lib/data/types';
 export { hasRealImage };
 export { localizedNewsTitle, localizedNewsSummary } from '@/lib/news/i18n';
-
-/** Shape of the hand-authored public/news-fallback.json items. */
-interface StaticNewsItem {
-  id: string;
-  title: string;
-  summary: string;
-  url: string;
-  sourceName: string;
-  sources?: string[];
-  image: string;
-  publishedAt: string;
-  publishedTs?: number;
-  dateLabel?: string;
-}
 
 function formatDateLabel(iso: string): string {
   const d = Date.parse(iso);
@@ -93,25 +79,6 @@ function newsFromStory(row: NewsStoryRow): NewsItem {
     titleTr: row.title_tr,
     summaryTr: row.summary_tr,
     sourceLinks: links.map((l) => ({ name: l.name, url: l.url, title: l.title })),
-  };
-}
-
-function newsFromStaticItem(item: StaticNewsItem): NewsItem {
-  const publishedTs =
-    typeof item.publishedTs === 'number' && Number.isFinite(item.publishedTs)
-      ? item.publishedTs
-      : Date.parse(item.publishedAt || '') || 0;
-  return {
-    id: item.id,
-    title: item.title,
-    summary: item.summary,
-    url: item.url,
-    sourceName: item.sourceName,
-    sources: item.sources?.length ? item.sources : [item.sourceName],
-    image: item.image || '/placeholder.svg',
-    publishedAt: item.publishedAt,
-    publishedTs,
-    dateLabel: item.dateLabel ?? formatDateLabel(item.publishedAt),
   };
 }
 
@@ -287,24 +254,19 @@ export async function getLatestNews(
     if (!result.error && result.data?.length) {
       // Defense in depth: news_cache rows written before an image-reachability
       // check existed (or before a source pulled its asset) shouldn't surface a
-      // broken/placeholder thumbnail — aggregate() already keeps this out of
-      // new rows, this just protects against stale ones until the 30-day
+      // broken/placeholder thumbnail; this protects against stale ones until the 30-day
       // retention cron clears them.
       const withImages = (result.data as NewsCacheRow[]).map(newsFromCache).filter(hasRealImage);
       if (withImages.length > 0) return sortNews(withImages).slice(0, limit);
     }
     if (result.error) {
-      logFallback('supabase news_cache', 'public/news-fallback.json', result.error.message);
+      logFallback('supabase news_cache', 'empty list', result.error.message);
     } else {
-      logFallback('supabase news_cache (empty)', 'public/news-fallback.json');
+      logFallback('supabase news_cache (empty)', 'empty list');
     }
   } catch (err) {
-    logFallback('supabase news_cache', 'public/news-fallback.json', (err as Error).message);
+    logFallback('supabase news_cache', 'empty list', (err as Error).message);
   }
 
-  // 2) static fallback — hand-authored/stale, still enforce the same rule
-  const fallback = await readPublicJson<StaticNewsItem[]>('news-fallback.json');
-  if (!fallback?.length) return [];
-  const fallbackWithImages = fallback.map(newsFromStaticItem).filter(hasRealImage);
-  return sortNews(fallbackWithImages).slice(0, limit);
+  return [];
 }

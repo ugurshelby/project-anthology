@@ -1,8 +1,8 @@
 /**
  * F1 news RSS aggregation (Masterplan Karar A/E).
  *
- * Logic extracted from old-versions-valuable-files/route.ts so it can be shared
- * by both the cron route (sync-news) and any direct API route.
+ * Feed fetching and filtering for the sync-news cron (`fetchRawNews`); the story
+ * pipeline (lib/news/stories.ts) clusters the raw items and probes their images.
  *
  * Features preserved from the old route:
  *  - Per-source AbortController timeout.
@@ -335,18 +335,12 @@ function clusterAndPickPrimary(items: RawNewsItem[]): NewsItem[] {
   return result;
 }
 
-// ── Image reachability verification ───────────────────────────────────────
-// An RSS feed can publish an <enclosure>/<media:content> URL that 404s, times
-// out, or resolves to a non-image response (redirect to an HTML paywall page,
-// a since-deleted CDN asset, etc). Showing that article with a broken image —
-// or with the site's fallback placeholder — reads as unprofessional, so any
-// article whose image doesn't come back as a real image is dropped entirely
-// rather than shown without a thumbnail. This runs once per 15-minute
-// aggregate() cache window (see below), not per page view.
+// ── Image reachability ──────────────────────────────────────────────────────
+// An RSS feed can publish an <enclosure>/<media:content> URL that 404s, times out, or resolves to a
+// non-image response (an HTML paywall page, a deleted CDN asset). The sync-news story pipeline probes each
+// candidate cover through probeImage below and keeps only real images.
 
 const IMAGE_CHECK_TIMEOUT_MS = 2_000;
-const IMAGE_CHECK_CONCURRENCY = 10;
-const IMAGE_VERIFY_TOTAL_BUDGET_MS = 9_000;
 
 async function imageIsReachable(url: string, signal: AbortSignal): Promise<boolean> {
   const ctrl = new AbortController();
@@ -374,49 +368,6 @@ async function imageIsReachable(url: string, signal: AbortSignal): Promise<boole
     clearTimeout(timer);
     signal.removeEventListener('abort', onParentAbort);
   }
-}
-
-/** Bounded-concurrency map that never exceeds `limit` in-flight tasks. */
-async function mapBounded<T, R>(
-  items: T[],
-  limit: number,
-  fn: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let next = 0;
-  async function worker() {
-    while (next < items.length) {
-      const i = next++;
-      results[i] = await fn(items[i]);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
-}
-
-/**
- * Drop any item with no image, or whose image fails a reachability check.
- * Bounded by a total time budget — any check still pending when the budget
- * expires is treated as failed (article dropped), so one slow CDN can never
- * stall the whole aggregate() cycle.
- */
-async function verifyImages(items: NewsItem[]): Promise<NewsItem[]> {
-  const withImage = items.filter((it) => it.image);
-  if (withImage.length === 0) return [];
-
-  const budget = new AbortController();
-  const budgetTimer = setTimeout(() => budget.abort(), IMAGE_VERIFY_TOTAL_BUDGET_MS);
-
-  let ok: boolean[];
-  try {
-    ok = await mapBounded(withImage, IMAGE_CHECK_CONCURRENCY, (it) =>
-      imageIsReachable(it.image, budget.signal),
-    );
-  } finally {
-    clearTimeout(budgetTimer);
-  }
-
-  return withImage.filter((_, i) => ok[i]);
 }
 
 // ── RSS feed fetcher ──────────────────────────────────────────────────────
@@ -512,85 +463,10 @@ export function processFeeds(rawItems: RawNewsItem[]): NewsItem[] {
   return clustered.sort((a, b) => b.publishedTs - a.publishedTs);
 }
 
-// ── Main aggregator ────────────────────────────────────────────────────────
+// ── Feed fetch budget ──────────────────────────────────────────────────────
 
 const PER_FEED_TIMEOUT_MS = 6_000;
 const TOTAL_TIMEOUT_MS = 12_000;
-
-export interface AggregateOptions {
-  maxItems?: number;
-}
-
-/** Fetch + process every RSS source into the full deduped/clustered feed. */
-async function aggregateUncached(): Promise<NewsItem[]> {
-  // Initialise the lightweight XML parser once per warm instance.
-  await ensureXMLParser();
-
-  const totalDeadline = Date.now() + TOTAL_TIMEOUT_MS;
-  const perFeed = NEWS_SOURCES.map((source) => {
-    const ctrl = new AbortController();
-    const budget = Math.min(PER_FEED_TIMEOUT_MS, Math.max(1_000, totalDeadline - Date.now()));
-    const timer = setTimeout(() => ctrl.abort(), budget);
-    return fetchRSSFeed(source, ctrl.signal).finally(() => clearTimeout(timer));
-  });
-
-  const settled = await Promise.allSettled(perFeed);
-  const all: RawNewsItem[] = [];
-  settled.forEach((r) => {
-    if (r.status === 'fulfilled') all.push(...r.value);
-  });
-
-  const processed = processFeeds(all);
-  return verifyImages(processed);
-}
-
-// ── In-memory cache (per warm instance) ──────────────────────────────────────
-// Public /news calls aggregate() on every request (revalidate=0). The 15-min
-// memo stops a hammering of the RSS sources: one fetch per warm instance per
-// window, shared across concurrent requests via the in-flight guard.
-
-const AGGREGATE_TTL_MS = 15 * 60 * 1000;
-let _cache: { items: NewsItem[]; ts: number } | null = null;
-let _inflight: Promise<NewsItem[]> | null = null;
-
-/**
- * Fetch all RSS sources, process, and return NewsItems (newest first).
- * Backed by a 15-minute in-memory cache with a stampede guard; the cached full
- * set is sliced to `maxItems` per call. Suitable for the cron route and direct
- * API routes.
- */
-export async function aggregate(opts: AggregateOptions = {}): Promise<NewsItem[]> {
-  const { maxItems = 60 } = opts;
-
-  // 1) Fresh cache → serve immediately.
-  if (_cache && Date.now() - _cache.ts < AGGREGATE_TTL_MS) {
-    return _cache.items.slice(0, maxItems);
-  }
-
-  // 2) A fetch is already running → share it (stampede guard).
-  if (_inflight) {
-    const items = await _inflight;
-    return items.slice(0, maxItems);
-  }
-
-  // 3) Start a fetch; cache on success, serve stale on failure.
-  _inflight = aggregateUncached()
-    .then((items) => {
-      _cache = { items, ts: Date.now() };
-      return items;
-    })
-    .finally(() => {
-      _inflight = null;
-    });
-
-  try {
-    const items = await _inflight;
-    return items.slice(0, maxItems);
-  } catch (err) {
-    if (_cache) return _cache.items.slice(0, maxItems); // serve-stale-on-error
-    throw err;
-  }
-}
 
 // ── Raw feed access (story pipeline) ───────────────────────────────────────
 
@@ -624,7 +500,7 @@ export async function fetchRawNews(): Promise<RawNewsItem[]> {
 }
 
 /** Reachability check for one image URL (bounded, never throws). */
-export async function isImageReachable(url: string): Promise<boolean> {
+async function isImageReachable(url: string): Promise<boolean> {
   const ctrl = new AbortController();
   try {
     return await imageIsReachable(url, ctrl.signal);

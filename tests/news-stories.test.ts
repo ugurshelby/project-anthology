@@ -140,21 +140,14 @@ describe('getLatestNews read chain', () => {
     publishedAt: '2026-10-01T10:00:00Z',
   };
 
-  it('falls back to the static file when both tables are empty, without an HTTP call', async () => {
+  it('returns [] when both tables are empty: no static file, no HTTP call', async () => {
     const { getLatestNews, fetchSiteJson, readPublicJson } = await loadNews({}, [fallbackItem]);
-    const items = await getLatestNews(5);
-    expect(items.map((i) => i.id)).toEqual(['fb-1']);
-    expect(readPublicJson).toHaveBeenCalledWith('news-fallback.json');
-    expect(fetchSiteJson).not.toHaveBeenCalled();
-  });
-
-  it('returns [] when the tables and the static file are empty', async () => {
-    const { getLatestNews, fetchSiteJson } = await loadNews({}, null);
     expect(await getLatestNews(5)).toEqual([]);
+    expect(readPublicJson).not.toHaveBeenCalled();
     expect(fetchSiteJson).not.toHaveBeenCalled();
   });
 
-  it('serves news_cache rows before the static file', async () => {
+  it('serves news_cache rows when news_stories is empty', async () => {
     const row = {
       id: 'db-row',
       url: 'https://example.com/b',
