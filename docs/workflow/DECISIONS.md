@@ -215,3 +215,15 @@ Architect appends; newest last. One entry per decision.
 - Gap closed by the operator: `GarageTeamPanel` passes `sizes` to both `MediaAssetView` calls (driver bays `(min-width: 1024px) 31vw, 50vw`, car slot `(min-width: 1024px) 30vw, 80vw`), the 20.6 note that waited for 8.2; before, every grid image used the `100vw` default.
 - Affects: master-plan 18.1–18.5, 19.1, 20.1, 20.4, 20.5, 13.3 ticked; `OPEN.md` three entries removed.
 
+## 2026-10-28 9.4 GCP service selection (Architect)
+- Inputs (measured 2026-10-28): `news_stories` 23–38 new stories/day over 8 days (mean ≈ 30), `BATCH_SIZE` 4 → ≈ 8–10 rewrite requests/day. Token estimate per request (prompt ≈ 3 KB system + 4 stories, output EN+TR title and summary × 4): ≈ 2.4k input, ≈ 2k output — an estimate; 9.2 logs real `usageMetadata`. Price (Vertex AI pricing page via search, read 2026-10-28): Gemini 3.6/3.7 Flash $0.75 / $3.75 per 1M input/output tokens until 2026-12-31, then $1.50 / $7.50.
+- 1. Vertex (owner-chosen): ≈ 10 req/day → 0.72M input + 0.6M output tokens/month → ≈ $2.8/month at the 2026 price, ≈ $5.6/month from 2027. Kept. Daily cap lowered from 300 to **16** (2 × measured peak): at 2027 prices the cap bounds the worst case at ≈ $9/month; over the cap the free tiers take over. 9.7 keeps Vertex only if the logged tokens put it at ≤ $5/month, else the owner removes the key from Vercel.
+- 2a. Cloud Monitoring uptime check: gains an outage e-mail (Vercel Hobby has none); $0 (≈ 26k runs/month, 1M free); risk none; kept after credit. Owner console step in 9.3.
+- 2b. Cloud Vision `LOGO_DETECTION`, one-off over resolved team/car/circuit media: gains an automatic check of the AGENTS logo ban; ≤ 1000 units → $0; report only, deletion is the owner's. During credit only. Face detection rejected (driver photos are faces by design).
+- 2c. Cloud Run Jobs for 8.6: rejected — 8.6 waits for the owner's audit, `sync-media` already fits Vercel's limit in incremental runs; a second runtime adds failure surface.
+- 2d. Cloud Translation: rejected — the LLM writes TR; ≈ 0.9M chars/month would cost ≈ $18.
+- 2e. Imagen: rejected for now — no page needs it; any AI image needs the owner's per-use approval and never goes under `public/stories`.
+- 3. 9.5 remote dev VM: not needed (CI ≈ 129 s, local suite ≈ 70 s). Closed.
+- 4. After credit: Vertex (≤ $5, else removed) + uptime check ($0) → ≤ $5/month, within the owner's $5–10.
+- Affects: master-plan 9.4, 9.5 closed; 9.2 cap 16 and token logging; 9.3 list rewritten.
+

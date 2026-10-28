@@ -28,7 +28,7 @@ Stop conditions: more than a third of circuits skipped, or OpenF1 terms or shape
 Run: Opus / medium — audit, commit, push.
 After each finished Sonnet or Haiku step: commits, scope, gates (`npx tsc --noEmit`, `npm run lint`, `npx vitest run`), i18n balance, no attribution, browser check for UI steps; answer `OPEN.md`; tick or reopen boxes; push with the owner's approval.
 
-### O3 — 9.4 GCP service selection (Architect)
+### O3 — 9.4 GCP service selection (Architect) — done 2026-10-28
 Run: Opus / xhigh — cost, scope and security decision; no code.
 Depends on: 9.0 done. Target: by 2026-11-03 (credit ends 2026-12-18; 9.3 reminder early November).
 Steps:

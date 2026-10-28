@@ -297,7 +297,8 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
   5. Kimlik bilgisi: `VERTEX_API_KEY` sahip tarafından üretildi (2026-10-26). 9.2 canlıya çıkmadan önce madde 3 ve 4 (bütçe ve Vertex/Generative Language istek kotası, değer sahip onayıyla) o anahtarın projesinde kurulmuş olmalı.
 - Doğrulama: log'da proje kimliği, bölge, bağlı faturalandırma, iki bütçe ve eşikleri, kredi kapsamı listesi, açık API listesi; hiçbir anahtar değeri yok.
 
-### [ ] 9.4 GCP hizmet seçimi (Architect)
+### [x] 9.4 GCP hizmet seçimi (Architect)
+- Kapanış 2026-10-28 (`DECISIONS.md` "9.4 GCP service selection"): Vertex kalır (tavan 16/gün, token ölçümü 9.2'de, 9.7'de ≤ 5 $/ay değilse sökülür); Cloud Monitoring uptime check (0 $) ve Vision logo taraması (kredi döneminde tek sefer) 9.3'te; Cloud Run Jobs, Translation, Imagen reddedildi; 9.5 gerek yok.
 - Run: Opus / xhigh — maliyet, kapsam ve güvenlik kararı; Architect, kod yazmaz
 - Owner: Opus · Depends on: 9.0 · Dalga 3
 - Karar verir ve `DECISIONS.md`'ye yazar (her aday için: ne kazandırır, kredi döneminde ve sonrasında aylık maliyet tahmini — fiyat sayfasından, tarihli —, risk, sonra ne olur):
@@ -312,10 +313,11 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 - Run: Sonnet / high — sağlayıcı zinciri, maliyet ve örtüşme korumaları
 - Owner: Sonnet · Depends on: 14.4 ve 19.2 (aynı dosya, sıralı), 9.0 madde 3–4 (bütçe ve kota), sahip `VERTEX_API_KEY`'i Vercel'e girdi · Dalga 5
 - Dosyalar: `lib/news/rewrite.ts`, yeni `tests/news-rewrite-order.test.ts`, `.env.example`
-- Değişiklik: `PROVIDERS` sırası `vertex` → `gemini` (AI Studio) → `groq`; `vertex` Vertex AI express mode REST uç noktasını API anahtarıyla çağırır (uç nokta ve model adı Google'ın güncel belgesinden okunur, tarihle yorumda); `VERTEX_API_KEY=` `.env.example`'a boş değerle; env yoksa sağlayıcı atlanır (zincir bugünkü gibi çalışır); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan `vertex`; `VERTEX_API_KEY` yokken ilk çağrılan `gemini`. Günlük tavan (paylaşılan GCP projesi, `DECISIONS.md` 2026-10-27): `export const VERTEX_DAILY_CALL_CAP = 300` (14.4 sabitlerinin yanına; 9.4 ölçülen hacimle günceller); her `vertex` çağrısından önce mevcut Upstash Redis'te `INCR apex:llm:vertex:<UTC YYYY-MM-DD>` (ilk artışta `EXPIRE` 172800 sn); sayaç tavanı aşarsa ya da Redis yoksa/hata verirse `vertex` atlanır, zincir `gemini` → `groq` ile sürer (ücretli tarafta kapalı başarısızlık); `sync-news` yanıtına günün `vertex` sayısı. Test: tavan aşımında `vertex` çağrılmaz; Redis hatasında `vertex` çağrılmaz.
+- Değişiklik: `PROVIDERS` sırası `vertex` → `gemini` (AI Studio) → `groq`; `vertex` Vertex AI express mode REST uç noktasını API anahtarıyla çağırır (uç nokta ve model adı Google'ın güncel belgesinden okunur, tarihle yorumda); `VERTEX_API_KEY=` `.env.example`'a boş değerle; env yoksa sağlayıcı atlanır (zincir bugünkü gibi çalışır); dosya başı yorumu koda uydur. Sıra testi: anahtarlar stub'lanınca ilk çağrılan `vertex`; `VERTEX_API_KEY` yokken ilk çağrılan `gemini`. Günlük tavan (paylaşılan GCP projesi, `DECISIONS.md` 2026-10-27): `export const VERTEX_DAILY_CALL_CAP = 16` (14.4 sabitlerinin yanına; 9.4 kararı 2026-10-28: ölçülen günlük tepe ≈ 10 istek × 2); her `vertex` çağrısından önce mevcut Upstash Redis'te `INCR apex:llm:vertex:<UTC YYYY-MM-DD>` (ilk artışta `EXPIRE` 172800 sn); sayaç tavanı aşarsa ya da Redis yoksa/hata verirse `vertex` atlanır, zincir `gemini` → `groq` ile sürer (ücretli tarafta kapalı başarısızlık); `sync-news` yanıtına günün `vertex` sayısı ve o koşunun Vertex `usageMetadata` toplamları (`promptTokenCount`, `candidatesTokenCount`; 9.7 maliyet ölçümü bunlardan). Test: tavan aşımında `vertex` çağrılmaz; Redis hatasında `vertex` çağrılmaz.
 - Doğrulama: `npx vitest related --run lib/news/rewrite.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint lib/news/rewrite.ts` 0; canlıda ilk `sync-news` sonrası log'da sağlayıcı adı (read-only).
 
-### [ ] 9.5 Uzak geliştirme makinesi (yalnızca ölçüm haklı çıkarırsa)
+### [x] 9.5 Uzak geliştirme makinesi (yalnızca ölçüm haklı çıkarırsa)
+- Kapanış 2026-10-28 (9.4): gerek yok. Ölçülen: tam CI kapısı ~129 s, yerel `vitest run` 83 dosya ~70 s, `tsc` < 1 dk; yerel makine darboğaz değil. VM açılmaz.
 - Run: Sonnet / medium — ölç, karşılaştır, pilotu yönet · Owner: Sonnet + owner (VM, SSH anahtarı ve güvenlik duvarı sahip onaylı) · Depends on: 9.4 · Dalga 4
 - Bugünkü ölçüm (2026-10-21): GitHub CI (ücretsiz, Linux) tüm kapı 129 sn — lint 7, tsc 6, test 7, build 82 sn. Yerel (Windows) bilinen süreler: `vitest run` 35–70 sn, `npm run build` ~4 dk, `npm run lint` ~1 dk. Fark büyük ölçüde Windows dosya sistemi/tarayıcı koruma kaynaklı; tam kapı zaten `wip/` CI'da ücretsiz koşuyor.
 - Sıra (ucuzdan pahalıya; bir önceki yeterliyse sonrakine geçilmez):
@@ -328,7 +330,7 @@ Güncelleme 2026-10-26 (9.0 ölçümü + sahip kararları, `DECISIONS.md` "Faz 9
 ### [ ] 9.3 Kredi dönemi tek seferlik işler (2026-12-14'e kadar)
 - Run: Sonnet / medium — tek seferlik betikler, harcama sahip onaylı
 - Owner: Sonnet · Depends on: 9.0, 9.4, sahip onayı · Dalga 5 (Kasım başı hatırlatma)
-- 9.4'ün seçtikleri: 8.6 toplu medya çözümlemesi (Cloud Run Jobs), Cloud Monitoring uptime check, Vision ile mevcut medya kayıtlarının logo/yüz taraması (rapor; silme sahip kararı). AI görsel/ikon denemesi `public/stories`'e giremez (AGENTS). 15.1 ekran görüntüsü denetiminin sahip koşusu kredili anahtarla yapılabilir.
+- 9.4'ün seçtikleri (2026-10-28): (1) Cloud Monitoring uptime check, sahip konsolda: `https://project-anthology-eight.vercel.app/en` (16.1'de özel alan adına taşınır), 5 dk, 3 bölge, beklenen 200, uyarı sahibin e-postasına; 1M çalıştırma/ay ücretsiz, bu ≈ 26 bin. (2) Cloud Vision `LOGO_DETECTION` ile `media_assets` `team`/`car`/`circuit` resolved kayıtlarının tek seferlik taraması (betik `scripts/vision-logo-scan.ts`, `--dry-run` varsayılan, yalnız rapor; ilk 1000 birim/ay ücretsiz), sonuç log'a, silme sahip kararı. Yüz taraması yok (pilot fotoğrafları yüz içerir, anlamsız). Cloud Run Jobs ile 8.6 reddedildi (8.6 sahip denetimine bağlı, `sync-media` Vercel süresine sığıyor). AI görsel/ikon denemesi `public/stories`'e giremez (AGENTS). 15.1 ekran görüntüsü denetiminin sahip koşusu kredili anahtarla yapılabilir.
 
 ### [ ] 9.7 Kredi bitişi kapanışı (2026-12-12 → 2026-12-14)
 - Run: Claude in Chrome (sahip onaylı) + Sonnet / medium — envanter, silme, ölçüm
