@@ -3,6 +3,13 @@ import { getDriverLore } from '@/data/drivers';
 import { CURRENT_SEASON } from '@/lib/f1Calendar';
 import type { DriverStandingRow, ConstructorStandingRow } from '@/lib/f1/mrdata';
 
+/**
+ * Season whose early standings lacked the new Cadillac line-up (Bottas #77, Pérez #11), so
+ * the grid and profile pages fill them in when absent. Pinned to that season: tied to
+ * CURRENT_SEASON it would add both drivers to every later season they may not race.
+ */
+const CADILLAC_LAUNCH_GAP_SEASON = 2026;
+
 export const PROFILE_MIN_SEASON = CURRENT_SEASON;
 
 export function profileSeasons(): number[] {
@@ -66,7 +73,7 @@ export async function getDriverProfile(
 ): Promise<DriverProfile | null> {
   const data = await getSeasonData(season);
   let row = matchDriver(data.standings, driverId);
-  if (!row && (season === CURRENT_SEASON || season === 2026) && (driverId.toLowerCase() === 'perez' || driverId.toLowerCase() === 'sergio-perez')) {
+  if (!row && (season === CADILLAC_LAUNCH_GAP_SEASON) && (driverId.toLowerCase() === 'perez' || driverId.toLowerCase() === 'sergio-perez')) {
     row = {
       position: '23',
       driverId: 'perez',
@@ -115,7 +122,7 @@ export async function getTeamProfile(
       points: d.points,
     }));
 
-  if ((season === CURRENT_SEASON || season === 2026) && (row.constructorId === 'cadillac' || row.constructorName.toLowerCase().includes('cadillac'))) {
+  if ((season === CADILLAC_LAUNCH_GAP_SEASON) && (row.constructorId === 'cadillac' || row.constructorName.toLowerCase().includes('cadillac'))) {
     const ids = new Set(drivers.map((d) => d.driverId));
     if (!ids.has('bottas') && !ids.has('valtteri-bottas')) {
       drivers.push({
@@ -257,7 +264,7 @@ export async function getDriversByTeam(season: number = CURRENT_SEASON): Promise
   }
 
   // Ensure Cadillac in 2026 has both Bottas (#77) and Perez (#11)
-  if (season === CURRENT_SEASON || season === 2026) {
+  if (season === CADILLAC_LAUNCH_GAP_SEASON) {
     const hasPerez = flat.some((d) => d.driverId === 'perez' || d.driverId === 'sergio-perez');
     if (!hasPerez) {
       flat.push({
