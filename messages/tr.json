@@ -61,7 +61,10 @@
     "teamRadio": "Takım Telsizi",
     "noStories": "Henüz yayınlanmış bir hikâye bulunmuyor. Yakında tekrar kontrol edin.",
     "imageNotice": "Bu hikâyedeki fotoğraflar ticari olmayan, editoryal amaçla kullanılır. Tüm hakları sahiplerine aittir; kaynağı bilinen görselde kaynak belirtilir. Hak sahipleri <dmca>kaldırma süreci</dmca> üzerinden bir görselin kaldırılmasını isteyebilir.",
-    "imageSourceAria": "Bu görselin özgün kaynağı: {source} (yeni sekmede açılır)"
+    "imageSourceAria": "Bu görselin özgün kaynağı: {source} (yeni sekmede açılır)",
+    "metaTitle": "Antoloji",
+    "metaOgTitle": "Antoloji — F1 Hikâyeleri & Telsiz",
+    "metaDescription": "Formula 1 tarihinden efsaneler, rekabetler, trajediler, mucizeler ve ikonik takım telsizleri antolojisi."
   },
   "glossary": {
     "title": "Teknik Sözlük",
@@ -646,6 +649,13 @@
         "outlets": "farklı makale",
         "opensInNewTab": "Yeni sekmede açılır",
         "viewOriginalReporting": "Orijinal makaleyi görüntüle"
+      },
+      "page": {
+        "kicker": "Padok Telgrafı",
+        "title": "Haberler",
+        "intro": "Padoktan derlenen son gelişmeler, yarış analizleri ve 24 saatlik telemetri telgraf akışı.",
+        "metaDescription": "Padoktan derlenen Formula 1 manşetleri — öne çıkan hikâyeler, yarış analizleri, teknik güncellemeler ve 24 saatlik telemetri telgrafı.",
+        "empty": "Şu anda gösterilecek haber yok. Kısa süre sonra tekrar bakın."
       }
     },
     "profile": {

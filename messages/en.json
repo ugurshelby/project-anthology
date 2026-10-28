@@ -61,7 +61,10 @@
     "teamRadio": "Team Radio",
     "noStories": "No stories published yet. Check back soon.",
     "imageNotice": "Photographs in this story are used for non-commercial, editorial purposes. All rights remain with their owners, and the source is named wherever it is known. Rights holders can ask for an image to be removed through our <dmca>takedown process</dmca>.",
-    "imageSourceAria": "Original source of this image: {source} (opens in a new tab)"
+    "imageSourceAria": "Original source of this image: {source} (opens in a new tab)",
+    "metaTitle": "Anthology",
+    "metaOgTitle": "Anthology — F1 Stories & Radio",
+    "metaDescription": "An anthology of Formula 1 stories and iconic team radio moments — legends, rivalries, tragedies and miracles."
   },
   "glossary": {
     "title": "Tech Glossary",
@@ -646,6 +649,13 @@
         "outlets": "outlets",
         "opensInNewTab": "Opens in new tab",
         "viewOriginalReporting": "View original reporting"
+      },
+      "page": {
+        "kicker": "The Wire",
+        "title": "News",
+        "intro": "Featured paddock dispatches, race weekends, and a live telemetry feed of everything else.",
+        "metaDescription": "Curated Formula 1 headlines aggregated from across the paddock — featured stories, race recaps, tech upgrades, and the 24H wire.",
+        "empty": "No headlines available right now. Check back soon."
       }
     },
     "profile": {

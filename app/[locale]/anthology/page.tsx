@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getPublishedRadioMoments } from '@/lib/data/radio';
 import { getPublishedStories } from '@/lib/data/stories';
 import { localizedAlternates } from '@/lib/seo';
@@ -16,14 +16,13 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const isTr = locale === 'tr';
-  const title = isTr ? 'Antoloji — F1 Hikâyeleri & Telsiz' : 'Anthology — F1 Stories & Radio';
-  const description = isTr
-    ? 'Formula 1 tarihinden efsaneler, rekabetler, trajediler, mucizeler ve ikonik takım telsizleri antolojisi.'
-    : 'An anthology of Formula 1 stories and iconic team radio moments — legends, rivalries, tragedies and miracles.';
+  const t = await getTranslations({ locale, namespace: 'anthology' });
+  const title = t('metaOgTitle');
+  const description = t('metaDescription');
   const urlPath = isTr ? '/tr/anthology' : '/anthology';
 
   return {
-    title: isTr ? 'Antoloji' : 'Anthology',
+    title: t('metaTitle'),
     description,
     alternates: localizedAlternates('/anthology', locale),
     openGraph: {
@@ -50,16 +49,16 @@ export default async function AnthologyPage({ params }: PageProps) {
   ]);
 
   const [lead, ...rest] = stories;
-  const isTr = locale === 'tr';
+  const t = await getTranslations({ locale, namespace: 'anthology' });
 
   return (
     <PageShell>
       <header className="mb-8 flex flex-col gap-1">
         <span className="label-caps text-text-mid">
-          {isTr ? 'Antoloji' : 'The Anthology'}
+          {t('kicker')}
         </span>
         <h1 className="headline-lg uppercase text-text-hi">
-          {isTr ? 'Hikâyeler ve Telsiz' : 'Stories & Radio'}
+          {t('title')}
         </h1>
       </header>
 
@@ -67,9 +66,7 @@ export default async function AnthologyPage({ params }: PageProps) {
         {stories.length === 0 ? (
           <div className="col-span-4 md:col-span-8 lg:col-span-12">
             <p className="body-md text-center text-text-mid">
-              {isTr
-                ? 'Henüz yayınlanmış bir hikâye bulunmuyor. Yakında tekrar kontrol edin.'
-                : 'No stories published yet. Check back soon.'}
+              {t('noStories')}
             </p>
           </div>
         ) : (

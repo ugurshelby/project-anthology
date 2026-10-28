@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getLatestNews } from '@/lib/data/news';
 import { PageShell } from '@/components/layout/BentoGrid';
 import { hasRealImage, sortWireByTime } from '@/lib/news/categories';
@@ -14,10 +14,9 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const isTr = locale === 'tr';
-  const title = isTr ? 'Haberler' : 'News';
-  const description = isTr
-    ? 'Padoktan derlenen Formula 1 manşetleri — öne çıkan hikâyeler, yarış analizleri, teknik güncellemeler ve 24 saatlik telemetri telgrafı.'
-    : 'Curated Formula 1 headlines aggregated from across the paddock — featured stories, race recaps, tech upgrades, and the 24H wire.';
+  const t = await getTranslations({ locale, namespace: 'ui.news.page' });
+  const title = t('title');
+  const description = t('metaDescription');
 
   return {
     title,
@@ -40,7 +39,7 @@ export const revalidate = 300;
 export default async function NewsPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const isTr = locale === 'tr';
+  const t = await getTranslations({ locale, namespace: 'ui.news.page' });
   const news = await getLatestNews(80, { includeImageless: true });
 
   const withImages = news.filter(hasRealImage);
@@ -68,24 +67,20 @@ export default async function NewsPage({ params }: PageProps) {
     <PageShell>
       <header className="mb-6 flex flex-col gap-1 md:mb-8">
         <span className="label-caps text-text-mid font-mono">
-          {isTr ? 'Padok Telgrafı' : 'The Wire'}
+          {t('kicker')}
         </span>
         <h1 className="headline-lg uppercase text-text-hi">
-          {isTr ? 'Haberler' : 'News'}
+          {t('title')}
         </h1>
         <p className="mt-1 max-w-xl body-md text-text-mid">
-          {isTr
-            ? 'Padoktan derlenen son gelişmeler, yarış analizleri ve 24 saatlik telemetri telgraf akışı.'
-            : 'Featured paddock dispatches, race weekends, and a live telemetry feed of everything else.'}
+          {t('intro')}
         </p>
       </header>
 
       {news.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-hairline bg-surface/30 p-8 text-center">
           <p className="body-md text-text-mid font-mono">
-            {isTr
-              ? 'Şu anda gösterilecek haber bulunmuyor. Padok hattı saat başı güncellenmektedir.'
-              : 'No headlines available right now. Check back soon.'}
+            {t('empty')}
           </p>
         </div>
       ) : (

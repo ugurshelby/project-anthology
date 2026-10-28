@@ -91,7 +91,7 @@ export default async function StoryPage({ params }: PageProps) {
       {next && next.slug !== slug ? (
         <section className="mx-auto w-full max-w-3xl px-5 pb-28 pt-16 md:px-8 md:pt-20 md:pb-24">
           <span className="label-caps mb-3 block text-text-mid">
-            {isTr ? 'Antolojideki Sıradaki Hikâye' : 'Next in the Anthology'}
+            {(await getTranslations({ locale, namespace: 'anthology' }))('nextStory')}
           </span>
           <StoryCard story={next} wide />
         </section>
