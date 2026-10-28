@@ -8,7 +8,7 @@ import { teamThemeVars } from '@/lib/theme';
 import { getNewsForEntity } from '@/lib/data/news';
 import { getMedia, getMediaBatch } from '@/lib/media/read';
 import { carKey } from '@/lib/media/keys';
-import { countryName } from '@/lib/i18n/format';
+import { countryName, formatNumber } from '@/lib/i18n/format';
 import { BentoGrid } from '@/components/layout/BentoGrid';
 import { BentoCard } from '@/components/bento/BentoCard';
 import { TeamSeasonHero } from '@/components/history/TeamSeasonHero';
@@ -74,8 +74,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   const theme = teamThemeVars(view.id, view.year);
   const lore = getTeamLore(view.headId, locale) ?? getTeamLore(view.headId.replace(/-/g, '_'), locale);
 
-  const [teamMedia, carMedia, driverMediaMap, relatedNews] = await Promise.all([
-    getMedia('team', view.headId),
+  const [carMedia, driverMediaMap, relatedNews] = await Promise.all([
     getMedia('car', carKey(view.headId, view.year)),
     getMediaBatch('driver', view.lineup.map((d) => d.driverId)),
     view.isCurrentSeason ? getNewsForEntity(view.name, 4) : Promise.resolve([]),
@@ -85,7 +84,7 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
   const metaParts: string[] = [];
   if (s.position != null) metaParts.push(`P${s.position}`);
   if (s.position != null || s.points > 0) {
-    metaParts.push(`${Number.isInteger(s.points) ? s.points : s.points.toFixed(1)} ${t('stats.ptsShort')}`);
+    metaParts.push(`${formatNumber(s.points, locale)} ${t('stats.ptsShort')}`);
   }
 
   const asOf = view.asOf;
@@ -119,7 +118,6 @@ export default async function TeamProfilePage({ params, searchParams }: PageProp
         badge={s.champion ? t('team.champion', { year: view.year }) : null}
         numbers={view.lineup.map((d) => d.number).filter((n): n is string => !!n).slice(0, 3)}
         constructorId={view.id}
-        mediaResult={teamMedia}
         carMediaResult={carMedia}
         country={countryName(view.country, locale)}
       />

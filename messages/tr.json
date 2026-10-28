@@ -343,6 +343,7 @@
       "seatTbc": "TBA // Koltuk belli değil",
       "ahead": "ÖNDE",
       "headToHead": "İKİLİ",
+      "teamMark": "{name} takım işareti",
       "constructorTag": "FORMULA 1 TAKIMI",
       "ptsWithTeam": "{points} puanı {team} ile",
       "ptsFromDriver": "{points} puanı {driver} getirdi",

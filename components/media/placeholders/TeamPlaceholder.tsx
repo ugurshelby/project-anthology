@@ -7,11 +7,13 @@ interface TeamPlaceholderProps {
   name?: string;
   teamColor?: string;
   className?: string;
+  /** Small slots (hero badge, chips): crop to the wordmark, no padding, no constructor tag. */
+  compact?: boolean;
 }
 
 /**
- * Section 9 Team Placeholder:
- * Typographic wordmark SVG using team colors without mimicking official protected logos.
+ * Team mark (owner decision 2026-10-27, master-plan 8.11): the one designed wordmark every team
+ * shows in place of a logo, in the team's colour, never imitating an official logo.
  * Features racing-grade typography, italic dynamic cuts, and secondary accent stripes.
  */
 export function TeamPlaceholder({
@@ -19,6 +21,7 @@ export function TeamPlaceholder({
   name,
   teamColor = '#ff1801',
   className = 'h-full w-full',
+  compact = false,
 }: TeamPlaceholderProps) {
   const t = useTranslations('ui.common');
   const cleanName = (name || seed.replace(/[-_]/g, ' ')).toUpperCase();
@@ -38,7 +41,7 @@ export function TeamPlaceholder({
   return (
     <div
       role="img"
-      aria-label={`${cleanName} typography badge`}
+      aria-label={t('teamMark', { name: cleanName })}
       className={`relative flex items-center justify-center overflow-hidden bg-[#0c1017] ${className}`}
       style={{
         background: `radial-gradient(circle at 50% 50%, color-mix(in srgb, ${teamColor} 18%, #0a0d13), #07090e 85%)`,
@@ -54,8 +57,8 @@ export function TeamPlaceholder({
       />
 
       <svg
-        viewBox="0 0 320 180"
-        className="relative z-10 h-full w-full p-4 transition-transform duration-300 hover:scale-[1.02]"
+        viewBox={compact ? '20 58 280 76' : '0 0 320 180'}
+        className={`relative z-10 h-full w-full ${compact ? '' : 'p-4'} transition-transform duration-300 hover:scale-[1.02]`}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -79,7 +82,7 @@ export function TeamPlaceholder({
         {/* Main Wordmark Text */}
         <text
           x="160"
-          y={secondaryText ? '85' : '98'}
+          y={secondaryText && !compact ? '85' : '98'}
           textAnchor="middle"
           fill="#ffffff"
           fontFamily="var(--font-condensed), Impact, sans-serif"
@@ -91,7 +94,7 @@ export function TeamPlaceholder({
           {primaryText}
         </text>
 
-        {secondaryText ? (
+        {secondaryText && !compact ? (
           <text
             x="160"
             y="118"
@@ -109,12 +112,13 @@ export function TeamPlaceholder({
         {/* Bottom Baseline Bar */}
         <rect
           x="60"
-          y={secondaryText ? '136' : '124'}
+          y={secondaryText && !compact ? '136' : '124'}
           width="200"
           height="2"
           fill={`url(#team-grad-${seed})`}
         />
 
+        {compact ? null : (
         <text
           x="160"
           y="156"
@@ -126,6 +130,7 @@ export function TeamPlaceholder({
         >
           {t('constructorTag')}
         </text>
+        )}
       </svg>
     </div>
   );

@@ -54,7 +54,7 @@ describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () =>
       );
 
       expect(html).toContain('role="img"');
-      expect(html).toContain('SCUDERIA FERRARI typography badge');
+      expect(html).toContain('SCUDERIA FERRARI team mark');
       expect(html).toContain('FORMULA 1 CONSTRUCTOR');
       expect(html).toContain('SCUDERIA');
       expect(html).toContain('#e80020');

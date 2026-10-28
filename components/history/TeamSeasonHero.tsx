@@ -1,6 +1,8 @@
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import { MediaAssetView } from '@/components/media/MediaAssetView';
 import { MediaCredit } from '@/components/media/MediaCredit';
+import { TeamPlaceholder } from '@/components/media/placeholders/TeamPlaceholder';
+import { resolveTeamUiColor } from '@/config/team-colors';
 import type { MediaResult } from '@/lib/media/read';
 
 export interface TeamSeasonHeroProps {
@@ -12,7 +14,6 @@ export interface TeamSeasonHeroProps {
   badge?: string | null;
   numbers: string[];
   constructorId: string;
-  mediaResult?: MediaResult | null;
   carMediaResult?: MediaResult | null;
   country?: string | null;
 }
@@ -33,7 +34,6 @@ export function TeamSeasonHero({
   badge,
   numbers,
   constructorId,
-  mediaResult,
   carMediaResult,
   country,
 }: TeamSeasonHeroProps) {
@@ -102,20 +102,10 @@ export function TeamSeasonHero({
         <div className="relative z-10 min-w-0 max-w-2xl">
           {/* Header Tag / Emblem HUD */}
           <div className="flex flex-wrap items-center gap-3">
-            {mediaResult?.status === 'image' ? (
-              <div className="h-10 w-24 shrink-0 sm:h-12 sm:w-32 drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
-                <MediaAssetView
-                  type="team"
-                  entityKey={constructorId}
-                  initialResult={mediaResult}
-                  alt={`${name} emblem`}
-                  name={name}
-                  objectFit="contain"
-                  className="h-full w-full object-contain"
-                  showAttribution={false}
-                />
-              </div>
-            ) : null}
+            {/* Designed team mark, never an official logo (owner decision 2026-10-27, 8.11). */}
+            <div className="h-10 w-24 shrink-0 overflow-hidden rounded-[var(--radius-chip)] sm:h-12 sm:w-32 drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
+              <TeamPlaceholder seed={constructorId} name={name} teamColor={resolveTeamUiColor(undefined, name, year)} compact />
+            </div>
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--team-secondary,var(--accent))]" />
               <p className="label-caps font-mono text-[11px] tracking-[0.16em] text-text-mid">{kicker}</p>
@@ -162,9 +152,9 @@ export function TeamSeasonHero({
             ) : null}
           </div>
 
-          {/* Media Attribution */}
-          {mediaResult?.status === 'image' && mediaResult.attribution?.text ? (
-            <MediaCredit attribution={mediaResult.attribution} className="mt-3 max-w-[320px]" />
+          {/* Credit of the car photo behind the hero (the team mark is our own design and needs none). */}
+          {carMediaResult?.status === 'image' && carMediaResult.attribution?.text ? (
+            <MediaCredit attribution={carMediaResult.attribution} className="mt-3 max-w-[320px]" />
           ) : null}
         </div>
 

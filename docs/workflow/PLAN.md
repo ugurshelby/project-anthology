@@ -54,7 +54,7 @@ Run (queue): Sonnet / medium unless a step says otherwise.
 - [~] **S8 9.2** (code done 2026-10-28, Opus; live after the owner adds VERTEX_API_KEY in Vercel) — master-plan "9.2" (vertex → gemini → groq, daily Vertex cap). `/effort high`. Needs the owner's `VERTEX_API_KEY` in Vercel.
 - [x] **S9 8.9** (2026-10-28, Opus) — master-plan "8.9". `/effort high`. Also decide with the Opus session what replaces the missing `public/news-fallback.json` (master-plan "Teknik borç").
 - [x] **S10 8.10** (2026-10-28, Opus) — master-plan "8.10" (needs 8.9 on `main`).
-- [ ] **S11 8.11** — master-plan "8.11" (one designed team mark; owner reviews).
+- [x] **S11 8.11** (2026-10-28, Opus) — master-plan "8.11" (one designed team mark; owner reviews).
 - [ ] **S12 8.11b** — master-plan "8.11b".
 - [ ] **S13 8.12** — master-plan "8.12" (needs 8.2, 8.3, 8.5 on `main`).
 - [ ] **S14 8.13** — master-plan "8.13" measurement (PASS verdict in the Opus queue).

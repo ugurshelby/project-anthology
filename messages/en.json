@@ -343,6 +343,7 @@
       "seatTbc": "TBA // Seat unconfirmed",
       "ahead": "AHEAD",
       "headToHead": "H2H",
+      "teamMark": "{name} team mark",
       "constructorTag": "FORMULA 1 CONSTRUCTOR",
       "ptsWithTeam": "incl. {points} pts with {team}",
       "ptsFromDriver": "incl. {points} pts from {driver}",

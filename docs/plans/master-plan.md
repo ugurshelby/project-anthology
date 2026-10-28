@@ -249,7 +249,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: görseli olmayan öğede `fallbackMedia` varsa `MediaAssetView` (`initialResult={fallbackMedia.result}`) + görünür "Arşiv görseli / Archive image" etiketi + atıf (`MediaCredit`); yoksa bugünkü metin kartı. `ApexImage` yeni `fallback?: ReactNode`: yükleme hatasında `ApexFallback` yerine bunu çizer; haber bileşenleri `fallbackMedia` görünümünü ya da `null` geçer (haberde `ApexFallback` görünmez).
 - Doğrulama: Faz 20 doğrulaması; tarayıcı 375 ve 1440 px `/tr/news`, `/en/news`, bir RaceFans haber detayı: kırık 0, `ApexFallback` 0, RaceFans öğeleri arşiv görseli + atıf.
 
-### [ ] 8.11 Takım işareti (sahip kararı 2026-10-27)
+### [x] 8.11 Takım işareti (sahip kararı 2026-10-27)
+- Kapanış 2026-10-28 (Opus): takım sayfası hero'su logo yerine `TeamPlaceholder` işaretini gösterir (yeni `compact` görünüm: 48 px'te okunur, iç boşluksuz, takım etiketi yok); `getMedia('team')` kalktı; `aria-label` "<TAKIM> takım işareti" / "team mark" (`ui.common.teamMark`). `grep -rnE 'type="team"|getMedia(Batch)?\('team'' components app` boş. Ek düzeltme: hero'daki araç fotoğrafının atfı hiç gösterilmiyordu (yalnız logo atfı vardı) → artık araç fotoğrafının atfı. Grid kartı 20.6'dan beri logo göstermiyor (takım rengi çubuğu). Yerel: `/tr/teams/ferrari`, `/tr/teams/mclaren` işaret okunur, takım logosu `img` 0, "CC BY 4.0" araç atfı, konsol hatası yok.
 - Run: Sonnet / medium — arayüz ve metin (sahip kararı 2026-10-28: eski Antigravity işi, Sonnet kuyruğu)
 - Owner: Antigravity · Depends on: 20.1 ve 20.6 ile aynı ajan, onlardan sonra · Dalga 5
 - Dosyalar: `components/media/placeholders/TeamPlaceholder.tsx` (tüm takımlar için tasarım işaretine döner), `components/standings/GarageTeamPanel.tsx`, `components/history/TeamSeasonHero.tsx`, `app/[locale]/teams/[constructorId]/page.tsx`
