@@ -6,6 +6,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { ApexImage } from '@/components/media/ApexImage';
 import { variantLoader } from '@/components/media/variantLoader';
+import { VariantImage } from '@/components/media/VariantImage';
 import { CircuitPlaceholder } from '@/components/media/placeholders/CircuitPlaceholder';
 import { TeamPlaceholder } from '@/components/media/placeholders/TeamPlaceholder';
 import { CarPlaceholder } from '@/components/media/placeholders/CarPlaceholder';
@@ -370,6 +371,41 @@ describe('variantLoader', () => {
     expect(load({ src: 'x', width: 300 })).toBe('a');
     expect(load({ src: 'x', width: 640 })).toBe('b');
     expect(load({ src: 'x', width: 4000 })).toBe('c');
+  });
+});
+
+describe('VariantImage (8.3, server-safe loader)', () => {
+  const variants = [
+    { w: 320, src: 'https://cdn.test/driver/alonso/320.webp' },
+    { w: 640, src: 'https://cdn.test/driver/alonso/640.webp' },
+    { w: 1280, src: 'https://cdn.test/driver/alonso/1280.webp' },
+  ];
+  const render = (v: typeof variants) =>
+    renderToStaticMarkup(
+      React.createElement(VariantImage, {
+        src: v[v.length - 1].src,
+        variants: v,
+        alt: 'Alonso',
+        fill: true,
+        fetchPriority: 'high',
+        loading: 'eager',
+        sizes: '(max-width: 768px) 155vw, 80vw',
+      }),
+    );
+
+  it('builds a srcset from the variant list with priority attributes', () => {
+    const html = render(variants);
+    const srcset = /srcSet="([^"]+)"/i.exec(html)?.[1] ?? '';
+    expect(srcset).toContain('/alonso/640.webp');
+    expect(srcset).toContain('/alonso/1280.webp');
+    expect(html).toMatch(/fetchPriority="high"/i);
+    expect(html).toContain('loading="eager"');
+  });
+
+  it('serves a single variant as is, without a srcset', () => {
+    const html = render(variants.slice(2));
+    expect(html).toContain('src="https://cdn.test/driver/alonso/1280.webp"');
+    expect(html).not.toMatch(/srcSet=/i);
   });
 });
 

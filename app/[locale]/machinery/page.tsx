@@ -69,8 +69,13 @@ export default async function MachineryPage({ params }: PageProps) {
 
       {/* Grid Showcase */}
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {cars.map((car) => (
-          <MachineryCard key={car.id} car={car} media={media.get(`iconic:${car.id}`)} />
+        {cars.map((car, index) => (
+          <MachineryCard
+            key={car.id}
+            car={car}
+            media={media.get(`iconic:${car.id}`)}
+            priority={index === 0}
+          />
         ))}
       </section>
 

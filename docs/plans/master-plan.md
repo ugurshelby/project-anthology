@@ -185,7 +185,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
   3. `priority` iki bileşende de `next/image`'a geçirilmez (Next 16'da kullanımdan kalktı): `priority` → `fetchPriority="high"` + `loading="eager"`; değilse `loading="lazy"` (`ApexImage`'da çağıranın açık `loading`'i korunur). Çağrı yerleri `priority` vermeye devam eder.
 - Doğrulama: test: 3 varyantlı sonuçta `img` `srcset`'i en az 2 farklı varyant URL'si içerir; `priority` → `fetchpriority="high"` ve `loading="eager"`, yokken `loading="lazy"`; `img` `error` olayı → `MediaAssetView` tür yer tutucusunu çizer ve yeni `img` açmaz, `ApexImage` `ApexFallback` çizer (K4). `npx vitest run tests/media-components.test.ts` yeşil; `npx tsc --noEmit` 0; `npx eslint components/media` 0. Tarayıcı (`wip/` preview, 375 px): `/tr` ve `/tr/circuits/monza` LCP `img` `fetchpriority=high`; Monza `currentSrc` `960.webp` (bugün `1600.webp`).
 
-### [ ] 8.3 Pilot hero ve Araçlar ilk kartı
+### [x] 8.3 Pilot hero ve Araçlar ilk kartı
+- Kapanış 2026-10-28 (Opus operatör): `DriverProfileHero` bir Server Component olduğu için `loader` fonksiyonu `next/image`'a geçemiyor ("Functions cannot be passed directly to Client Components"); yeni istemci sarmalayıcı `components/media/VariantImage.tsx` varyant listesini alıp loader'ı istemcide kurar. Tarayıcı (yerel): `/tr/drivers/norris` 1440 px ve `/tr/drivers/alonso` 375 px LCP `img` `fetchpriority=high`, `loading=eager`, `currentSrc` en büyük varyant (598 / 572); `/tr/machinery` ilk kart `high` + `eager`, ikinci `lazy`; konsol hatası yok. Test: `VariantImage` srcset ve tek varyant.
 - Run: Sonnet / medium — üç çağrı yeri
 - Owner: Sonnet · Depends on: 8.2 · Dalga 4 (oturum U)
 - Dosyalar: `components/profile/DriverProfileHero.tsx`, `components/machinery/MachineryCard.tsx`, `app/[locale]/machinery/page.tsx`

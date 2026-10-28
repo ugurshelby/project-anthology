@@ -10,9 +10,11 @@ interface MachineryCardProps {
   car: MachineryCar;
   /** Server lookup for `iconic:<id>`: the photo when one exists, else the livery silhouette. */
   media?: MediaResult | null;
+  /** First card on the page: its image is the LCP candidate, so it loads eagerly with high priority. */
+  priority?: boolean;
 }
 
-export function MachineryCard({ car, media }: MachineryCardProps) {
+export function MachineryCard({ car, media, priority = false }: MachineryCardProps) {
   const locale = useLocale();
   const isTr = locale === 'tr';
 
@@ -56,6 +58,7 @@ export function MachineryCard({ car, media }: MachineryCardProps) {
           <MachineryVisual
             car={car}
             media={media}
+            priority={priority}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>

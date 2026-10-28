@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { ApexImage } from '@/components/media/ApexImage';
 import { MediaCredit } from '@/components/media/MediaCredit';
+import { VariantImage } from '@/components/media/VariantImage';
 import { teamPatternStyle } from '@/lib/assets/team-pattern';
 import { DRIVER_GRID_POSITIONS } from '@/lib/data/driverPositions';
 import { CountryFlag } from '@/components/ui/CountryFlag';
@@ -326,13 +326,14 @@ export function DriverProfileHero({
               style={PORTRAIT_MASK}
             >
               {isMediaImage ? (
-                <Image
+                <VariantImage
                   src={mediaResult.image.src}
+                  variants={mediaResult.image.variants}
                   alt={imageAlt}
                   fill
-                  unoptimized={true}
-                  priority
-                  sizes="(max-width: 768px) 100vw, 62vw"
+                  fetchPriority="high"
+                  loading="eager"
+                  sizes="(max-width: 768px) 155vw, 80vw"
                   placeholder={mediaResult.image.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={mediaResult.image.blurDataURL ?? undefined}
                   style={{ objectPosition: eyePosition }}
