@@ -55,7 +55,7 @@ Run (queue): Sonnet / medium unless a step says otherwise.
 - [x] **S9 8.9** (2026-10-28, Opus) — master-plan "8.9". `/effort high`. Also decide with the Opus session what replaces the missing `public/news-fallback.json` (master-plan "Teknik borç").
 - [x] **S10 8.10** (2026-10-28, Opus) — master-plan "8.10" (needs 8.9 on `main`).
 - [x] **S11 8.11** (2026-10-28, Opus) — master-plan "8.11" (one designed team mark; owner reviews).
-- [~] **S12 8.11b** (code done 2026-10-28, Opus; live check after deploy) — master-plan "8.11b".
+- [x] **S12 8.11b** (2026-10-29: live team keys `placeholder`, no team row processed after deploy) — master-plan "8.11b".
 - [~] **S13 8.12** (2026-10-29, Opus: four runner shards, 16/16 pages measured, K2 still FAIL; grid and season LCP fixes in) — master-plan "8.12".
 - [ ] **S14 8.13** — master-plan "8.13" measurement (PASS verdict in the Opus queue).
 - [x] **S15b 13.4** (2026-10-28, Opus; 15.2 still waits for the owner's 15.1 run)
