@@ -470,12 +470,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const qualifying = await syncProvisionalSessionFromOpenF1({ kind: 'qualifying', races, now, stats });
     const sprint = await syncProvisionalSessionFromOpenF1({ kind: 'sprint', races, now, stats });
 
-    // Cached pages show the new rows on their next request instead of after their revalidate window.
-    const wrote =
-      stats.upserted > 0 ||
-      provisional.status === 'written' ||
-      qualifying.status === 'written' ||
-      sprint.status === 'written';
+    // A new provisional classification shows on its next request instead of after the revalidate window.
+    // Not on `stats.upserted`: every run rewrites the calendar and standings rows whether or not they
+    // changed (QStash every 30 min), and Jolpica rows reach the pages within their 5–10 min windows.
+    const wrote = provisional.status === 'written' || qualifying.status === 'written' || sprint.status === 'written';
     const revalidated = wrote ? revalidateSitePages('sync-f1') : false;
 
     return NextResponse.json({

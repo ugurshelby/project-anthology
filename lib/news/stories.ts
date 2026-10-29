@@ -261,3 +261,24 @@ export async function buildStoryRows(
   for (const r of rows) if (!unique.has(r.id)) unique.set(r.id, r);
   return { rows: [...unique.values()], stats };
 }
+
+const sourceUrls = (r: NewsStoryRow) => (r.sources ?? []).map((x) => x.url).join('|');
+
+/** Built rows that are new or differ from the stored row in anything a page shows (cache revalidation). */
+export function countChangedStories(rows: NewsStoryRow[], existing: NewsStoryRow[]): number {
+  const byId = new Map(existing.map((r) => [r.id, r]));
+  return rows.filter((r) => {
+    const e = byId.get(r.id);
+    return (
+      !e ||
+      e.title !== r.title ||
+      e.summary !== r.summary ||
+      e.title_tr !== r.title_tr ||
+      e.summary_tr !== r.summary_tr ||
+      e.image_url !== r.image_url ||
+      Date.parse(e.published_at ?? '') !== Date.parse(r.published_at ?? '') ||
+      // jsonb reorders object keys, so compare the outlets by URL, not the serialized objects.
+      sourceUrls(e) !== sourceUrls(r)
+    );
+  }).length;
+}
