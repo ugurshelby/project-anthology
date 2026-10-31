@@ -35,7 +35,7 @@ Steps:
 - [x] 9.4 — master-plan "9.4".
 
 ### O5 — Open after 2026-10-31 (do not drop)
-- [ ] 15.2 — after the owner runs `npx tsx --env-file=.env.local scripts/audit-screenshots.ts` (48 screenshots are fresh, 2026-10-31); read `screenshots/*/audit-report.md`, apply master-plan 15.2.
+- [x] 15.2 — reports read and verified 2026-10-31; contrast and translation fixes (`fcd1b8e`), master-plan 15.2.
 - [x] 8.15 car eras — owner's 12 images reviewed, six picked, `CarPlaceholder` by era (2026-10-31). Optional: classic driver image.
 - [ ] 9.2 live — Vertex counter `apex:llm:vertex:<date>` ≥ 1 after the first sync-news with the key (owner added it 2026-10-31).
 - [ ] 8.8(b) live — Las Vegas `resolved` with `Las Vegas Grand Prix (54942077056).jpg` after the next sync-media.
