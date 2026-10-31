@@ -155,7 +155,11 @@ function vertexProvider(model: string): Provider {
         },
       );
       if (res.status === 429) throw new QuotaError(model);
-      if (!res.ok) return null;
+      if (!res.ok) {
+        // Status only: a 403 here is a key restriction or a disabled API, worth seeing in the logs.
+        console.warn(`[rewrite] vertex ${model} HTTP ${res.status}`);
+        return null;
+      }
       const json = (await res.json()) as {
         candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
         usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };

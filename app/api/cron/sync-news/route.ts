@@ -63,6 +63,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
     stats = built.stats;
     console.log(`[sync-news] built ${built.rows.length} stories (rewritten ${stats.rewritten}) at ${Date.now() - startedAt}ms`);
+    // Vertex use per run in the logs (9.2/9.7 cost check): the counter itself lives in the integration's Redis.
+    const v = stats.vertex;
+    console.log(`[sync-news] vertex calls=${v.calls} day=${v.dayCount ?? 'n/a'} tokens in=${v.promptTokens} out=${v.outputTokens}`);
 
     // 3) Upsert (batched).
     for (let i = 0; i < built.rows.length; i += UPSERT_BATCH_SIZE) {
