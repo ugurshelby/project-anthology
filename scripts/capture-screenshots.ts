@@ -18,6 +18,8 @@ import * as path from 'path';
 import { PROD_SITE_URL } from '../lib/data/siteUrl';
 
 const BASE_URL = process.env.BASE_URL || process.argv[2] || PROD_SITE_URL;
+/** ONLY_PAGE=<id> captures one page (e.g. a page that timed out on the dev server's first compile). */
+const ONLY_PAGE = process.env.ONLY_PAGE?.trim();
 const OUTPUT_DIR = path.resolve(process.cwd(), 'screenshots');
 
 const DEVICES = [
@@ -119,7 +121,7 @@ async function main() {
   console.log(`📸 Apex Ekran Görüntüsü Yakalama Başlatılıyor`);
   console.log(`🌐 Hedef Host: ${BASE_URL}`);
   console.log(`📁 Kayıt Klasörü: ${OUTPUT_DIR}`);
-  console.log(`📄 Temsilci Sayfa Sayısı: ${PAGES.length}`);
+  console.log(`📄 Temsilci Sayfa Sayısı: ${ONLY_PAGE ? `1 (${ONLY_PAGE})` : PAGES.length}`);
   console.log(`📱 Cihazlar: ${DEVICES.map((d) => d.name).join(', ')}`);
   console.log(`======================================================\n`);
 
@@ -135,7 +137,7 @@ async function main() {
   const startTime = Date.now();
 
   try {
-    for (const pageItem of PAGES) {
+    for (const pageItem of PAGES.filter((p) => !ONLY_PAGE || p.id === ONLY_PAGE)) {
       const pageDir = path.join(OUTPUT_DIR, pageItem.id);
       if (!fs.existsSync(pageDir)) {
         fs.mkdirSync(pageDir, { recursive: true });

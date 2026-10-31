@@ -1,15 +1,17 @@
 /**
  * Apex — ekran görüntüsü vision denetimi (master-plan 15.1)
  *
- * 'screenshots/<sayfa-id>/<cihaz>-viewport.png' dosyalarını Gemini REST'e
+ * 'screenshots/<sayfa-id>/<cihaz>-viewport.png' dosyalarını Vertex AI'a (VERTEX_API_KEY, GCP kredisi) ya da
+ * yoksa Gemini API'ye (GEMINI_API_KEY, ücretsiz katman)
  * dört ölçütle (düzen, bileşen, tipografi, görsel kadraj) gönderir ve
  * 'screenshots/<sayfa-id>/audit-report.md' yazar.
  *
  * Kullanım:
  *   npx tsx scripts/audit-screenshots.ts --dry-run
- *   npx tsx scripts/audit-screenshots.ts [--page <id>] [--max-requests 48]
+ *   npx tsx --env-file=.env.local scripts/audit-screenshots.ts [--page <id>] [--max-requests 48]
  *
- * Gerçek koşu GEMINI_API_KEY ister (sahip koşar). --dry-run env gerektirmez.
+ * tsx `.env.local`'ı kendiliğinden okumaz: anahtar `--env-file` ile gelir. Gerçek koşuyu sahip yapar
+ * (ajanlar gerçek env yüklemez). --dry-run env gerektirmez.
  */
 
 import * as fs from 'fs';
@@ -19,7 +21,27 @@ export const SCREENSHOTS_DIR = path.resolve(process.cwd(), 'screenshots');
 export const DEFAULT_MAX_REQUESTS = 48;
 export const DEVICES = ['desktop', 'tablet', 'mobile'] as const;
 export type Device = (typeof DEVICES)[number];
-const MODEL = 'gemini-3.8-flash';
+export interface Provider {
+  name: 'vertex' | 'gemini';
+  model: string;
+  url: string;
+  key: string;
+}
+
+/** Vertex first (credit, 9.4), the free Gemini tier otherwise; null when neither key is set. */
+export function pickProvider(env: Record<string, string | undefined>): Provider | null {
+  const vertex = env.VERTEX_API_KEY?.trim();
+  if (vertex) {
+    const model = env.VERTEX_AUDIT_MODEL?.trim() || 'gemini-2.5-flash';
+    return { name: 'vertex', model, key: vertex, url: `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent` };
+  }
+  const gemini = env.GEMINI_API_KEY?.trim();
+  if (gemini) {
+    const model = 'gemini-3.8-flash';
+    return { name: 'gemini', model, key: gemini, url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent` };
+  }
+  return null;
+}
 
 export const CRITERIA = [
   { id: 'layout', label: 'Düzen', ask: 'grid/hizalama, boşluklar, taşma, kırpılma, görsel hiyerarşi' },
@@ -87,19 +109,20 @@ export function parseArgs(argv: string[]): Args {
   return args;
 }
 
-async function auditOne(target: Target, key: string): Promise<string> {
+async function auditOne(target: Target, provider: Provider): Promise<string> {
   const image = fs.readFileSync(target.file).toString('base64');
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+    provider.url,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': provider.key },
       body: JSON.stringify({
         contents: [
           {
+            role: 'user',
             parts: [
               { text: buildPrompt(target.pageId, target.device) },
-              { inline_data: { mime_type: 'image/png', data: image } },
+              { inlineData: { mimeType: 'image/png', data: image } },
             ],
           },
         ],
@@ -122,12 +145,13 @@ async function main() {
     return;
   }
 
-  const key = process.env.GEMINI_API_KEY?.trim();
-  if (!key) {
-    console.error('GEMINI_API_KEY tanımlı değil.');
+  const provider = pickProvider(process.env);
+  if (!provider) {
+    console.error('VERTEX_API_KEY ya da GEMINI_API_KEY tanımlı değil. Çalıştırma: npx tsx --env-file=.env.local scripts/audit-screenshots.ts');
     process.exitCode = 1;
     return;
   }
+  console.log(`Sağlayıcı: ${provider.name} (${provider.model})`);
 
   const byPage = new Map<string, string[]>();
   let requests = 0;
@@ -135,7 +159,7 @@ async function main() {
     requests++;
     let body: string;
     try {
-      body = await auditOne(t, key);
+      body = await auditOne(t, provider);
     } catch (e) {
       body = `_İstek başarısız: ${e instanceof Error ? e.message : 'bilinmeyen hata'}_`;
     }
@@ -143,7 +167,7 @@ async function main() {
     console.log(`${requests}/${targets.length} ${t.pageId} ${t.device}`);
   }
   for (const [pageId, sections] of byPage) {
-    fs.writeFileSync(reportPath(pageId), `# Denetim raporu: ${pageId}\n\nModel: ${MODEL}\n\n${sections.join('\n')}`);
+    fs.writeFileSync(reportPath(pageId), `# Denetim raporu: ${pageId}\n\nModel: ${provider.name} ${provider.model}\n\n${sections.join('\n')}`);
   }
   console.log(`${requests} istek, ${byPage.size} rapor yazıldı.`);
 }

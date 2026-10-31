@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { buildPrompt, CRITERIA, listTargets, parseArgs, reportPath } from '../scripts/audit-screenshots';
+import { buildPrompt, CRITERIA, listTargets, parseArgs, pickProvider, reportPath } from '../scripts/audit-screenshots';
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'audit-shots-'));
 for (const page of ['b-page', 'a-page']) {
@@ -46,5 +46,17 @@ describe('audit-screenshots helpers', () => {
       maxRequests: 5,
     });
     expect(() => parseArgs(['--max-requests', 'x'])).toThrow();
+  });
+});
+
+describe('pickProvider', () => {
+  it('prefers the Vertex key, falls back to Gemini, else null', () => {
+    const v = pickProvider({ VERTEX_API_KEY: ' v ', GEMINI_API_KEY: 'g' });
+    expect(v?.name).toBe('vertex');
+    expect(v?.key).toBe('v');
+    expect(v?.url).toBe('https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent');
+    expect(pickProvider({ VERTEX_API_KEY: 'v', VERTEX_AUDIT_MODEL: 'gemini-x' })?.model).toBe('gemini-x');
+    expect(pickProvider({ GEMINI_API_KEY: 'g' })?.name).toBe('gemini');
+    expect(pickProvider({ VERTEX_API_KEY: '  ' })).toBeNull();
   });
 });
