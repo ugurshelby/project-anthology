@@ -37,8 +37,11 @@ Steps:
 ### O5 — Open after 2026-10-31 (do not drop)
 - [x] 15.2 — reports read and verified 2026-10-31; contrast and translation fixes (`fcd1b8e`), master-plan 15.2.
 - [x] 8.15 car eras — owner's 12 images reviewed, six picked, `CarPlaceholder` by era (2026-10-31). Optional: classic driver image.
-- [ ] 9.2 live — Vertex counter `apex:llm:vertex:<date>` ≥ 1 after the first sync-news with the key (owner added it 2026-10-31).
-- [ ] 8.8(b) live — Las Vegas `resolved` with `Las Vegas Grand Prix (54942077056).jpg` after the next sync-media.
+- [ ] 9.2 live — read Vercel runtime logs for `[sync-news] vertex calls=… day=…` and any `[rewrite] vertex … HTTP` (logging since `fd7fda3`, 2026-10-31 11:30Z). The counter lives in the Vercel-integration Redis, not the MCP-visible `apex` database. calls ≥ 1 → tick 9.2; HTTP 403/404 → owner checks key restriction / Vertex AI API.
+- [x] 8.8(b) live — Las Vegas `resolved` with `Las Vegas Grand Prix (54942077056).jpg` (sync-media 2026-10-31 11:41Z).
+- [ ] TR rewrite wording (owner to decide): add prompt rules "stewards → hakemler", country/city names in Turkish, keep hedged claims hedged (seen 2026-10-31: "steyrlere", "Mexico FP2", Herta "yerini alabilir").
+- [ ] Owner taste (15.2 leftovers): mobile year rail edge fade; consent buttons stay equal (privacy); home hero sub-line alignment.
+- [ ] Optional 8.15: classic-era driver image (prompt in `docs/reference/ai-gorsel-istemleri.md`).
 
 ### O4 — 8.13 PASS verdict, then CDN/ISR caching design (caching done 2026-10-28)
 Run: Opus / medium for the 8.13 verdict; Opus / xhigh for caching (cost and architecture).
