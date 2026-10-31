@@ -62,6 +62,19 @@ describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () =>
       expect(html).toContain('/placeholders/car-1280.webp');
     });
 
+    it("picks the artwork of the car's era, the halo car from 2018 and without a season", () => {
+      const src = (seed: string) =>
+        /\/placeholders\/[^"]+\.webp/.exec(renderToStaticMarkup(React.createElement(CarPlaceholder, { seed })))?.[0];
+      expect(src('ferrari:1952')).toBe('/placeholders/car-1950-1280.webp');
+      expect(src('lotus:1963')).toBe('/placeholders/car-1961-1280.webp');
+      expect(src('lotus:1978')).toBe('/placeholders/car-1968-1280.webp');
+      expect(src('mclaren:1988')).toBe('/placeholders/car-1983-1280.webp');
+      expect(src('ferrari:2004')).toBe('/placeholders/car-1994-1280.webp');
+      expect(src('red_bull:2013')).toBe('/placeholders/car-2009-1280.webp');
+      expect(src('mercedes:2018')).toBe('/placeholders/car-1280.webp');
+      expect(src('iconic:ferrari-f2004')).toBe('/placeholders/car-1280.webp');
+    });
+
     it('takes the season from the seed and does not repeat a year already in the name', () => {
       expect(renderToStaticMarkup(React.createElement(CarPlaceholder, { seed: 'iconic:ferrari-f2004' }))).toContain('FERRARI F2004');
       expect(renderToStaticMarkup(React.createElement(CarPlaceholder, { seed: 'haas:2024' }))).toContain('aria-label="HAAS · 2024"');

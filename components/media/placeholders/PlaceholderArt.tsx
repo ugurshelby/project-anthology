@@ -14,8 +14,20 @@ const ART: Record<PlaceholderKind, { widths: [number, number]; position: string 
   circuit: { widths: [688, 1376], position: '50% 50%' },
 };
 
-export function placeholderSrc(kind: PlaceholderKind, width: number): string {
-  return `/placeholders/${kind}-${width}.webp`;
+/** Car artwork per era (owner-supplied 2026-10-31, master-plan 8.15): first season of each era. */
+export const CAR_ERAS = [1950, 1961, 1968, 1983, 1994, 2009] as const;
+export type CarEra = (typeof CAR_ERAS)[number];
+
+/** The era artwork for a season; null from 2018 (halo cars) or without a season: the default car artwork. */
+export function carEraFor(season: number | null | undefined): CarEra | null {
+  if (season == null || !Number.isFinite(season) || season >= 2018) return null;
+  let era: CarEra | null = null;
+  for (const start of CAR_ERAS) if (season >= start) era = start;
+  return era ?? CAR_ERAS[0];
+}
+
+export function placeholderSrc(kind: PlaceholderKind, width: number, variant?: string | number | null): string {
+  return `/placeholders/${kind}${variant != null ? `-${variant}` : ''}-${width}.webp`;
 }
 
 /**
@@ -27,6 +39,7 @@ export function PlaceholderArt({
   ariaLabel,
   caption,
   fit = 'cover',
+  variant = null,
   priority = false,
   className = 'h-full w-full',
 }: {
@@ -34,6 +47,8 @@ export function PlaceholderArt({
   ariaLabel: string;
   caption?: string;
   fit?: 'cover' | 'contain';
+  /** Alternative artwork of the same kind, e.g. a car era (`car-1983-1280.webp`). */
+  variant?: string | number | null;
   /** Stands in for a priority image (the LCP candidate): load it eagerly too. */
   priority?: boolean;
   className?: string;
@@ -43,7 +58,7 @@ export function PlaceholderArt({
   return (
     <div role="img" aria-label={ariaLabel} className={`relative overflow-hidden bg-[#252a31] ${className}`}>
       <Image
-        src={placeholderSrc(kind, large)}
+        src={placeholderSrc(kind, large, variant)}
         alt=""
         aria-hidden
         fill
