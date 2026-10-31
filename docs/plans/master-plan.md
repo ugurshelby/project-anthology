@@ -286,7 +286,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 ### [ ] 8.15 Yapay zekâ görselleri (Vertex Imagen) — kurallar, uygulama sahip onayıyla
 - Sahip kararı 2026-10-31: SVG çizim yerine gerektiği yerde, abartmadan, yapay zekâ ile üretilmiş görsel; gerçek görsel varsa her zaman o önde.
 - Kurallar: (1) yalnız lisanslı fotoğrafı olmayan varlık türü/kategori için, varlık başına değil tür ya da dönem başına (ör. "1950'ler araç", "1970'ler araç", "pist gece"); (2) gerçek kişi, yüz, takım rengi düzeni (livery), logo, sponsor, numara ya da yazı içermez; (3) görselin yanında "Yapay zekâ görseli" etiketi; (4) `public/stories` ve hikâye görsellerine asla girmez (AGENTS); (5) her üretim isteğinin istemi ve çıktısı sahibe gösterilir, sahip onaylamadan siteye girmez; (6) Cloud Vision `LOGO_DETECTION` + `SAFE_SEARCH` ile kontrol, kredi döneminde (9.3).
-- Sıradaki adım: dönem başına araç yer tutucuları (1950–1979, 1980–1999, 2000–2013, 2014–2021, 2022+) için istem taslağı → sahip onayı → üretim.
+- İstem taslakları: `docs/reference/ai-gorsel-istemleri.md` (2026-10-31; altı araç dönemi 1950/1961/1968/1983/1994/2009, 2018+ mevcut görsel; isteğe bağlı klasik pilot). Sıra: sahip onayı → üretim (Google Flow ya da Vertex betiği, sahip koşar) → Vision kontrolü → `CarPlaceholder` sezona göre seçer.
+- Not: 9.4 (2026-10-28) Imagen'i reddetmişti; sahip kararı 2026-10-31 bunu bu kurallarla değiştirdi.
 
 ### [ ] 8.13 Kapı yeniden ölçümü
 - Run: Sonnet / medium — tarifli read-only ölçüm; PASS kararı Opus / medium (Architect)

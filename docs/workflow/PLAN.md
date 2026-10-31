@@ -34,6 +34,12 @@ Depends on: 9.0 done. Target: by 2026-11-03 (credit ends 2026-12-18; 9.3 reminde
 Steps:
 - [x] 9.4 — master-plan "9.4".
 
+### O5 — Open after 2026-10-31 (do not drop)
+- [ ] 15.2 — after the owner runs `npx tsx --env-file=.env.local scripts/audit-screenshots.ts` (48 screenshots are fresh, 2026-10-31); read `screenshots/*/audit-report.md`, apply master-plan 15.2.
+- [ ] 8.15 — owner reviews the prompts in `docs/reference/ai-gorsel-istemleri.md`; then images, Vision check, `CarPlaceholder` by era.
+- [ ] 9.2 live — Vertex counter `apex:llm:vertex:<date>` ≥ 1 after the first sync-news with the key (owner added it 2026-10-31).
+- [ ] 8.8(b) live — Las Vegas `resolved` with `Las Vegas Grand Prix (54942077056).jpg` after the next sync-media.
+
 ### O4 — 8.13 PASS verdict, then CDN/ISR caching design (caching done 2026-10-28)
 Run: Opus / medium for the 8.13 verdict; Opus / xhigh for caching (cost and architecture).
 Depends on: Sonnet's 8.13 measurement; caching after 8.12 (master-plan "Teknik borç": pages are `private, no-store`).
