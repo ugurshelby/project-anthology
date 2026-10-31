@@ -737,8 +737,9 @@
         "engineeringArchive1950Present": "MÜHENDİSLİK ARŞİVİ · 1950–GÜNÜMÜZ",
         "machineryIconicCars": "İkonik Şasiler ve Araçlar",
         "imageStandard": "GÖRSEL STANDARDI",
-        "licensedPhotoOtherwiseALiverySilhouette": "Lisanslı Fotoğraf, Yoksa Livery Silüeti",
-        "iconicCars": "İKONİK ARAÇ"
+        "licensedPhotoOtherwiseALiverySilhouette": "Lisanslı Fotoğraf, Yoksa Genel Görsel",
+        "iconicCars": "İKONİK ARAÇ",
+        "imageStandardBody": "Her araç, kaynağı, yazarı ve lisansı kayıtlı bir arşiv fotoğrafıyla gösterilir. Lisanslı fotoğrafı olmayan araçlarda tek bir genel araç görseli (yapay zekâ ile üretilmiş, site sahibi onaylı) gösterilir. Resmi logo kullanılmaz."
       }
     }
   },
@@ -805,8 +806,8 @@
       "s1p2": "Her görselin altında veya detay penceresinde yazar adı, kaynak Wikimedia Commons sayfası ve lisans türü açıkça belirtilir. Yeniden boyutlandırılmış türev WebP kopyaları orijinal lisans şartlarına (CC BY-SA Paylaşımcı lisansı dahil) tam uyumla sunulur.",
       "s2Title": "Takım Markaları ve Logolar",
       "s2p1": "Takım logoları yalnızca ilgili takımı tanımlamak amacıyla adil kullanım ve editoryal bağlamda sunulmaktadır. Apex bağımsız bir projedir ve logolar ilgili hak sahiplerine aittir. Resmî bir bağlantı veya onay ima edilmez.",
-      "s3Title": "Prosedürel Vektör Çizimleri (Parametrik SVG)",
-      "s3p1": "Fotoğrafı veya açık lisansı bulunmayan pilotlar, araçlar ve takımlar için Apex tasarım diliyle hazırlanan özgün, hafif parametrik SVG rozetleri ve CAD siluetleri kullanılır. Pist harita konturları MIT lisanslı açık kaynak geometri verisinden üretilir.",
+      "s3Title": "Yer tutucu görseller (yapay zekâ ile üretilmiş)",
+      "s3p1": "Açık lisanslı fotoğrafı bulunmayan pilot, araç, takım ve pistlerde her tür için tek bir genel görsel gösterilir. Bu dört görsel Apex için Google Flow ile üretildi ve site sahibi tarafından onaylandı; gerçek bir kişi, takım renk düzeni, logo ya da sponsor içermez. Lisanslı bir fotoğraf bulunduğunda her zaman onun yerini alır. Pist haritaları MIT lisanslı açık geometri verisinden çizilir.",
       "s4Title": "Telif ve İçerik Kaldırma (Takedown)",
       "s4p1": "Bir görselin telif haklarınızı ihlal ettiğini veya yanlış lisanslandığını düşünüyorsanız, lütfen DMCA sayfamızdaki adımları takip ederek <mail>contact@apexstats.example</mail> adresine bildirin. Bildirilen görsel gecikmeksizin yayından kaldırılır ve tekrar seçilmemek üzere kilitlenir.",
       "newsTitle": "Haber görselleri",

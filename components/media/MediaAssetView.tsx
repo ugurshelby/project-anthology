@@ -97,9 +97,9 @@ export function MediaAssetView({
   const renderPlaceholder = () => {
     switch (type) {
       case 'circuit':
-        return <CircuitPlaceholder seed={entityKey} name={name} className="h-full w-full" />;
+        return <CircuitPlaceholder seed={entityKey} name={name} priority={priority} className="h-full w-full" />;
       case 'team':
-        return <TeamPlaceholder seed={entityKey} name={name} teamColor={teamColor} className="h-full w-full" />;
+        return <TeamPlaceholder seed={entityKey} name={name} teamColor={teamColor} priority={priority} className="h-full w-full" />;
       case 'car':
         return (
           <CarPlaceholder
@@ -108,6 +108,7 @@ export function MediaAssetView({
             teamColor={teamColor}
             accentColor={teamAccent}
             season={season}
+            priority={priority}
             className="h-full w-full"
           />
         );
@@ -120,6 +121,7 @@ export function MediaAssetView({
             driverCode={driverCode}
             driverNumber={driverNumber}
             teamColor={teamColor}
+            priority={priority}
             className="h-full w-full"
           />
         );

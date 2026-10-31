@@ -76,6 +76,14 @@ export const CIRCUIT_ALIASES: Record<string, string[]> = {
   sochi: ['sirius'],
 };
 
+/**
+ * Owner-picked Commons files for calendar circuits that the automatic search could not fill (master-plan 8.8(b)).
+ * Tried first, still through the licence and subject gates. Vegas: owner pick 2026-10-31 (public domain, 2025 GP).
+ */
+export const CIRCUIT_FILES: Record<string, string[]> = {
+  vegas: ['Las Vegas Grand Prix (54942077056).jpg'],
+};
+
 /** Team ids whose F1DB id differs from the Jolpica id (hyphen/underscore variants are generated automatically). */
 export const TEAM_ALIASES: Record<string, string[]> = {
   sauber: ['kick-sauber'],

@@ -98,9 +98,7 @@ export default async function MachineryPage({ params }: PageProps) {
               {tI('licensedPhotoOtherwiseALiverySilhouette')}
             </h3>
             <p className="mt-2 text-sm text-text-mid">
-              {isTr
-                ? 'Her araç, kaynağı, yazarı ve lisansı kayıtlı bir arşiv fotoğrafıyla gösterilir. Lisanslı fotoğrafı olmayan araçlar, takımın o yılki iki renkli livery’siyle çizilmiş sade bir yan profil silüetiyle temsil edilir. Resmi logo kullanılmaz.'
-                : 'Each car is shown with an archive photo whose source, author and license are on record. A car without a licensed photo is drawn as a minimal side profile in its two livery colours of that year. No official marks are used.'}
+              {tI('imageStandardBody')}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-3 font-mono text-xs text-text-low">

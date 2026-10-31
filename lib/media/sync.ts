@@ -28,7 +28,7 @@ export const MEDIA_MIN_SEASON = 2018;
  *   1 = first release · 2 = 2026-10-07: wider car designations (SF1000, C39, AT01, RP20, R.S.20), venue's own
  *       Commons category as a source, chassis-designation queries, horse-racing/stamp/cycling rejections.
  */
-export const RESOLVER_VERSION = 2;
+export const RESOLVER_VERSION = 3;
 /** Bump when discovery output (aliases) changes: already discovered seasons are discovered again, a few per run. */
 export const DISCOVERY_VERSION = 2;
 

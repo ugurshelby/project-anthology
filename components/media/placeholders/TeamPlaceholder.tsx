@@ -1,137 +1,34 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { PlaceholderArt } from './PlaceholderArt';
 
 interface TeamPlaceholderProps {
   seed: string;
   name?: string;
+  /** Kept for callers; the artwork carries its own accent. */
   teamColor?: string;
+  priority?: boolean;
   className?: string;
-  /** Small slots (hero badge, chips): crop to the wordmark, no padding, no constructor tag. */
+  /** Small slots (hero badge, chips): the shield alone, no caption. */
   compact?: boolean;
 }
 
 /**
- * Team mark (owner decision 2026-10-27, master-plan 8.11): the one designed wordmark every team
- * shows in place of a logo, in the team's colour, never imitating an official logo.
- * Features racing-grade typography, italic dynamic cuts, and secondary accent stripes.
+ * Team mark (owner decisions 2026-10-27, 8.11, and 2026-10-31): every team shows the same shield artwork in place
+ * of a logo, never an official mark; the caption names the team outside compact slots.
  */
-export function TeamPlaceholder({
-  seed,
-  name,
-  teamColor = '#ff1801',
-  className = 'h-full w-full',
-  compact = false,
-}: TeamPlaceholderProps) {
+export function TeamPlaceholder({ seed, name, priority = false, className = 'h-full w-full', compact = false }: TeamPlaceholderProps) {
   const t = useTranslations('ui.common');
   const cleanName = (name || seed.replace(/[-_]/g, ' ')).toUpperCase();
-  const words = cleanName.split(/\s+/).filter(Boolean);
-
-  let primaryText = cleanName;
-  let secondaryText = '';
-
-  if (words.length > 2) {
-    primaryText = words.slice(0, 2).join(' ');
-    secondaryText = words.slice(2).join(' ');
-  } else if (words.length === 2 && cleanName.length > 14) {
-    primaryText = words[0];
-    secondaryText = words[1];
-  }
-
   return (
-    <div
-      role="img"
-      aria-label={t('teamMark', { name: cleanName })}
-      className={`relative flex items-center justify-center overflow-hidden bg-[#0c1017] ${className}`}
-      style={{
-        background: `radial-gradient(circle at 50% 50%, color-mix(in srgb, ${teamColor} 18%, #0a0d13), #07090e 85%)`,
-      }}
-    >
-      {/* Carbon weave texture */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 2px, transparent 2px, transparent 4px)`,
-        }}
-      />
-
-      <svg
-        viewBox={compact ? '20 58 280 76' : '0 0 320 180'}
-        className={`relative z-10 h-full w-full ${compact ? '' : 'p-4'} transition-transform duration-300 hover:scale-[1.02]`}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id={`team-grad-${seed}`} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor={teamColor} />
-            <stop offset="100%" stopColor="color-mix(in srgb, var(--accent) 70%, white)" />
-          </linearGradient>
-        </defs>
-
-        {/* Speed Angle Slashes */}
-        <line x1="24" y1="20" x2="16" y2="160" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
-        <line x1="36" y1="20" x2="28" y2="160" stroke={teamColor} strokeWidth="2.5" />
-
-        {/* Diagonal Tech Mark */}
-        <polygon
-          points="280,24 296,24 286,54 270,54"
-          fill={teamColor}
-          opacity="0.8"
-        />
-
-        {/* Main Wordmark Text */}
-        <text
-          x="160"
-          y={secondaryText && !compact ? '85' : '98'}
-          textAnchor="middle"
-          fill="#ffffff"
-          fontFamily="var(--font-condensed), Impact, sans-serif"
-          fontWeight="800"
-          fontSize={primaryText.length > 10 ? '24' : '28'}
-          letterSpacing="0.08em"
-          fontStyle="italic"
-        >
-          {primaryText}
-        </text>
-
-        {secondaryText && !compact ? (
-          <text
-            x="160"
-            y="118"
-            textAnchor="middle"
-            fill="rgba(255,255,255,0.65)"
-            fontFamily="var(--font-condensed), sans-serif"
-            fontWeight="600"
-            fontSize="14"
-            letterSpacing="0.16em"
-          >
-            {secondaryText}
-          </text>
-        ) : null}
-
-        {/* Bottom Baseline Bar */}
-        <rect
-          x="60"
-          y={secondaryText && !compact ? '136' : '124'}
-          width="200"
-          height="2"
-          fill={`url(#team-grad-${seed})`}
-        />
-
-        {compact ? null : (
-        <text
-          x="160"
-          y="156"
-          textAnchor="middle"
-          fill="rgba(255,255,255,0.3)"
-          fontSize="8"
-          fontFamily="monospace"
-          letterSpacing="0.2em"
-        >
-          {t('constructorTag')}
-        </text>
-        )}
-      </svg>
-    </div>
+    <PlaceholderArt
+      kind="team"
+      ariaLabel={t('teamMark', { name: cleanName })}
+      caption={compact ? undefined : cleanName}
+      fit={compact ? 'contain' : 'cover'}
+      priority={priority}
+      className={className}
+    />
   );
 }

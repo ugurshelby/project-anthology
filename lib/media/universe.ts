@@ -3,7 +3,7 @@ import { carKey, iconicCarKey } from '@/lib/media/keys';
 import { circuitAliases, driverAliases, teamAliases } from '@/lib/media/aliases';
 import { wikipediaTitleFromUrl } from '@/lib/media/wikimedia';
 import { TEAM_LOGOS_ENABLED, type MediaEntity } from '@/lib/media/types';
-import { CIRCUIT_ALIASES, EXTRA_CIRCUITS, ICONIC_CARS, LOGO_OVERRIDES, TEAM_ALIASES } from '@/data/media/curated';
+import { CIRCUIT_ALIASES, CIRCUIT_FILES, EXTRA_CIRCUITS, ICONIC_CARS, LOGO_OVERRIDES, TEAM_ALIASES } from '@/data/media/curated';
 
 /**
  * The set of things that need an image, derived from live data (Jolpica) so a
@@ -93,7 +93,11 @@ export async function discoverSeason(season: number): Promise<MediaEntity[]> {
       displayName: c.circuitName ?? null,
       wikipediaUrl: c.url ?? null,
       aliases: circuitAliases(key, CIRCUIT_ALIASES[key]),
-      extra: { locality: c.Location?.locality ?? null, country: c.Location?.country ?? null },
+      extra: {
+        locality: c.Location?.locality ?? null,
+        country: c.Location?.country ?? null,
+        ...(CIRCUIT_FILES[key] ? { curatedFiles: CIRCUIT_FILES[key] } : {}),
+      },
     });
   }
   return out;

@@ -225,7 +225,8 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Değişiklik: bellek deposu + sahte Jolpica: en yeni sezona sonradan eklenen pilot sonraki `runMediaSync` koşusunda `pending` eklenir ve aynı koşuda `resolved` olur; keşfedilmiş eski sezona eklenen pilot aynı `DISCOVERY_VERSION`'da keşfedilmez (bilinçli sınır, testte belgelenir).
 - Doğrulama: `npx vitest run tests/media-sync.test.ts` yeşil. Canlı gözlem (tetik: 2026-10-26'dan sonra ilk yeni `media_assets` satırı): K6 sorgusu (`medya-kapisi-olcum.md`) → `resolved_at - created_at` ≤ 24 sa ya da `missing` + `last_error`; log'a.
 
-### [~] 8.8 Serbest fotoğrafı olmayan güncel pistler
+### [x] 8.8 Serbest fotoğrafı olmayan güncel pistler
+- Kapanış 2026-10-31 (Opus): (b) sahip seçimi Las Vegas = `File:Las Vegas Grand Prix (54942077056).jpg` (kamu malı, 2025 GP; ilk üç aday önde insan olduğu için reddedildi). `data/media/curated.ts` `CIRCUIT_FILES`, `universe.ts` `curatedFiles`, `RESOLVER_VERSION` 3; kuru çalıştırma `resolved … score 100`. Jeddah, Losail, Madring: Commons'ta uygun fotoğraf yok → sahibin pist görseli (yer tutucu, aşağıda 8.14).
 - Durum 2026-10-28: (a) bitti, aday listesi `logs/2026-10-28.md` "Session T" (Losail: serbest F1 fotoğrafı yok; Madring: fotoğraf adayı yok; Las Vegas: 3 PD aday, puan 44 < 50). (b) sahibin seçimini bekler (sahip sorusu 3).
 - Run: Sonnet / medium — kuru çalıştırma raporu; seçim sahibin
 - Owner: Sonnet → owner → Sonnet · Depends on: 8.1 (aynı `curated.ts`, `universe.ts`), (b) için sahip sorusu 3 · Dalga 4 (oturum T, son adım; seçim gelmezse (a)'da durur)
@@ -278,6 +279,14 @@ Sahip soruları (8.0 raporu; adımlar yazıldığı yerde bekler): (1) takım lo
 - Dosyalar: yeni `.github/workflows/lighthouse.yml`
 - Değişiklik: yalnızca `workflow_dispatch`; `actions/setup-node` (Node sürümü `ci.yml` ile aynı), `npx --yes @lhci/cli@<tam sürüm, ≥ 2 hafta eski> collect` (LHCI varsayılanı: mobil öykünme, simüle yavaşlatma) `--numberOfRuns=3`, URL'ler `${{ vars.SITE_URL }}` + `scripts/capture-screenshots.ts` `PAGES` yolları (host dosyada yok), `upload --target=filesystem`, `actions/upload-artifact` (`ci.yml`'deki sürüm). Gizli değer yok, zamanlama yok.
 - Doğrulama: `gh workflow run lighthouse.yml` başarılı; `gh run download <id>` + `jq`: her yol için medyan LCP, CLS, LCP öğesi ve LCP keşif denetimi (`lcp-discovery-insight`; sürümde yoksa `prioritize-lcp-image` + `lcp-lazy-loaded`) log'a tablo. K2 eşiği: LCP < 2,5 s, CLS < 0,1, keşif denetimi geçer.
+
+### [x] 8.14 Yer tutucu görseller (sahip görselleri)
+- Kapanış 2026-10-31 (Opus): sahibin Google Flow'da ürettiği dört görsel (pilot, araç, takım kalkanı, pist; kaynaklar `assets/placeholders/`) `public/placeholders/<tür>-<genişlik>.webp` (her biri ≤ 11 KB) oldu ve SVG çizimlerin (`DriverPlaceholder`, `CarPlaceholder`, `TeamPlaceholder`, `CircuitPlaceholder`, `F1CarSilhouette` silindi) ve `ApexFallback`'in pilot/araç/takım/pist dallarının yerine geçti (`PlaceholderArt`). Lisanslı fotoğraf varsa her zaman o gösterilir; yer tutucu yalnız fotoğraf yoksa ya da yüklenemezse. Pilotta altyazı yok (ad ve numara her yerde yanında); araç/takım/pist adını küçük altyazıyla gösterir. Öncelikli görselin yerine çizilirse o da `fetchpriority=high`.
+
+### [ ] 8.15 Yapay zekâ görselleri (Vertex Imagen) — kurallar, uygulama sahip onayıyla
+- Sahip kararı 2026-10-31: SVG çizim yerine gerektiği yerde, abartmadan, yapay zekâ ile üretilmiş görsel; gerçek görsel varsa her zaman o önde.
+- Kurallar: (1) yalnız lisanslı fotoğrafı olmayan varlık türü/kategori için, varlık başına değil tür ya da dönem başına (ör. "1950'ler araç", "1970'ler araç", "pist gece"); (2) gerçek kişi, yüz, takım rengi düzeni (livery), logo, sponsor, numara ya da yazı içermez; (3) görselin yanında "Yapay zekâ görseli" etiketi; (4) `public/stories` ve hikâye görsellerine asla girmez (AGENTS); (5) her üretim isteğinin istemi ve çıktısı sahibe gösterilir, sahip onaylamadan siteye girmez; (6) Cloud Vision `LOGO_DETECTION` + `SAFE_SEARCH` ile kontrol, kredi döneminde (9.3).
+- Sıradaki adım: dönem başına araç yer tutucuları (1950–1979, 1980–1999, 2000–2013, 2014–2021, 2022+) için istem taslağı → sahip onayı → üretim.
 
 ### [ ] 8.13 Kapı yeniden ölçümü
 - Run: Sonnet / medium — tarifli read-only ölçüm; PASS kararı Opus / medium (Architect)

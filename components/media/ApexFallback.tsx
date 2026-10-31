@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { PlaceholderArt } from '@/components/media/placeholders/PlaceholderArt';
 
 export type ApexFallbackKind = 'car' | 'driver' | 'circuit' | 'media' | 'team';
 
@@ -11,30 +12,9 @@ const KIND_LABEL: Record<ApexFallbackKind, string> = {
 };
 
 /**
- * Derive a short mark from whatever identity string the caller already has
- * (driver name, FIA code, constructor name) — no extra data fetch needed.
- * A pre-existing 2-4 letter uppercase code (e.g. "VER") passes through as-is;
- * anything else collapses to initials, e.g. "Max Verstappen" → "MV".
- */
-function markFrom(label: string | undefined, kind: ApexFallbackKind): string {
-  const trimmed = label?.trim();
-  if (!trimmed) return KIND_LABEL[kind].slice(0, 3);
-  if (/^[A-Z]{2,4}$/.test(trimmed)) return trimmed;
-  const words = trimmed.split(/\s+/).filter(Boolean);
-  if (words.length >= 2) {
-    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
-  }
-  return trimmed.slice(0, 3).toUpperCase();
-}
-
-/**
- * APEX's only visual for drivers/teams/cars/circuits — the site is
- * intentionally photo-free (no licensed photography or official marks; see
- * lib/assets/f1-icons.ts). Renders a data-driven mark (initials/code) inside
- * the existing technical-wireframe surface rather than a generic "missing
- * asset" placeholder, so this is a first-class visual, not a degrade state.
- * Colored via --team-secondary (set by lib/theme.ts teamThemeVars wherever a
- * team context exists) with a graceful CSS fallback to the site accent.
+ * Fallback for an image that is missing or failed to load. Drivers, teams, cars and circuits show the owner-supplied
+ * placeholder artwork (2026-10-31); anything else (`media`) shows a neutral archive surface. Callers may pass
+ * `children` to put their own content on that surface.
  */
 export function ApexFallback({
   kind = 'media',
@@ -48,8 +28,10 @@ export function ApexFallback({
   children?: ReactNode;
 }) {
   const caption = label ?? KIND_LABEL[kind];
-  const showMark = kind === 'driver' || kind === 'team' || kind === 'car';
-  const mark = showMark ? markFrom(label, kind) : null;
+  // Drivers, teams, cars and circuits get the owner-supplied artwork (2026-10-31), like the media placeholders.
+  if (kind !== 'media' && !children) {
+    return <PlaceholderArt kind={kind} ariaLabel={caption} caption={label?.toUpperCase()} className={`h-full w-full ${className}`} />;
+  }
 
   return (
     <div
@@ -89,57 +71,18 @@ export function ApexFallback({
       <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 px-3 text-center">
         {children ?? (
           <>
-            {mark ? (
-              <>
-                <span
-                  className="font-condensed text-2xl font-700 uppercase tracking-wider leading-none"
-                  style={{
-                    fontFamily: 'var(--font-condensed)',
-                    color: 'color-mix(in srgb, var(--team-secondary, var(--accent)) 85%, white)',
-                  }}
-                >
-                  {mark}
-                </span>
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">
-                  {kind === 'car' ? 'CHASSIS SPEC' : kind === 'team' ? 'CONSTRUCTOR' : 'SPEC'}
-                </span>
-              </>
-            ) : kind === 'circuit' ? (
-              <>
-                <svg
-                  aria-hidden="true"
-                  className="h-6 w-6 text-text-mid/70"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M4 20 C 4 10, 10 4, 20 4" strokeDasharray="2 2" />
-                  <path d="M4 16 C 8 16, 16 8, 16 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-                </svg>
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">
-                  CIRCUIT // CAD
-                </span>
-              </>
-            ) : (
-              <>
-                <svg
-                  aria-hidden="true"
-                  className="h-5 w-5 text-text-mid/60"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
-                  <circle cx="18" cy="18" r="2" fill="currentColor" />
-                </svg>
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">
-                  ARCHIVE // SPEC
-                </span>
-              </>
-            )}
+            <svg
+              aria-hidden="true"
+              className="h-5 w-5 text-text-mid/60"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
+              <circle cx="18" cy="18" r="2" fill="currentColor" />
+            </svg>
+            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-low/80">ARCHIVE // SPEC</span>
           </>
         )}
       </div>

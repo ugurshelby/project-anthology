@@ -12,7 +12,6 @@ import { TeamPlaceholder } from '@/components/media/placeholders/TeamPlaceholder
 import { CarPlaceholder } from '@/components/media/placeholders/CarPlaceholder';
 import { DriverPlaceholder } from '@/components/media/placeholders/DriverPlaceholder';
 import { MediaAssetView } from '@/components/media/MediaAssetView';
-import { F1CarSilhouette, carEraForSeason } from '@/components/media/F1CarSilhouette';
 import type { MediaResult } from '@/lib/media/read';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/messages/en.json';
@@ -26,117 +25,73 @@ const renderIntl = (el: React.ReactElement, locale: 'en' | 'tr' = 'en') =>
 
 describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () => {
   describe('CircuitPlaceholder', () => {
-    it('renders vector track contour with CAD grid and accessibility labels', () => {
+    it('shows the circuit artwork with the name as caption and label', () => {
       const html = renderToStaticMarkup(
-        React.createElement(CircuitPlaceholder, {
-          seed: 'monza',
-          name: 'Autodromo Nazionale Monza',
-        })
+        React.createElement(CircuitPlaceholder, { seed: 'monza', name: 'Autodromo Nazionale Monza' }),
       );
-
       expect(html).toContain('role="img"');
       expect(html).toContain('Autodromo Nazionale Monza circuit layout schematic');
-      expect(html).toContain('FIA GRADE 1 SPEC');
-      expect(html).toContain('CAD_SCHEMATIC');
-      expect(html).toContain('DATUM: MONZA');
-      expect(html).toContain('<svg');
+      expect(html).toContain('/placeholders/circuit-1376.webp');
+      expect(html).toContain('AUTODROMO NAZIONALE MONZA');
+      expect(html).not.toContain('<svg');
     });
   });
 
   describe('TeamPlaceholder', () => {
-    it('renders typographic wordmark with team secondary color and carbon texture', () => {
+    it('shows the shield artwork, captioned outside compact slots', () => {
       const html = renderIntl(
-        React.createElement(TeamPlaceholder, {
-          seed: 'ferrari',
-          name: 'Scuderia Ferrari',
-          teamColor: '#e80020',
-        })
+        React.createElement(TeamPlaceholder, { seed: 'ferrari', name: 'Scuderia Ferrari', teamColor: '#e80020' }),
       );
-
       expect(html).toContain('role="img"');
       expect(html).toContain('SCUDERIA FERRARI team mark');
-      expect(html).toContain('FORMULA 1 CONSTRUCTOR');
-      expect(html).toContain('SCUDERIA');
-      expect(html).toContain('#e80020');
-      expect(html).toContain('<svg');
+      expect(html).toContain('/placeholders/team-768.webp');
+      expect(html).toContain('>SCUDERIA FERRARI<');
+      const compact = renderIntl(React.createElement(TeamPlaceholder, { seed: 'ferrari', name: 'Scuderia Ferrari', compact: true }));
+      expect(compact).toContain('object-contain');
+      expect(compact).not.toContain('>SCUDERIA FERRARI<');
     });
   });
 
   describe('CarPlaceholder', () => {
-    it('draws a two-tone livery silhouette with name and season, no blueprint chrome', () => {
+    it('shows the car artwork labelled with name and season', () => {
       const html = renderToStaticMarkup(
-        React.createElement(CarPlaceholder, {
-          seed: 'mclaren:2025',
-          name: 'McLaren MCL39',
-          teamColor: '#ff8000',
-          accentColor: '#47c7fc',
-          season: 2025,
-        })
+        React.createElement(CarPlaceholder, { seed: 'mclaren:2025', name: 'McLaren MCL39', teamColor: '#ff8000', season: 2025 }),
       );
-
       expect(html).toContain('role="img"');
       expect(html).toContain('aria-label="MCLAREN MCL39 · 2025"');
-      expect(html).toContain('#ff8000');
-      expect(html).toContain('#47c7fc');
-      expect(html).not.toContain('CAD');
-      expect(html).not.toContain('APEX_CHASSIS');
+      expect(html).toContain('/placeholders/car-1280.webp');
     });
 
-    it('takes the season from the seed and derives a contrasting accent when none is given', () => {
-      const html = renderToStaticMarkup(
-        React.createElement(CarPlaceholder, { seed: 'iconic:ferrari-f2004', teamColor: '#e80020' })
+    it('takes the season from the seed and does not repeat a year already in the name', () => {
+      expect(renderToStaticMarkup(React.createElement(CarPlaceholder, { seed: 'iconic:ferrari-f2004' }))).toContain('FERRARI F2004');
+      expect(renderToStaticMarkup(React.createElement(CarPlaceholder, { seed: 'haas:2024' }))).toContain('aria-label="HAAS · 2024"');
+      expect(renderToStaticMarkup(React.createElement(CarPlaceholder, { seed: 'ferrari:2004', name: 'Ferrari 2004' }))).toContain(
+        'aria-label="FERRARI 2004"',
       );
-      expect(html).toContain('FERRARI F2004');
-      expect(html).toContain('#f4f4f4');
-      const light = renderToStaticMarkup(React.createElement(CarPlaceholder, { seed: 'haas:2024', teamColor: '#f4f4f4' }));
-      expect(light).toContain('aria-label="HAAS · 2024"');
-      expect(light).toContain('#15171a');
-    });
-  });
-
-  describe('F1CarSilhouette', () => {
-    it('picks the car shape from the season: wedge, raised nose, halo', () => {
-      expect(carEraForSeason(1970)).toBe('classic');
-      expect(carEraForSeason(1988)).toBe('classic');
-      expect(carEraForSeason(1992)).toBe('raised');
-      expect(carEraForSeason(2017)).toBe('raised');
-      expect(carEraForSeason(2018)).toBe('halo');
-      expect(carEraForSeason(undefined)).toBe('halo');
-    });
-
-    it('draws the halo only on halo-era cars', () => {
-      const svg = (era: 'classic' | 'halo') =>
-        renderToStaticMarkup(React.createElement(F1CarSilhouette, { body: '#1e41ff', accent: '#f7c300', era }));
-      expect(svg('halo')).toContain('stroke-linecap="round"');
-      expect(svg('classic')).not.toContain('stroke-linecap="round"');
-      expect(svg('halo')).toContain('#f7c300');
     });
   });
 
   describe('DriverPlaceholder', () => {
-    it('renders FIA 3-letter mark, racing number, and helmet outline', () => {
+    it('shows the driver artwork without a caption (name and number sit next to it everywhere)', () => {
       const html = renderToStaticMarkup(
-        React.createElement(DriverPlaceholder, {
-          seed: 'norris',
-          name: 'Lando Norris',
-          driverCode: 'NOR',
-          driverNumber: 4,
-          teamColor: '#ff8000',
-        })
+        React.createElement(DriverPlaceholder, { seed: 'norris', name: 'Lando Norris', driverCode: 'NOR', driverNumber: 4, teamColor: '#ff8000' }),
       );
-
       expect(html).toContain('role="img"');
       expect(html).toContain('Lando Norris driver badge');
-      expect(html).toContain('NOR');
-      expect(html).toContain('#4');
-      expect(html).toContain('LANDO NORRIS');
-      expect(html).toContain('FIA PILOT // ROSTER');
-      expect(html).toContain('#ff8000');
+      expect(html).toContain('/placeholders/driver-896.webp');
+      expect(html).not.toContain('NOR');
+      expect(html).toContain('loading="lazy"');
+    });
+
+    it('loads eagerly with high priority when it stands in for a priority image', () => {
+      const html = renderToStaticMarkup(React.createElement(DriverPlaceholder, { seed: 'norris', name: 'Lando Norris', priority: true }));
+      expect(html).toContain('fetchPriority="high"');
+      expect(html).toContain('loading="eager"');
     });
   });
 
   describe('MediaAssetView', () => {
-    it('shows a neutral pending surface, not the SVG placeholder, while the lookup is open', () => {
+    it('shows a neutral pending surface, not the placeholder artwork, while the lookup is open', () => {
       const html = renderIntl(
         React.createElement(MediaAssetView, {
           type: 'car',
@@ -147,10 +102,10 @@ describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () =>
         })
       );
       expect(html).toContain('aria-busy="true"');
-      expect(html).not.toContain('<svg');
+      expect(html).not.toContain('/placeholders/');
     });
 
-    it('renders SVG placeholder when initialResult is placeholder', () => {
+    it('renders the placeholder artwork when initialResult is placeholder', () => {
       const placeholderResult: MediaResult = {
         status: 'placeholder',
         type: 'driver',
@@ -172,8 +127,8 @@ describe('Media Placeholders & MediaAssetView (Section 8 & 9 compliance)', () =>
       );
 
       expect(html).toContain('role="img"');
-      expect(html).toContain('NOR');
-      expect(html).toContain('#4');
+      expect(html).toContain('Lando Norris driver badge');
+      expect(html).toContain('/placeholders/driver-896.webp');
     });
 
     it('renders verified image and CC-BY attribution when initialResult is image', () => {
@@ -302,7 +257,7 @@ describe('MediaCredit and responsive variants', () => {
 });
 
 describe('MachineryVisual', () => {
-  it('shows only the licensed photo when one exists, never the silhouette next to it', async () => {
+  it('shows only the licensed photo when one exists, never the placeholder next to it', async () => {
     const { MachineryVisual } = await import('@/components/machinery/MachineryVisual');
     const { getMachineryCar } = await import('@/data/machinery/cars');
     const car = getMachineryCar('redbull-rb19')!;
@@ -330,7 +285,7 @@ describe('MachineryVisual', () => {
     };
     const photo = renderIntl(React.createElement(MachineryVisual, { car, media }));
     expect(photo).toContain('1600.webp');
-    expect(photo).not.toContain('<svg');
+    expect(photo).not.toContain('/placeholders/');
 
     const none = renderIntl(
       React.createElement(MachineryVisual, {
@@ -338,10 +293,7 @@ describe('MachineryVisual', () => {
         media: { status: 'placeholder', type: 'car', key: 'iconic:redbull-rb19', placeholder: { kind: 'car', seed: 'iconic:redbull-rb19' } },
       }),
     );
-    expect(none).toContain('<svg');
-    // two-tone: the 2023 Red Bull livery body and accent
-    expect(none.toLowerCase()).toContain('#2b4da6');
-    expect(none.toLowerCase()).toContain('#f7c300');
+    expect(none).toContain('/placeholders/car-1280.webp');
   });
 });
 
@@ -460,7 +412,7 @@ describe('image load errors (8.2, K4)', () => {
     return host;
   };
 
-  it('MediaAssetView swaps to the type placeholder on img error and opens no new img', () => {
+  it('MediaAssetView swaps to the type placeholder on img error and never retries the broken URL', () => {
     const el = mount(
       React.createElement(
         Provider,
@@ -473,8 +425,8 @@ describe('image load errors (8.2, K4)', () => {
     act(() => {
       img!.dispatchEvent(new Event('error'));
     });
-    expect(el.querySelector('img')).toBeNull();
-    expect(el.querySelector('svg')).not.toBeNull();
+    const after = [...el.querySelectorAll('img')].map((i) => i.getAttribute('src'));
+    expect(after).toEqual(['/placeholders/circuit-1376.webp']);
   });
 
   it('ApexImage renders ApexFallback on img error', () => {
