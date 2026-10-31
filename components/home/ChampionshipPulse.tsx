@@ -101,7 +101,7 @@ export function ChampionshipPulse({
               <span className="font-condensed text-3xl font-700 tabular-nums leading-none tracking-tight text-white sm:text-4xl">
                 {leader.points}
               </span>
-              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-text-low">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-white/75">
                 {t('pts')}
               </span>
             </div>
@@ -129,7 +129,7 @@ export function ChampionshipPulse({
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="w-5 shrink-0 font-mono text-xs font-bold text-text-low/80">
+                  <span className="w-5 shrink-0 font-mono text-xs font-bold text-text-mid">
                     P{row.position}
                   </span>
                   <span lang="en"

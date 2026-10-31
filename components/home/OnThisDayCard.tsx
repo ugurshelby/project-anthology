@@ -75,7 +75,7 @@ export function OnThisDayCard({ entries, image }: { entries: OnThisDayEntry[]; i
       <div className="relative z-10 flex flex-col justify-between gap-5 p-6 sm:p-8 md:col-span-7">
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-[var(--radius-pill)] border border-accent/40 bg-accent/15 px-2.5 py-0.5 font-mono text-[10px] font-700 uppercase tracking-widest text-accent">
+            <span className="rounded-[var(--radius-pill)] border border-accent/40 bg-accent/15 px-2.5 py-0.5 font-mono text-[10px] font-700 uppercase tracking-widest text-accent-text">
               {locale === 'tr' ? 'TARİHTE BUGÜN' : 'ON THIS DAY'}
             </span>
             <span className="font-mono text-xs uppercase tracking-widest text-text-mid">

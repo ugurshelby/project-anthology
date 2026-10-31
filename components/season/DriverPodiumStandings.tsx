@@ -4,6 +4,7 @@ import { BentoCard } from '@/components/bento/BentoCard';
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { getDriverLore } from '@/data/drivers';
 import type { DriverStandingRow } from '@/lib/f1/mrdata';
+import { readableTextColor } from '@/lib/theme';
 
 /**
  * Drivers standings — podium trio blocks + compact scrollable table for P4+.
@@ -80,7 +81,7 @@ function PodiumBlock({ row, season }: { row: DriverStandingRow; season: number }
       <span lang="en" className="font-condensed text-lg font-700 uppercase leading-none text-text-hi" style={{ fontFamily: 'var(--font-condensed)' }}>
         {row.familyName}
       </span>
-      <span className="data-tabular text-xs" style={{ color }}>{row.constructorName}</span>
+      <span className="data-tabular text-xs" style={{ color: readableTextColor(color) }}>{row.constructorName}</span>
       <div className="flex items-end justify-between">
         <span className="hero-number text-3xl text-text-hi">{row.points}</span>
         {number != null ? <span className="data-tabular text-text-low">#{number}</span> : null}

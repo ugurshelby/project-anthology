@@ -62,7 +62,7 @@ export function CircuitsDirectory({
             }`}
           >
             <span>{t('filterAll')}</span>
-            <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-text-low">
+            <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-white/80">
               {counts.all}
             </span>
           </button>
@@ -96,7 +96,7 @@ export function CircuitsDirectory({
             }`}
           >
             <span>{t('filterDone')}</span>
-            <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-text-low">
+            <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] tabular-nums text-white/80">
               {counts.done}
             </span>
           </button>

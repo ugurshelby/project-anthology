@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import { readableTextColor } from '@/lib/theme';
 
 /**
  * Bio + milestones + "deep cut" lore — mirrors mobile's "THE STORY"/"THE TEAM"
@@ -110,7 +111,7 @@ export function LoreSection({
 
       {lore ? (
         <div className="rounded-[var(--radius)] border border-hairline border-l-[3px] bg-surface p-4" style={{ borderLeftColor: 'var(--team-secondary, #d4a441)' }}>
-          <span className="label-caps mb-2 block" style={{ color: 'var(--team-secondary, #d4a441)' }}>{t('deepCut')}</span>
+          <span className="label-caps mb-2 block" style={{ color: readableTextColor('var(--team-secondary, #d4a441)') }}>{t('deepCut')}</span>
           <p className="body-md italic text-text-mid">{lore}</p>
         </div>
       ) : null}

@@ -44,7 +44,7 @@ export function NewsWireFeed({
                   <span className="data-tabular shrink-0 text-[12px] text-text-low font-mono">
                     [{formatWireStamp(item.publishedTs)}]
                   </span>
-                  <span className="data-tabular shrink-0 text-[12px] text-accent/90 font-mono font-medium">
+                  <span className="data-tabular shrink-0 text-[12px] text-accent-text font-mono font-medium">
                     [{item.sourceName.toUpperCase()}]
                   </span>
                   <span className="min-w-0 flex-1 text-sm leading-snug text-text-hi group-hover:text-white break-words">

@@ -24,3 +24,12 @@ export function teamThemeVars(
     '--accent': palette.secondary,
   };
 }
+
+/**
+ * A team or brand colour made legible as small text on the dark UI: 60% colour, 40% white. Raw team colours
+ * (Ferrari #DC0000, Red Bull #3671C6) measured 3.2–4.0:1 on the dark cards (Lighthouse, 2026-10-31); the mix
+ * keeps the hue and clears 5:1. For text only; fills and bars keep the raw colour.
+ */
+export function readableTextColor(color: string): string {
+  return `color-mix(in srgb, ${color} 60%, white)`;
+}

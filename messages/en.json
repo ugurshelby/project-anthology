@@ -717,7 +717,8 @@
         "connectedTechGlossary": "CONNECTED TECH GLOSSARY",
         "fullGlossary": "Full Glossary →",
         "metaDescription": "{name} technical dossier, {engine} powertrain data, aerodynamic breakthroughs and {year} championship pedigree.",
-        "seasonArchive": "VIEW {year} SEASON ARCHIVE →"
+        "seasonArchive": "VIEW {year} SEASON ARCHIVE →",
+        "seasonBadge": "SEASON {year}"
       },
       "crossLink": {
         "iconicMachineryArchive": "Iconic Machinery Archive",

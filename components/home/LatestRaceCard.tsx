@@ -8,7 +8,7 @@ import type { LastRaceRecap } from '@/lib/f1/mrdata';
 const MEDAL: Record<1 | 2 | 3, string> = {
   1: '#d4a441',
   2: '#a8a8a8',
-  3: '#a3653f',
+  3: '#bf9379', // bronze lifted to 6:1 on the card (was #a3653f, 4.0:1)
 };
 
 /**

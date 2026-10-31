@@ -110,7 +110,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
             {isTr ? car.eraTr : car.era}
           </span>
           <span className="font-mono text-xs font-bold text-accent">
-            SEASON {car.year}
+            {t('seasonBadge', { year: car.year })}
           </span>
           <span className="text-xs text-text-low font-mono">
             {'//'} {t('chiefDesigner')} {car.designer.join(', ')}
@@ -307,7 +307,7 @@ export default async function MachineryDetailPage({ params }: PageProps) {
                   </span>
                 </div>
                 {driver.isChampion ? (
-                  <span className="rounded bg-accent/20 px-2 py-0.5 font-mono text-[11px] font-bold text-accent">
+                  <span className="rounded bg-accent/20 px-2 py-0.5 font-mono text-[11px] font-bold text-accent-text">
                     {t('champion')}
                   </span>
                 ) : (

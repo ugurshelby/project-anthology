@@ -27,7 +27,7 @@ export async function MachineryCrossLink({
       {/* Editorial Header */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-hairline/60 pb-3">
         <div>
-          <span className="label-caps block text-accent font-mono text-[11px] tracking-wider">
+          <span className="label-caps block text-accent-text font-mono text-[11px] tracking-wider">
             {kicker ?? (tX('iconicMachineryArchive'))}
           </span>
           <h3

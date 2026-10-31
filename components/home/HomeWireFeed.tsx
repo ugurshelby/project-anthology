@@ -10,6 +10,7 @@ import { detectTeamTag, formatWireTime, hasRealImage, sortWireByTime } from '@/l
 import { resolveTeamUiColor } from '@/config/team-colors';
 import { HOME_NEWS_COUNT } from '@/lib/home/homeLayout';
 import { hasPublisherSizes, publisherImageLoader } from '@/lib/news/imageVariants';
+import { readableTextColor } from '@/lib/theme';
 
 function WireThumbnail({
   src,
@@ -134,7 +135,7 @@ export function HomeWireFeed({ items, season }: { items: NewsItem[]; season?: nu
                           className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 font-bold tracking-widest text-[10px]"
                           style={{
                             backgroundColor: `color-mix(in srgb, ${teamColor} 14%, transparent)`,
-                            color: teamColor,
+                            color: teamColor ? readableTextColor(teamColor) : undefined,
                           }}
                         >
                           <span

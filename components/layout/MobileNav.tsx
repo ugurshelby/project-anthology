@@ -157,8 +157,8 @@ export function MobileNav() {
                     'touch-target label-caps mx-auto flex min-h-11 w-full max-w-[4.75rem] min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-full px-1 transition-all duration-150 active:scale-95',
                     active
                       ? item.href === '/'
-                        ? 'bg-accent text-text-hi'
-                        : 'bg-accent/15 text-accent'
+                        ? 'bg-[color-mix(in_srgb,var(--accent)_80%,black)] text-text-hi'
+                        : 'bg-accent/15 text-accent-text'
                       : 'text-text-mid',
                   ].join(' ')}
                 >

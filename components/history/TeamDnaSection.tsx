@@ -3,6 +3,7 @@ import { BentoCard } from '@/components/bento/BentoCard';
 import { Link } from '@/i18n/routing';
 import type { DnaStage, TeamDna } from '@/lib/history/dna';
 import { paletteForConstructorId } from '@/lib/history/palette';
+import { readableTextColor } from '@/lib/theme';
 
 interface Props {
   dna: TeamDna;
@@ -123,7 +124,7 @@ export function TeamDnaSection({ dna, selectedYear, teamId }: Props) {
                   <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: s.palette.ui }} />
                   <span className="label-caps flex items-center justify-between gap-2 text-text-low">
                     {multi ? t('chapter', { n: i + 1 }) : <span aria-hidden>&nbsp;</span>}
-                    {current ? <span style={{ color: s.palette.ui }}>{t('current')}</span> : later ? <span>{t('later')}</span> : null}
+                    {current ? <span style={{ color: readableTextColor(s.palette.ui) }}>{t('current')}</span> : later ? <span>{t('later')}</span> : null}
                   </span>
                   <span className="headline-md mt-2 block text-text-hi">{s.name}</span>
                   <span className="data-tabular mt-1 block text-sm text-text-mid">{yearsText(s)}</span>
@@ -134,7 +135,7 @@ export function TeamDnaSection({ dna, selectedYear, teamId }: Props) {
                   <span className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-4 data-tabular text-xs text-text-mid">
                     <span>{t('seasons', { count: s.seasons })}</span>
                     {s.wins > 0 ? <span>{t('wins', { count: s.wins })}</span> : null}
-                    {s.titles.length > 0 ? <span style={{ color: s.palette.ui }}>{t('titles', { count: s.titles.length })}</span> : null}
+                    {s.titles.length > 0 ? <span style={{ color: readableTextColor(s.palette.ui) }}>{t('titles', { count: s.titles.length })}</span> : null}
                   </span>
                 </Link>
               </li>

@@ -57,7 +57,7 @@ export function CircuitLoreCards({ circuitId }: CircuitLoreCardsProps) {
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-accent">
+                  <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-accent-text">
                     {m.year} · {m.tag}
                   </span>
                   <span className="font-mono text-xs text-text-mid font-semibold">

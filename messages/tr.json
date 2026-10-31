@@ -717,7 +717,8 @@
         "connectedTechGlossary": "İLİŞKİLİ TEKNİK KAVRAMLAR",
         "fullGlossary": "Sözlüğe Git →",
         "metaDescription": "{name} teknik dosyası, {engine} motor verileri, aerodinamik inovasyonlar ve {year} sezonu mühendislik dosyası.",
-        "seasonArchive": "{year} SEZONU ARŞİVİNE GİT →"
+        "seasonArchive": "{year} SEZONU ARŞİVİNE GİT →",
+        "seasonBadge": "{year} SEZONU"
       },
       "crossLink": {
         "iconicMachineryArchive": "İkonik Araçlar Koleksiyonu",
